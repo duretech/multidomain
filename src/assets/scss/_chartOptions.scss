@@ -1,0 +1,177 @@
+.totalicons {
+    position: absolute;
+    right   : 15px;
+    width   : 250px;
+    // top     : -5px;
+
+    .icontoggle {
+
+        display        : flex;
+        justify-content: flex-end;
+        align-items    : center;
+        height: 45px;
+
+        .icon {
+            width: 33px;
+        }
+
+        .icon:hover {
+            cursor: pointer;
+        }
+
+        .icon1 {
+            width: 30px;
+        }
+
+        .icon1:hover {
+            cursor: pointer;
+        }
+
+        #collapse-n {
+            transition: all .3s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+        }
+
+        .arrow-btn {
+            padding         : 0.1rem 0.6rem;
+            border-radius   : 50%;
+            background-color: var(--chart-body-color);
+            border          : 0;
+            color           : var(--fonts-white-shade);
+            transition      : all ease 0.5s;
+
+            &:focus {
+                box-shadow      : none !important;
+                background-color: var(--chart-body-color);
+            }
+        }
+
+        .collapse.show+.arrow-btn i {
+            transition: all ease 0.5s;
+            transform : rotate(180deg);
+
+        }
+
+    }
+}
+
+.charticon-overlay {
+    background-color: var(--chart-container-color);
+}
+
+.dqr-main2 .icontoggle{
+    height: 16px !important;
+}
+.anc-highchart1-body,
+.barchart-body {
+
+    .charticon-overlay {
+        background-color: var(--primary-bg-color);
+
+    }
+}
+
+.dropdown-menu.chart-dd-menu {
+    background: var(--chatbot-bg-color);
+}
+
+.commentDropDownBox {
+    background   : var(--chatbot-bg-color);
+    border-radius: 8px;
+    width        : 450px;
+    padding      : 15px 0;
+}
+
+.commentDropDownBox .form-control {
+    background  : var(--chart-body-color);
+    border-color: var(--chart-body-color);
+    color       : var(--color-white)
+}
+
+.highcharts-icons {
+    .totalicons {
+        top: -8px;
+
+        .icontoggle {
+            .arrow-btn {
+
+                background-color: var(--chart-container-color);
+
+
+                &:focus {
+                    box-shadow      : none !important;
+                    background-color: var(--chart-container-color);
+                }
+            }
+        }
+    }
+
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+    color          : #16181b;
+    text-decoration: none;
+}
+
+.dropdown {
+
+    .btn-secondary:focus,
+    .btn-secondary.focus {
+        color     : #fff;
+        box-shadow: 0 0 0 0 var(--chart-container-color);
+    }
+}
+
+.preview-modal-up {
+    .modal-dialog {
+        .modal-content {
+            background-color: var(--primary-bg-color);
+        }
+    }
+}
+
+.chart-dd-menu {
+    background-color: var(--primary-bg-color);
+}
+
+.list-group-item:hover {
+    .dropdown-item {
+        background-color: var(--chart-container-color);
+    }
+}
+
+.list-group-item {
+    padding: 0px !important;
+}
+
+.card-body {
+    .table-responsive {
+        .table {
+            background-color: var(--primary-bg-color) !important;
+        }
+    }
+}
+
+.modal-header {
+    border-bottom: 2px solid var(--border-color);
+
+    .close {
+        // margin-top   : -20px;
+        padding-right: 15px;
+    }
+}
+
+.download-dropdown-ancmodal {
+    .dropdown-menu {
+        z-index: 9999;
+    }
+}
+
+.color-white {
+    color          : var(--color-white) !important;
+    text-decoration: none;
+
+    &:hover {
+        text-decoration: none;
+    }
+}

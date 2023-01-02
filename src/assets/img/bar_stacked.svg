@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="73" height="69" viewBox="0 0 73 69" style="fill:#fff;">
+  <defs>
+    <style>
+      .cls-1 {
+        fill-rule: evenodd;
+      }
+    </style>
+  </defs>
+  <rect x="10" y="4" width="30" height="7"/>
+  <path id="Rectangle_2_copy" data-name="Rectangle 2 copy" class="cls-1" d="M2,0H5V69H2V0ZM5,66H74v3H5V66Z"/>
+  <rect id="Rectangle_1_copy" data-name="Rectangle 1 copy" x="10" y="17" width="37" height="7"/>
+  <rect id="Rectangle_1_copy_2" data-name="Rectangle 1 copy 2" x="10" y="30" width="30" height="7"/>
+  <rect id="Rectangle_1_copy_3" data-name="Rectangle 1 copy 3" x="10" y="43" width="19" height="7"/>
+  <rect id="Rectangle_1_copy_4" data-name="Rectangle 1 copy 4" x="10" y="56" width="11" height="7"/>
+  <path id="Rectangle_1_copy_10" data-name="Rectangle 1 copy 10" class="cls-1" d="M23,56H68v7H23V56Zm8-13H68v7H31V43ZM42,30H68v7H42V30Zm7-13H68v7H49V17ZM42,4H68v7H42V4Zm1,1H67v5H43V5Zm7,13H67v5H50V18ZM43,31H67v5H43V31ZM32,44H67v5H32V44ZM24,57H67v5H24V57Z"/>
+</svg>

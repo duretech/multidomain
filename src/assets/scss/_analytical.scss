@@ -1,0 +1,154 @@
+.analytic-page {
+    background-color: var(--primary-bg-color);
+    position        : relative;
+    // height: 90vh;
+    padding-top     : 70px;
+    padding-bottom  : 50px;
+
+    .analytic {
+        margin-left: 230px;
+
+        // height     : calc(90vh - 20px);
+        &.wide {
+            //margin-top: 59px;
+            height  : auto;
+            //height: calc(100vh - 121px);
+
+            .analytic-charts {
+                height       : auto;
+                border-radius: 10px;
+                overflow-x   : hidden;
+            }
+
+            .wide-row {
+                border-radius   : 10px;
+                background-color: var(--chart-container-color);
+                padding         : 1.5rem !important;
+                //height: auto;
+                height          : 90vh;
+                overflow-y      : auto;
+                overflow-x      : hidden;
+
+                .wide-col-charts {
+                    order       : 1;
+                    padding-left: 0;
+                }
+
+                .wide-col-map {
+                    order        : 2;
+                    padding-right: 0;
+
+                    .map-container {
+                        height: auto;
+
+                        .card-body {
+                            padding-left : 0;
+                            padding-right: 0;
+                        }
+                    }
+                }
+            }
+
+        }
+
+
+
+    }
+
+}
+
+.dropdownmap-col {
+    .dropdown-menu {
+        li {
+            a {
+                padding-left: 5px !important;
+            }
+        }
+    }
+}
+
+@media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) and (-webkit-min-device-pixel-ratio: 1) {
+    .analytic-page {
+        .analytic {
+            margin-left: 0;
+            margin-top : 2px;
+            height     : calc(100vh - 61px) !important;
+            overflow-x : hidden;
+        }
+    }
+
+    .summary {
+        margin-left: 0px !important;
+
+    }
+}
+
+@media (min-width: 1366px) {
+    .analytic-page {
+        .analytic {
+            margin-left: 250px;
+            margin-top : 5px;
+        }
+
+    }
+
+    .summary,
+    .anc {
+        margin-left  : 250px !important;
+        // margin-top: 5px;
+    }
+}
+
+@media (min-width: 1536px) {
+    .analytic-page {
+        .analytic {
+            margin-left: 250px;
+            margin-top : 5px;
+        }
+
+    }
+
+    .summary,
+    .anc {
+        margin-left: 250px !important;
+        margin-top : 5px;
+    }
+}
+
+@media (min-width: 1920px) {
+    .analytic-page {
+        .analytic {
+            margin-left: 306px;
+            margin-top : 5px;
+        }
+
+    }
+
+    .summary,
+    .anc {
+        margin-left: 306px !important;
+        margin-top : 5px;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 1024px) and (orientation:landscape) and (-webkit-min-device-pixel-ratio: 1) {
+    .analytic-page .analytic {
+        margin-left: 0;
+        height     : 100vh;
+        margin-top : 2px;
+    }
+}
+
+.analytic-page .analytic .map-container .map .l-map {
+    height: calc(90vh - 240px);
+}
+
+.analytic-page .analytic .map-container {
+    height: calc(90vh - 85px);
+}
+
+#legend {
+    .select-wrapper:after {
+        top: -4px;
+    }
+}

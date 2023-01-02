@@ -1,0 +1,237 @@
+.ancdashboard-page {
+  background-color: var(--primary-bg-color);
+  position: relative;
+  font-family: var(--body-font-family);
+  color: var(--innertext-font-color) !important;
+  font-size: var(--font-size-chart-sidebar-heading);
+}
+.anc {
+  position: relative;
+  //margin-left: 220px;
+  height: calc(90vh - 0px);
+  //margin-top: 59px;
+}
+.anc-Highcharts-container {
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
+  background-color: var(--chart-container-color);
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 120px);
+  overflow-y: auto;
+}
+
+.anc-summary-container {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 120px);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.anc-summary-body {
+  background-color: var(--primary-bg-color);
+  font-family: var(--body-font-family);
+  font-size: var(--font-size-chart-sidebar-heading);
+  color: var(--innertext-font-color) !important;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--border-color) !important;
+}
+
+.anc-summary-header {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  font-size: var(--font-size-chart-sidebar-heading);
+  border-bottom: 2px solid var(--border-color) !important;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  white-space: normal;
+  text-transform: uppercase;
+}
+
+.anc-image-text {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  // max-width: 16.666667%;
+}
+.anc-summary-countryname {
+  font-size: var(--font-size-p-small-text) !important;
+  position: relative;
+  right: 0px;
+  top: 15px;
+  margin: 0px;
+  &.red {
+    color: var(--bg-red-color) !important;
+  }
+  &.green {
+    color: var(--bg-green-color) !important;
+  }
+}
+
+.anc-dot {
+  height: 50px;
+  width: 50px;
+  background-color: var(--light-purple-color) !important;
+  border-radius: 50%;
+  // text-align: center;
+  // line-height: 3.5rem;
+  font-size: var(--font-size-p-normal-text);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+  font-size: var(--font-size-p-small-text) !important;
+  &.red {
+    background-color: var(--bg-red-color) !important;
+  }
+  &.green {
+    background-color: var(--bg-green-color) !important;
+  }
+}
+.horizontal-label {
+  font-family: var(--body-font-family);
+  color: var(--innertext-font-color) !important;
+  font-size: var(--font-size-p-small-text);
+  padding-top: 10px;
+  text-align: center;
+}
+.horizontal-label-imageText {
+  font-family: var(--body-font-family);
+  color: var(--innertext-font-color) !important;
+  font-size: var(--font-size-p-normal-text);
+  padding-top: 10px;
+}
+.vertical-label {
+  font-family: var(--font-size-p-small-text) !important;
+  color: var(--innertext-font-color) !important;
+  font-size: var(--font-size-p-small-text);
+  max-width: 160px;
+}
+.anc-chart1-header {
+  background-color: var(--primary-bg-color);
+  background: transparent;
+  font-family: var(--heading-font-family);
+  color: var(--innertext-font-color) !important;
+  font-size: var(--font-size-chart-sidebar-heading);
+}
+.anc-chart2-header {
+  background-color: var(--chart-container-color);
+  font-family: var(--heading-font-family);
+  color: var(--innertext-font-color) !important;
+}
+
+.chart-title {
+  text-transform: uppercase;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  white-space: normal;
+  font-size: var(--font-size-chart-sidebar-heading);
+  color: var(--innertext-font-color) !important;
+}
+
+.chart-body {
+  background-color: var(--primary-bg-color) !important;
+  background: transparent;
+  font-family: var(--heading-font-family);
+  color: var(--innertext-font-color) !important;
+  font-size: var(--font-size-p-normal-text);
+  border-radius: 10px !important;
+}
+.anc-highchart1-body {
+  background-color: var(--primary-bg-color);
+  background: transparent !important;
+  font-family: var(--heading-font-family);
+  color: var(--innertext-font-color) !important;
+  border-bottom: 2px solid var(--border-color) !important;
+}
+.anc-highchart2-body {
+  background-color: var(--chart-container-color);
+  background: transparent;
+  font-family: var(--heading-font-family);
+  color: var(--innertext-font-color) !important;
+  border-bottom: 2px solid var(--border-color) !important;
+}
+
+.anc-highchart-body:last-child {
+  border-bottom: 0px solid var(--border-color) !important;
+}
+
+.anc-chartoptions-img {
+  padding-right: 11.2px;
+}
+.anc-chartOptions-collaps {
+  height: 30.4px;
+  width: 32px;
+  background-color: grey;
+  border-radius: 100%;
+  position: relative;
+}
+
+@media only screen and (max-width: 1024px) {
+  .anc {
+    margin-left: 40px;
+  }
+}
+@media only screen and (min-width: 1366px) {
+  .vertical-label,
+  .summary-vertical-tag p {
+    font-size: var(--font-small);
+    color: var(--innertext-font-color) !important;
+    //max-width: fit-content;
+  }
+  .anc-chart2-header,.anc-summary-header,.anc-chart-title {
+    font-size: var(--font-medium);
+    color: var(--innertext-font-color) !important;
+   }
+  .horizontal-label-imageText,.horizontal-label {
+    font-size: var(--font-small);
+  }
+}
+@media only screen and (min-width: 1920px) {
+  .anc {
+    margin-left: 306px;
+    margin-top: 59px;
+  }
+  .anc-chart2-header,.anc-summary-header,.anc-chart-title {
+   font-size: var(--font-medium);
+   color: var(--innertext-font-color) !important;
+  }
+  .vertical-label,
+  .summary-vertical-tag p {
+    font-size: var(--font-medium);
+    color: var(--innertext-font-color) !important;
+  }
+}
+
+
+
+@media only screen 
+  and (min-device-width: 768px) 
+  and (max-device-width: 1024px) 
+  and (orientation: portrait) 
+  and (-webkit-min-device-pixel-ratio: 1) {
+    .anc-Highcharts-container {
+      height: auto;
+     
+    }
+
+    .anc-summary-container {
+     
+      height:auto;
+      
+  }
+  .anc-highchart1-body {
+    background-color: var(--primary-bg-color) !important;
+    
+  }
+  .anc {
+    height: auto;
+  }
+}

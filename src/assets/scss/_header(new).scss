@@ -1,0 +1,29 @@
+.logo-of-dashboard {
+    width: 25px;
+  }
+  .logo-img-header{
+      // width: 18px;
+      background-color: transparent;
+      border:0
+  }
+  .language-change-header {
+    float: right;
+    button {
+      background-color: transparent;
+      border: 0px;
+      outline: none;
+    }
+    button:active {
+      background-color: transparent !important;
+      border: 0px !important;
+    }
+    button:focus {
+      background-color: transparent !important;
+      border: 0px !important;
+    }
+    button:hover {
+      background-color: transparent;
+      border: 0px;
+    }
+  }
+  

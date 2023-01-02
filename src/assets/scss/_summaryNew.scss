@@ -1,0 +1,124 @@
+.summary-page-container {
+  background-color: var(--primary-bg-color);
+  min-height: calc(100vh - 120px);
+}
+
+.summary-page {
+  background-color: var(--chart-container-color);
+  // height: calc(100vh - 60px);
+  border-radius: 10px;
+  margin-top: 55px !important;
+}
+
+.summary-title {
+  font-size: var(--font-small);
+}
+
+.summary-card-bg {
+  background-color: var(--chart-body-color);
+  border-radius: 10px;
+}
+
+.performance-in-card {
+  background-color: var(--new-header-color);
+  display: flex;
+  justify-content: space-between;
+  border-radius: 5px;
+}
+
+.summary-dot {
+  height: 65px;
+  width: 65px;
+  border-radius: 100%;
+  // text-align: center;
+  // line-height: 3.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: var(--font-size-p-normal-text) !important;
+  font-weight: 700;
+  margin: 0 auto;
+
+  &.red {
+    background-color: var(--bg-red-color) !important;
+  }
+
+  &.green {
+    background-color: var(--bg-green-color);
+  }
+}
+
+.view-more-btn {
+  margin-top: -11px;
+}
+
+.summary-view-more-btn {
+  background-color: #343361 !important;
+  border: 3px solid #343361;
+  border-radius: 5px !important;
+  color: var(--light-white-btn-color) !important;
+  text-align: center !important;
+  font-size: var(--font-small);
+  float: right;
+  // box-shadow: var(--primary-bg-color) !important;
+}
+
+.summary-view-more-btn:hover {
+  background-color: #343361 !important;
+  border: 3px solid #343361;
+}
+
+.summary-view-more-btn:focus {
+  background-color: #343361 !important;
+  border: 3px solid #343361;
+}
+
+.emu-status,
+.from-last-year {
+  font-size: var(--font-small);
+}
+
+.na {
+  background-color: var(--footer-components-color);
+  border-radius: 5px;
+}
+
+span {
+  &.green {
+    color: var(--bg-green-color);
+  }
+
+  &.red {
+    color: var(--bg-red-color);
+  }
+
+  &.orange {
+    color: var(--orange-color) !important;
+  }
+}
+
+.indicatorSectionWrap {
+  .card {
+    border: 1px solid var(--chart-container-color);
+    background: var(--chart-container-color);
+  }
+
+  .mainHeader {
+    padding-bottom: 0px !important;
+    // background: #181736;
+
+    h6 {
+      margin-bottom: 0 !important;
+      font-size: 18px!important
+    }
+  }
+
+  .indicatorCardBody {
+    background: var(--chart-container-color);
+  }
+}
+
+.summary-section .card-body{
+    padding-left: 0px !important;
+    padding-right: 0px !important;
+}

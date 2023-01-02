@@ -1,0 +1,112 @@
+.summarydashboard-page {
+  background-color: var(--primary-bg-color) !important;
+  position        : relative;
+  font-family     : var(--body-font-family);
+  color           : var(--fonts-white-shade);
+  font-size       : var(--font-size-chart-sidebar-heading);
+  overflow        : auto;
+  height          : calc(100vh - 60px);
+}
+
+.summary {
+  background-color  : var(--primary-bg-color) !important;
+  font-family       : var(--body-font-family);
+  font-size         : var(--font-size-chart-sidebar-heading);
+  color             : var(--fonts-white-shade);
+  position          : relative;
+  margin-left       : 220px;
+  //height          : calc(90vh - 0px);
+}
+
+.summary-highchart-container {
+  background-color       : var(--chart-container-color) !important;
+  font-size              : var(--font-size-chart-sidebar-heading);
+  color                  : var(--color-white);
+  border-top-left-radius : 10px;
+  border-top-right-radius: 10px;
+  display                : flex;
+  flex-direction         : column;
+  height                 : 90vh;
+  overflow-y             : auto;
+  padding-bottom         : 50px;
+}
+
+.summary-highchart-body,.family-highchart-body {
+  background-color   : var(--chart-container-color) !important;
+  color              : var(--fonts-white-shade);
+  font-size          : var(--font-size-chart-sidebar-heading);
+  // border-bottom   : 2px solid var(--border-color) !important;
+}
+
+.summary-chart-title {
+  font-size         : var(--font-size-chart-sidebar-heading);
+  text-transform    : uppercase;
+  text-overflow     : ellipsis;
+  overflow          : hidden;
+  display           : -webkit-box !important;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  white-space       : normal;
+  color             : var(--innertext-font-color) !important;
+}
+
+.chart-body {
+  background-color: var(--primary-bg-color);
+  background      : transparent;
+  font-family     : var(--heading-font-family);
+  color           : var(--fonts-white-shade);
+  font-size       : var(--font-size-chart-sidebar-heading);
+  border-radius   : 10px;
+
+}
+
+.font-14 button{
+  font-size: 14px !important;
+}
+
+@media (min-width: 1920px) {
+  .summary-highchart1-header {
+    font-size: var(--font-medium);
+    color    : var(--font-white-color);
+    height   : 28px
+  }
+
+  .summary {
+    margin-left: 306px;
+  }
+  .font-14 button{
+    font-size: 16px !important;
+  }
+}
+
+.maincharts {
+  .highcharts-container {
+    .highcharts-root {
+      .highcharts-yaxis {
+        .highcharts-axis-title {
+          fill: #dad7d7 !important
+        }
+      }
+
+    }
+  }
+}
+
+.family-highchart-body .highcharts-container {
+  background-color: var(--primary-bg-color) !important;
+  border-radius: 18px;
+}
+
+.modal-body .family-highchart-body .card-footer{
+
+  p{
+    font-size: 12px !important;
+  }
+  font-size: 12px !important;
+  border: none !important;
+  background-color: var(--chart-container-color) !important;
+}
+
+.leaflet-control-layers-overlays span span{
+  text-transform: capitalize;
+}

@@ -1,0 +1,133 @@
+ /*theme variables creation*/
+
+ @media screen and (min-width: 1920px) {
+    [data-theme="dark"] {
+--font-heading    : 2.25rem !important; //36px
+--font-module     : 1.375rem !important; //22px
+--font-home-module: 1.25rem !important; //20px
+--font-p          : 1.125rem !important; //18px
+--font-sidebar    : 1rem !important; //16px
+--font-medium     : 1rem !important; //16px
+--font-small      : 0.875rem !important; //14px
+    }
+
+   
+}
+ [data-theme="dark"] {
+    --modal-bg-color: #353362;
+     --primary-bg-color                  : #181736;
+     --body-font-family                  : 'Roboto', sans-serif;
+     --heading-font-family               : 'Roboto', sans-serif;
+     --color-white                       : #fff;
+     --color-black                       : #000;
+     --light-white-btn-color             : #ebebe9;
+     --text-black-color                  : #151314;
+     --fonts-white-shade                 : #dad7d7;
+     --yellow-text-color                 : #f4e331;
+     --module-red-bg-color               : #a35445;
+     --module-red-border-color           : #cd8a77;
+     --module-blue-bg-color              : #40839d;
+     --module-blue-border-color          : #3baeda;
+     --module-yellow-bg-color            : #b89f5f;
+     --module-yellow-border-color        : #ffce55;
+     --orange-color                      : #e8bb69;
+     --module-green-bg-color             : #3e905f;
+     --module-green-border-color         : #49df80;
+     --module-purple-bg-color            : #885d88;
+     --module-purple-border-color        : #cb8acb;
+     --half-circle-color                 : #605f65;
+     --chatbot-bg-color                  : #353362;
+     --signoff-bg-color                  : #353362;
+     --chart-container-color             : #12122a;
+     --chart-body-color                  : #181736;
+     --footer-div-color                  : #343261;
+     --footer-components-color           : #353362;
+     --footer-grey-btn-color             : #b5b3a7;
+     --view-more-btn-color               : #12122a;
+     --bg-red-color                      : #d97276;
+     --bg-green-color                    : #5ab276;
+     --light-purple-color                : #353362;
+     --export-btn-color                  : #343361;
+     --chat-body-content-color           : #353362;
+     --chat-msgbox-color                 : #181736;
+     --chat-inside-div-color             : #2a2951;
+     --chat-textbox-color                : #2a2951;
+     --chat-user-sender-bg-color         : #585687;
+     --chat-user-receiver-bg-color       : #181736;
+     --home-page-bg-color                : #020024;
+     --home-page-liner-gradient-color    : linear-gradient(149deg, rgba(2, 0, 36, 1) 0%, rgba(29, 25, 67, 1) 35%, rgba(24, 23, 53, 1) 100%);
+     --active-option-bg-color            : rgb(52, 51, 97);
+     --active-option-liner-gradient-color: linear-gradient(180deg, rgba(52, 51, 97, 1) 0%, rgba(44, 43, 82, 1) 50%);
+     --semicircle-border-color           : #5d5c62;
+     --modal-popup-backdrop-color        : rgb(18 18 42 / 62%);
+     --collapsebtn-active-border-color   : #4cd1ab;
+     --collapsebtn-items                 : #a9a9c2;
+     --border-color                      : #212041;
+     --map-elements-bg-color             : #353362;
+     --dropdown-bg-color                 : #343361;
+     --dropdown-item-bg                  : #2a2951;
+     --dropdown-border-color             : #474675;
+     --control-border-color              : #adb5bd;
+     --modal-header-color                : #212041;
+     --signoff-top-card                  : #2a2951;
+     --signoff-bottom-card               : #343361;
+     --signoff-username                  : #b1b1b4;
+     --signoff-location                  : #bdbdc4;
+     --signoff-comment                   : #bdbdc4;
+     --signoff-card-bg                   : #2a2951;
+     --signoff-dropdown-color            : #474675;
+     --signoff-view-btn                  : #b1adaf;
+     --signoff-low-color                 : #f4665c;
+     --signoff-lowmedium-color           : #f5904c;
+     --signoff-medium-color              : #f5e367;
+     --signoff-highmedium-color          : #80b853;
+     --signoff-high-color                : #528fc5;
+     --signoff-scrollbar-color           : rgba(192, 192, 192, 0.3);
+     --leafletbox-shadow                 : rgba(15, 10, 10, 0.65);
+     --legend-title                      : rgba(235, 233, 233, 0.521);
+     --wide-active                       : #ffffff87;
+     --main-font-color                   : #e5e5e5;
+     --innertext-font-color              : #d9d6d6;
+     --home-main-color                   : #d6d6d6;
+     --home-btn-color                    : #181735;
+     --font-white-color                  : #d9d6d6;
+     --list-red-color                    : #ef5350;
+     --list-green-color                  : #66bb6a;
+     --modal-header-bg                   : #222143;
+     --sidebar-border-left:#4375BC;
+     // font size variables
+     --font-size-heading                 : 2rem; // 32px
+     --font-size-sub-heading             : 1rem; // 16px
+     --font-size-chart-sidebar-heading   : 0.875rem; // 14px
+     --font-size-p-normal-text           : 0.875rem; // 14px
+     --font-size-p-small-text            : 0.75rem; // 12px
+     --font-size-small-text              : 0.625rem; //10px4
+     --font-size-map-legend              : 0.8125rem;
+
+     //new font size for 1920
+     --font-heading    : 2.25rem; //36px
+     --font-module     : 1.25rem; //20px
+     --font-home-module: 1.125rem; //18px
+     --font-p          : 1rem; //16px
+     --font-sidebar    : 0.938rem; //15px
+     --font-medium     : 0.875rem; //14px
+     --font-small      : 0.75rem; //12px
+
+     //new font size for 1536
+     --m-font-heading: 2.063rem; //34px
+     --s-font-heading: 1.813rem; //34px
+
+     //new theme ui colors
+     --new-header-color          : #2E2E48;
+     --new-bg-dark-color         : #181736;
+     --new-footer-color          : #181735;
+     --new-footer-component-color: #343361;
+
+    
+ }
+
+
+
+ /*theme variables creation ends
+normal-default,medium-500-600,bold-700-900
+*/

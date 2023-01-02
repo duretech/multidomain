@@ -1,0 +1,1476 @@
+// .mdgridviewpage-bg {
+//   padding: 20px 0 !important;
+// }
+
+.m-t-20px {
+  margin-top: 20px;
+}
+
+.m-t-40px {
+  margin-top: 20px;
+}
+
+.m-b-20px {
+  margin-bottom: 20px;
+}
+
+.mdgridviewpage-bg {
+  min-height: 100vh;
+  // padding: 20px 40px;
+  background-color: #12122A !important;
+  overflow-x: hidden;
+}
+
+.admin-active .nav-tabs .nav-link.active {
+  background: #181735!important;
+}
+
+.newBlack-theme .mdgridviewpage-bg {
+  background-color: var(--primary-bg-color) !important;
+}
+
+#benchmarkbgdatacontainer .card-body,
+#benchmarkmapcontainer .card-body {
+  padding: 1.25rem;
+}
+
+//  .dashboardchart-container {
+//      background-color: var(--chart-container-color);
+//      ;
+//  }
+
+.dashboardchart-container .card {
+  border: none;
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  background-color: #181735;
+  
+  //color                     : var(--innertext-font-color);
+}
+
+// .newBlack-theme .dashboardchart-container .card .card-header {
+//   background-color: #373a3f;
+// }
+
+.dashboardchart-container .card .card-header {
+  // background-color: #2f2d55;
+  color: #fff;
+  // border-bottom: 2px solid var(--border-color);
+  border-top-left-radius: 10px !important;
+  border-top-right-radius: 10px !important;
+}
+
+.admin-config .card .card-header{
+  background-color: #393856 !important;
+}
+
+.admin-config .nav-tabs .nav-link.active {
+  background-color: #5E57B3;
+}
+.dashboardchart-container .bookmarkchart-card .card-body {
+  padding: 1.25rem;
+}
+
+/* Config - start*/
+
+.md_tabs {
+  .card-header {
+    background-color: #e9e9e9 !important;
+
+    &.nav-pills {
+      padding: 0;
+      width: calc(100vh - 400px);
+
+      li {
+        a {
+          color: #333;
+
+          &.active {
+            color: #fff;
+            background-color: #212121;
+          }
+        }
+      }
+    }
+  }
+
+  // .custom_card_body {
+  //   .stockOut.card-body {
+  //     padding: 0 !important;
+  //   }
+  // }
+  .card-body.tab-pane {
+    padding: 0px 0px 0px 16px !important;
+
+    .md_nested_tabs {
+      .tab-pane.card-body {
+        padding-left: 0px !important;
+      }
+
+      .card {
+        .tabs.border {
+          .card-header {
+            background-color: #f6f6f6;
+            border-top-left-radius: 0px;
+            border-top-right-radius: 0px;
+
+            li {
+              a {
+                color: #d9d9d9;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+/* Config - end*/
+
+.homepageSetup .ministerial-dashboard-homepageblock .card-body {
+  border-radius: 0px !important;
+}
+
+.homepageSetup .analytical-dashboard-homepageblock .card-body {
+  border-radius: 0px !important;
+}
+
+.homepageSetup .interactive-dashboard-homepageblock .card-body {
+  border-radius: 0px !important;
+}
+
+.homepageSetup .dataquality-dashboard-homepageblock .card-body {
+  border-radius: 0px !important;
+}
+
+.homepageSetup .favorites-dashboard-homepageblock .card-body {
+  border-radius: 0px !important;
+}
+
+.mdgridviewpage-bg .nav-tabs {
+  //border-bottom: 2px solid #fff;
+
+  .nav-link.active,
+  .nav-item.show .nav-link {
+    color: #fff;
+    background: linear-gradient(
+      180deg,
+      rgba(47, 46, 89, 1) 48%,
+      rgba(24, 23, 54, 1) 100%
+    );
+    border-color: transparent;
+  }
+
+  .nav-link {
+    margin-bottom: -1px;
+    border: 1px solid transparent;
+    border-top-left-radius: 0.55rem;
+    border-top-right-radius: 0.55rem;
+    color: var(--innertext-font-color) !important;
+    margin-right: 5px;
+
+    &:hover {
+      background: linear-gradient(
+        180deg,
+        rgba(47, 46, 89, 1) 48%,
+        rgba(24, 23, 54, 1) 100%
+      );
+      border-color: transparent;
+    }
+  }
+}
+
+.black-btn {
+  background-color: var(--export-btn-color) !important;
+  border-color: var(--export-btn-color) !important;
+  // border-radius: 30px; 
+}
+
+.footer-section {
+  background-color: var(--primary-bg-color) !important;
+  position: static !important;
+  bottom: 0;
+  width: 100%;
+  padding: 0 4rem;
+}
+
+.user-creation {
+  .card-body .groupCreationtable {
+    border-top-left-radius: 10px !important;
+    border-top-right-radius: 10px !important;
+  }
+
+  .card-body .groupCreationtable .table {
+    background-color: transparent !important;
+  }
+
+  .table .thead-dark th {
+    color: #fff;
+    background-color: #2f2d55;
+    border-color: #2f2d55;
+  }
+}
+
+.md_tabs
+  .card-body.tab-pane
+  .md_nested_tabs
+  .card
+  .tabs.border
+  .card-header
+  li
+  a {
+  &.active,
+  &:active,
+  &:hover {
+    color: var(--innertext-font-color);
+  }
+}
+
+.globalconfigcontainer {
+  .btn:focus,
+  .btn.focus {
+    outline: 0;
+    box-shadow: none;
+  }
+}
+
+.color-conf {
+  .colorDiv {
+    height: 2rem;
+    width: 2rem;
+    border-radius: 5px;
+  }
+
+  .data-btn-item-saved {
+    margin-right: 2rem;
+  }
+
+  .darkGreenDiv {
+    background: #23af8a;
+  }
+
+  .blueDiv {
+    background: #299ac2;
+  }
+
+  .greenDiv {
+    background: #3cc06a;
+  }
+
+  .orangeDiv {
+    background: #f8775a;
+  }
+}
+
+.homepage-bg {
+  background-image: url(../../assets/images/bg2.png);
+  background-repeat: no-repeat;
+  background-position: top right;
+  //height             : 500px;
+  overflow: hidden;
+  background-size: contain;
+
+  .headingText {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #fff;
+  }
+
+  .landing-desc {
+    color: #fff;
+  }
+}
+
+#modal-admin {
+  .modal-header {
+    padding: 8px 15px;
+    border-bottom: 10px !important;
+  }
+
+  .modal-body {
+    padding: 30px 15px;
+  }
+
+  #dropdownnav {
+    width: 295px;
+  }
+
+  #dropdownnav .btn p {
+    font-size: 12px;
+    color: var(--main-font-color);
+  }
+}
+
+.datamappingtopcar {
+  .btn-link {
+    color: #d9d9d9 !important;
+  }
+}
+
+.md_nested_tabs {
+  .card .card-header {
+    // border-bottom: 2px solid #f2f2f2;
+    color: #212121;
+  }
+}
+
+#reportingRateSummaryTarget {
+  color: #212121;
+}
+
+.userMappingTable {
+  .table .thead-dark th {
+    color: #fff;
+    background-color: transparent;
+    border-color: transparent;
+  }
+}
+
+.config-icon-container .colorBox {
+  height: inherit;
+  width: inherit;
+}
+
+.colorBox {
+  border: 1px solid transparent;
+}
+
+.colorBox.active {
+  border: 1px solid #212121;
+}
+
+.bg-newdefault {
+  background-color: #3471ce !important;
+}
+
+.bg-newgreen {
+  background-color: #25984b !important;
+}
+
+.bg-newblack {
+  background-color: #212832 !important;
+}
+
+.appconfing-selectmodulecontainer.modRadio .col {
+  position: relative;
+}
+
+.appconfing-selectmodulecontainer.modRadio .form-group {
+  margin: -34px 0 0 48% !important;
+  width: fit-content;
+}
+
+.pure-checkbox input[type="radio"],
+.pure-radiobutton input[type="radio"] {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+}
+
+.appconfing-selectmodulecontainer.modRadio
+  .form-group
+  .pure-checkbox
+  input[type="radio"]
+  + label:before {
+  height: 30px;
+  width: 30px;
+  border-radius: 0;
+}
+
+.appconfing-selectmodulecontainer.modRadio
+  .form-group
+  .pure-checkbox
+  input[type="radio"]:checked
+  + label:after {
+  content: "\f00c";
+  color: #fff;
+  border-radius: 0;
+  width: 26px;
+  height: 26px;
+  padding: 5px;
+  box-sizing: border-box;
+}
+
+.pure-checkbox input[type="radio"] + label {
+  position: relative;
+  //padding-left       : 2em;
+  vertical-align: middle;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  cursor: pointer;
+}
+
+.appconfing-selectmodulecontainer.modRadio
+  .form-group
+  .pure-checkbox
+  input[type="radio"]
+  + label:before {
+  height: 30px;
+  width: 30px;
+  border-radius: 0;
+}
+
+.pure-checkbox input[type="radio"] + label:before {
+  box-sizing: content-box;
+  content: "";
+  color: #333;
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 14px;
+  height: 14px;
+  margin-top: -9px;
+  border: 2px solid #333;
+  text-align: center;
+  transition: all 0.4s ease;
+}
+
+.pure-checkbox input[type="radio"] + label:after {
+  box-sizing: content-box;
+  content: "";
+  background-color: #333;
+  position: absolute;
+  top: 50%;
+  left: 4px;
+  width: 10px;
+  height: 10px;
+  margin-top: -5px;
+  transform: scale(0);
+  transform-origin: 50%;
+  transition: transform 200ms ease-out;
+}
+
+.pure-checkbox input[type="radio"] + label:after {
+  border-radius: 50%;
+}
+
+.appconfing-selectmodulecontainer.modRadio
+  .form-group
+  .pure-checkbox
+  input[type="radio"]
+  + label {
+  display: block;
+  font: normal normal normal 14px/1 FontAwesome;
+  font-size: inherit;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.appconfing-selectmodulecontainer.modRadio
+  .form-group
+  .pure-checkbox
+  input[type="radio"]:checked
+  + label:after {
+  content: "";
+  color: #fff;
+  border-radius: 0;
+  width: 26px;
+  height: 26px;
+  padding: 5px;
+  box-sizing: border-box;
+}
+.chanage-bg-img {
+  .card {
+    border-color: var(--primary-bg-color);
+  }
+  .card-body {
+    background-color: var(--primary-bg-color);
+  }
+  .add-btn {
+    background-color: var(--signoff-bottom-card);
+  }
+}
+.collapse-section-border{
+    .cursor-pointer{
+        color: var(--color-black);
+    }
+}
+
+.card-body.RMNCH{
+  background-color: transparent !important;
+}
+
+.RMNCH{
+  margin-top: 1rem !important;
+  background-color: #343361;
+  border-radius: 10px;
+  .card-header{
+    color: var(--color-white) !important;
+    .btn-link{
+      color: var(--color-white) !important;
+    }
+  }
+  .card-body{
+    color: var(--color-white) !important;
+  }
+}
+//  .mdgridviewpage-bg {
+//      padding: 0px 0 20px !important;
+//  }
+
+ .m-t-20px {
+     margin-top: 20px;
+ }
+
+ .m-t-40px {
+     margin-top: 20px;
+ }
+
+ .m-b-20px {
+     margin-bottom: 20px;
+ }
+
+ .mdgridviewpage-bg {
+     min-height      : 100vh;
+    //  padding         : 20px 40px;
+     background-color: #12122A !important;
+     overflow-x      : hidden;
+ }
+
+ .newBlack-theme .mdgridviewpage-bg {
+     background-color: var(--primary-bg-color) !important;
+ }
+
+ #benchmarkbgdatacontainer .card-body,
+ #benchmarkmapcontainer .card-body {
+     padding: 1.25rem;
+ }
+
+ //  .dashboardchart-container {
+ //      background-color: var(--chart-container-color);
+ //      ;
+ //  }
+
+ .dashboardchart-container .card {
+     border                      : none;
+     border-top-left-radius      : 15px;
+     border-top-right-radius     : 15px;
+     border-bottom-left-radius   : 10px;
+     border-bottom-right-radius  : 10px;
+     background-color            : #181735;
+     //color                     : var(--innertext-font-color);
+ }
+
+//  .newBlack-theme .dashboardchart-container .card .card-header {
+//      background-color: #373a3f;
+//  }
+
+ .dashboardchart-container .card .card-header {
+    //  background-color: #2f2d55;
+     
+     color        : #fff;
+    //  border-bottom: 2px solid var(--border-color);
+     ;
+     border-top-left-radius : 10px !important;
+     border-top-right-radius: 10px !important;
+ }
+
+ .dashboardchart-container .bookmarkchart-card .card-body {
+     padding: 1.25rem;
+ }
+
+
+ /* Config - start*/
+
+ .md_tabs {
+     .card-header {
+         background-color: #e9e9e9 !important;
+
+         &.nav-pills {
+             padding: 0;
+             width  : calc(100vh - 400px);
+
+             li {
+                 a {
+                     color: #333;
+
+                     &.active {
+                         color           : #fff;
+                         background-color: #212121;
+                     }
+                 }
+             }
+         }
+     }
+
+     // .custom_card_body {
+     //   .stockOut.card-body {
+     //     padding: 0 !important;
+     //   }
+     // }
+     .card-body.tab-pane {
+         padding: 0px 0px 0px 16px !important;
+
+         .md_nested_tabs {
+             .tab-pane.card-body {
+                 padding-left: 0px !important;
+             }
+
+             .card {
+                 .tabs.border {
+                     .card-header {
+                         background-color       : #f6f6f6;
+                         border-top-left-radius : 0px;
+                         border-top-right-radius: 0px;
+
+                         li {
+                             a {
+                                 color: #d9d9d9;
+                             }
+                         }
+                     }
+                 }
+             }
+         }
+     }
+ }
+
+
+ /* Config - end*/
+
+
+ .homepageSetup .ministerial-dashboard-homepageblock .card-body {
+     border-radius: 0px !important;
+ }
+
+ .homepageSetup .analytical-dashboard-homepageblock .card-body {
+     border-radius: 0px !important;
+ }
+
+ .homepageSetup .interactive-dashboard-homepageblock .card-body {
+     border-radius: 0px !important;
+ }
+
+ .homepageSetup .dataquality-dashboard-homepageblock .card-body {
+     border-radius: 0px !important;
+ }
+
+ .homepageSetup .favorites-dashboard-homepageblock .card-body {
+     border-radius: 0px !important;
+ }
+
+ .mdgridviewpage-bg .nav-tabs {
+     //border-bottom: 2px solid #fff;
+
+     .nav-link.active,
+     .nav-item.show .nav-link {
+         color     : #fff;
+         background: linear-gradient(180deg, rgba(47, 46, 89, 1) 48%, rgba(24, 23, 54, 1) 100%);
+         ;
+         border-color: transparent;
+
+     }
+
+     .nav-link {
+         margin-bottom          : -1px;
+         border                 : 1px solid transparent;
+         border-top-left-radius : 0.55rem;
+         border-top-right-radius: 0.55rem;
+         color                  : var(--innertext-font-color);
+         margin-right           : 5px;
+
+         &:hover {
+             background  : linear-gradient(180deg, rgba(47, 46, 89, 1) 48%, rgba(24, 23, 54, 1) 100%);
+             border-color: transparent;
+         }
+     }
+ }
+
+ .black-btn {
+     background-color: var(--export-btn-color);
+     border-color    : var(--export-btn-color) !important;
+
+   
+
+ }
+
+
+ .footer-section {
+     background-color: var(--primary-bg-color) !important;
+     position        : static !important;
+     bottom          : 0;
+     width           : 100%;
+     padding         : 0 4rem;
+ }
+
+ .user-creation {
+     .card-body .groupCreationtable {
+         border-top-left-radius : 10px !important;
+         border-top-right-radius: 10px !important;
+     }
+
+     .card-body .groupCreationtable .table {
+         background-color: transparent !important;
+     }
+
+
+     .table .thead-dark th {
+         color           : #fff;
+         background-color: #2f2d55;
+         border-color    : #2f2d55;
+
+     }
+ }
+
+ .md_tabs .card-body.tab-pane .md_nested_tabs .card .tabs.border .card-header li a {
+
+     &.active,
+     &:active,
+     &:hover {
+         color: var(--innertext-font-color);
+     }
+ }
+
+
+ .globalconfigcontainer {
+
+     .btn:focus,
+     .btn.focus {
+         outline   : 0;
+         box-shadow: none;
+     }
+ }
+
+ .color-conf {
+     .colorDiv {
+         height       : 2rem;
+         width        : 2rem;
+         border-radius: 5px;
+     }
+
+     .data-btn-item-saved {
+         margin-right: 2rem;
+     }
+
+     .darkGreenDiv {
+         background: #23af8a;
+     }
+
+     .blueDiv {
+         background: #299ac2;
+     }
+
+     .greenDiv {
+         background: #3cc06a;
+     }
+
+     .orangeDiv {
+         background: #f8775a;
+     }
+ }
+
+ .homepage-bg {
+     background-image     : url(../../assets/images/bg2.png);
+     background-repeat    : no-repeat;
+     background-position  : top right;
+     //height             : 500px;
+     overflow             : hidden;
+     background-size      : contain;
+
+     .headingText {
+
+         font-size  : 1.8rem !important;
+         font-weight: 600 !important;
+         color      : #fff !important;
+
+         &::placeholder {
+             color: #fff;
+
+         }
+     }
+
+     .landing-desc {
+         color: #fff;
+
+         &::placeholder {
+             color: #fff;
+
+         }
+     }
+ }
+
+
+ #modal-admin {
+     .modal-header {
+         padding: 8px 15px;
+     }
+
+     .modal-body {
+         padding: 30px 15px;
+     }
+
+     #dropdownnav {
+         width: 295px;
+     }
+
+     #dropdownnav .btn p {
+         font-size: 12px;
+         color    : var(--main-font-color);
+     }
+ }
+
+ .datamappingtopcar {
+     .btn-link {
+         color: #333;
+
+     }
+ }
+
+ .md_nested_tabs {
+     .card .card-header {
+        //  border-bottom: 2px solid #f2f2f2;
+         color        : #212121;
+     }
+ }
+
+ #reportingRateSummaryTarget {
+     color: #212121;
+ }
+
+ .userMappingTable {
+     .table .thead-dark th {
+         color           : #fff;
+         background-color: transparent;
+         border-color    : transparent;
+     }
+ }
+
+
+
+ .config-icon-container .colorBox {
+     height: inherit;
+     width : inherit;
+ }
+
+
+ .colorBox {
+     border: 1px solid transparent;
+ }
+
+ .colorBox.active {
+     border: 1px solid #212121
+ }
+
+ .bg-newdefault {
+     background-color: #3471CE !important;
+ }
+
+ .bg-newgreen {
+     background-color: #25984b !important;
+ }
+
+ .bg-newblack {
+     background-color: var(--primary-bg-color) !important;
+ }
+
+ .appconfing-selectmodulecontainer.modRadio .col {
+     position: relative;
+ }
+
+ .appconfing-selectmodulecontainer.modRadio .form-group {
+     margin: -34px 0 0 48% !important;
+     width : fit-content;
+ }
+
+ .pure-checkbox input[type=radio],
+ .pure-radiobutton input[type=radio] {
+     border  : 0;
+     clip    : rect(0 0 0 0);
+     height  : 1px;
+     margin  : -1px;
+     overflow: hidden;
+     padding : 0;
+     position: absolute;
+     width   : 1px;
+ }
+
+ .appconfing-selectmodulecontainer.modRadio .form-group .pure-checkbox input[type="radio"]+label:before {
+     height       : 30px;
+     width        : 30px;
+     border-radius: 0;
+ }
+
+ .appconfing-selectmodulecontainer.modRadio .form-group .pure-checkbox input[type="radio"]:checked+label:after {
+     content      : "\f00c";
+     color        : #fff;
+     border-radius: 0;
+     width        : 26px;
+     height       : 26px;
+     padding      : 5px;
+     box-sizing   : border-box;
+ }
+
+
+ .pure-checkbox input[type=radio]+label {
+     position             : relative;
+     //padding-left       : 2em;
+     vertical-align       : middle;
+     -webkit-user-select  : none;
+     -moz-user-select     : none;
+     -ms-user-select      : none;
+     user-select          : none;
+     cursor               : pointer;
+ }
+
+ .appconfing-selectmodulecontainer.modRadio .form-group .pure-checkbox input[type=radio]+label:before {
+     height       : 30px;
+     width        : 30px;
+     border-radius: 0;
+ }
+
+ .pure-checkbox input[type=radio]+label:before {
+     box-sizing: content-box;
+     content   : "";
+     color     : #333;
+     position  : absolute;
+     top       : 50%;
+     left      : 0;
+     width     : 14px;
+     height    : 14px;
+     margin-top: -9px;
+     border    : 2px solid #333;
+     text-align: center;
+     transition: all 0.4s ease;
+ }
+
+
+ .pure-checkbox input[type=radio]+label:after {
+     box-sizing      : content-box;
+     content         : "";
+     background-color: #333;
+     position        : absolute;
+     top             : 50%;
+     left            : 4px;
+     width           : 10px;
+     height          : 10px;
+     margin-top      : -5px;
+     transform       : scale(0);
+     transform-origin: 50%;
+     transition      : transform 200ms ease-out;
+ }
+
+ .pure-checkbox input[type=radio]+label:after {
+     border-radius: 50%;
+ }
+
+ .appconfing-selectmodulecontainer.modRadio .form-group .pure-checkbox input[type="radio"]+label {
+     display                : block;
+     font                   : normal normal normal 14px/1 FontAwesome;
+     font-size              : inherit;
+     text-rendering         : auto;
+     -webkit-font-smoothing : antialiased;
+     -moz-osx-font-smoothing: grayscale;
+ }
+
+ .appconfing-selectmodulecontainer.modRadio .form-group .pure-checkbox input[type=radio]:checked+label:after {
+     content      : "";
+     color        : #fff;
+     border-radius: 0;
+     width        : 26px;
+     height       : 26px;
+     padding      : 5px;
+     box-sizing   : border-box;
+ }
+
+//  .mdgridviewpage-bg {
+//      padding: 20px 0 20px!important; // admin css
+//  }
+
+ .m-t-20px {
+     margin-top: 20px;
+ }
+
+ .m-t-40px {
+     margin-top: 20px;
+ }
+
+ .m-b-20px {
+     margin-bottom: 20px;
+ }
+
+ .mdgridviewpage-bg {
+     min-height      : 100vh;
+    //  padding         : 20px 40px;
+     background-color:#12122A !important;
+     overflow-x      : hidden;
+ }
+
+ .newBlack-theme .mdgridviewpage-bg {
+     background-color: var(--primary-bg-color) !important;
+ }
+
+ #benchmarkbgdatacontainer .card-body,
+ #benchmarkmapcontainer .card-body {
+     padding: 1.25rem;
+ }
+
+ //  .dashboardchart-container {
+ //      background-color: var(--chart-container-color);
+ //      ;
+ //  }
+
+ .dashboardchart-container .card {
+     border                      : none;
+     border-top-left-radius      : 15px;
+     border-top-right-radius     : 15px;
+     border-bottom-left-radius   : 10px;
+     border-bottom-right-radius  : 10px;
+     background-color            : #181735;
+     //color                     : var(--innertext-font-color);
+ }
+
+//  .newBlack-theme .dashboardchart-container .card .card-header {
+//      background-color: #373a3f;
+//  }
+
+ .dashboardchart-container .card .card-header {
+    //  background-color       : #2f2d55;
+     color                  : #fff;
+    //  border-bottom          : 2px solid var(--border-color);
+     border-top-left-radius : 10px !important;
+     border-top-right-radius: 10px !important;
+ }
+
+
+ .admin-sidebar  .card .card-header{
+   background-color: #393856;
+   
+     color: #C0BFD4 !important;
+     letter-spacing: 0.8px;
+     opacity: 1;
+     font-size: 16px !important;
+     font-weight: 400 !important;
+ }
+
+ .admin-sidebar {
+
+  .ql-snow .ql-stroke{
+    stroke: #fff  !important;
+  }
+ }
+
+ .dashboardchart-container .bookmarkchart-card .card-body {
+     padding: 1.25rem;
+ }
+
+ /* Config - start*/
+
+ .md_tabs {
+     .card-header {
+         background-color: #e9e9e9 !important;
+
+         &.nav-pills {
+             padding: 0;
+             width  : calc(100vh - 400px);
+
+             li {
+                 a {
+                     color: #333;
+
+                     &.active {
+                         color           : #fff;
+                         background-color: #212121;
+                     }
+                 }
+             }
+         }
+     }
+
+     // .custom_card_body {
+     //   .stockOut.card-body {
+     //     padding: 0 !important;
+     //   }
+     // }
+     .card-body.tab-pane {
+         padding: 0px 0px 0px 16px !important;
+
+         .md_nested_tabs {
+             .tab-pane.card-body {
+                 padding-left: 0px !important;
+             }
+
+             .card {
+                 .tabs.border {
+                     .card-header {
+                         background-color       : #f6f6f6;
+                         border-top-left-radius : 0px;
+                         border-top-right-radius: 0px;
+
+                         li {
+                             a {
+                                 color: #d9d9d9;
+                             }
+                         }
+                     }
+                 }
+             }
+         }
+     }
+ }
+
+ /* Config - end*/
+
+ .homepageSetup .ministerial-dashboard-homepageblock .card-body {
+     border-radius: 0px !important;
+ }
+
+ .homepageSetup .analytical-dashboard-homepageblock .card-body {
+     border-radius: 0px !important;
+ }
+
+ .homepageSetup .interactive-dashboard-homepageblock .card-body {
+     border-radius: 0px !important;
+ }
+
+ .homepageSetup .dataquality-dashboard-homepageblock .card-body {
+     border-radius: 0px !important;
+ }
+
+ .homepageSetup .favorites-dashboard-homepageblock .card-body {
+     border-radius: 0px !important;
+ }
+
+ .mdgridviewpage-bg .nav-tabs {
+     //border-bottom: 2px solid #fff;
+
+     .nav-link.active,
+     .nav-item.show .nav-link {
+         color: #fff;
+         background: linear-gradient(180deg,
+                 rgba(47, 46, 89, 1) 48%,
+                 rgba(24, 23, 54, 1) 100%);
+         border-color: transparent;
+     }
+
+     .nav-link {
+         margin-bottom          : -1px;
+         border                 : 1px solid transparent;
+         border-top-left-radius : 0.55rem;
+         border-top-right-radius: 0.55rem;
+         color                  : var(--innertext-font-color);
+         margin-right           : 5px;
+
+         &:hover {
+             background: linear-gradient(180deg,
+                     rgba(47, 46, 89, 1) 48%,
+                     rgba(24, 23, 54, 1) 100%);
+             border-color: transparent;
+         }
+     }
+ }
+
+ .black-btn {
+     background-color: var(--export-btn-color);
+     border-color    : var(--export-btn-color) !important;
+
+    
+ }
+
+ .footer-section {
+     background-color: var(--primary-bg-color) !important;
+     position        : static !important;
+     bottom          : 0;
+     width           : 100%;
+     padding         : 0 4rem;
+ }
+
+ .user-creation {
+     .card-body .groupCreationtable {
+         border-top-left-radius : 10px !important;
+         border-top-right-radius: 10px !important;
+     }
+
+     .card-body .groupCreationtable .table {
+         background-color: transparent !important;
+     }
+
+     .table .thead-dark th {
+         color           : #fff;
+         background-color: #2f2d55;
+         border-color    : #2f2d55;
+     }
+ }
+
+ .md_tabs .card-body.tab-pane .md_nested_tabs .card .tabs.border .card-header li a {
+
+     &.active,
+     &:active,
+     &:hover {
+         color: var(--innertext-font-color);
+     }
+ }
+
+ .md_tabs .card-header.nav-pills li a.active {
+     color           : #fff;
+     background-color: var(--primary-bg-color);
+ }
+
+.datamappingtopcar .md_nested_tabs .md_tabs .card-header.nav-pills li a.active{
+  background: linear-gradient(180deg, rgb(47, 46, 89) 48%, rgb(24, 23, 54) 100%);
+    border-color: transparent;
+}
+
+ .globalconfigcontainer {
+
+     .btn:focus,
+     .btn.focus {
+         outline   : 0;
+         box-shadow: none;
+     }
+ }
+
+ .color-conf {
+     .colorDiv {
+         height       : 2rem;
+         width        : 2rem;
+         border-radius: 5px;
+     }
+
+     .data-btn-item-saved {
+         margin-right: 2rem;
+     }
+
+     .darkGreenDiv {
+         background: #23af8a;
+     }
+
+     .blueDiv {
+         background: #299ac2;
+     }
+
+     .greenDiv {
+         background: #3cc06a;
+     }
+
+     .orangeDiv {
+         background: #f8775a;
+     }
+ }
+
+ .homepage-bg {
+     background-image     : url(../../assets/images/bg2.png);
+     background-repeat    : no-repeat;
+     background-position  : top right;
+     //height             : 500px;
+     overflow             : hidden;
+     background-size      : contain;
+
+     .headingText {
+         font-size  : 1rem;
+         font-weight: 500;
+         color      : #fff;
+     }
+
+     .landing-desc {
+         color: #fff;
+     }
+ }
+
+ #modal-admin {
+     .modal-header {
+         padding: 8px 15px;
+     }
+
+     .modal-body {
+         padding: 30px 15px;
+     }
+
+     #dropdownnav {
+         width: 295px;
+     }
+
+     #dropdownnav .btn p {
+         font-size: 12px;
+         color    : var(--main-font-color);
+     }
+ }
+
+ .datamappingtopcar {
+     .btn-link {
+         color: #333;
+     }
+ }
+
+ .md_nested_tabs {
+     .card .card-header {
+        //  border-bottom: 2px solid #f2f2f2;
+         color        : #212121;
+     }
+ }
+
+ #reportingRateSummaryTarget {
+     color: #212121;
+ }
+
+ .userMappingTable {
+     .table .thead-dark th {
+         color           : #fff;
+         background-color: transparent;
+         border-color    : transparent;
+     }
+ }
+
+ .config-icon-container .colorBox {
+     height: inherit;
+     width : inherit;
+ }
+
+ .colorBox {
+     border: 1px solid transparent;
+ }
+
+ .colorBox.active {
+     border: 1px solid #212121;
+ }
+
+ .bg-newdefault {
+     background-color: #3471ce !important;
+ }
+
+ .bg-newgreen {
+     background-color: #25984b !important;
+ }
+
+ .bg-newblack {
+     background-color: var(--primary-bg-color) !important;
+ }
+
+ .appconfing-selectmodulecontainer.modRadio .col {
+     position: relative;
+ }
+
+ .appconfing-selectmodulecontainer.modRadio .form-group {
+     margin: -34px 0 0 48% !important;
+     width : fit-content;
+ }
+
+ .pure-checkbox input[type="radio"],
+ .pure-radiobutton input[type="radio"] {
+     border  : 0;
+     clip    : rect(0 0 0 0);
+     height  : 1px;
+     margin  : -1px;
+     overflow: hidden;
+     padding : 0;
+     position: absolute;
+     width   : 1px;
+ }
+
+ .appconfing-selectmodulecontainer.modRadio .form-group .pure-checkbox input[type="radio"]+label:before {
+     height       : 30px;
+     width        : 30px;
+     border-radius: 0;
+ }
+
+ .appconfing-selectmodulecontainer.modRadio .form-group .pure-checkbox input[type="radio"]:checked+label:after {
+     content      : "\f00c";
+     color        : #fff;
+     border-radius: 0;
+     width        : 26px;
+     height       : 26px;
+     padding      : 5px;
+     box-sizing   : border-box;
+ }
+
+ .pure-checkbox input[type="radio"]+label {
+     position             : relative;
+     //padding-left       : 2em;
+     vertical-align       : middle;
+     -webkit-user-select  : none;
+     -moz-user-select     : none;
+     -ms-user-select      : none;
+     user-select          : none;
+     cursor               : pointer;
+ }
+
+ .appconfing-selectmodulecontainer.modRadio .form-group .pure-checkbox input[type="radio"]+label:before {
+     height       : 30px;
+     width        : 30px;
+     border-radius: 0;
+ }
+
+ .pure-checkbox input[type="radio"]+label:before {
+     box-sizing: content-box;
+     content   : "";
+     color     : #333;
+     position  : absolute;
+     top       : 50%;
+     left      : 0;
+     width     : 14px;
+     height    : 14px;
+     margin-top: -9px;
+     border    : 2px solid #333;
+     text-align: center;
+     transition: all 0.4s ease;
+ }
+
+ .pure-checkbox input[type="radio"]+label:after {
+     box-sizing      : content-box;
+     content         : "";
+     background-color: #333;
+     position        : absolute;
+     top             : 50%;
+     left            : 4px;
+     width           : 10px;
+     height          : 10px;
+     margin-top      : -5px;
+     transform       : scale(0);
+     transform-origin: 50%;
+     transition      : transform 200ms ease-out;
+ }
+
+ .pure-checkbox input[type="radio"]+label:after {
+     border-radius: 50%;
+ }
+
+ .appconfing-selectmodulecontainer.modRadio .form-group .pure-checkbox input[type="radio"]+label {
+     display                : block;
+     font                   : normal normal normal 14px/1 FontAwesome;
+     font-size              : inherit;
+     text-rendering         : auto;
+     -webkit-font-smoothing : antialiased;
+     -moz-osx-font-smoothing: grayscale;
+ }
+
+ .appconfing-selectmodulecontainer.modRadio .form-group .pure-checkbox input[type="radio"]:checked+label:after {
+     content      : "";
+     color        : #fff;
+     border-radius: 0;
+     width        : 26px;
+     height       : 26px;
+     padding      : 5px;
+     box-sizing   : border-box;
+ }
+
+ .chanage-bg-img {
+     .card {
+         border-color: var(--primary-bg-color);
+     }
+
+     .card-body {
+         background-color: var(--primary-bg-color);
+     }
+
+     .add-btn {
+         background-color: var(--signoff-bottom-card);
+     }
+ }
+
+ .mx-table td{
+  font-size: 14px;
+ }
+
+ .mdgridviewpage-bg.dqrbgchart{
+      padding-bottom: 50px !important;
+ }
