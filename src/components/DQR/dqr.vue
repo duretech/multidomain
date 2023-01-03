@@ -643,7 +643,6 @@ import {
   getLocationName,
   formatSingleDate,
 } from "@/components/Common/commonFunctions";
-// import ChartComponent from "./ChartComponent";
 import SignOff from "@/components/DQR/SignOff";
 import Treeselect from "@riophae/vue-treeselect";
 import summaryChartConfig from "./summaryChartConfig";

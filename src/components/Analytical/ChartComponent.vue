@@ -51,7 +51,7 @@ import standardDeviation from "ml-array-standard-deviation";
 import HighChartTable from "@/components/Analytical/HighChartTable";
 import SetChartMetaDataMixin from "@/helpers/SetChartMetaDataMixin";
 import externalChartConfig from "@/components/DQR/externalChartConfig.js";
-import oChartConfig from "@/components/FPDashboard/analytical/geographical/geographicalchartconfig";
+import oChartConfig from "@/components/Analytical/geographicalChartConfig";
 import HighChartComponent from "@/components/Highcharts/HighChartComponentDynamic";
 
 export default {

@@ -64,7 +64,7 @@ const router = new VueRouter({
 			name: "map",
 			component: () =>
 				import(
-					/*webpackChunkName: 'MapIndicator'*/ "@/pages/FPDashboard/MapIndicator"
+					/*webpackChunkName: 'MapIndicator'*/ "@/pages/MapIndicator"
 				),
 			meta: () => ({ title: i18n.t("mapVisualization") }),
 		},
@@ -78,15 +78,6 @@ const router = new VueRouter({
 			meta: () => ({ title: i18n.t("summary_dashboard") }),
 			props: true,
 		},
-		// {
-		// 	path: "/summary-dashboard",
-		// 	name: "summary-dashboard",
-		// 	component: () =>
-		// 		import(
-		// 			/*webpackChunkName: 'summary-dashboard'*/ "@/pages/FPDashboard/MinisterialPage"
-		// 		),
-		// 	meta: () => ({ title: i18n.t("summary_dashboard") }),
-		// },
 		{
 			path: "/InteractiveDashboard",
 			name: "InteractiveDashboard",
@@ -105,24 +96,6 @@ const router = new VueRouter({
 				),
 			meta: () => ({ title: i18n.t("analytical") }),
 		},
-		// {
-		// 	path: "/analytical-dashboard",
-		// 	name: "analytical-dashboard",
-		// 	component: () =>
-		// 		import(
-		// 			/*webpackChunkName: 'analytical-dashboard'*/ "@/pages/FPDashboard/AnalyticalDashboard"
-		// 		),
-		// 	meta: () => ({ title: i18n.t("analytical") }),
-		// },
-		// {
-		// 	path: "/new-analytical-dashboard",
-		// 	name: "new-analytical-dashboard",
-		// 	component: () =>
-		// 		import(
-		// 			/*webpackChunkName: 'new-analytical-dashboard'*/ "@/pages/FPDashboard/AnalyticalDashboardNew"
-		// 		),
-		// 	meta: () => ({ title: i18n.t("analytical") }),
-		// },
 		{
 			path: "/DQRDashboard",
 			name: "DQRDashboard",
@@ -131,16 +104,6 @@ const router = new VueRouter({
 			meta: () => ({ title: i18n.t("dataQuality") }),
 			props: true,
 		},
-		// {
-		// 	path: "/dqr-dashboard",
-		// 	name: "dqr-dashboard",
-		// 	component: () =>
-		// 		import(
-		// 			/*webpackChunkName: 'dqr-dashboard'*/ "@/pages/FPDashboard/DQRDashboard"
-		// 		),
-		// 	meta: () => ({ title: i18n.t("dataQuality") }),
-		// 	props: true,
-		// },
 		{
 			path: "/SavedFavorites",
 			name: "SavedFavorites",

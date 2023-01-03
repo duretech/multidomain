@@ -3,7 +3,6 @@
     class="home-main position-relative"
     :style="{ backgroundImage: `url(${appData.landingPageBGImg})` }"
   >
-    <D2Header></D2Header>
     <Header
       :headerConditions="{
         home: false,

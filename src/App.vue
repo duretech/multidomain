@@ -1,7 +1,7 @@
 <template>
   <!-- <div id="mainbody" :class="$store.state.currentTheme"> Should be used once themes implemented-->
   <div>
-    
+    <D2Header></D2Header>
     <Loader v-if="$store.state.loading" />
     <sidebar
       @getMenu="getMenu"
