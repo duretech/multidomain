@@ -33,18 +33,28 @@
                     'collapseChartSettings' + index + type + subType
                   "
                 >
-                  <i
+                  <!-- <i
                     class="fa fa-cog f-s-20px pr-2"
                     v-b-tooltip.hover
                     :title="$t('dataMapping')"
-                  ></i>
+                  ></i> -->
+                  <img
+                                        
+                                    src="@/assets/images/icons/adminsetting-icon.svg"
+                                    :style="{ filter: filterColor }"
+                                    class="pr-2 cursor-pointer f-s-20px mb-lg-1"
+                                    v-b-tooltip.hover
+                                      :title="$t('dataMapping')"
+                                    />
+
                   {{ $t(`${name}`) }}
                 </button>
               </h2>
             </div>
+           
             <div
               :id="'collapseChartSettings' + index + type + subType"
-              class="collapse collapse-section-border"
+              class="collapse"
               :aria-labelledby="'headingChartSettings' + index + type + subType"
             >
               <div class="row m-0 mt-4 mb-2">
@@ -142,13 +152,7 @@
                 <div class="col-12 p-b-15px">
                   <div
                     class="
-                      card-header
-                      bg-faint-grey
-                      color-black
-                      border-radius-0
-                      text-uppercase
-                      f-s-0-875rem
-                      font-weight-bold
+                    card-header default-card-border-radius color-black f-s-0-875rem p-10px accordion-header1 f-s-0-875rem font-weight-bold bt-10
                     "
                   >
                     {{ $t("dataMapping") }}
@@ -159,7 +163,7 @@
                     }}
                   </div>
                 </div>
-                <div class="col-12">
+                <div class="col-12 card card-body admin-emucard m-3 mt-15px">
                   <div class="row">
                     <div class="col-6">
                       <div
@@ -221,13 +225,14 @@
                 </div>
               </div>
             </div>
+            <div class="bordertop-grey mt-2"></div>
           </div>
         </div>
         <div class="row pt-4">
           <div class="col text-right">
             <button
               type="button"
-              class="btn btn-primary black-btn"
+              class="btn btn-primary black-btn save-btn"
               v-on:click="updateConfigData"
             >
               {{ $t("savebtn") }}
@@ -239,14 +244,16 @@
   </div>
 </template>
 <script>
-import globalFactorsConfig from "../../../config/globalFactorsConfig.js";
-import service from "../../../service";
+import service from "@/service";
 import merge from "lodash/merge";
 import assign from "lodash/assign";
-import audit from "../audit.js";
+import DynamicImageMixin from "@/helpers/DynamicImageMixin";
+import ReFetchConfigMixin from "@/helpers/ReFetchConfigMixin";
+import globalFactorsConfig from "@/config/globalFactorsConfig.js";
 
 export default {
   props: ["module", "type", "subType"],
+  mixins: [DynamicImageMixin, ReFetchConfigMixin],
   data() {
     return {
       originalContinuationData: [],
@@ -298,9 +305,10 @@ export default {
           }
           this.$store.state.loading = false;
         })
-        .catch((res) => {
+        .catch((err) => {
           console.log("Config not found...");
           this.$store.state.loading = false;
+          this.reFetchConfig(err);
         });
     },
     updateConfigData() {
@@ -333,28 +341,19 @@ export default {
                   [this.subType]: this.continuation,
                 };
               }
-              let configChanges = audit.configAudit(
-                this.originalContinuationData,
-                configData[this.type][this.subType]
-              );
+              let configChanges = {};
+              // let configChanges = audit.configAudit(
+              //   this.originalContinuationData,
+              //   configData[this.type][this.subType]
+              // );
 
               let response = service.updateConfig(configData, key);
               response
                 .then((response) => {
                   if (response.data.status === "OK") {
                     // console.log("response update ", response.data)
-                    this.$swal({
+                    this.sweetAlert({
                       title: this.$i18n.t("data_saved_successfully"),
-                    }).then(() => {
-                      if (Object.keys(configChanges).length) {
-                        audit.processAudit(
-                          "process2",
-                          key,
-                          configChanges,
-                          this.type,
-                          this.subType
-                        );
-                      }
                     });
                     this.$store.commit("setGlobalFactors", {
                       payload: configData,
@@ -364,7 +363,7 @@ export default {
                     );
                     this.$store.state.loading = false;
                   } else {
-                    this.$swal({
+                    this.sweetAlert({
                       title: this.$i18n.t("error"),
                       text: `${response.data.message}`,
                     });
@@ -374,7 +373,7 @@ export default {
                   }
                 })
                 .catch((error) => {
-                  this.$swal({
+                  this.sweetAlert({
                     title: this.$i18n.t("error"),
                   });
 
@@ -393,7 +392,7 @@ export default {
             response.then((response) => {
               if (response.data.status === "OK") {
                 // console.log("response save ", response.data)
-                this.$swal({
+                this.sweetAlert({
                   title: this.$i18n.t("data_saved_successfully"),
                 });
                 this.$store.commit("setGlobalFactors", {
@@ -404,7 +403,7 @@ export default {
                 );
                 this.$store.state.loading = false;
               } else {
-                this.$swal({
+                this.sweetAlert({
                   title: this.$i18n.t("error"),
                   text: `${response.data.message}`,
                 });
@@ -416,9 +415,9 @@ export default {
         })
         .catch(() => {
           this.$store.state.loading = false;
-          this.$swal({
+          this.sweetAlert({
             title: this.$i18n.t("error"),
-            title: this.$i18n.t("table_not_found"),
+            text: this.$i18n.t("table_not_found"),
           });
         });
     },

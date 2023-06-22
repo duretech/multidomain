@@ -4,7 +4,8 @@ const dqrConfig = {
       Background_Data: {
         SStoEMUType: "Yearly",
         FPWomenPopulation: "MWRA",
-        SSDataRecentYear: "2018",
+        startingYear: "2013",
+        SSDataRecentYear: "2023",
         autoSaveEMU: "Commodities_Client",
         emuSaveType: "Custom",
         bgDataSource: "Datastore",
@@ -26,40 +27,6 @@ const dqrConfig = {
                 ],
                 type: "data_element",
                 static_name: "Population",
-              },
-            ],
-          },
-          {
-            name: "Prevalence Data",
-            static_name: "Prevalence Data",
-            subIndicators: [
-              {
-                name: "DHS",
-                color: "#eec549",
-                selectedDE: [],
-                selectedDatastoreDE: [
-                  {
-                    id: "mcpr_dhs",
-                    displayName: "mcpr_dhs",
-                    static_displayName: "",
-                  },
-                ],
-                type: "data_element",
-                static_name: "DHS",
-              },
-              {
-                name: "RMNCH",
-                color: "#e373c9",
-                selectedDE: [],
-                selectedDatastoreDE: [
-                  {
-                    id: "mcpr_rmnch",
-                    displayName: "mcpr_rmnch",
-                    static_displayName: "",
-                  },
-                ],
-                type: "data_element",
-                static_name: "RMNCH",
               },
             ],
           },
@@ -1083,9 +1050,9 @@ const dqrConfig = {
         ],
       },
       Commodities_Client: {
-        disableChart: false,
         initialYear: "",
         finalYear: "",
+        dataOnContraceptive: "Yes",
         derivedCharts: [
           {
             chartOptions: {
@@ -1602,6 +1569,7 @@ const dqrConfig = {
         disableChart: false,
         initialYear: "",
         finalYear: "",
+        dataOnContraceptive: "Yes",
         derivedCharts: [
           {
             chartOptions: {
@@ -2118,6 +2086,7 @@ const dqrConfig = {
         disableChart: false,
         initialYear: "",
         finalYear: "",
+        dataOnContraceptive: "Yes",
         derivedCharts: [
           {
             chartOptions: {
@@ -2634,6 +2603,7 @@ const dqrConfig = {
         disableChart: false,
         initialYear: "",
         finalYear: "",
+        dataOnContraceptive: "Yes",
         derivedCharts: [
           {
             chartOptions: {

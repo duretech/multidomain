@@ -1,89 +1,126 @@
 <template>
   <div class="md_tabs py-3">
-    <b-card no-body class="p-3">
-      <div class="d-flex justify-content-between">
-        <h4>Data Mapping</h4>
-        <div>
-          <b-button class="mr-2 btn btn btn-primary black-btn" @click="saveJson"
-            >Save</b-button
+    <b-card no-body class="p-4">
+      <div class="accordion no-header" role="tablist">
+        <b-card no-body class="mb-1">
+          <b-card-header header-tag="header" class="p-1" role="tab">
+            <b-button block v-b-toggle.accordion-1 variant="info">
+              {{ $t("dataMapping") }}</b-button
+            >
+          </b-card-header>
+          <b-collapse
+            id="accordion-1"
+            visible
+            accordion="my-accordion"
+            role="tabpanel"
           >
-          <b-button
-            class="mx-2 btn btn btn-primary black-btn"
-            @click="showViewEMUPopup"
-            >View Annual EMU</b-button
-          >
-          <b-button
-            class="ml-2 btn btn btn-primary black-btn"
-            @click="showViewEMUPopupMonthly"
-            >View Monthly EMU</b-button
-          >
-        </div>
+            <b-card-body>
+              <b-card-text>
+                <div class="d-flex justify-content-end">
+                  <div class="mb-3">
+                    <b-button
+                      class="mr-2 btn btn btn-primary black-btn save-btn"
+                      @click="saveJson"
+                      >{{ $t("savebtn") }}</b-button
+                    >
+                    <b-button
+                      class="mx-2 btn btn btn-primary black-btn"
+                      @click="showViewEMUPopup"
+                      >{{ $t("viewAnnualEmu") }}</b-button
+                    >
+                    <b-button
+                      class="ml-2 btn btn btn-primary black-btn"
+                      @click="showViewEMUPopupMonthly"
+                      >{{ $t("viewMonthlyEmu") }}</b-button
+                    >
+                  </div>
+                </div>
+                <b-form class="mb-3">
+                  <div
+                    class="d-flex justify-content-between align-items-center my-2"
+                  >
+                    <div class="w-50">
+                      {{ $t("emu_mon_quest") }}
+                    </div>
+                    <b-form-select
+                      class="w-50"
+                      v-model="dqrConfig.emu[type]['dataOnContraceptive']"
+                      :options="dataOnContraceptiveOption"
+                    ></b-form-select>
+                  </div>
+                  <!-- @change="updateDDT(type , $e.target.value)" -->
+                  <div
+                    v-if="dqrConfig.emu[type]['dataOnContraceptive'] === 'Yes'"
+                    class="d-flex justify-content-between align-items-center my-2"
+                  >
+                    <div class="w-50">{{ $t("emu_initial_year_quest") }}</div>
+                    <b-form-input
+                      class="w-50"
+                      id="input-1"
+                      v-model="dqrConfig.emu[type]['initialYear']"
+                      type="number"
+                      placeholder="Enter Year"
+                      required
+                      disabled
+                    ></b-form-input>
+                  </div>
+                  <div
+                    v-if="dqrConfig.emu[type]['dataOnContraceptive'] === 'Yes'"
+                    class="d-flex justify-content-between align-items-center my-2"
+                  >
+                    <div class="w-50">{{ $t("emu_final_year_quest") }}</div>
+                    <b-form-input
+                      class="w-50"
+                      id="input-1"
+                      v-model="dqrConfig.emu[type]['finalYear']"
+                      type="text"
+                      required
+                      disabled
+                    ></b-form-input>
+                  </div>
+                  <div
+                    v-if="dqrConfig.emu[type]['dataOnContraceptive'] === 'Yes'"
+                    class="d-flex justify-content-between align-items-center my-2"
+                  >
+                    <div class="w-50">
+                      {{ $t("mostRecentYearMonth") }}
+                    </div>
+                    <b-form-input
+                      class="w-50"
+                      id="input-1"
+                      v-model="dqrConfig.emu[type]['backTrackedYearMonth']"
+                      type="text"
+                      required
+                      disabled
+                    ></b-form-input>
+                  </div>
+                  <div
+                    v-if="dqrConfig.emu[type]['dataOnContraceptive'] === 'Yes'"
+                    class="d-flex justify-content-between align-items-center my-2"
+                  >
+                    <div class="w-50">{{ $t("backtrackingMonth") }}</div>
+                    <b-form-select
+                      class="w-50"
+                      v-bind:value="computedBackTrackMonth"
+                      :options="backTrackMonth"
+                      @change="updateTrackingYear($event)"
+                    ></b-form-select>
+                  </div>
+                </b-form>
+              </b-card-text>
+            </b-card-body>
+          </b-collapse>
+        </b-card>
       </div>
-      <b-form>
-        <div class="d-flex justify-content-between align-items-center my-2">
-          <div class="w-50">
-            Do you have data on contraceptive commodities ?
-          </div>
-          <b-form-select
-            class="w-50"
-            v-model="dqrConfig.emu[type]['dataOnContraceptive']"
-            :options="dataOnContraceptiveOption"
-          ></b-form-select>
-        </div>
-        <div class="d-flex justify-content-between align-items-center my-2">
-          <div class="w-50">First year of data available</div>
-          <b-form-input
-            class="w-50"
-            id="input-1"
-            v-model="dqrConfig.emu[type]['initialYear']"
-            type="number"
-            placeholder="Enter Year"
-            required
-            disabled
-          ></b-form-input>
-        </div>
-        <div class="d-flex justify-content-between align-items-center my-2">
-          <div class="w-50">Most recent full year of data available</div>
-          <b-form-input
-            class="w-50"
-            id="input-1"
-            v-model="dqrConfig.emu[type]['finalYear']"
-            type="text"
-            required
-            disabled
-          ></b-form-input>
-        </div>
-        <div class="d-flex justify-content-between align-items-center my-2">
-          <div class="w-50">
-            Most recent full year and month of data available
-          </div>
-          <b-form-input
-            class="w-50"
-            id="input-1"
-            v-model="dqrConfig.emu[type]['backTrackedYearMonth']"
-            type="text"
-            required
-            disabled
-          ></b-form-input>
-        </div>
-        <div class="d-flex justify-content-between align-items-center my-2">
-          <div class="w-50">Backtracking Month</div>
-          <b-form-select
-            class="w-50"
-            v-bind:value="computedBackTrackMonth"
-            :options="backTrackMonth"
-            @change="updateTrackingYear($event)"
-          ></b-form-select>
-        </div>
-      </b-form>
-      <b-card-body>
-        <div
-          class="accordion"
-          role="tablist"
-        >
+
+      <b-card-body
+        v-if="dqrConfig.emu[type]['dataOnContraceptive'] === 'Yes'"
+        class="mapping-section mt-2"
+      >
+        <div class="accordion no-header" role="tablist">
           <b-card
             no-body
-            class="mb-1"
+            class="mb-2"
             :key="index"
             v-for="(chart, index) in dqrConfig.emu[type]['chartData']"
           >
@@ -94,28 +131,29 @@
                   v-b-toggle="`accordion-${index}`"
                   variant="info"
                   >{{
-                    Array.isArray(chart.indicator.name)
-                      ? chart.indicator.name[0]
+                    typeof chart.indicator.name == "object"
+                      ? chart.indicator.name[$i18n.locale]
                       : chart.indicator.name
                   }}</b-button
                 >
               </b-card-header>
               <b-collapse
                 :id="`accordion-${index}`"
-                visible
                 accordion="my-accordion1"
                 role="tabpanel"
               >
-                <b-card-body>
-                  <div class="accordion" role="tablist">
-                    <div class="px-3 py-2 heading-card">Data Mapping</div>
+                <div class="mx-4 pt-2 pb-3">
+                  <div class="accordion no-header" role="tablist">
+                    <div class="py-2 heading-card">
+                      {{ $t("dataMapping") }}
+                    </div>
                     <div className="p-4 disable-chart">
                       <b-form-checkbox
                         :id="`checkbox-${chart.indicator.name}`"
                         v-model="chart.indicator.disableChart"
                         :name="`checkbox-${chart.indicator.name}`"
                       >
-                        Disable &nbsp;
+                        {{ $t("disable") }} &nbsp;
                       </b-form-checkbox>
                       <!-- <input type="checkbox" name="disableChart" onChange={(e)
                         => updateInd( index, "disableChart", e.target.value,
@@ -124,54 +162,78 @@
                     <div v-if="!chart.indicator.disableChart">
                       <b-card
                         no-body
-                        class="mb-1"
+                        class="mb-1 mt-2"
                         :key="subindex"
                         v-for="(subi, subindex) in chart.indicator.subIndicator"
                       >
-                        <b-card-header header-tag="header" class="p-1" role="tab">
+                        <b-card-header
+                          header-tag="header"
+                          class="p-1"
+                          role="tab"
+                        >
                           <b-button
                             block
                             v-b-toggle="`accordion-${index}${subindex}`"
                             variant="info"
                           >
                             {{
-                              Array.isArray(subi.name) ? subi.name[0] : subi.name
+                              typeof subi.name == "object"
+                                ? subi.name[$i18n.locale]
+                                : subi.name
                             }}</b-button
                           >
                         </b-card-header>
                         <b-collapse
                           :id="`accordion-${index}${subindex}`"
-                          visible
                           accordion="my-accordion11"
                           role="tabpanel"
                         >
-                          <b-card-body>
+                          <div class="mx-4 pt-2 pb-3">
                             <b-form>
+                              <div
+                                class="d-flex justify-content-between align-items-center"
+                              >
+                                <div>{{ $t("name") }}</div>
+                                <div
+                                  class="d-flex justify-content-end w-50 align-items-center"
+                                >
+                                  <b-form-input
+                                    v-model="subi.name[$i18n.locale]"
+                                    disabled
+                                  ></b-form-input>
+                                  <b-input-group-append is-text class="mx-1">
+                                    <Translations :transText.sync="subi.name" />
+                                  </b-input-group-append>
+                                </div>
+                              </div>
                               <div class="my-3">
                                 <b-form-group
                                   label="Mapping"
                                   v-slot="{ ariaDescribedby }"
                                 >
                                   <b-form-radio
+                                    inline
                                     v-model="subi['type']"
                                     :aria-describedby="ariaDescribedby"
                                     name="some-radios"
                                     value="indicator"
-                                    >Indicator</b-form-radio
+                                    >{{ $t("indicator") }}</b-form-radio
                                   >
                                   <b-form-radio
+                                    inline
                                     v-model="subi['type']"
                                     :aria-describedby="ariaDescribedby"
                                     name="some-radios"
                                     value="data_element"
-                                    >Data Element</b-form-radio
+                                    >{{ $t("dataElement") }}</b-form-radio
                                   >
                                   <b-form-radio
+                                    inline
                                     v-model="subi['type']"
                                     :aria-describedby="ariaDescribedby"
                                     name="some-radios"
                                     value="data_sets"
-                                    >Data Sets</b-form-radio
+                                    >{{ $t("dataSets") }}</b-form-radio
                                   >
                                 </b-form-group>
                               </div>
@@ -217,13 +279,15 @@
                                 </div>
                               </div>
                               <div>
-                                <template
-                                  v-for="(innObj, subind2) in subi.selectedDE"
-                                >
-                                  <div :key="subind2">
+                                <template>
+                                  <div
+                                    class="mt-3"
+                                    v-for="(innObj, subind2) in subi.selectedDE"
+                                    :key="subind2"
+                                  >
                                     <label>{{ innObj.displayName }}</label>
                                     &nbsp;&nbsp;&nbsp;&nbsp;
-                                    <i
+                                    <!-- <i
                                       class="fa fa-trash delButton"
                                       @click="
                                         deleteDe(
@@ -233,26 +297,39 @@
                                           'chartData'
                                         )
                                       "
-                                    ></i>
+                                    ></i> -->
+                                    <img
+                                      src="@/assets/images/icons/admindelete-icon.svg"
+                                      class="delButton f-s-0-875rem w-auto"
+                                      :style="{ filter: filterColor }"
+                                      @click="
+                                        deleteDe(
+                                          index,
+                                          subindex,
+                                          innObj.id,
+                                          'chartData'
+                                        )
+                                      "
+                                    />
                                     <br />
                                   </div>
                                 </template>
                               </div>
                             </b-form>
-                          </b-card-body>
+                          </div>
                         </b-collapse>
                       </b-card>
                     </div>
                   </div>
-                </b-card-body>
+                </div>
               </b-collapse>
             </div>
           </b-card>
         </div>
-        <div class="accordion" role="tablist">
+        <div class="accordion no-header" role="tablist">
           <b-card
             no-body
-            class="mb-1"
+            class="mb-2"
             :key="repoIndex"
             v-for="(repoInd, repoIndex) in dqrConfig.emu[type]['reportingRate']"
           >
@@ -262,8 +339,8 @@
                 v-b-toggle="`accordionRepo-${repoIndex}`"
                 variant="info"
                 >{{
-                  Array.isArray(repoInd.indicator.name)
-                    ? repoInd.indicator.name[0]
+                  typeof repoInd.indicator.name == "object"
+                    ? repoInd.indicator.name[$i18n.locale]
                     : repoInd.indicator.name
                 }}</b-button
               >
@@ -273,20 +350,46 @@
               accordion="my-accordion2"
               role="tabpanel"
             >
-              <b-card-body>
+              <div class="mx-4">
                 <div class="accordion" role="tablist">
                   <!-- <div class="px-3 py-2 heading-card">Data Mapping</div> -->
                   <div className="p-4 disable-chart">
                     <b-form-checkbox
-                      :id="`checkbox-${repoInd.indicator.name}`"
+                      :id="`checkbox-${
+                        typeof repoInd.indicator.name == 'object'
+                          ? repoInd.indicator.name[$i18n.locale]
+                          : repoInd.indicator.name
+                      }`"
                       v-model="repoInd.indicator.disableChart"
-                      :name="`checkbox-${repoInd.indicator.name}`"
+                      :name="`checkbox-${
+                        typeof repoInd.indicator.name == 'object'
+                          ? repoInd.indicator.name[$i18n.locale]
+                          : repoInd.indicator.name
+                      }`"
                     >
-                      Exclude Reporting Rate &nbsp;
+                      {{ $t("excRr") }} &nbsp;
                     </b-form-checkbox>
                     <!-- <input type="checkbox" name="disableChart" onChange={(e)
                       => updateInd( index, "disableChart", e.target.value,
                       "chartData" ) } checked={chart.indicator.disableChart} /> -->
+                    <div
+                      class="d-flex justify-content-between align-items-center"
+                    >
+                      <div>{{ $t("name") }}</div>
+                      <div
+                        class="d-flex justify-content-end w-50 align-items-center"
+                      >
+                        <b-form-input
+                          v-model="repoInd.indicator.name[$i18n.locale]"
+                          disabled
+                        ></b-form-input>
+                        <b-input-group-append is-text class="mx-1">
+                          <Translations
+                            :transText.sync="repoInd.indicator.name"
+                          />
+                        </b-input-group-append>
+                      </div>
+                    </div>
                   </div>
                   <div v-if="!repoInd.indicator.disableChart">
                     <b-card
@@ -304,25 +407,28 @@
                               v-slot="{ ariaDescribedby }"
                             >
                               <b-form-radio
+                                inline
                                 v-model="subrepoId['type']"
                                 :aria-describedby="ariaDescribedby"
                                 name="some-radios"
                                 value="indicator"
-                                >Indicator</b-form-radio
+                                >{{ $t("indicator") }}</b-form-radio
                               >
                               <b-form-radio
+                                inline
                                 v-model="subrepoId['type']"
                                 :aria-describedby="ariaDescribedby"
                                 name="some-radios"
                                 value="data_element"
-                                >Data Element</b-form-radio
+                                >{{ $t("dataElement") }}</b-form-radio
                               >
                               <b-form-radio
+                                inline
                                 v-model="subrepoId['type']"
                                 :aria-describedby="ariaDescribedby"
                                 name="some-radios"
                                 value="data_sets"
-                                >Data Sets</b-form-radio
+                                >{{ $t("dataSets") }}</b-form-radio
                               >
                             </b-form-group>
                           </div>
@@ -368,13 +474,17 @@
                             </div>
                           </div>
                           <div>
-                            <template
-                              v-for="(innObj, subind2) in subrepoId.selectedDE"
-                            >
-                              <div :key="subind2">
+                            <template>
+                              <div
+                                class="mt-3"
+                                v-for="(
+                                  innObj, subind2
+                                ) in subrepoId.selectedDE"
+                                :key="subind2"
+                              >
                                 <label>{{ innObj.displayName }}</label>
                                 &nbsp;&nbsp;&nbsp;&nbsp;
-                                <i
+                                <!-- <i
                                   class="fa fa-trash delButton"
                                   @click="
                                     deleteDe(
@@ -384,7 +494,19 @@
                                       'reportingRate'
                                     )
                                   "
-                                ></i>
+                                ></i> -->
+                                <img
+                                  src="@/assets/images/icons/admindelete-icon.svg"
+                                  class="delButton f-s-0-875rem w-auto"
+                                  @click="
+                                    deleteDe(
+                                      repoIndex,
+                                      subrepoIndex,
+                                      innObj.id,
+                                      'reportingRate'
+                                    )
+                                  "
+                                />
                                 <br />
                               </div>
                             </template>
@@ -395,15 +517,18 @@
                     </b-card>
                   </div>
                 </div>
-              </b-card-body>
+              </div>
             </b-collapse>
           </b-card>
         </div>
-        <div class="accordion" role="tablist">
-          <b-card no-body class="mb-1">
+        <div class="accordion no-header" role="tablist">
+          <b-card no-body class="mb-2">
             <b-card-header header-tag="header" class="p-1" role="tab">
-              <b-button block v-b-toggle="`accordionfp-fpIndex`" variant="info"
-                >FP Source</b-button
+              <b-button
+                block
+                v-b-toggle="`accordionfp-fpIndex`"
+                variant="info"
+                >{{ $t("fpSource") }}</b-button
               >
             </b-card-header>
             <b-collapse
@@ -426,19 +551,20 @@
                   <b-button
                     class="btn btn btn-primary black-btn"
                     @click="saveSectorRepo()"
-                    >Save FP Source Data</b-button
+                    >{{ $t("saveFpData") }}</b-button
                   >
                 </div>
                 <div class="d-flex justify-content-around my-2">
-                  <h6 class="py-2 accordianFp">Public Section</h6>
-                  <h6 class="py-2 accordianFp">Private Medical Sector</h6>
-                  <h6 class="py-2 accordianFp">Other Source</h6>
+                  <h6 class="py-2 accordianFp">{{ $t("public_sector") }}</h6>
+                  <h6 class="py-2 accordianFp">
+                    {{ $t("public_medical_sector") }}
+                  </h6>
+                  <h6 class="py-2 accordianFp">{{ $t("other_source") }}</h6>
                 </div>
                 <div class="d-flex justify-content-around">
                   <div class="text-center mx-3" style="flex: 1 1 30%">
                     <p>
-                      Government Health Facilities and Home/Community
-                      Delivery(%)
+                      {{ $t("gov_health_facilities") }}
                     </p>
                     <b-form-select
                       v-model="sectorObj['governmentHealth']"
@@ -448,7 +574,7 @@
                   </div>
                   <div class="text-center mx-3" style="flex: 1 1 30%">
                     <div>
-                      <p>NGO(%)</p>
+                      <p>{{ $t("ngo") }}</p>
                       <b-form-select
                         v-model="sectorObj['ngo']"
                         :options="form.optionsInFp"
@@ -456,7 +582,7 @@
                       ></b-form-select>
                     </div>
                     <div>
-                      <p>Private Hospital</p>
+                      <p>{{ $t("private_hospital") }}</p>
                       <b-form-select
                         v-model="sectorObj['privateHospital']"
                         :options="form.optionsInFp"
@@ -464,7 +590,7 @@
                       ></b-form-select>
                     </div>
                     <div>
-                      <p>Pharmacy(%)</p>
+                      <p>{{ $t("pharmacy") }}</p>
                       <b-form-select
                         v-model="sectorObj['pharmacy']"
                         :options="form.optionsInFp"
@@ -474,7 +600,7 @@
                   </div>
                   <div class="text-center mx-3" style="flex: 1 1 30%">
                     <div>
-                      <p>Shop/ Church/ Friend(%)</p>
+                      <p>{{ $t("shop_church_friend") }}</p>
                       <b-form-select
                         v-model="sectorObj['shopChurchFriend']"
                         :options="form.optionsInFp"
@@ -482,7 +608,7 @@
                       ></b-form-select>
                     </div>
                     <div>
-                      <p>Other(%)</p>
+                      <p>{{ $t("other") }}</p>
                       <b-form-select
                         v-model="sectorObj['otherSector']"
                         :options="form.optionsInFp"
@@ -497,7 +623,12 @@
         </div>
       </b-card-body>
     </b-card>
-    <b-modal ref="viewEMUAnnual" hide-footer title="Select Location">
+    <b-modal
+      ref="viewEMUAnnual"
+      hide-footer
+      centered
+      :title="$t('selectLocation')"
+    >
       <div class="d-block text-left">
         <treeselect
           :multiple="true"
@@ -509,13 +640,15 @@
           :default-expand-level="1"
         />
       </div>
-      <b-button
-        class="btn btn-primary black-btn mt-2"
-        variant="outline-warning"
-        block
-        @click="fetchEMUData"
-        >Apply</b-button
-      >
+      <div class="d-flex justify-content-end">
+        <b-button
+          class="btn btn-primary black-btn mt-2 w-25 blue-btn"
+          variant="outline-warning"
+          block
+          @click="fetchEMUData"
+          >{{ $t("apply") }}</b-button
+        >
+      </div>
       <div class="col-12" v-if="items && items.length > 0">
         <b-table
           head-variant="light"
@@ -530,9 +663,14 @@
         </b-table>
       </div>
     </b-modal>
-    <b-modal ref="viewEMUMonthly" hide-footer :title="`Select `">
-      <div class="d-block text-left">
-        <h5>Select Location</h5>
+    <b-modal
+      ref="viewEMUMonthly"
+      hide-footer
+      centered
+      :title="$t('selectLocation')"
+    >
+      <div class="d-block text-left default-button modaladmin-heading">
+        <h5>{{ $t("selectLocation") }}</h5>
         <treeselect
           :multiple="true"
           :options="computedLocList"
@@ -543,13 +681,15 @@
           :default-expand-level="1"
         />
       </div>
-      <b-button
-        class="btn btn-primary black-btn mt-2"
-        variant="outline-warning"
-        block
-        @click="fetchEMUDataMonthly"
-        >Apply</b-button
-      >
+      <div class="d-flex justify-content-end">
+        <b-button
+          class="btn btn-primary black-btn blue-btn mt-2 w-25"
+          variant="outline-warning"
+          block
+          @click="fetchEMUDataMonthly"
+          >{{ $t("apply") }}</b-button
+        >
+      </div>
 
       <div class="col-12" v-if="monthlyItems && monthlyItems.length > 0">
         <b-table
@@ -568,11 +708,12 @@
   </div>
 </template>
 <script>
-import { getYearFormated } from "./DataMassaging.js";
+import dataM from "./DataMassaging.js";
 import service from "@/service";
 import Treeselect from "@riophae/vue-treeselect";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 import ModalPopup from "./ModalPopup";
+import DynamicImageMixin from "@/helpers/DynamicImageMixin";
 
 export default {
   props: [
@@ -585,7 +726,15 @@ export default {
     "dataSetList",
     "sectorRepo",
   ],
-  components: { ModalPopup, Treeselect },
+  mixins: [DynamicImageMixin],
+  components: {
+    ModalPopup,
+    Treeselect,
+    Translations: () =>
+      import(
+        /*webpackChunkName: 'translations'*/ "@/components/config/Common/Translations"
+      ),
+  },
   data() {
     return {
       viewEMUPopup: false,
@@ -633,7 +782,7 @@ export default {
       let itemsn = [],
         flds = [];
       if (this.EMUResponse) {
-        let pes = getYearFormated(
+        let pes = dataM.getYearFormated(
           this.dqrConfig.emu[this.type]["initialYear"],
           this.dqrConfig.emu[this.type]["finalYear"]
         );
@@ -736,6 +885,18 @@ export default {
     },
   },
   methods: {
+    updateDDT(type, value) {
+      let findKey = this.dqrConfig.emu.Background_Data.defaultDataType.find(
+        (find) => find === key
+      );
+      if (!findKey && value === "Yes") {
+        this.dqrConfig.emu.Background_Data.defaultDataType.push(key);
+      } else if (findKey && value === "No") {
+        this.dqrConfig.emu.Background_Data.defaultDataType.filter(
+          (remove) => remove === key
+        );
+      }
+    },
     deleteDe(index, subIndex, id, mainKey) {
       let getData = this.dqrConfig,
         type = this.type;
@@ -754,7 +915,7 @@ export default {
       this.$set(this.dqrConfig, "emu", getData.emu);
     },
     getAllDEs(val, index, subIndex, keyType, title, insideOf, emuType) {
-      console.log(val, index, subIndex, keyType, title, insideOf,emuType);
+      console.log(val, index, subIndex, keyType, title, insideOf, emuType);
       let data = this.dqrConfig;
       if (title === "Indicator") {
         console.log("opt1");
@@ -801,21 +962,21 @@ export default {
 
       this.$set(this.dqrConfig, "emu", data.emu);
     },
-        updateSubInd(index, subIndex, key, val, insideOf, emuType) {
-      console.log(this.dqrConfig, index, subIndex, key, val, insideOf, emuType)
+    updateSubInd(index, subIndex, key, val, insideOf, emuType) {
+      console.log(this.dqrConfig, index, subIndex, key, val, insideOf, emuType);
       let getData = this.dqrConfig;
       if (key === "selectedDE") {
         let ar =
-        getData[emuType][this.type][insideOf][index]["indicator"]["subIndicator"][
-          subIndex
-        ]["selectedDE"];
-        getData[emuType][this.type][insideOf][index]["indicator"]["subIndicator"][
-          subIndex
-        ]["selectedDE"] = [...ar, val];
+          getData[emuType][this.type][insideOf][index]["indicator"][
+            "subIndicator"
+          ][subIndex]["selectedDE"];
+        getData[emuType][this.type][insideOf][index]["indicator"][
+          "subIndicator"
+        ][subIndex]["selectedDE"] = [...ar, val];
       } else {
-        getData[emuType][this.type][insideOf][index]["indicator"]["subIndicator"][
-          subIndex
-        ][key] = val;
+        getData[emuType][this.type][insideOf][index]["indicator"][
+          "subIndicator"
+        ][subIndex][key] = val;
       }
       this.dqrConfig = getData;
     },
@@ -840,36 +1001,60 @@ export default {
       // this.dqrConfig = getData;
     },
     saveJson() {
+      // this.dqrConfig.emu_monthly[this.type]["chartData"] =
+      //   this.dqrConfig.emu[this.type]["chartData"];
+
+      this.dqrConfig.emu_monthly[this.type]["chartData"].forEach((obj) => {
+        this.dqrConfig.emu[this.type]["chartData"].forEach((emuObj) => {
+          let subIndArray = obj.indicator.subIndicator;
+          subIndArray.forEach((subObj) => {
+            let statName = subObj.static_name;
+            let findInAnnual = emuObj.indicator.subIndicator.filter((obj) => {
+              return obj.static_name == statName;
+            });
+            if (findInAnnual.length > 0) {
+              subObj["selectedDE"] = findInAnnual[0]["selectedDE"];
+              subObj["de"] = findInAnnual[0]["de"];
+            }
+          });
+        });
+      });
+      this.dqrConfig.emu_monthly.Background_Data.SSDataRecentYear =
+        this.dqrConfig.emu.Background_Data.SSDataRecentYear;
+      this.dqrConfig.emu_monthly[this.type]["finalYear"] =
+        this.dqrConfig.emu[this.type]["finalYear"];
+      this.dqrConfig.emu_monthly[this.type]["initialYear"] =
+        this.dqrConfig.emu[this.type]["initialYear"];
+      this.dqrConfig.emu_monthly[this.type]["dataOnContraceptive"] =
+        this.dqrConfig.emu[this.type]["dataOnContraceptive"];
       this.$store.commit("setLoading", true);
+      let key = this.generateKey("dqrModule");
       service
-        .updateConfig(this.dqrConfig, "dqrModule_en", false, "fp-dashboard")
+        .updateConfig(this.dqrConfig, key, false, "fp-dashboard")
         .then((resp) => {
           if (resp.data.status === "OK") {
             this.$store.commit("setLoading", false);
-            this.$swal({
-              title: "Data updated successfully.",
-              type: "success",
-            }).then(() => {});
+            this.sweetAlert({
+              title: this.$i18n.t("updateSuccessful"),
+            });
           }
         })
         .catch((err) => {
           service
-            .saveConfig(this.dqrConfig, "dqrModule_en", false, "fp-dashboard")
+            .saveConfig(this.dqrConfig, key, false, "fp-dashboard")
             .then((resp) => {
               if (resp.data.status === "OK") {
                 this.$store.commit("setLoading", false);
-                this.$swal({
-                  title: "Data saved successfully.",
-                  type: "success",
-                }).then(() => {});
+                this.sweetAlert({
+                  title: this.$i18n.t("data_saved_successfully"),
+                });
               }
             })
             .catch((er) => {
               this.$store.commit("setLoading", false);
-              this.$swal({
-                title: "Something went wrong. Please try again later.",
-                type: "error",
-              }).then(() => {});
+              this.sweetAlert({
+                title: this.$i18n.t("error2"),
+              });
             });
         });
     },
@@ -886,7 +1071,7 @@ export default {
         this.EMUResponse = null;
         this.setItems = [];
         let locs = this.selectedNode.join(";");
-        let pes = getYearFormated(
+        let pes = dataM.getYearFormated(
           this.dqrConfig.emu[this.type]["initialYear"],
           this.dqrConfig.emu[this.type]["finalYear"]
         );
@@ -918,17 +1103,15 @@ export default {
                 this.EMUResponse = response.data;
               } else {
                 this.$store.commit("setLoading", false);
-                this.$swal({
-                  title: "EMU not saved for this location.",
-                  icon: "error",
+                this.sweetAlert({
+                  title: this.$i18n.t("emuNotForLocation"),
                 });
               }
             });
         } else {
           this.$store.commit("setLoading", false);
-          this.$swal({
-            title: "Data Element not exist",
-            icon: "error",
+          this.sweetAlert({
+            title: this.$i18n.t("DataNotExists"),
           });
         }
       }
@@ -973,24 +1156,22 @@ export default {
                 this.EMUResponseMonthly = response.data;
               } else {
                 this.$store.commit("setLoading", false);
-                this.$swal.fire({
-                  title: "EMU not saved for this location.",
-                  icon: "error",
+                this.sweetAlert({
+                  title: this.$i18n.t("emuNotForLocation"),
                 });
               }
             });
         } else {
           this.$store.commit("setLoading", false);
-          this.$swal.fire({
-            title: "Data Element not exist",
-            icon: "error",
+          this.sweetAlert({
+            title: this.$i18n.t("DataNotExists"),
           });
         }
       }
     },
     saveSectorRepo() {
       let repoData = this.sectorRepo ? this.sectorRepo : {};
-      console.log(repoData , this.selectedNodeFpIndex, this.type);
+      console.log(repoData, this.selectedNodeFpIndex, this.type);
       let loc = this.sectorRepo[this.selectedNodeFpIndex];
       if (!repoData[this.selectedNodeFpIndex]) {
         repoData[this.selectedNodeFpIndex] = {};
@@ -1006,30 +1187,25 @@ export default {
       newObj["sectorReporting"] = repoData;
       console.log(newObj);
       console.log(repoData);
+      let key = this.generateKey("annualSectorReporting");
       service
-        .updateConfig(newObj, "annualSectorReporting_en", false, "fp-dashboard")
+        .updateConfig(newObj, key, false, "fp-dashboard")
         .then((resp) => {
           this.$store.commit("setLoading", true);
           if (resp.data.status === "OK") {
             this.$store.commit("setLoading", false);
-            this.$swal
-              .fire({
-                title: "Data updated successfully.",
-                icon: "success",
-              })
-              .then(() => {});
+            this.sweetAlert({
+              title: this.$i18n.t("updateSuccessful"),
+            });
           }
         })
         .catch((err) => {
           this.$store.commit("setLoading", false);
           // //console.log(err)
           // //console.log("Something went wrong");
-          this.$swal
-            .fire({
-              title: "Something went wrong. Please try again later.",
-              icon: "error",
-            })
-            .then(() => {});
+          this.sweetAlert({
+            title: this.$i18n.t("error2"),
+          });
         });
     },
     updateLocation() {

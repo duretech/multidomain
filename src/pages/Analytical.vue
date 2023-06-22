@@ -11,17 +11,18 @@
       @activateTour="activateTour"
     />
     <div
-      class="analytic"
+      class="analytic analytic-section"
       ref="main"
       :class="{ wide: this.$store.state.defaultViewType === 'wide' }"
     >
       <b-container fluid>
         <DynamicAnalytical
-          :selectedData="selectedData"
-          :locationPeriod="locationPeriod"
           @flag="flag"
-          :reportChartData="reportChartData"
+          :selectedData="selectedData"
+          :preFetchData="preFetchData"
+          :locationPeriod="locationPeriod"
           @setReportChart="setReportChart"
+          :reportChartData="reportChartData"
         />
         <!-- v-if="configData && locationPeriod" -->
       </b-container>
@@ -36,6 +37,7 @@
 import service from "@/service";
 import ResetMenuMixin from "@/helpers/ResetMenuMixin";
 import DocumentTitleMixin from "@/helpers/DocumentTitleMixin";
+import ReFetchConfigMixin from "@/helpers/ReFetchConfigMixin";
 import LanguageChangeMixin from "@/helpers/LanguageChangeMixin";
 import EmitTourCallbackMixin from "@/helpers/EmitTourCallbackMixin";
 import DynamicAnalytical from "@/components/Analytical/DynamicAnalytical.vue";
@@ -43,13 +45,14 @@ import DynamicAnalytical from "@/components/Analytical/DynamicAnalytical.vue";
 export default {
   props: [
     "reportPeriod",
+    "preFetchData",
+    "reportChartData",
+    "reportConfigData",
+    "reportPeriodType",
+    "reportSubLevelID",
     "reportLocationValue",
     "reportDefaultLevelID",
     "reportDefaultLocationID",
-    "reportSubLevelID",
-    "reportPeriodType",
-    "reportChartData",
-    "reportConfigData",
   ],
   components: {
     DynamicAnalytical,
@@ -57,6 +60,7 @@ export default {
   mixins: [
     ResetMenuMixin,
     DocumentTitleMixin,
+    ReFetchConfigMixin,
     LanguageChangeMixin,
     EmitTourCallbackMixin,
   ],
@@ -111,9 +115,10 @@ export default {
           this.setTab();
           this.$store.commit("setLoading", false);
         })
-        .catch(() => {
+        .catch((err) => {
           console.log("Config not found...");
           this.$store.commit("setLoading", false);
+          this.reFetchConfig(err);
         });
     },
     setTab() {
@@ -133,7 +138,7 @@ export default {
           }
         }
       }
-      if (this.configData.length && !this.activeTab) {
+      if (this.configData?.length && !this.activeTab) {
         this.$store.commit(
           "setActiveTab",
           `${this.configData[tabInd].group}-${this.configData[tabInd].id}-${this.configData[tabInd].subTabs[subTabInd].id}`

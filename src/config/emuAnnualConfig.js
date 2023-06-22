@@ -4,7 +4,8 @@ const dqrConfig = {
       Background_Data: {
         SStoEMUType: "Yearly",
         FPWomenPopulation: "MWRA",
-        SSDataRecentYear: "2018",
+        startingYear: "2013",
+        SSDataRecentYear: "2023",
         defaultEMU: "Commodities_Client",
         bgDataSource: "Datastore",
         defaultDataType: [],

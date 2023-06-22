@@ -6,32 +6,54 @@
         card
         lazy
         nav-class="p-0"
-        nav-wrapper-class="adminConfig"
+        nav-wrapper-class="adminConfig admin-fptheme"
       >
         <!-- Render Tabs, supply a unique `key` to each tab -->
         <b-tab
           v-for="(tab, i) in tabs"
           :key="'dyn-tab-' + tab.id"
-          class="pl-2 pb-2 pt-0 pr-0"
+          class="pl-2 pb-2 pt-0 pr-0 submodule-spacing"
         >
           <template #title>
-            <i
+            <span class="main-tabs" style="display: none">
+              <!-- <i
               class="fa fa-arrow-up mr-2 cursor-pointer f-s-0-875rem"
               v-b-tooltip.hover
               title="Move Up"
               @click.prevent.stop="
                 moveItem({ type: 'tab', tInd: i, places: -1 })
               "
-            ></i>
-            <i
+            ></i> -->
+              <img
+                src="@/assets/images/icons/up-adminarrow.svg"
+                class="mx-1 mr-2 cursor-pointer f-s-0-875rem w-auto"
+                v-b-tooltip.hover
+                :title="$t('moveUp')"
+                @click.prevent.stop="
+                  moveItem({ type: 'tab', tInd: i, places: -1 })
+                "
+                :style="{ filter: filterColor }"
+              />
+              <!-- <i
               class="fa fa-arrow-down mr-2 cursor-pointer f-s-0-875rem"
               v-b-tooltip.hover
               title="Move Down"
               @click.prevent.stop="
                 moveItem({ type: 'tab', tInd: i, places: 1 })
               "
-            ></i>
-            <i
+            ></i> -->
+              <img
+                src="@/assets/images/icons/down-adminarrow.svg"
+                class="mr-2 cursor-pointer f-s-0-875rem w-auto"
+                :style="{ filter: filterColor }"
+                v-b-tooltip.hover
+                :title="$t('moveDown')"
+                @click.prevent.stop="
+                  moveItem({ type: 'tab', tInd: i, places: 1 })
+                "
+              />
+
+              <!-- <i
               class="fa fa-edit mr-2 f-s-0-875rem"
               v-b-tooltip.hover
               :title="$t('edit')"
@@ -44,31 +66,70 @@
                   showGroups: tab.showGroups,
                 })
               "
-            ></i>
-            <i
+            ></i> -->
+              <img
+                src="@/assets/images/icons/edit-adminicon.svg"
+                class="mr-2 cursor-pointer f-s-0-875rem w-14"
+                :style="{ filter: filterColor }"
+                v-b-tooltip.hover
+                :title="$t('edit')"
+                @click="
+                  updateTab({
+                    type: 'type11',
+                    tabName: tab.tabName[$i18n.locale],
+                    tInd: i,
+                    group: tab.group,
+                    showGroups: tab.showGroups,
+                  })
+                "
+              />
+              <span class="mr-2 translate-icon">
+                <Translations :transText.sync="tab.tabName" />
+              </span>
+              <!-- <i
               class="fa fa-trash mr-2 f-s-0-875rem"
               v-b-tooltip.hover
               :title="$t('deletebtn')"
               @click="deleteElement({ type: 'tab', tInd: i })"
-            ></i>
-            {{ tab.tabName }}
+            ></i> -->
+              <img
+                src="@/assets/images/icons/admindelete-icon.svg"
+                class="mr-2 cursor-pointer f-s-0-875rem w-auto"
+                :style="{ filter: filterColor }"
+                v-b-tooltip.hover
+                :title="$t('deletebtn')"
+                @click="deleteElement({ type: 'tab', tInd: i })"
+              />
+            </span>
+            <span class=""> {{ tab.tabName[$i18n.locale] }} </span>
           </template>
+
           <div>
-            <b-card no-body>
+            <b-card no-body class="border-adminmodule">
               <b-tabs
                 card
                 lazy
-                nav-class="p-0 m-0"
-                nav-wrapper-class="adminConfigInner p-0"
+                :nav-class="[isOpenTabs ? 'p-0 m-0' : 'p-0 m-0 hideTabs']"
+                nav-wrapper-class="adminConfigInner main-tabsection p-0 mb-3 mt-11px"
               >
+                <div class="add-tabs" :class="{ rotateArrow: isOpenTabs }">
+                  <img
+                    src="@/assets/images/icons/icon-collapse.svg"
+                    :style="{ filter: filterColor }"
+                    class="mr-2 cursor-pointer f-s-0-875rem w-auto"
+                    @click="isOpenTabs = !isOpenTabs"
+                  />
+                </div>
+                <div class="border-main"></div>
                 <!-- Render Tabs, supply a unique `key` to each tab -->
                 <b-tab
                   v-for="(subTab, j) in tab.subTabs"
                   :key="'dyn-sub-tab-' + subTab.id"
-                  class="border"
+                  class="border mt-3"
                 >
                   <template #title>
-                    <i
+                    <span class="main-tabs">
+                      <!-- <i
                       class="fa fa-arrow-left mr-2 cursor-pointer f-s-0-875rem"
                       v-b-tooltip.hover
                       title="Move Left"
@@ -80,8 +141,23 @@
                           places: -1,
                         })
                       "
-                    ></i>
-                    <i
+                    ></i> -->
+                      <img
+                        src="@/assets/images/icons/admin-leftarrow.svg"
+                        class="mr-2 cursor-pointer f-s-0-875rem w-auto"
+                        :style="{ filter: filterColor }"
+                        v-b-tooltip.hover
+                        :title="$t('moveLeft')"
+                        @click.prevent.stop="
+                          moveItem({
+                            type: 'subTab',
+                            tInd: i,
+                            stInd: j,
+                            places: -1,
+                          })
+                        "
+                      />
+                      <!-- <i
                       class="fa fa-arrow-right mr-2 cursor-pointer f-s-0-875rem"
                       v-b-tooltip.hover
                       title="Move Right"
@@ -93,8 +169,23 @@
                           places: 1,
                         })
                       "
-                    ></i>
-                    <i
+                    ></i> -->
+                      <img
+                        src="@/assets/images/icons/right-adminarrow.svg"
+                        :style="{ filter: filterColor }"
+                        class="mr-2 cursor-pointer f-s-0-875rem w-auto"
+                        v-b-tooltip.hover
+                        :title="$t('moveRight')"
+                        @click.prevent.stop="
+                          moveItem({
+                            type: 'subTab',
+                            tInd: i,
+                            stInd: j,
+                            places: 1,
+                          })
+                        "
+                      />
+                      <!-- <i
                       class="fa fa-edit mr-2 f-s-0-875rem"
                       v-b-tooltip.hover
                       :title="$t('edit')"
@@ -106,24 +197,56 @@
                           stInd: j,
                         })
                       "
-                    ></i>
-                    <i
+                    ></i> -->
+                      <img
+                        src="@/assets/images/icons/edit-adminicon.svg"
+                        :style="{ filter: filterColor }"
+                        class="mr-2 cursor-pointer f-s-0-875rem w-14"
+                        v-b-tooltip.hover
+                        :title="$t('edit')"
+                        @click="
+                          updateTab({
+                            type: 'type21',
+                            tabName: subTab.tabName[$i18n.locale],
+                            tInd: i,
+                            stInd: j,
+                          })
+                        "
+                      />
+                      <span class="mr-1 translate-icon">
+                        <Translations :transText.sync="subTab.tabName" />
+                      </span>
+                      <!-- <i
                       class="fa fa-trash mr-2 f-s-0-875rem"
                       v-b-tooltip.hover
                       :title="$t('deletebtn')"
                       @click="
                         deleteElement({ type: 'subTab', tInd: i, stInd: j })
                       "
-                    ></i>
-                    {{ subTab.tabName }}
+                    ></i> -->
+                      <img
+                        src="@/assets/images/icons/admindelete-icon.svg"
+                        :style="{ filter: filterColor }"
+                        class="mr-2 cursor-pointer f-s-0-875rem w-14 mx-1"
+                        v-b-tooltip.hover
+                        :title="$t('deletebtn')"
+                        @click="
+                          deleteElement({ type: 'subTab', tInd: i, stInd: j })
+                        "
+                      />
+                    </span>
+                    <span class="">{{ subTab.tabName[$i18n.locale] }}</span>
                   </template>
+
                   <b-row v-if="tab.group">
                     <b-col sm="12">
                       <b-row class="mb-3">
-                        <b-col sm="5">
-                          <label :for="`type-tabGroup-${i}-${j}`">Group</label>
+                        <b-col sm="4">
+                          <label :for="`type-tabGroup-${i}-${j}`">{{
+                            $t("group")
+                          }}</label>
                         </b-col>
-                        <b-col sm="7">
+                        <b-col sm="8">
                           <b-form-select
                             :id="`type-tabGroup-${i}-${j}`"
                             v-model="subTab.group"
@@ -141,22 +264,30 @@
                     </b-col>
                     <b-col sm="12">
                       <b-row class="mb-3">
-                        <b-col sm="5">
+                        <b-col sm="4">
                           <label :for="`type-tabSummary-${i}-${j}`">{{
                             $t("catInformation")
                           }}</label>
                         </b-col>
-                        <b-col sm="7">
-                          <vue-editor
-                            :id="`type-tabSummary-${i}-${j}`"
-                            v-model="subTab.categoryInfo"
-                            :state="
-                              subTab.categoryInfo &&
-                              subTab.categoryInfo.length !== 0
-                            "
-                            :editorToolbar="customToolbar"
-                            :placeholder="$t('enter_category_information')"
-                          ></vue-editor>
+                        <b-col sm="8" class="input-lang">
+                          <b-input-group :id="`type-tabSummary-${i}-${j}`">
+                            <vue-editor
+                              v-model="subTab.categoryInfo[$i18n.locale]"
+                              :state="
+                                subTab.categoryInfo &&
+                                subTab.categoryInfo[$i18n.locale] &&
+                                subTab.categoryInfo[$i18n.locale].length !== 0
+                              "
+                              :editorToolbar="customToolbar"
+                              disabled
+                            ></vue-editor>
+                            <b-input-group-append is-text>
+                              <Translations
+                                :transText.sync="subTab.categoryInfo"
+                                type="editor"
+                              />
+                            </b-input-group-append>
+                          </b-input-group>
                         </b-col>
                       </b-row>
                     </b-col>
@@ -169,12 +300,12 @@
                       "
                     >
                       <b-row class="mb-3">
-                        <b-col sm="5">
-                          <label :for="`type-linkToIntegrated-${i}-${j}`"
-                            >Link to Integrated Dashboard</label
-                          >
+                        <b-col sm="4">
+                          <label :for="`type-linkToIntegrated-${i}-${j}`">{{
+                            $t("LinkIC")
+                          }}</label>
                         </b-col>
-                        <b-col sm="7">
+                        <b-col sm="8">
                           <b-form-checkbox
                             :id="`type-linkToIntegrated-${i}-${j}`"
                             class="mr-n2 mb-n1 mt-1"
@@ -206,182 +337,275 @@
                       />
                     </transition>
                   </template>
+
                   <template v-if="subTab.backgroundData">
-                    <div
-                      class="
-                        card-header
-                        color-black
-                        text-uppercase
-                        f-s-0-875rem
-                        font-weight-bold
-                      "
-                    >
-                      Background Factors
+                    <div class="accordion mb-2" role="tablist">
+                      <b-card no-body class="mb-1">
+                        <b-card-header
+                          header-tag="header"
+                          class="p-1 map-header f-s-0-875rem font-weight-bold"
+                          role="tab"
+                        >
+                          <b-button
+                            block
+                            v-b-toggle.accordion-bg1
+                            variant="info"
+                          >
+                            {{ $t("backgroundFactors") }}</b-button
+                          >
+                        </b-card-header>
+                        <b-collapse
+                          id="accordion-bg1"
+                          accordion="my-accordion"
+                          role="tabpanel"
+                          class="border-module"
+                        >
+                          <b-card-body>
+                            <b-card-text>
+                              <BackgroundData
+                                :i="i"
+                                :j="j"
+                                :moduleKey="moduleKey"
+                                :subTabGroup="subTab.group"
+                                :charts="subTab.chartSetting"
+                                :backgroundData="subTab.backgroundData"
+                                v-bind.sync="subTab.backgroundData"
+                              />
+                            </b-card-text>
+                          </b-card-body>
+                        </b-collapse>
+                      </b-card>
                     </div>
-                    <BackgroundData
-                      :i="i"
-                      :j="j"
-                      :moduleKey="moduleKey"
-                      :subTabGroup="subTab.group"
-                      :backgroundData="subTab.backgroundData"
-                      v-bind.sync="subTab.backgroundData"
-                    />
                   </template>
                   <template v-if="moduleKey === 'dqrDashboard'">
-                    <div
-                      class="
-                        card-header
-                        color-black
-                        text-uppercase
-                        f-s-0-875rem
-                        font-weight-bold
-                      "
-                    >
-                      Sign Off Questions
+                    <div class="accordion" role="tablist">
+                      <b-card no-body class="mb-1">
+                        <b-card-header
+                          header-tag="header"
+                          class="p-1 map-header f-s-0-875rem font-weight-bold"
+                          role="tab"
+                        >
+                          <b-button
+                            block
+                            v-b-toggle.accordion-sq1
+                            variant="info"
+                          >
+                            {{ $t("signOffQ") }}</b-button
+                          >
+                        </b-card-header>
+                        <b-collapse
+                          id="accordion-sq1"
+                          accordion="my-accordion"
+                          role="tabpanel"
+                          class="border-module"
+                        >
+                          <b-card-body class="mb-lg-n3">
+                            <b-card-text>
+                              <SignOff
+                                :i="i"
+                                :j="j"
+                                :moveItem="moveItem"
+                                :questions="subTab.questions"
+                                v-bind.sync="subTab.questions"
+                                :actionOnQuestion="actionOnQuestion"
+                              />
+                            </b-card-text>
+                          </b-card-body>
+                        </b-collapse>
+                      </b-card>
                     </div>
-                    <SignOff
-                      :i="i"
-                      :j="j"
-                      :moveItem="moveItem"
-                      :questions="subTab.questions"
-                      v-bind.sync="subTab.questions"
-                      :actionOnQuestion="actionOnQuestion"
-                    />
                   </template>
                   <template
                     v-if="
                       moduleKey === 'analyticalDashboard' && subTab.mapSetting
                     "
                   >
-                    <div
-                      class="
-                        card-header
-                        color-black
-                        text-uppercase
-                        f-s-0-875rem
-                        font-weight-bold
-                      "
-                    >
-                      Map Settings
-                    </div>
-                    <div class="p-2 border mb-3">
-                      <ChartMapSettings
-                        :i="i"
-                        :j="j"
-                        :tabs="tabs"
-                        :copy="copy"
-                        :tabId="tab.id"
-                        :copyTo="copyTo"
-                        :moveItem="moveItem"
-                        :subTabId="subTab.id"
-                        :moduleKey="moduleKey"
-                        configKey="mapSetting"
-                        :subTabGroup="subTab.group"
-                        :applyPalette="applyPalette"
-                        :levelsSelect="levelsSelect"
-                        :settings="subTab.mapSetting"
-                        :deleteElement="deleteElement"
-                        v-bind.sync="subTab.mapSetting"
-                        :updateBenchmarks="updateBenchmarks"
-                      />
-                      <b-row v-if="subTab.mapSetting.length === 0">
-                        <b-col sm="12" class="text-center">
-                          Settings not available.
-                        </b-col>
-                      </b-row>
+                    <div class="accordion mt-2" role="tablist">
+                      <b-card no-body class="mb-1">
+                        <b-card-header
+                          header-tag="header"
+                          class="p-1 map-header f-s-0-875rem font-weight-bold"
+                          role="tab"
+                        >
+                          <b-button block v-b-toggle.accordion-1 variant="info">
+                            {{ $t("mapSettings") }}</b-button
+                          >
+                        </b-card-header>
+                        <b-collapse
+                          id="accordion-1"
+                          accordion="my-accordion"
+                          role="tabpanel"
+                          class="border-module"
+                        >
+                          <b-card-body>
+                            <b-card-text>
+                              <div class="p-2 pb-lg-0">
+                                <ChartMapSettings
+                                  :i="i"
+                                  :j="j"
+                                  :tabs="tabs"
+                                  :copy="copy"
+                                  :tabId="tab.id"
+                                  :copyTo="copyTo"
+                                  :moveItem="moveItem"
+                                  :subTabId="subTab.id"
+                                  :moduleKey="moduleKey"
+                                  configKey="mapSetting"
+                                  :subTabGroup="subTab.group"
+                                  :applyPalette="applyPalette"
+                                  :levelsSelect="levelsSelect"
+                                  :settings="subTab.mapSetting"
+                                  :deleteElement="deleteElement"
+                                  v-bind.sync="subTab.mapSetting"
+                                  :updateBenchmarks="updateBenchmarks"
+                                />
+                                <b-row v-if="subTab.mapSetting.length === 0">
+                                  <b-col sm="12" class="text-center">
+                                    {{ $t("noAvailable") }}
+                                  </b-col>
+                                </b-row>
+                              </div>
+                            </b-card-text>
+                            <!-- <b-card-text>{{ text }}</b-card-text> -->
+                          </b-card-body>
+                        </b-collapse>
+                      </b-card>
                     </div>
                   </template>
+
                   <template>
-                    <div
-                      class="
-                        card-header
-                        color-black
-                        text-uppercase
-                        f-s-0-875rem
-                        font-weight-bold
-                      "
-                    >
-                      Chart Settings
-                    </div>
-                    <div
-                      class="p-2 border"
-                      :class="{ 'mb-3': moduleKey === 'summaryDashboard' }"
-                    >
-                      <ChartMapSettings
-                        :i="i"
-                        :j="j"
-                        :tabs="tabs"
-                        :copy="copy"
-                        :tabId="tab.id"
-                        :copyTo="copyTo"
-                        :moveItem="moveItem"
-                        :subTabId="subTab.id"
-                        :moduleKey="moduleKey"
-                        configKey="chartSetting"
-                        :subTabGroup="subTab.group"
-                        :applyPalette="applyPalette"
-                        :levelsSelect="levelsSelect"
-                        :deleteElement="deleteElement"
-                        :settings="subTab.chartSetting"
-                        v-bind.sync="subTab.chartSetting"
-                        :updateBenchmarks="updateBenchmarks"
-                      />
-                      <b-row v-if="subTab.chartSetting.length === 0">
-                        <b-col sm="12" class="text-center">
-                          Please add chart setting using <code>Add</code> button
-                          below.
-                        </b-col>
-                      </b-row>
-                      <div class="text-right pt-2">
-                        <b-button
-                          class="black-btn btn-sm ml-2"
-                          v-on:click="
-                            addElement({
-                              type: 'chartSetting',
-                              tInd: i,
-                              stInd: j,
-                            })
-                          "
-                          >{{ $t("addbtn") }}</b-button
+                    <div class="accordion mt-2" role="tablist">
+                      <b-card no-body class="mb-1">
+                        <b-card-header
+                          header-tag="header"
+                          class="p-1 map-header f-s-0-875rem font-weight-bold"
+                          role="tab"
                         >
-                        <b-button
-                          class="black-btn btn-sm ml-2 d-none"
-                          v-on:click="
-                            addElement({
-                              type: 'mapSetting',
-                              tInd: i,
-                              stInd: j,
-                            })
-                          "
-                          >{{ $t("addbtn") }} Map</b-button
+                          <b-button
+                            block
+                            v-b-toggle.accordion-ch1
+                            variant="info"
+                          >
+                            {{ $t("chartSettings") }}</b-button
+                          >
+                        </b-card-header>
+                        <b-collapse
+                          id="accordion-ch1"
+                          accordion="my-accordion"
+                          role="tabpanel"
+                          class="border-module"
                         >
-                      </div>
+                          <b-card-body class="mb-lg-n3">
+                            <b-card-text>
+                              <div
+                                class="p-2"
+                                :class="{
+                                  'mb-3': moduleKey === 'summaryDashboard',
+                                }"
+                              >
+                                <ChartMapSettings
+                                  :i="i"
+                                  :j="j"
+                                  :tabs="tabs"
+                                  :copy="copy"
+                                  :tabId="tab.id"
+                                  :copyTo="copyTo"
+                                  :moveItem="moveItem"
+                                  :subTabId="subTab.id"
+                                  :moduleKey="moduleKey"
+                                  configKey="chartSetting"
+                                  :subTabGroup="subTab.group"
+                                  :applyPalette="applyPalette"
+                                  :levelsSelect="levelsSelect"
+                                  @updatedBGData="updatedBGData"
+                                  :deleteElement="deleteElement"
+                                  :settings="subTab.chartSetting"
+                                  v-bind.sync="subTab.chartSetting"
+                                  :updateBenchmarks="updateBenchmarks"
+                                />
+                                <b-row v-if="subTab.chartSetting.length === 0">
+                                  <b-col sm="12" class="text-center">
+                                    {{ $t("addChart") }}
+                                    <code>{{ $t("addbtn") }}</code>
+                                    {{ $t("btn") }}
+                                    below.
+                                  </b-col>
+                                </b-row>
+                                <div class="text-right pt-2">
+                                  <b-button
+                                    class="blue-btn btn-sm ml-2"
+                                    v-on:click="
+                                      addElement({
+                                        type: 'chartSetting',
+                                        tInd: i,
+                                        stInd: j,
+                                      })
+                                    "
+                                    >{{ $t("addbtn") }}</b-button
+                                  >
+                                  <b-button
+                                    class="black-btn btn-sm ml-2 d-none"
+                                    v-on:click="
+                                      addElement({
+                                        type: 'mapSetting',
+                                        tInd: i,
+                                        stInd: j,
+                                      })
+                                    "
+                                    >{{ $t("addbtn") }}
+                                    {{ $t("map") }}</b-button
+                                  >
+                                </div>
+                              </div>
+                            </b-card-text>
+                          </b-card-body>
+                        </b-collapse>
+                      </b-card>
                     </div>
                   </template>
+
                   <template
                     v-if="moduleKey === 'summaryDashboard' && subTab.summary"
                   >
-                    <div
-                      class="
-                        card-header
-                        color-black
-                        text-uppercase
-                        f-s-0-875rem
-                        font-weight-bold
-                      "
-                    >
-                      Summary
+                    <div class="accordion mt-2" role="tablist">
+                      <b-card no-body class="mb-1">
+                        <b-card-header
+                          header-tag="header"
+                          class="p-1 map-header f-s-0-875rem font-weight-bold"
+                          role="tab"
+                        >
+                          <b-button
+                            block
+                            v-b-toggle.accordion-sum1
+                            variant="info"
+                          >
+                            {{ $t("Summary") }}</b-button
+                          >
+                        </b-card-header>
+                        <b-collapse
+                          id="accordion-sum1"
+                          accordion="my-accordion"
+                          role="tabpanel"
+                          class="border-module"
+                        >
+                          <b-card-body>
+                            <b-card-text>
+                              <SDNarrations
+                                :i="i"
+                                :j="j"
+                                :tabs="tabs"
+                                :subTabId="subTab.id"
+                                :summary="subTab.summary"
+                                :subTabGroup="subTab.group"
+                                v-bind.sync="subTab.summary"
+                                :allCharts="subTab.chartSetting"
+                              />
+                            </b-card-text>
+                            <!-- <b-card-text>{{ text }}</b-card-text> -->
+                          </b-card-body>
+                        </b-collapse>
+                      </b-card>
                     </div>
-                    <SDNarrations
-                      :i="i"
-                      :j="j"
-                      :tabs="tabs"
-                      :subTabId="subTab.id"
-                      :summary="subTab.summary"
-                      :subTabGroup="subTab.group"
-                      v-bind.sync="subTab.summary"
-                      :allCharts="subTab.chartSetting"
-                    />
                   </template>
                 </b-tab>
 
@@ -391,26 +615,30 @@
                     role="presentation"
                     @click.prevent="updateTab({ type: 'type2', tInd: i })"
                     href="#"
-                    class="text-center"
+                    class="text-center add-adminbtn me-15 mb-2"
                     v-b-tooltip.hover
                     :title="$t('addbtn')"
-                    ><b>+</b></b-nav-item
                   >
+                    <b>+</b>
+                    <span class="mx-1"> {{ $t("addbtn") }} </span>
+                  </b-nav-item>
                 </template>
 
                 <!-- Render this if no tabs -->
                 <template #empty>
                   <div class="text-center text-muted">
-                    There are no open tabs<br />
-                    Open a new tab using the <b>+</b> button.
+                    {{ $t("noOpenTabs") }}<br />
+                    {{ $t("openTab") }} <b>+</b> {{ $t("btn") }}.
                   </div>
                 </template>
               </b-tabs>
             </b-card>
             <div class="text-right pt-2">
-              <b-button class="black-btn" @click.prevent="updateConfig">{{
-                $t("savebtn")
-              }}</b-button>
+              <b-button
+                class="black-btn save-btn"
+                @click.prevent="updateConfig"
+                >{{ $t("savebtn") }}</b-button
+              >
             </div>
           </div>
         </b-tab>
@@ -421,32 +649,36 @@
             role="presentation"
             @click.prevent="updateTab({ type: 'type1' })"
             href="#"
-            class="text-center"
+            class="text-center add-adminbtn w-50 mx-3"
             v-b-tooltip.hover
             :title="$t('addbtn')"
-            ><b>+</b></b-nav-item
-          >
+            ><b>+</b>
+            <span class=""> {{ $t("addbtn") }} </span>
+          </b-nav-item>
         </template>
 
         <!-- Render this if no tabs -->
         <template #empty>
           <div class="text-center text-muted">
-            There are no open tabs<br />
-            Open a new tab using the <b>+</b> button.
+            {{ $t("noOpenTabs") }}<br />
+            {{ $t("openTab") }} <b>+</b> {{ $t("btn") }}.
           </div>
         </template>
       </b-tabs>
     </b-card>
     <b-modal
       v-model="tabNameModal"
-      title="Tab Name"
+      :title="$t('tabName')"
       @ok="handleOk"
+      :ok-title="$t('ok')"
+      :cancel-title="$t('cancelbtn')"
       no-close-on-backdrop
+      centered
     >
       <div>
         <b-row>
           <b-col sm="4">
-            <label for="type-tabName">Name</label>
+            <label for="type-tabName">{{ $t("name") }}</label>
           </b-col>
           <b-col sm="8">
             <b-form-input
@@ -461,7 +693,7 @@
           class="pt-3"
         >
           <b-col sm="4">
-            <label for="type-tabGroup">Group</label>
+            <label for="type-tabGroup">{{ $t("group") }}</label>
           </b-col>
           <b-col sm="8">
             <b-form-select
@@ -479,7 +711,7 @@
           class="pt-3"
         >
           <b-col sm="4">
-            <label for="type-tabShowGroups">Show Groups</label>
+            <label for="type-tabShowGroups">{{ $t("showGroups") }}</label>
           </b-col>
           <b-col sm="8">
             <b-form-checkbox
@@ -495,19 +727,28 @@
     </b-modal>
     <b-modal
       v-model="questionModel"
+      centered
       :title="$t('addQuest')"
       @ok="actionOnQuestion({ type: 'update' })"
+      :ok-title="$t('ok')"
+      :cancel-title="$t('cancelbtn')"
       no-close-on-backdrop
     >
       <template v-if="signOffQuestion">
         <div class="mb-3">
           {{ $t("quest") }}
-          <b-form-textarea
-            id="textarea"
-            v-model="signOffQuestion.question"
-            :placeholder="$t('enter_question')"
-            rows="3"
-          ></b-form-textarea>
+          <b-input-group>
+            <b-form-textarea
+              id="textarea"
+              v-model="signOffQuestion.question[$i18n.locale]"
+              :placeholder="$t('enter_question')"
+              rows="3"
+              disabled
+            ></b-form-textarea>
+            <b-input-group-append is-text>
+              <Translations :transText.sync="signOffQuestion.question" />
+            </b-input-group-append>
+          </b-input-group>
         </div>
         <div>
           <b-form-group :label="$t('options')">
@@ -517,30 +758,44 @@
               :key="opt.value"
             >
               <b-col sm="1">
-                <label :for="'input-option' + opt.value"
-                  ><i
+                <label :for="'input-option' + opt.value">
+                  <!-- <i
                     class="fa fa-trash mr-2 cursor-pointer f-s-0-875rem"
                     @click="actionOnOption({ type: 'delete', qInd: i })"
                     v-b-tooltip.hover
                     :title="$t('deletebtn')"
-                  ></i
-                ></label>
+                  ></i> -->
+
+                  <img
+                    src="@/assets/images/icons/admindelete-icon.svg"
+                    :style="{ filter: filterColor }"
+                    class="cursor-pointer f-s-0-875rem w-auto mr-2"
+                    @click="actionOnOption({ type: 'delete', qInd: i })"
+                    v-b-tooltip.hover
+                    :title="$t('deletebtn')"
+                  />
+                </label>
               </b-col>
-              <b-col sm="11">
-                <b-form-input
-                  :id="'input-option' + opt.value"
-                  size="sm"
-                  placeholder=""
-                  v-model="opt.text"
-                ></b-form-input>
+              <b-col sm="11" class="sign-ques">
+                <b-input-group :id="'input-option' + opt.value">
+                  <b-form-input
+                    size="sm"
+                    placeholder=""
+                    v-model="opt.text[$i18n.locale]"
+                    disabled
+                  ></b-form-input>
+                  <b-input-group-append is-text>
+                    <Translations :transText.sync="opt.text" />
+                  </b-input-group-append>
+                </b-input-group>
               </b-col>
             </b-row>
             <div
               class="text-center"
               v-if="signOffQuestion.options.length === 0"
             >
-              There are no options<br />
-              Add a new option using the <b>+</b> button.
+              {{ $t("noOpt") }}<br />
+              {{ $t("addOpt") }} <b>+</b> {{ $t("btn") }}
             </div>
           </b-form-group>
         </div>
@@ -565,14 +820,15 @@
 <script>
 import service from "@/service";
 import { VueEditor } from "vue2-editor";
-import dataEntryForm from "@/components/config/dqr/dataEntryForm";
+import SignOff from "@/components/config/Common/SignOff";
+import DynamicImageMixin from "@/helpers/DynamicImageMixin";
+import ReFetchConfigMixin from "@/helpers/ReFetchConfigMixin";
 import VueEditorOptionMixin from "@/helpers/VueEditorOptionMixin";
 import { randomString } from "@/components/Common/commonFunctions";
-import DynamicConfigOptionsMixin from "@/helpers/DynamicConfigOptionsMixin";
 import SDNarrations from "@/components/config/Common/SDNarrations";
 import BackgroundData from "@/components/config/Common/BackgroundData";
-import SignOff from "@/components/config/Common/SignOff";
 import ChartMapSettings from "@/components/config/Common/ChartMapSettings";
+import DynamicConfigOptionsMixin from "@/helpers/DynamicConfigOptionsMixin";
 import SDIntegratedBenchmark from "@/components/config/Common/SDIntegratedBenchmark";
 export default {
   props: [
@@ -580,22 +836,36 @@ export default {
     "dataElementsList",
     "dataSetsList",
     "metrixList",
-    "supportedLanguages",
+    "langList",
     "moduleKey",
     "orgList",
   ],
-  mixins: [VueEditorOptionMixin, DynamicConfigOptionsMixin],
+  mixins: [
+    DynamicImageMixin,
+    ReFetchConfigMixin,
+    VueEditorOptionMixin,
+    DynamicConfigOptionsMixin,
+  ],
   components: {
     SignOff,
     VueEditor,
     SDNarrations,
-    dataEntryForm,
+    dataEntryForm: () =>
+      import(
+        /*webpackChunkName: 'dataEntryForm'*/ "@/components/config/dqr/dataEntryForm"
+      ),
     BackgroundData,
     ChartMapSettings,
     SDIntegratedBenchmark,
+    Translations: () =>
+      import(
+        /*webpackChunkName: 'translations'*/ "@/components/config/Common/Translations"
+      ),
   },
   data() {
-    let levelID = this.$store.getters.getApplicationModule().defaultLevelID;
+    let levelID = this.$store.getters.getApplicationModule(
+      this.$store.getters.getIsMultiProgram
+    ).defaultLevelID;
     let levels = this.orgList
       .filter((item) => {
         if (item.level === levelID && item.level === this.orgList.length) {
@@ -613,26 +883,26 @@ export default {
           {
             lowScale: "0",
             highScale: "25",
-            scaleColor: "#0000ff",
-            scaleLabel: "Low",
+            scaleColor: "#90CAF9",
+            scaleLabel: { [this.$i18n.locale]: this.$i18n.t("low") },
           },
           {
             lowScale: "25",
             highScale: "50",
-            scaleColor: "#0000ff",
-            scaleLabel: "Medium",
+            scaleColor: "#2BAE8D",
+            scaleLabel: { [this.$i18n.locale]: this.$i18n.t("medium") },
           },
           {
             lowScale: "50",
             highScale: "75",
-            scaleColor: "#0000ff",
-            scaleLabel: "High",
+            scaleColor: "#FFE082",
+            scaleLabel: { [this.$i18n.locale]: this.$i18n.t("high") },
           },
           {
             lowScale: "75",
             highScale: "100",
-            scaleColor: "#0000ff",
-            scaleLabel: "Very High",
+            scaleColor: "#F06868",
+            scaleLabel: { [this.$i18n.locale]: this.$i18n.t("veryHigh") },
           },
         ],
       }))
@@ -650,6 +920,7 @@ export default {
       updateType: null,
       updateIndex: null,
       showGroups: false,
+      isOpenTabs: false,
       isDataEntry: false,
       updatedTabName: "",
       tabNameModal: false,
@@ -659,9 +930,13 @@ export default {
       integrated: {
         color: "#000",
         linked: false,
+        dataMapping: [],
         displayName: "",
         minThreshold: 0,
         maxThreshold: 100,
+        benchmarkLabel: "",
+        percentIndicator: true,
+        benchmarkColor: "#000",
       },
       summary: {
         disable: false,
@@ -674,12 +949,12 @@ export default {
         priorityIndicator: null,
       },
       signOff: {
-        question: "",
+        question: {},
         options: [
-          { text: "Yes", value: "Yes" },
-          { text: "No", value: "No" },
+          { text: this.$i18n.t("yes"), value: "Yes" },
+          { text: this.$i18n.t("no"), value: "No" },
         ],
-        comment: "",
+        comment: {},
         answer: "",
       },
       signOffQuestion: null,
@@ -704,42 +979,42 @@ export default {
               subGroups = [
                 {
                   value: "EMU",
-                  text: "EMU",
+                  text: this.$i18n.t("EMU"),
                 },
                 {
                   value: "PPFP",
-                  text: "PPFP",
+                  text: this.$i18n.t("PPFP"),
                 },
                 {
                   value: "RMNCH",
-                  text: "RMNCH",
+                  text: this.$i18n.t("RMNCH"),
                 },
                 {
                   value: "STOCK_OUT",
-                  text: "Stock Out",
+                  text: this.$i18n.t("stockOut"),
                 },
                 {
                   value: "ADOL_YOUTH",
-                  text: "Adolescents and Youth",
+                  text: this.$i18n.t("adolYouth"),
                 },
                 {
                   value: "DEFAULT",
-                  text: "Default",
+                  text: this.$i18n.t("default"),
                 },
               ];
             } else {
               subGroups = [
                 {
                   value: "VOLUME",
-                  text: "Volume",
+                  text: this.$i18n.t("Volume"),
                 },
                 {
                   value: "REPORTING_RATE",
-                  text: "Reporting Rate",
+                  text: this.$i18n.t("Reporting Rate"),
                 },
                 {
                   value: "DEFAULT",
-                  text: "Default",
+                  text: this.$i18n.t("default"),
                 },
               ];
             }
@@ -747,7 +1022,7 @@ export default {
             subGroups = [
               {
                 value: "DEFAULT",
-                text: "Default",
+                text: this.$i18n.t("default"),
               },
             ];
           }
@@ -760,52 +1035,52 @@ export default {
               subGroups = [
                 {
                   value: "EMU",
-                  text: "EMU",
+                  text: this.$i18n.t("EMU"),
                 },
                 {
                   value: "PPFP",
-                  text: "PPFP",
+                  text: this.$i18n.t("PPFP"),
                 },
                 {
                   value: "DEFAULT",
-                  text: "Default",
+                  text: this.$i18n.t("default"),
                 },
                 {
                   value: "SUMMARY",
 
-                  text: "Summary",
+                  text: this.$i18n.t("Summary"),
                 },
                 {
                   value: "STOCK_OUT",
-                  text: "Stock Out",
+                  text: this.$i18n.t("stockOut"),
                 },
                 {
                   value: "AVAILABILITY",
-                  text: "Availability",
+                  text: this.$i18n.t("access"),
                 },
                 {
                   value: "INS_REMOVAL",
-                  text: "Insertion vs Removal",
+                  text: this.$i18n.t("insertion_Removal"),
                 },
                 {
                   value: "ADOL_YOUTH",
-                  text: "Adolescents and Youth",
+                  text: this.$i18n.t("adolYouth"),
                 },
               ];
             } else {
               subGroups = [
                 {
                   value: `GEO`,
-                  text: "Geographic Variation",
+                  text: this.$i18n.t("geoVar"),
                 },
                 {
                   value: "SUMMARY",
 
-                  text: "Summary",
+                  text: this.$i18n.t("Summary"),
                 },
                 {
                   value: "DEFAULT",
-                  text: "Default",
+                  text: this.$i18n.t("default"),
                 },
               ];
             }
@@ -813,29 +1088,29 @@ export default {
             subGroups = [
               {
                 value: `GEO`,
-                text: "Geographic Variation",
+                text: this.$i18n.t("geoVar"),
               },
               {
                 value: `COMP`,
-                text: "Key Components",
+                text: this.$i18n.t("keyComp"),
               },
               {
                 value: `TIMING`,
-                text: "By Timing",
+                text: this.$i18n.t("byTiming"),
               },
               {
                 value: `AGE`,
-                text: "By Age",
+                text: this.$i18n.t("byAge"),
               },
               {
                 value: "SUMMARY",
 
-                text: "Summary",
+                text: this.$i18n.t("Summary"),
               },
               {
                 value: "DEFAULT",
 
-                text: "Default",
+                text: this.$i18n.t("default"),
               },
             ];
           }
@@ -847,52 +1122,65 @@ export default {
           // 	subGroups = [
           // 		{
           // 			value: "DEFAULT",
-          // 			text: "Default",
+          // 			text: this.$i18n.t("default"),
           // 		},
           // 	];
           // } else {
           subGroups = [
             {
-              label: "Completeness and Timeliness",
+              label: this.$i18n.t("compTime"),
               options: [
                 {
                   value: `${group}-CT-actualRR`,
-                  text: "Reporting Rate (Actual)",
+                  text: this.$i18n.t("Reporting Rate (Actual)"),
                 },
                 {
                   value: `${group}-CT-onTimeRR`,
-                  text: "Reporting Rate (On Time)",
+                  text: this.$i18n.t("Reporting Rate (On Time)"),
                 },
               ],
             },
             {
-              label: "Internal Consistency",
+              label: this.$i18n.t("Internal_Consistency"),
               options: [
                 {
                   value: `${group}-IC-aggregate`,
-                  text: "Aggregate",
+                  text: this.$i18n.t("aggregate"),
                 },
                 {
                   value: `${group}-IC-method`,
-                  text: "Methods",
+                  text: this.$i18n.t("method"),
                 },
               ],
             },
             {
-              label: "Internal Consistency Correlation",
+              label: this.$i18n.t("icc"),
               options: [
                 {
                   value: `${group}-CC-method`,
-                  text: "Method",
+                  text: this.$i18n.t("method"),
                 },
               ],
             },
+            // {
+            //   label: this.$i18n.t("eConsistency"),
+            //   options: [
+            //     {
+            //       value: `${group}-EC-survey`,
+            //       text: this.$i18n.t("survey"),
+            //     },
+            //     {
+            //       value: `${group}-EC-method`,
+            //       text: this.$i18n.t("method"),
+            //     },
+            //   ],
+            // },
             {
-              label: "Default",
+              label: this.$i18n.t("default"),
               options: [
                 {
                   value: "DEFAULT",
-                  text: "Default",
+                  text: this.$i18n.t("default"),
                 },
               ],
             },
@@ -1049,15 +1337,47 @@ export default {
       service
         .getSavedConfig(key)
         .then((response) => {
-          this.tabs = response.data;
-          this.originalTabs = JSON.parse(JSON.stringify(response.data));
+          let d = response.data.map((d) => {
+            return {
+              ...d,
+              subTabs: d.subTabs.map((s) => {
+                if (s.mapSetting && s.mapSetting.length) {
+                  return {
+                    ...s,
+                    mapSetting: s.mapSetting.map((m) => {
+                      return {
+                        chartOptions: {
+                          ...m.chartOptions,
+                          levels: this.levels.map((l) => {
+                            let isFound = m.chartOptions.levels.find(
+                              (ml) => ml.level === l.level
+                            );
+                            if (isFound) {
+                              return { ...isFound, levelName: l.levelName };
+                            } else {
+                              return l;
+                            }
+                          }),
+                        },
+                      };
+                    }),
+                  };
+                } else {
+                  return s;
+                }
+              }),
+            };
+          });
+          this.tabs = d;
+          this.originalTabs = JSON.parse(JSON.stringify(d));
           this.isDataFetched = true;
           this.$store.state.loading = false;
         })
-        .catch(() => {
+        .catch((err) => {
           console.log("Config not found...");
           this.isDataFetched = true;
           this.$store.state.loading = false;
+          this.reFetchConfig(err);
         });
     },
     async updateConfig() {
@@ -1113,22 +1433,12 @@ export default {
           response
             .then((response) => {
               if (response.data.status === "OK") {
-                this.$swal({
+                this.sweetAlert({
                   title: this.$i18n.t("data_saved_successfully"),
-                }).then(() => {
-                  // if (Object.keys(configChanges).length) {
-                  // 	audit.processAudit(
-                  // 		"process2",
-                  // 		key,
-                  // 		configChanges,
-                  // 		this.chartByType,
-                  // 		this.chartBySubtype
-                  // 	);
-                  // }
                 });
                 this.$store.state.loading = false;
               } else {
-                this.$swal({
+                this.sweetAlert({
                   title: this.$i18n.t("error"),
                   text: `${response.data.message}`,
                 });
@@ -1137,7 +1447,7 @@ export default {
               }
             })
             .catch(() => {
-              this.$swal({
+              this.sweetAlert({
                 title: this.$i18n.t("error"),
               });
               this.$store.state.loading = false;
@@ -1148,12 +1458,12 @@ export default {
           let response = service.saveConfig(tabs, key);
           response.then((response) => {
             if (response.data.status === "OK") {
-              this.$swal({
+              this.sweetAlert({
                 title: this.$i18n.t("data_saved_successfully"),
               });
               this.$store.state.loading = false;
             } else {
-              this.$swal({
+              this.sweetAlert({
                 title: this.$i18n.t("error"),
                 text: `${response.data.message}`,
               });
@@ -1191,8 +1501,8 @@ export default {
         (updateInd === 0 && places === -1) ||
         (updateInd === target.length - 1 && places === 1)
       ) {
-        this.$swal({
-          title: "Can't Move",
+        this.sweetAlert({
+          title: this.$i18n.t("CantMove"),
         });
       } else {
         let oTemp = target[updateInd];
@@ -1213,15 +1523,17 @@ export default {
     },
     deleteElement({ type, tInd, stInd, delInd }) {
       if (type === "mapSetting") {
-        this.$swal({
-          title: "Can't delete the default setting. Please try disabling it.",
+        this.sweetAlert({
+          title: this.$i18n.t("mapDelErr"),
         });
       } else {
         this.$swal({
           title: this.$i18n.t("areyousure"),
           text: this.$i18n.t("youablerevertthis"),
           showCancelButton: true,
+          reverseButtons: true,
           confirmButtonText: this.$i18n.t("yes_delete_it"),
+          cancelButtonText: this.$i18n.t("cancelbtn"),
         }).then((result) => {
           if (result.value) {
             if (type === "tab") {
@@ -1246,6 +1558,7 @@ export default {
           chartOptions: {
             ...config.chartOptions,
             id: randomStr,
+            chartName: { [this.$i18n.locale]: this.$i18n.t("default") },
           },
         });
       }
@@ -1261,6 +1574,7 @@ export default {
           ...map.chartOptions,
           levels: JSON.parse(JSON.stringify(this.levels)),
           id: randomStr,
+          chartName: { [this.$i18n.locale]: this.$i18n.t("default") },
         },
       };
       return map;
@@ -1297,7 +1611,9 @@ export default {
           title: this.$i18n.t("areyousure"),
           text: this.$i18n.t("youablerevertthis"),
           showCancelButton: true,
+          reverseButtons: true,
           confirmButtonText: this.$i18n.t("yes_delete_it"),
+          cancelButtonText: this.$i18n.t("cancelbtn"),
         }).then((result) => {
           if (result.value) {
             this.tabs[this.signOffTab].subTabs[
@@ -1307,13 +1623,20 @@ export default {
         });
       }
       if (type === "update") {
-        let que =
-          this.tabs[this.signOffTab].subTabs[this.signOffSubTab].questions;
-        let isFound = que.findIndex((q) => q.id === this.signOffQuestion.id);
-        if (isFound >= 0) {
-          que[isFound] = this.signOffQuestion;
+        if (
+          this.signOffQuestion.question &&
+          this.signOffQuestion.question[this.$i18n.locale]
+        ) {
+          let que =
+            this.tabs[this.signOffTab].subTabs[this.signOffSubTab].questions;
+          let isFound = que.findIndex((q) => q.id === this.signOffQuestion.id);
+          if (isFound >= 0) {
+            que[isFound] = this.signOffQuestion;
+          } else {
+            que.push(this.signOffQuestion);
+          }
         } else {
-          que.push(this.signOffQuestion);
+          this.sweetAlert({ title: this.$i18n.t("enter_question") });
         }
       }
     },
@@ -1321,7 +1644,7 @@ export default {
       if (type === "add") {
         this.signOffQuestion.options.push({
           value: randomString(16),
-          text: this.$i18n.t("default"),
+          text: { [this.$i18n.locale]: this.$i18n.t("default") },
         });
       }
       if (type === "delete") {
@@ -1329,7 +1652,9 @@ export default {
           title: this.$i18n.t("areyousure"),
           text: this.$i18n.t("youablerevertthis"),
           showCancelButton: true,
+          reverseButtons: true,
           confirmButtonText: this.$i18n.t("yes_delete_it"),
+          cancelButtonText: this.$i18n.t("cancelbtn"),
         }).then((result) => {
           if (result.value) {
             this.signOffQuestion.options.splice(qInd, 1);
@@ -1338,6 +1663,18 @@ export default {
       }
     },
     handleOk() {
+      if (this.updatedTabName.length === 0) {
+        this.sweetAlert({
+          title: this.$i18n.t("enterName"),
+        });
+        return;
+      }
+      if (this.updateType === "type1" && this.groupName === null) {
+        this.sweetAlert({
+          title: this.$i18n.t("selectGroupWarn"),
+        });
+        return;
+      }
       if (this.updateType === "type1") {
         let mapSetting = [];
         if (this.moduleKey === "analyticalDashboard") {
@@ -1345,7 +1682,7 @@ export default {
           mapSetting.push(map);
         }
         this.tabs.push({
-          tabName: this.updatedTabName,
+          tabName: { [this.$i18n.locale]: this.updatedTabName },
           id: randomString(16),
           group: this.groupName,
           showGroups: this.showGroups,
@@ -1356,9 +1693,10 @@ export default {
               signOff: [],
               questions: [],
               chartSetting: [],
+              categoryInfo: {},
               id: randomString(16),
               backgroundData: null,
-              tabName: this.$i18n.t("default"),
+              tabName: { [this.$i18n.locale]: this.$i18n.t("default") },
               summary:
                 this.moduleKey === "summaryDashboard"
                   ? JSON.parse(JSON.stringify(this.summary))
@@ -1374,7 +1712,8 @@ export default {
         });
       }
       if (this.updateType === "type11") {
-        this.tabs[this.updateIndex].tabName = this.updatedTabName;
+        this.tabs[this.updateIndex].tabName[this.$i18n.locale] =
+          this.updatedTabName;
         this.tabs[this.updateIndex].group = this.groupName;
         this.tabs[this.updateIndex].showGroups = this.showGroups;
       }
@@ -1390,9 +1729,10 @@ export default {
           signOff: [],
           questions: [],
           chartSetting: [],
+          categoryInfo: {},
           id: randomString(16),
           backgroundData: null,
-          tabName: this.updatedTabName,
+          tabName: { [this.$i18n.locale]: this.updatedTabName },
           summary:
             this.moduleKey === "summaryDashboard"
               ? JSON.parse(JSON.stringify(this.summary))
@@ -1405,17 +1745,30 @@ export default {
         });
       }
       if (this.updateType === "type21") {
-        this.tabs[this.updateIndex].subTabs[this.updateSubIndex].tabName =
-          this.updatedTabName;
+        this.tabs[this.updateIndex].subTabs[this.updateSubIndex].tabName[
+          this.$i18n.locale
+        ] = this.updatedTabName;
       }
       //To reset modal values
       this.resetModal({ type: "tab" });
     },
-    updatedBGData({ tInd, stInd, group }) {
+    updatedBGData({
+      tInd,
+      stInd,
+      group = "",
+      type = "",
+      chartCalculation = "",
+    }) {
       let bgData = JSON.parse(JSON.stringify(this.backgroundData));
       if (group.includes("-IC-")) {
         this.tabs[tInd].subTabs[stInd].backgroundData = bgData.IC;
-      } else if (group.includes("-CC-")) {
+      } else if (group.includes("-CT-")) {
+        this.tabs[tInd].subTabs[stInd].backgroundData = bgData.CT;
+      } else if (
+        group.includes("-CC-") ||
+        type === "scatter" ||
+        chartCalculation === "SOURCE_DIFF"
+      ) {
         this.tabs[tInd].subTabs[stInd].backgroundData = bgData.CC;
       } else {
         this.tabs[tInd].subTabs[stInd].backgroundData = null;
@@ -1454,54 +1807,54 @@ export default {
       let gList = [
         {
           value: "ANC",
-          text: "ANC",
+          text: this.$i18n.t("ANC"),
         },
         {
           value: "PNC",
-          text: "PNC",
+          text: this.$i18n.t("PNC"),
         },
         {
           value: "DELIVERY_CARE",
-          text: "Delivery Care",
+          text: this.$i18n.t("Delivery_Care"),
         },
         {
           value: "MAT_DEATHS",
-          text: "Maternal Deaths",
+          text: this.$i18n.t("Maternal_Deaths"),
         },
         {
           value: "SBN_DEATHS",
-          text: "Stillbirth and Neonatal Deaths",
+          text: this.$i18n.t("Still_Birth"),
         },
         {
           value: "INF_HEALTH",
-          text: "Infant Health Secondary",
+          text: this.$i18n.t("Infant_Health"),
         },
         {
           value: "DEFAULT",
-          text: "Default",
+          text: this.$i18n.t("default"),
         },
       ];
       if (this.$store.getters.getNamespace !== "multi_program_mnch-dashboard") {
         gList = [
           {
             value: "User",
-            text: "Users",
+            text: this.$i18n.t("users"),
           },
           {
             value: "Visits",
-            text: "Visits",
+            text: this.$i18n.t("visits"),
           },
           {
             value: "Commodities_Client",
-            text: "Commodities (Client)",
+            text: this.$i18n.t("Commodities_Client"),
           },
           {
             value: "Commodities_Facilities",
-            text: "Commodities (Facilities)",
+            text: this.$i18n.t("Commodities_Facilities"),
           },
           {
             value: "DEFAULT",
-            text: "Default",
+            text: this.$i18n.t("default"),
           },
         ];
       }

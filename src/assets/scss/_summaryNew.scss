@@ -1,13 +1,6 @@
 .summary-page-container {
-  background-color: var(--primary-bg-color);
+  background-color: var(--bg-main-color);
   min-height: calc(100vh - 120px);
-}
-
-.summary-page {
-  background-color: var(--chart-container-color);
-  // height: calc(100vh - 60px);
-  border-radius: 10px;
-  margin-top: 55px !important;
 }
 
 .summary-title {
@@ -15,23 +8,22 @@
 }
 
 .summary-card-bg {
-  background-color: var(--chart-body-color);
+  background-color: var(--primary-bg-color);
   border-radius: 10px;
 }
 
 .performance-in-card {
-  background-color: var(--new-header-color);
+  background-color: var(--sidebar-main-active-color);
   display: flex;
   justify-content: space-between;
   border-radius: 5px;
 }
 
 .summary-dot {
-  height: 65px;
-  width: 65px;
+  height: 60px !important;
+  width: 60px !important;
   border-radius: 100%;
-  // text-align: center;
-  // line-height: 3.5rem;
+  background-color: var(--border-blue-color);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -39,13 +31,34 @@
   font-weight: 700;
   margin: 0 auto;
 
+  p{
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    text-align: center;
+  }
+
+  .big-number{
+    font-size: 14px !important;
+  }
+
+  .biggest-number{
+    font-size: 12px !important;
+  }
+
   &.red {
     background-color: var(--bg-red-color) !important;
   }
 
   &.green {
-    background-color: var(--bg-green-color);
+    background-color: var(--bg-green-color) !important;
   }
+
+  &.orange {
+		background-color: var(--orange-color) !important;
+	}
 }
 
 .view-more-btn {
@@ -53,8 +66,8 @@
 }
 
 .summary-view-more-btn {
-  background-color: #343361 !important;
-  border: 3px solid #343361;
+  background-color: var(--sidebar-main-active-color) !important;
+  border: 3px solid var(--sidebar-main-active-color);
   border-radius: 5px !important;
   color: var(--light-white-btn-color) !important;
   text-align: center !important;
@@ -64,13 +77,14 @@
 }
 
 .summary-view-more-btn:hover {
-  background-color: #343361 !important;
-  border: 3px solid #343361;
+  background-color: var(--sidebar-main-active-color) !important;
+  border: 3px solid var(--sidebar-main-active-color);
 }
 
-.summary-view-more-btn:focus {
-  background-color: #343361 !important;
-  border: 3px solid #343361;
+.summary-view-more-btn:focus,
+.summary-view-more-btn:active{
+  background-color: var(--sidebar-main-active-color) !important;
+  border: 3px solid var(--sidebar-main-active-color);
 }
 
 .emu-status,
@@ -78,9 +92,25 @@
   font-size: var(--font-small);
 }
 
-.na {
-  background-color: var(--footer-components-color);
-  border-radius: 5px;
+.emu-status{
+  overflow: hidden;
+text-overflow: ellipsis;
+display: -webkit-box;
+-webkit-line-clamp: 2;
+-webkit-box-orient: vertical;
+}
+.emu-read{
+  font-size: var(--font-small);
+}
+
+.readMoreBtn{
+  border: none;
+  border-radius: 0px;
+  border-bottom: 1px solid var(--text-font-color);
+  background-color: transparent !important;
+  font-size: 10px !important;
+  color: var(--light-white-btn-color);
+  font-weight: 300 !important;
 }
 
 span {
@@ -98,27 +128,63 @@ span {
 }
 
 .indicatorSectionWrap {
+  margin-top: -70px !important;
   .card {
-    border: 1px solid var(--chart-container-color);
-    background: var(--chart-container-color);
+    border: 1px solid transparent !important;
+    background: transparent !important;
   }
 
   .mainHeader {
     padding-bottom: 0px !important;
     // background: #181736;
+    background-color: transparent !important;
+    border-bottom: transparent !important;
 
     h6 {
       margin-bottom: 0 !important;
-      font-size: 18px!important
+      font-size: 18px!important;
+      padding-top: 15px !important;
+      width: 102% !important;
+      border-top: 1px solid transparent !important;
     }
   }
 
-  .indicatorCardBody {
-    background: var(--chart-container-color);
-  }
+  
 }
 
 .summary-section .card-body{
     padding-left: 0px !important;
     padding-right: 0px !important;
 }
+
+.summary-section{
+  .text-center.no-data-error-msg{
+    border-color: transparent !important;
+  }
+}
+
+.summarypage-nomap .text-center{
+  color: var(-sidebar-maincolor) !important;
+  font-size: 18px !important;
+  padding-top:5px !important;
+  padding-bottom: 5px !important;
+  margin-bottom: 25px !important;
+  border-radius: 5px !important;
+  border: 1px solid var(--border-grey-color) !important;
+  
+}
+
+
+.summarydashboard-page .indicatorCardBody{
+  border: 1px solid transparent !important;
+}
+
+.summary-highchart1-header {
+  background-color: transparent !important;
+}
+
+.no-data-error-msg {
+  font-size: var(--font-small);
+  color    : var(--main-font-color);
+}
+

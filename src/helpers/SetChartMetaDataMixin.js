@@ -9,14 +9,15 @@ export default {
         if (["cluster_bar"].includes(chartOptions.type)) {
           type = "bar";
         }
-        if (["stack", "stack_bar"].includes(chartOptions.type)) {
-          type = chartOptions.type === "stack_bar" ? "bar" : "column";
+        if (chartOptions.type.includes("stack")) {
+          type = chartOptions.type.includes("bar") ? "bar" : "column";
         }
 
-        let oType = ["stack", "stack_bar"].includes(chartOptions.type)
-          ? "stack"
+        let oType = chartOptions.type.includes("stack")
+          ? chartOptions.type
           : "";
-        let isStack = ["stack", "stack_bar"].includes(chartOptions.type);
+        let isStack = chartOptions.type.includes("stack"),
+          isPercent = chartOptions.type.includes("percent");
         let height = type === "packedbubble" ? chartData.chart.height : null;
         chartData = {
           ...chartData,
@@ -28,7 +29,7 @@ export default {
             ...chartData.plotOptions,
             series: {
               ...chartData.plotOptions.series,
-              stacking: isStack ? "normal" : "",
+              stacking: isStack ? (isPercent ? "percent" : "normal") : "",
               dataLabels: {
                 enabled: chartOptions.dataLabels,
               },
@@ -45,27 +46,33 @@ export default {
           };
         }
         chartData.title.text = chartOptions.title.visible
-          ? chartOptions.title.text
+          ? chartOptions.title.text[this.$i18n.locale]
           : "";
-        chartData.title.title = `${chartOptions.chartName}${chartSource}`;
+        chartData.title.title = `${
+          chartOptions.chartName[this.$i18n.locale]
+        }${chartSource}`;
         chartData.subtitle.text = chartOptions.subTitle.visible
-          ? chartOptions.subTitle.text
+          ? chartOptions.subTitle.text[this.$i18n.locale]
           : "";
         if (type !== "packedbubble") {
           if (Array.isArray(chartData.xAxis)) {
             chartData.xAxis[0].title.text = chartOptions.xAxis.visible
-              ? chartOptions.xAxis.text
+              ? chartOptions.xAxis.text[this.$i18n.locale]
               : "";
           } else {
             chartData.xAxis.title.text = chartOptions.xAxis.visible
-              ? chartOptions.xAxis.text
+              ? chartOptions.xAxis.text[this.$i18n.locale]
               : "";
           }
           chartData.yAxis.title.text = chartOptions.yAxis.visible
-            ? chartOptions.yAxis.text
+            ? chartOptions.yAxis.text[this.$i18n.locale]
             : "";
         }
-        this.source = chartOptions.source;
+        this.source = chartOptions.source[this.$i18n.locale];
+        if (isPercent) {
+          chartData.tooltip.pointFormat =
+            '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b> ({point.percentage:.0f}%)<br/>';
+        }
       }
       return chartData;
     },

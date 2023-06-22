@@ -163,12 +163,23 @@
 						v-if="showSetting === chart.id && isStaticCharts"
 					>
 						<template v-if="chart.type === 'Textarea'">
-							<span
+							<!-- <span
 								class="fa fa-edit mr-3 cursor-pointer"
 								:title="$t('edit')"
 								v-b-tooltip
 								@click.prevent.stop="showAddTextPopup(chart)"
-							></span>
+							></span> -->
+							<span>
+								<img
+								class="mr-3 cursor-pointer"
+								:src="require('@/assets/images/icons/editActive.svg')"
+								:style="{ filter: filterColor }"
+								:title="$t('edit')"
+								v-b-tooltip
+								@click.prevent.stop="showAddTextPopup(chart)"
+							   
+							  /> 
+							</span>
 							<span
 								v-if="!isReport"
 								class="btn cursor-pointer mr-2 p-0"
@@ -193,26 +204,27 @@
 								:title="$t('syncChart')"
 								v-b-tooltip
 							>
-								<!-- <img
-                                alt="img"
-                                :src="require('@/assets/img/icons/refresh.png')"
-                                class="img imgWidth_20px"
-                            /> -->
 							</span>
 						</template>
-						<span
+						<!-- <span
 							class="fa fa-trash cursor-pointer mr-3"
 							@click.prevent.stop="removeChart(chart.id)"
 							:title="$t('deletebtn')"
 							v-b-tooltip
 						>
-							<!-- <img
-                            alt="img"
-                            :src="
-                                require('@/assets/img/icons/delete_active.png')
-                            "
-                            class="img imgWidth_20px"
-                        /> -->
+						</span> -->
+						<span>
+							<img
+                                alt="img"
+                                :src="
+                                  require('@/assets/images/icons/deleteActive.svg')
+                                "
+                                :style="{ filter: filterColor }"
+                                class="cursor-pointer mr-3"
+								@click.prevent.stop="removeChart(chart.id)"
+								:title="$t('deletebtn')"
+								v-b-tooltip
+                              />
 						</span>
 					</div>
 					<div class="inputTextarea mt-1 ml-1" v-if="chart.type === 'Textarea'">
@@ -251,7 +263,7 @@
 									v-if="!isReport"
 								>
 									{{ $t("source") }}:
-									<b>{{ chart.source ? chart.source : "N/A" }}</b>
+									<b>{{ chart.source ? chart.source : $t("NA") }}</b>
 								</div>
 							</div>
 						</template>
@@ -288,6 +300,7 @@
 </template>
 <script>
 import { GridLayout, GridItem } from "vue-grid-layout";
+import DynamicImageMixin from "@/helpers/DynamicImageMixin";
 export default {
 	props: [
 		"layout",
@@ -308,16 +321,17 @@ export default {
 		"updatedGridLayout",
 		"selectedLocationName",
 	],
+	mixins: [DynamicImageMixin],
 	components: {
 		GridItem,
 		GridLayout,
 		ChartComponent: () =>
 			import(
-				/*webpackChunkName: "ReportTemplate_ChartComponent" */ "./ChartComponent"
+				/*webpackChunkName: "RT_ChartComponent" */ "./ChartComponent"
 			),
 		DynamicChartComponent: () =>
 			import(
-				/*webpackChunkName: "ReportTemplate_DynamicChartComponent" */ "@/components/DynamicModule/ChartComponent"
+				/*webpackChunkName: "RT_DynamicChartComponent" */ "@/components/DynamicModule/ChartComponent"
 			),
 	},
 	data() {
@@ -422,7 +436,7 @@ export default {
 				...this.updatedGridLayout,
 			};
 		}
-	},
+},
 };
 </script>
 <style lang="scss" scoped>

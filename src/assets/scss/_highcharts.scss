@@ -1,40 +1,12 @@
-.barchart-body {
-  background-color: var(--primary-bg-color);
-  color: var(--color-white);
-  border-bottom: 1px solid var(--border-color) !important;
-  padding: 1rem;
-  border-radius: 10px;
-
-  .delivery-title {
-    text-transform: uppercase;
-    color: var(--innertext-font-color) !important;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    display: -webkit-box !important;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    white-space: normal;
-    font-size: var(--font-size-chart-sidebar-heading);
-    font-weight: 500;
-    min-height: 33px;
-
-    &:hover {
-      cursor: pointer;
-    }
-  }
-
-  .barchart-header,
-  .card-header {
-    border-bottom: 1px solid var(--border-color) !important;
-    background-color: transparent;
-  }
-}
 
 .analytic-charts {
   display: flex;
   flex-direction: column;
   // height: calc(90vh - 45px);
   overflow-y: auto;
+  margin-bottom: 25px !important;
+  border-radius: 5px !important;
+  border: 1px solid var(--border-grey-color) !important;
 }
 
 .b-table-sticky-header>.table.b-table>thead>tr>th {
@@ -50,11 +22,6 @@
   top: -1px;
 }
 
-.charts {
-  // height:100%;
-  // width:100%;
-  // position:absolute;
-}
 
 .tables {
   color: var(--color-white);
@@ -68,10 +35,6 @@
   }
 }
 
-text.highcharts-drilldown-axis-label {
-  color: #c9cfdb !important;
-  fill: #d9dde5 !important;
-}
 
 .gauge {
   height: 70px !important;
@@ -113,6 +76,113 @@ text.highcharts-drilldown-axis-label {
   }
 }
 
+.highcharts-background {
+  fill: transparent !important;
+}
+
+
+.highcharts-button{ 
+  .highcharts-button-box{
+    fill: var(--footer-components-color) !important;
+    stroke: var(--footer-components-color) !important;
+    border: var(--footer-components-color) !important;
+  }
+  text{
+    fill: var(--innertext-font-color) !important;
+  }
+   
+}
+
+//highcharts tooltip
+
+.highcharts-tooltip-box {
+  fill: var(--text-color) !important;
+  fill-opacity: 0.6;
+  stroke-width: 0;
+}
+
+.highcharts-tooltip text {
+  fill: var(--color-black) !important;
+  // text-shadow: 0 0 3px black;
+}
+
+.highcharts-scrollbar-button{
+  fill: var(--sidebar-main-active-color) !important;
+  stroke-opacity: 0.1;
+}
+
+.highcharts-yaxis-labels text,
+.highcharts-xaxis-labels text,
+.highcharts-yaxis text,
+.highcharts-axis-title,
+.highcharts-plot-line-label,
+.highcharts-line-series text, .highcharts-legend-item text,.highcharts-label text{
+    color: var(--home-main-color) !important;
+    fill: var(--home-main-color) !important;
+    font-weight: 400 !important;
+    // text-decoration: none !important;
+}
+
+.highcharts-title {
+  fill: var(--home-main-color) !important;
+}
+
+
+.highcharts-scrollbar-thumb {
+  fill  : var(--sidebar-main-active-color) !important;
+  height: 9px !important;
+  stroke-opacity: 0.1;
+}
+
+.highcharts-scrollbar-track {
+  fill: transparent !important;
+  stroke-opacity: 0.1;
+}
+
+.highcharts-legend-box{
+  stroke: transparent !important;
+}
+
+.leaflet-control-fullscreen a {
+  background         : url(../images/icons/map-full.png) no-repeat 0 0 !important;
+  background-size    : 16px 16px !important;
+  background-position: center !important;
+  background-color   : var(--sidebar-main-active-color) !important;
+}
+
+.highcharts-label text{
+//    fill: unset !important;
+    text-decoration: none !important;
+}
+
+.highcharts-legend-item-hidden text {
+    color      : var(--legend-inactive-color) !important;
+    fill       :  var(--legend-inactive-color) !important;
+    font-weight: normal !important;
+}
+
+.highcharts-yaxis-grid .highcharts-grid-line{
+  stroke: transparent !important;
+ 
+ 
+}
+
+.highcharts-axis .highcharts-axis-line{
+  stroke: var(--border-grey-color) !important;
+  opacity: 0.2;
+  stroke-width: 1px !important;
+}
+
+.highcharts-text-outline {
+  fill        : transparent !important;
+  stroke      : transparent !important;
+  stroke-width: 0px !important;
+  font-weight : 100px !important;
+}
+
+
+// responsive css
+
 @media only screen and (min-width: 1920px) {
   .delivery-title {
     font-size: var(--font-medium) !important;
@@ -127,30 +197,4 @@ text.highcharts-drilldown-axis-label {
     height: auto !important;
     overflow-y: auto;
   }
-}
-
-
-.highcharts-button{ 
-  .highcharts-button-box{
-    fill: var(--footer-components-color) !important;
-    stroke: var(--innertext-font-color) !important;
-    border: var(--footer-components-color) !important;
-  }
-  text{
-    fill: var(--innertext-font-color) !important;
-  }
-   
-}
-
-
-
-.highcharts-tooltip-box {
-  fill: #fff !important;
-  fill-opacity: 0.6;
-  stroke-width: 0;
-}
-
-.highcharts-tooltip text {
-  fill: #000 !important;
-  // text-shadow: 0 0 3px black;
 }

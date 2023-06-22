@@ -1,6 +1,5 @@
 <template>
 	<div class="saved-Fav-page">
-	  
 		<Header
 			:headerConditions="{
 				home: true,
@@ -18,7 +17,6 @@
 </template>
 
 <script>
-/*global settings*/
 import SavedFav from "@/components/SavedFavorites/SavedFav";
 import DocumentTitleMixin from "@/helpers/DocumentTitleMixin";
 import LanguageChangeMixin from "@/helpers/LanguageChangeMixin";
@@ -30,7 +28,7 @@ export default {
 	},
 	mixins: [DocumentTitleMixin, LanguageChangeMixin, EmitTourCallbackMixin],
 	created() {
-		this.$store.commit("setNamespace", `${settings.tableName}`);
+		this.$store.commit("setNamespace", `${this.$store.getters.getAppSettings.tableName}`); //* Default sidebar navigation option selector
 	},
 };
 </script>

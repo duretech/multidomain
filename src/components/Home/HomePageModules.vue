@@ -31,8 +31,10 @@
 </template>
 <script>
 /*global settings*/
+import DynamicImageMixin from "@/helpers/DynamicImageMixin";
 export default {
   props: ["isFromAdmin"],
+  mixins: [DynamicImageMixin],
   computed: {
     moduleList() {
       let permission = this.$store.getters.getUserPermissions;
@@ -108,7 +110,9 @@ export default {
             },
             type: "question",
             showCancelButton: true,
+            reverseButtons: true,
             confirmButtonText: this.$i18n.t("submitbtn"),
+            cancelButtonText: this.$i18n.t("cancelbtn"),
             inputValidator: (value) => {
               return new Promise((resolve) => {
                 if (value) {

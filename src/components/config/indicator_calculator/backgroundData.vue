@@ -1,14 +1,14 @@
 <template>
   <div class="md_tabs py-3">
-    <b-card no-body class="p-3">
+    <b-card no-body class="">
       <b-card v-if="this.type === 'BackgroundData'">
         <div>
-          <h4>Background Indicators Set-up</h4>
+          <!-- <h4>{{$t("bgIndSetUp")}}</h4> -->
         </div>
-        <div class="accordion" role="tablist">
+        <div class="accordion mt-2" role="tablist">
           <b-form
             no-body
-            class="mb-1"
+            class="mb-2"
             :key="index1"
             v-for="(obj, index1) in this.dqrConfig.emu.Background_Data
               .backgroundIndicators"
@@ -29,7 +29,7 @@
             >
               <b-card-body>
                 <div class="d-flex justify-content-between align-items-center">
-                  <div class="w-50">Data Source</div>
+                  <div class="w-50">{{ $t("dataSource") }}</div>
                   <b-form-select
                     class="w-50"
                     v-model="obj.bgDataSource"
@@ -56,8 +56,7 @@
                             :name="`secondRadio_${index2}`"
                             value="indicator"
                             class="mr-3"
-                            
-                            >Indicator</b-form-radio
+                            >{{ $t("indicator") }}</b-form-radio
                           >
                           <b-form-radio
                             readOnly
@@ -66,8 +65,7 @@
                             :name="`secondRadio_${index2}`"
                             value="data_element"
                             class="mx-3"
-                            
-                            >Data Element</b-form-radio
+                            >{{ $t("dataElement") }}</b-form-radio
                           >
                           <b-form-radio
                             readOnly
@@ -76,8 +74,7 @@
                             :name="`secondRadio_${index2}`"
                             value="data_sets"
                             class="mx-3"
-                            
-                            >Data Sets</b-form-radio
+                            >{{ $t("dataSets") }}</b-form-radio
                           >
                         </div>
                       </b-form-group>
@@ -124,12 +121,27 @@
                       </div>
                     </div>
                     <div :key="index4" v-for="(dE, index4) in ele.selectedDE">
-                      <div>
+                      <div class="mt-3">
                         {{ dE.displayName }}
-                        <i
+                        <!-- <i
                           class="fa fa-trash delButton"
                           @click="deleteDe( `emu` , `backgroundIndicators` , index1, index2, dE.id)"
-                        ></i>
+                        ></i> -->
+                        <img
+                          src="@/assets/images/icons/admindelete-icon.svg"
+                          class="delButton f-s-0-875rem w-auto mb-1 mx-2"
+                          
+                          :style="{ filter: filterColor }"
+                          @click="
+                            deleteDe(
+                              `emu`,
+                              `backgroundIndicators`,
+                              index1,
+                              index2,
+                              dE.id
+                            )
+                          "
+                        />
                       </div>
                     </div>
                   </div>
@@ -154,11 +166,14 @@
             </b-collapse>
           </b-form>
         </div>
-        <div class="accordion" role="tablist">
-          <b-form no-body class="mb-1">
+        <div class="accordion mt-2" role="tablist">
+          <b-form no-body class="mb-2">
             <b-card-header header-tag="header" class="p-1" role="tab">
-              <b-button block v-b-toggle.accordion-annualFpSource variant="info"
-                >ANNUAL - FP SOURCE OF MODERN CONTRACEPTIVE</b-button
+              <b-button
+                block
+                v-b-toggle.accordion-annualFpSource
+                variant="info"
+                >{{ $t("annualFp") }}</b-button
               >
             </b-card-header>
             <b-collapse
@@ -171,7 +186,7 @@
                   <div
                     class="d-flex justify-content-between align-items-center"
                   >
-                    <div class="w-50">Data Source:</div>
+                    <div class="w-50">{{ $t("dataSource") }}:</div>
                     <b-form-select
                       class="w-50"
                       v-model="dqrConfig.emu.Background_Data.bgDataSource"
@@ -184,10 +199,10 @@
                     v-for="(obj, mName1, index2) in this.dqrConfig.emu
                       .Background_Data.fpSourceIndicators"
                   >
-                    <h6>{{ obj.static_name }}</h6>
+                    <h6 class="mt-3">{{ obj.static_name }}</h6>
                     <b-form
                       no-body
-                      class="mb-1"
+                      class="mb-2"
                       :key="index3"
                       v-for="(ele, mName2, index3) in obj.subIndicators"
                     >
@@ -223,8 +238,7 @@
                                   name="some-radios"
                                   value="indicator"
                                   class="mr-3"
-                                  
-                                  >Indicator</b-form-radio
+                                  >{{ $t("indicator") }}</b-form-radio
                                 >
                                 <b-form-radio
                                   readOnly
@@ -233,8 +247,7 @@
                                   name="some-radios"
                                   value="data_element"
                                   class="mx-3"
-                                  
-                                  >Data Element</b-form-radio
+                                  >{{ $t("dataElement") }}</b-form-radio
                                 >
                                 <b-form-radio
                                   readOnly
@@ -243,8 +256,7 @@
                                   name="some-radios"
                                   value="data_sets"
                                   class="mx-3"
-                                  
-                                  >Data Sets</b-form-radio
+                                  >{{ $t("dataSets") }}</b-form-radio
                                 >
                               </div>
                             </b-form-group>
@@ -294,12 +306,18 @@
                             :key="index4"
                             v-for="(dE, index4) in ele.selectedDE"
                           >
-                            <div>
+                            <div class="mt-3">
                               {{ dE.displayName }}
-                              <i
+                              <!-- <i
                                 class="fa fa-trash delButton"
                                 @click="deleteDe( `emu` , `fpSourceIndicators` , mName1, mName2, dE.id)"
-                              ></i>
+                              ></i> -->
+                              <img
+                                src="@/assets/images/icons/admindelete-icon.svg"
+                                :style="{ filter: filterColor }"
+                                class="delButton f-s-0-875rem w-auto mb-1 mx-2"
+                                @click="deleteDe( `emu` , `fpSourceIndicators` , mName1, mName2, dE.id)"
+                              />
                             </div>
                           </div>
                         </div>
@@ -332,14 +350,14 @@
             </b-collapse>
           </b-form>
         </div>
-        <div class="accordion" role="tablist">
+        <div class="accordion mt-2" role="tablist">
           <b-form no-body class="mb-1">
             <b-card-header header-tag="header" class="p-1" role="tab">
               <b-button
                 block
                 v-b-toggle.accordion-monthlyFpSource
                 variant="info"
-                >MONTHLY - FP SOURCE OF MODERN CONTRACEPTIVE</b-button
+                >{{ $t("monthlyFp") }}</b-button
               >
             </b-card-header>
             <b-collapse
@@ -352,7 +370,7 @@
                   <div
                     class="d-flex justify-content-between align-items-center"
                   >
-                    <div class="w-50">Data Source:</div>
+                    <div class="w-50">{{ $t("dataSource") }}:</div>
                     <b-form-select
                       class="w-50"
                       v-model="
@@ -367,10 +385,10 @@
                     v-for="(obj, mName1, index2) in this.dqrConfig.emu_monthly
                       .Background_Data.fpSourceIndicators"
                   >
-                    <h6>{{ obj.static_name }}</h6>
+                    <h6 class="mt-3">{{ obj.static_name }}</h6>
                     <b-form
                       no-body
-                      class="mb-1"
+                      class="mb-2"
                       :key="index3"
                       v-for="(ele, mName2, index3) in obj.subIndicators"
                     >
@@ -407,8 +425,7 @@
                                   name="some-radios"
                                   value="indicator"
                                   class="mr-3"
-                                  
-                                  >Indicator</b-form-radio
+                                  >{{ $t("indicator") }}</b-form-radio
                                 >
                                 <b-form-radio
                                   readOnly
@@ -417,8 +434,7 @@
                                   name="some-radios"
                                   value="data_element"
                                   class="mx-3"
-                                  
-                                  >Data Element</b-form-radio
+                                  >{{ $t("dataElement") }}</b-form-radio
                                 >
                                 <b-form-radio
                                   readOnly
@@ -427,8 +443,7 @@
                                   name="some-radios"
                                   value="data_sets"
                                   class="mx-3"
-                                  
-                                  >Data Sets</b-form-radio
+                                  >{{ $t("dataSets") }}</b-form-radio
                                 >
                               </div>
                             </b-form-group>
@@ -482,7 +497,15 @@
                               {{ dE.displayName }}
                               <i
                                 class="fa fa-trash delButton"
-                                @click="deleteDe(`emu_monthly` ,`fpSourceIndicators` , mName1, mName2, dE.id)"
+                                @click="
+                                  deleteDe(
+                                    `emu_monthly`,
+                                    `fpSourceIndicators`,
+                                    mName1,
+                                    mName2,
+                                    dE.id
+                                  )
+                                "
                               ></i>
                             </div>
                           </div>
@@ -516,16 +539,27 @@
             </b-collapse>
           </b-form>
         </div>
-        <div class="d-flex justify-content-end">
-          <b-button class="btn btn-primary black-btn mr-2" @click="saveBtnDQRConfig()">Save</b-button>
+        <div class="d-flex justify-content-end mt-4">
+          <b-button
+            class="btn btn-primary black-btn save-btn mr-0"
+            @click="saveBtnDQRConfig()"
+            >{{ $t("savebtn") }}</b-button
+          >
         </div>
-        <b-modal v-if="this.openPopup == true" size="lg" title="Data Entry">
+        <b-modal
+          v-if="this.openPopup == true"
+          size="lg"
+          :ok-title="$t('ok')"
+          :cancel-title="$t('cancelbtn')"
+          :title="$t('dataEntry')"
+          centered
+        >
         </b-modal>
       </b-card>
       <b-card v-if="this.type === 'cyp'">
         <div class="d-flex justify-content-between">
-          <div class="d-flex align-items-center">
-            <div>Method Name:</div>
+          <div class="d-flex align-items-center mb-3">
+            <div>{{ $t("methodName") }}</div>
             <b-form-select
               class="w-50 mx-2"
               v-model="form.selectedCyp"
@@ -533,10 +567,10 @@
             ></b-form-select>
           </div>
         </div>
-        <div class="accordion" role="tablist">
+        <div class="accordion mt-2" role="tablist">
           <b-form
             no-body
-            class="mb-1"
+            class="mb-1 mt-2"
             :key="index"
             v-for="(obj, index) in this.bgDataConfig.cyp[this.form.selectedCyp]
               .chartData"
@@ -547,15 +581,22 @@
                 block
                 v-b-toggle="'accordion-' + index"
                 variant="info"
-                ><i>{{ obj.indicator.name }}</i>
-                <i
-                  class="fa fa-trash delButton float-right"
+                >{{ obj.indicator.name }}
+                <!-- <i
+                  class="fa fa-trash delButton float-right mx-4"
                   @click="deleteMethod(index)"
-                ></i>
+                ></i> -->
+                <img
+                  src="@/assets/images/icons/admindelete-icon.svg"
+                  :style="{ filter: filterColor }"
+                  class="delButton float-right f-s-0-875rem w-auto mx-4 mt-sm-1 pt-0"
+                  @click="deleteMethod(index)"
+                />
               </b-button>
             </b-card-header>
             <b-collapse
               :id="'accordion-' + index"
+              visible
               accordion="accordian-cyp"
               role="tabpanel"
             >
@@ -581,14 +622,18 @@
             </b-collapse>
           </b-form>
         </div>
-        <div class="d-flex justify-content-end">
-          <b-button class="btn btn-primary black-btn mr-2" @click="saveBtnCYP()">Save</b-button>
+        <div class="d-flex justify-content-end mt-4">
+          <b-button
+            class="btn btn-primary black-btn save-btn mr-0"
+            @click="saveBtnCYP()"
+            >{{ $t("savebtn") }}</b-button
+          >
         </div>
       </b-card>
       <b-card v-if="this.type === 'continuation'">
         <div class="d-flex justify-content-between">
-          <div class="d-flex align-items-center">
-            <div>Method Name:</div>
+          <div class="d-flex align-items-center mb-3">
+            <div>{{ $t("methodName") }}</div>
             <b-form-select
               class="w-50 mx-2"
               v-model="form.selectedContination"
@@ -596,10 +641,10 @@
             ></b-form-select>
           </div>
         </div>
-        <div class="accordion" role="tablist">
+        <div class="accordion contin-acc" role="tablist">
           <b-card
             no-body
-            class="mb-1"
+            class="mb-1 mt-2"
             :key="index"
             v-for="(obj, mName, index) in bgDataConfig.continuation[
               this.form.selectedContination
@@ -618,6 +663,7 @@
               :id="'contAccordion-' + index"
               accordion="accordian-cont"
               role="tabpanel"
+              visible
             >
               <!-- <b-card-body> -->
               <!-- <div class="accordion" role="tablist"> -->
@@ -637,47 +683,50 @@
                       accordion="accordian-subContinuation"
                       role="tabpanel"
                     > -->
+
               <b-form>
-                <div
-                  class="d-flex justify-content-between align-items-center my-2"
-                >
-                  <div class="w-50">Scaling Factor</div>
-                  <b-form-input
-                    class="w-50"
-                    v-model="obj.scalingFactor"
-                    type="number"
-                    required
-                  ></b-form-input>
-                </div>
-                <div
-                  class="d-flex justify-content-between align-items-center my-2"
-                >
-                  <div class="w-50">Method Name</div>
-                  <b-form-select
-                    class="w-50"
-                    v-model="obj.type"
-                    :options="form.methodName"
-                  ></b-form-select>
-                </div>
-                <div class="d-flex flex-wrap">
+                <div class="m-3">
                   <div
-                    class="w-50 px-2"
-                    :key="innerIndex"
-                    v-for="(innerItem, innerIndex) in obj.continuation"
+                    class="d-flex justify-content-between align-items-center my-2"
                   >
-                    <!-- <div></div> -->
+                    <div class="w-50">{{ $t("scalingFactor") }}</div>
+                    <b-form-input
+                      class="w-50"
+                      v-model="obj.scalingFactor"
+                      type="number"
+                      required
+                    ></b-form-input>
+                  </div>
+                  <div
+                    class="d-flex justify-content-between align-items-center my-2"
+                  >
+                    <div class="w-50">{{ $t("methodName") }}</div>
+                    <b-form-select
+                      class="w-50"
+                      v-model="obj.type"
+                      :options="form.methodName"
+                    ></b-form-select>
+                  </div>
+                  <div class="d-flex flex-wrap">
                     <div
-                      class="d-flex justify-content-between align-items-center my-2"
+                      class="w-50 px-2"
+                      :key="innerIndex"
+                      v-for="(innerItem, innerIndex) in obj.continuation"
                     >
-                      <div class="w-50">Yr{{ innerIndex }}</div>
-                      <b-form-input
-                        class="w-50"
-                        id="input-1"
-                        v-model="obj.continuation[innerIndex]"
-                        type="number"
-                        required
+                      <!-- <div></div> -->
+                      <div
+                        class="d-flex justify-content-between align-items-center my-2"
                       >
-                      </b-form-input>
+                        <div class="w-50">Yr{{ innerIndex }}</div>
+                        <b-form-input
+                          class="w-50"
+                          id="input-1"
+                          v-model="obj.continuation[innerIndex]"
+                          type="number"
+                          required
+                        >
+                        </b-form-input>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -689,9 +738,11 @@
             </b-collapse>
           </b-card>
         </div>
-        <div class="d-flex justify-content-end">
-          <b-button class="btn btn-primary black-btn mr-2" @click="saveBtnContinuation()"
-            >Save</b-button
+        <div class="d-flex justify-content-end mt-4">
+          <b-button
+            class="btn btn-primary black-btn save-btn mr-0"
+            @click="saveBtnContinuation()"
+            >{{ $t("savebtn") }}</b-button
           >
         </div>
       </b-card>
@@ -703,7 +754,7 @@ import ModalPopup from "./ModalPopup";
 import Treeselect from "@riophae/vue-treeselect";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 import DataEntry from "./DataEntry.vue";
-
+import DynamicImageMixin from "@/helpers/DynamicImageMixin";
 export default {
   props: [
     "type",
@@ -715,6 +766,7 @@ export default {
     "dataSetList",
     "orgList",
   ],
+  mixins: [DynamicImageMixin],
   components: { ModalPopup, Treeselect, DataEntry },
   data() {
     return {
@@ -747,13 +799,16 @@ export default {
   },
   methods: {
     saveBtnDQRConfig() {
-      this.$emit('saveJson', this.dqrConfig, "dqrModule_en")
+      let key = this.generateKey("dqrModule");
+      this.$emit("saveJson", this.dqrConfig, key);
     },
-    saveBtnContinuation(){
-      this.$emit('saveJson', this.bgDataConfig, "globalFactors_en")
+    saveBtnContinuation() {
+      let key = this.generateKey("globalFactors");
+      this.$emit("saveJson", this.bgDataConfig, key);
     },
-    saveBtnCYP(){
-      this.$emit('saveJson', this.bgDataConfig, "globalFactors_en")
+    saveBtnCYP() {
+      let key = this.generateKey("globalFactors");
+      this.$emit("saveJson", this.bgDataConfig, key);
     },
     getAllDEs(val, index, subIndex, keyType, title, insideOf, emuType) {
       console.log("getAlldes", this.dqrConfig);
@@ -784,7 +839,7 @@ export default {
       this.updateSubInd(index, subIndex, "selectedDE", val, insideOf, emuType);
     },
     updateSubInd(index, subIndex, key, val, insideOf, emuType) {
-      console.log(this.dqrConfig)
+      console.log(this.dqrConfig);
       let getData = this.dqrConfig;
       if (key === "selectedDE") {
         let ar =
@@ -804,9 +859,9 @@ export default {
     deleteDe(emuType, insideOf, index, subIndex, id) {
       let getData = this.dqrConfig;
       let arr =
-        getData[emuType]["Background_Data"][insideOf][index][
-          "subIndicators"
-        ][subIndex]["selectedDE"];
+        getData[emuType]["Background_Data"][insideOf][index]["subIndicators"][
+          subIndex
+        ]["selectedDE"];
 
       arr.forEach((de, ind) => {
         if (de["id"] == id) {
@@ -814,14 +869,14 @@ export default {
           console.log(arr.splice(ind, 1));
         }
       });
-      getData[emuType]["Background_Data"][insideOf][index][
-        "subIndicators"
-      ][subIndex]["selectedDE"] = arr;
+      getData[emuType]["Background_Data"][insideOf][index]["subIndicators"][
+        subIndex
+      ]["selectedDE"] = arr;
       this.configdata = getData;
     },
-    deleteMethod(index){
+    deleteMethod(index) {
       let getData = this.bgDataConfig;
-      let arr = getData.cyp[this.form.selectedCyp].chartData
+      let arr = getData.cyp[this.form.selectedCyp].chartData;
       arr.forEach((de, ind) => {
         if (ind == index) {
           arr.splice(ind, 1);
@@ -829,7 +884,7 @@ export default {
       });
       getData.cyp[this.form.selectedCyp].chartData = arr;
       this.configdata = getData;
-    }
+    },
   },
 };
 </script>

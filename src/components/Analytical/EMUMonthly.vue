@@ -8,21 +8,21 @@
       </b-col>
     </template>
     <template v-else>
-      <b-col sm="6" class="m-b-30px">
+      <b-col sm="6" class="mb-3">
         <card-component
           v-if="totalEMUChartData"
           :chartdata="totalEMUChartData"
           :showSource="true"
           :canComment="canComment"
           defaultSort="JAN-DEC"
-          sorting="['JAN-DEC','DEC-JAN']"
+          :sorting="['JAN-DEC', 'DEC-JAN']"
           :setExtreme="true"
         />
         <template v-else>
           <HighChartComponent :chartData="placeholderObj" />
         </template>
       </b-col>
-      <b-col sm="6" class="m-b-30px">
+      <b-col sm="6" class="mb-3">
         <card-component
           v-if="trendsChartData"
           :chartdata="trendsChartData"
@@ -33,14 +33,15 @@
           :caltype="calType"
           :canComment="canComment"
           defaultSort="JAN-DEC"
-          sorting="['JAN-DEC','DEC-JAN']"
+          :sorting="['JAN-DEC', 'DEC-JAN']"
           :setExtreme="true"
         />
         <template v-else>
           <HighChartComponent :chartData="placeholderObj" />
         </template>
       </b-col>
-      <b-col sm="6" class="m-b-30px">
+
+      <b-col sm="6" class="mb-3">
         <card-component
           v-if="methodTrendsChartData"
           :chartdata="methodTrendsChartData"
@@ -50,14 +51,14 @@
           :caltype="calType"
           :canComment="canComment"
           defaultSort="JAN-DEC"
-          sorting="['JAN-DEC','DEC-JAN']"
+          :sorting="['JAN-DEC', 'DEC-JAN']"
           :setExtreme="true"
         />
         <template v-else>
           <HighChartComponent :chartData="placeholderObj" />
         </template>
       </b-col>
-      <b-col sm="6" class="m-b-30px">
+      <b-col sm="6" class="mb-3">
         <card-component
           v-if="oneMonthEMUChartData"
           :chartdata="oneMonthEMUChartData"
@@ -67,7 +68,7 @@
           :caltype="calType"
           :canComment="canComment"
           defaultSort="A-Z"
-          sorting="['0-1','1-0', 'A-Z','Z-A']"
+          :sorting="['0-1', '1-0', 'A-Z', 'Z-A']"
           :setExtreme="true"
         />
         <template v-else>
@@ -79,39 +80,62 @@
 </template>
 <script>
 import service from "@/service";
-import basicChartConfig from "@/config/basicChartConfig.js";
+import { commonChartConfig } from "@/config/basicChartConfig";
 import cardComponent from "@/components/FPDashboard/dqr/monthly/cardComponent";
-import HighChartComponent from "@/components/Highcharts/HighChartComponentDynamic";
 
 export default {
   props: ["emuData", "dqrResponse", "locationPeriod"],
-  components: { cardComponent, HighChartComponent },
+  components: {
+    cardComponent,
+    HighChartComponent: () =>
+      import(
+        /* webpackChunkName: "HighChartComponentDynamic"*/ "@/components/Highcharts/HighChartComponentDynamic"
+      ),
+  },
   data() {
     return {
       noData: "",
-      calType: "method",
       canComment: false,
       trendsChartData: null,
       globalPeriodData: null,
       totalEMUChartData: null,
       oneMonthEMUChartData: null,
       methodTrendsChartData: null,
-      placeholderObj: basicChartConfig,
+      placeholderObj: commonChartConfig,
     };
+  },
+  computed: {
+    calType() {
+      return this.locationPeriod.mType;
+    },
   },
   watch: {
     emuData: {
       handler(newValue) {
-        if (newValue["monthly"] && this.dqrResponse) {
+        if (
+          newValue[`monthly_${this.$i18n.locale}`] &&
+          newValue[`monthly_${this.$i18n.locale}`] !== "Error" &&
+          this.dqrResponse
+        ) {
           this.getEMUChart();
+        }
+        if (newValue[`monthly_${this.$i18n.locale}`] === "Error") {
+          this.noData = this.$i18n.t("no_data_to_display");
         }
       },
       deep: true,
     },
     dqrResponse: {
       handler(newValue) {
-        if (this.emuData["monthly"] && newValue) {
+        if (
+          this.emuData[`monthly_${this.$i18n.locale}`] &&
+          this.emuData[`monthly_${this.$i18n.locale}`] !== "Error" &&
+          newValue
+        ) {
           this.getEMUChart();
+        }
+        if (this.emuData[`monthly_${this.$i18n.locale}`] === "Error") {
+          this.noData = this.$i18n.t("no_data_to_display");
         }
       },
       deep: true,
@@ -132,16 +156,12 @@ export default {
 
       let locId = this.locationPeriod.location.split("/")[1];
       let emuData = JSON.parse(JSON.stringify(this.emuData));
-      // console.log("locId", locId);
       let totalEMU =
-        typeof emuData["monthly"]["totalEMU"] === "string"
-          ? JSON.parse(emuData["monthly"]["totalEMU"])
-          : emuData["monthly"]["totalEMU"];
-      // let totalEMU = emuData["monthly"]['totalEMU'] ? emuData["monthly"]['totalEMU'] : null
-      // console.log("totalEMU", totalEMU);
-      // console.log("totalEMU[locId]", totalEMU[locId]);
+        typeof emuData[`monthly_${this.$i18n.locale}`]["totalEMU"] === "string"
+          ? JSON.parse(emuData[`monthly_${this.$i18n.locale}`]["totalEMU"])
+          : emuData[`monthly_${this.$i18n.locale}`]["totalEMU"];
+      // let totalEMU = emuData[`monthly_${this.$i18n.locale}`]['totalEMU'] ? emuData[`monthly_${this.$i18n.locale}`]['totalEMU'] : null
       if (totalEMU[locId]) {
-        // console.log("dqrResponse", this.dqrResponse)
         let savedEMU = this.dqrResponse.emu_monthly.Background_Data.autoSaveEMU;
         let dqrData = this.dqrResponse.emu_monthly[savedEMU].derivedCharts;
         let d = new Date();
@@ -159,11 +179,18 @@ export default {
           );
           if (data) {
             data = data.chartOptions;
-            totalEMUChartData.title = data.chartName;
+            totalEMUChartData.chartInfo =
+              data.chartInfo[this.$i18n.locale] || data.chartInfo;
+            totalEMUChartData.title =
+              data.chartName[this.$i18n.locale] || data.chartName;
             totalEMUChartData.xTitle =
-              data.xAxis && data.xAxis.visible ? data.xAxis.text : "";
+              data.xAxis && data.xAxis.visible
+                ? data.xAxis.text[this.$i18n.locale] || data.xAxis.text
+                : "";
             totalEMUChartData.yTitle =
-              data.yAxis && data.yAxis.visible ? data.yAxis.text : "";
+              data.yAxis && data.yAxis.visible
+                ? data.yAxis.text[this.$i18n.locale] || data.yAxis.text
+                : "";
             totalEMUChartData.type = "line";
             totalEMUChartData.max = 11;
             totalEMUChartData["categories"] = [];
@@ -202,7 +229,7 @@ export default {
               let obj = {
                 name: sData.name,
                 data: [],
-                //color: sData.color,
+                color: sData.color,
               };
               let methodName = sData.name;
               fields.push(methodName);
@@ -265,11 +292,12 @@ export default {
         } else {
           this.totalEMUChartData = null;
         }
-        // let eTrend = emuData["monthly"]['emuTrend'] ? JSON.parse(emuData["monthly"]['emuTrend']) : null
+        // let eTrend = emuData[`monthly_${this.$i18n.locale}`]['emuTrend'] ? JSON.parse(emuData[`monthly_${this.$i18n.locale}`]['emuTrend']) : null
         let eTrend =
-          typeof emuData["monthly"]["emuTrend"] === "string"
-            ? JSON.parse(emuData["monthly"]["emuTrend"])
-            : emuData["monthly"]["emuTrend"];
+          typeof emuData[`monthly_${this.$i18n.locale}`]["emuTrend"] ===
+          "string"
+            ? JSON.parse(emuData[`monthly_${this.$i18n.locale}`]["emuTrend"])
+            : emuData[`monthly_${this.$i18n.locale}`]["emuTrend"];
         let trendsChartData = eTrend[locId] ? eTrend[locId] : null;
         if (trendsChartData) {
           let data = dqrData.find(
@@ -277,12 +305,18 @@ export default {
           );
           if (data) {
             data = data.chartOptions;
-            trendsChartData.chartInfo = data.chartInfo;
-            trendsChartData.title = data.chartName;
+            trendsChartData.chartInfo =
+              data.chartInfo[this.$i18n.locale] || data.chartInfo;
+            trendsChartData.title =
+              data.chartName[this.$i18n.locale] || data.chartName;
             trendsChartData.xTitle =
-              data.xAxis && data.xAxis.visible ? data.xAxis.text : "";
+              data.xAxis && data.xAxis.visible
+                ? data.xAxis.text[this.$i18n.locale] || data.xAxis.text
+                : "";
             trendsChartData.yTitle =
-              data.yAxis && data.yAxis.visible ? data.yAxis.text : "";
+              data.yAxis && data.yAxis.visible
+                ? data.yAxis.text[this.$i18n.locale] || data.yAxis.text
+                : "";
             trendsChartData.max = 11;
             trendsChartData["categories"] = [];
             trendsChartData["data"] = [];
@@ -345,7 +379,6 @@ export default {
                 if (formatedCatArray.includes(p)) {
                   let catIndex = formatedCatArray.indexOf(p);
                   obj.data.push(reqData[catIndex]);
-
                   if (!trendsChartData.categories.includes(formatedDate))
                     trendsChartData.categories.push(formatedDate);
                 }
@@ -410,11 +443,12 @@ export default {
         } else {
           this.trendsChartData = null;
         }
-        // let methodTrend = emuData["monthly"]['methodTrend'] ? JSON.parse(emuData["monthly"]['methodTrend']) : null
+        // let methodTrend = emuData[`monthly_${this.$i18n.locale}`]['methodTrend'] ? JSON.parse(emuData[`monthly_${this.$i18n.locale}`]['methodTrend']) : null
         let methodTrend =
-          typeof emuData["monthly"]["methodTrend"] === "string"
-            ? JSON.parse(emuData["monthly"]["methodTrend"])
-            : emuData["monthly"]["methodTrend"];
+          typeof emuData[`monthly_${this.$i18n.locale}`]["methodTrend"] ===
+          "string"
+            ? JSON.parse(emuData[`monthly_${this.$i18n.locale}`]["methodTrend"])
+            : emuData[`monthly_${this.$i18n.locale}`]["methodTrend"];
         let methodTrendsChartData = methodTrend[locId]
           ? methodTrend[locId]
           : null;
@@ -422,18 +456,23 @@ export default {
           let data = dqrData.find(
             (d) => d.chartOptions.cid === methodTrendsChartData.cid
           );
-          // console.log("data",data)
           let items = [],
             agreItems = [],
             fields = [{ key: "Period", value: this.$i18n.t("period") }];
           if (data) {
             data = data.chartOptions;
-            methodTrendsChartData.chartInfo = data.chartInfo;
-            methodTrendsChartData.title = data.chartName;
+            methodTrendsChartData.chartInfo =
+              data.chartInfo[this.$i18n.locale] || data.chartInfo;
+            methodTrendsChartData.title =
+              data.chartName[this.$i18n.locale] || data.chartName;
             methodTrendsChartData.xTitle =
-              data.xAxis && data.xAxis.visible ? data.xAxis.text : "";
+              data.xAxis && data.xAxis.visible
+                ? data.xAxis.text[this.$i18n.locale] || data.xAxis.text
+                : "";
             methodTrendsChartData.yTitle =
-              data.yAxis && data.yAxis.visible ? data.yAxis.text : "";
+              data.yAxis && data.yAxis.visible
+                ? data.yAxis.text[this.$i18n.locale] || data.yAxis.text
+                : "";
             methodTrendsChartData.max = 11;
             methodTrendsChartData["categories"] = [];
             methodTrendsChartData["data"] = [];
@@ -556,25 +595,31 @@ export default {
           this.methodTrendsChartData = null;
         }
 
-        // let monthTrend = emuData["monthly"]['monthTrend'] ? JSON.parse(emuData["monthly"]['monthTrend']) : null
+        // let monthTrend = emuData[`monthly_${this.$i18n.locale}`]['monthTrend'] ? JSON.parse(emuData[`monthly_${this.$i18n.locale}`]['monthTrend']) : null
         let monthTrend =
-          typeof emuData["monthly"]["monthTrend"] === "string"
-            ? JSON.parse(emuData["monthly"]["monthTrend"])
-            : emuData["monthly"]["monthTrend"];
+          typeof emuData[`monthly_${this.$i18n.locale}`]["monthTrend"] ===
+          "string"
+            ? JSON.parse(emuData[`monthly_${this.$i18n.locale}`]["monthTrend"])
+            : emuData[`monthly_${this.$i18n.locale}`]["monthTrend"];
         let oneMonthEMUChartData = monthTrend[locId] ? monthTrend[locId] : null;
         if (oneMonthEMUChartData) {
           let data = dqrData.find(
             (d) => d.chartOptions.cid === oneMonthEMUChartData.cid
           );
-          // console.log("data",data)
           if (data) {
             data = data.chartOptions;
-            oneMonthEMUChartData.chartInfo = data.chartInfo;
-            oneMonthEMUChartData.title = data.chartName;
+            oneMonthEMUChartData.chartInfo =
+              data.chartInfo[this.$i18n.locale] || data.chartInfo;
+            oneMonthEMUChartData.title =
+              data.chartName[this.$i18n.locale] || data.chartName;
             oneMonthEMUChartData.xTitle =
-              data.xAxis && data.xAxis.visible ? data.xAxis.text : "";
+              data.xAxis && data.xAxis.visible
+                ? data.xAxis.text[this.$i18n.locale] || data.xAxis.text
+                : "";
             oneMonthEMUChartData.yTitle =
-              data.yAxis && data.yAxis.visible ? data.yAxis.text : "";
+              data.yAxis && data.yAxis.visible
+                ? data.yAxis.text[this.$i18n.locale] || data.yAxis.text
+                : "";
           }
           this.oneMonthEMUChartData = oneMonthEMUChartData;
         } else {
@@ -603,7 +648,9 @@ export default {
               title: this.$i18n.t("configurationnotavailable"),
               text: this.$i18n.t("pleasesetyourconfiguration"),
               showCancelButton: true,
-              confirmButtonText: this.$i18n.t("configurenow"),
+              reverseButtons: true,
+              confirmButtonText: this.$i18n.t("configureNow"),
+              cancelButtonText: this.$i18n.t("cancelbtn"),
             }).then((result) => {
               if (result.value) {
                 this.$router.push("/config");
@@ -611,9 +658,9 @@ export default {
             });
           } else {
             // Popup message to contact admin for the configurations
-            this.$swal({
+            this.sweetAlert({
               title: this.$i18n.t("configurationnotavailable"),
-              text: this.$i18n.t("error_text_2"),
+              text: this.$i18n.t("contactAdmin"),
             });
           }
         });
@@ -628,7 +675,7 @@ export default {
     if (!this.dqrResponse) {
       this.getConfig();
     }
-    if (this.emuData["monthly"] && this.dqrResponse) {
+    if (this.emuData[`monthly_${this.$i18n.locale}`] && this.dqrResponse) {
       this.getEMUChart();
     }
   },

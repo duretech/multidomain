@@ -4,23 +4,32 @@
       <div class="row">
         <div class="col-lg-12">
           <div class="form-group row">
-            <label for="finalYear" class="col-sm-6 col-form-label">{{
+            <label for="finalYear" class="col-sm-4 col-form-label">{{
               $t("catInformation")
             }}</label>
-            <div class="col-sm-6">
-              <vue-editor
-                v-model="categoryInfo"
-                :state="categoryInfo.length !== 0"
-                :editorToolbar="customToolbar"
-                :placeholder="$t('enter_category_information')"
-              ></vue-editor>
+            <div class="col-sm-8">
+              <b-input-group>
+                <vue-editor
+                  v-model="categoryInfo[$i18n.locale]"
+                  :state="
+                    categoryInfo &&
+                    categoryInfo[$i18n.locale] &&
+                    categoryInfo[$i18n.locale].length !== 0
+                  "
+                  :editorToolbar="customToolbar"
+                  disabled
+                ></vue-editor>
+                <b-input-group-append is-text>
+                  <Translations :transText.sync="categoryInfo" type="editor" />
+                </b-input-group-append>
+              </b-input-group>
             </div>
           </div>
           <div class="form-group row" v-if="dataOnContraceptive">
-            <label for="conterceptiveYesNo" class="col-sm-6 col-form-label">{{
+            <label for="conterceptiveYesNo" class="col-sm-4 col-form-label">{{
               $t("emu_mon_quest")
             }}</label>
-            <div class="col-sm-6">
+            <div class="col-sm-8">
               <div class="select-wrapper">
                 <select class="form-control" v-model="dataOnContraceptive">
                   <option value="Yes">
@@ -37,11 +46,11 @@
       </div>
       <transition name="slide-fade">
         <div v-if="dataOnContraceptive !== 'No'">
-          <div class="form-group row">
-            <label for="initialYear" class="col-sm-6 col-form-label">{{
+          <div class="form-group row" v-if="chartBySubtype !== 'Output'">
+            <label for="initialYear" class="col-sm-4 col-form-label">{{
               $t("emu_initial_year_quest")
             }}</label>
-            <div class="col-sm-6">
+            <div class="col-sm-8">
               <input
                 type="number"
                 class="form-control"
@@ -51,11 +60,11 @@
               />
             </div>
           </div>
-          <div class="form-group row">
-            <label for="finalYear" class="col-sm-6 col-form-label">{{
+          <div class="form-group row" v-if="chartBySubtype !== 'Output'">
+            <label for="finalYear" class="col-sm-4 col-form-label">{{
               $t("emu_final_year_quest")
             }}</label>
-            <div class="col-sm-6">
+            <div class="col-sm-8">
               <input
                 type="number"
                 class="form-control"
@@ -65,122 +74,1105 @@
               />
             </div>
           </div>
-          <div class="row mt-3 mb-4" v-if="chartData.length">
-            <div class="col">
-              <div class="card">
-                <div
-                  class="card-header bg-faint-grey color-black border-radius-0 text-uppercase f-s-0-875rem font-weight-bold"
+          <div class="accordion" role="tablist">
+            <b-card no-body class="mb-1">
+              <b-card-header
+                header-tag="header"
+                class="p-1 map-header f-s-0-875rem font-weight-bold"
+                role="tab"
+              >
+                <b-button block v-b-toggle.accordion-an12 variant="info">
+                  {{ $t("mapping") }}</b-button
                 >
-                  {{ $t("mapping") }}
-                </div>
-                <div class="card-body">
-                  <div>
-                    <b-alert show class="noteBackground">
-                      <!-- <i class="fa-duotone fa-circle-info f-s-20px pr-2"></i> -->
-                      <div>Any changes in the data mapping within Data Quality Review will change data mapping in Indicator Calculator as well.</div>
-                    </b-alert>
-                  </div>
-                  <div
-                    class="text-right"
-                    v-if="$root.defaultLanguageLocale !== $i18n.locale"
-                  >
-                    <SyncMapping ref="syncMapping" @syncMapping="syncMapping" />
-                  </div>
-                  <div class="form-group row">
-                    <label for="finalYear" class="col-sm-6 col-form-label">{{
-                      $t("catInformation")
-                    }}</label>
-                    <div class="col-sm-6">
-                      <vue-editor
-                        v-model="tabCategoryInfo[0]"
-                        :editorToolbar="customToolbar"
-                        :placeholder="$t('enter_category_information')"
-                      ></vue-editor>
-                    </div>
-                  </div>
-                  <div
-                    class="text-right"
-                    v-if="
-                      $root.defaultLanguageLocale === $i18n.locale &&
-                      globalMapping &&
-                      chartData
-                    "
-                  >
-                    <copyMapping
-                      :globalMapping="globalMapping"
-                      :chartData="chartData"
-                      @getUpdatedMapping="getUpdatedMapping"
-                    />
-                  </div>
-                  <div
-                    class="row"
-                    v-for="(chart, index) in chartData"
-                    :key="index"
-                  >
-                    <div class="col-12">
-                      <div
-                        class="default-card-border-radius"
-                        :id="'headingChartSettings' + index + chartBySubtype"
-                      >
-                        <!-- mb-0 class removed to remove fa-plus icon from right corner -->
-                        <h2 class="">
-                          <button
-                            class="btn btn-link p-0 w-100 text-left text-uppercase color-grey f-s-0-875rem"
-                            type="button"
-                            data-toggle="collapse"
-                            :data-target="
-                              '#collapseChartSettings' +
-                              index +
-                              chartBySubtype +
-                              chartByType
-                            "
-                            aria-expanded="false"
-                            :aria-controls="
-                              'collapseChartSettings' +
-                              index +
-                              chartBySubtype +
-                              chartByType
-                            "
-                          >
-                            <i
-                              class="fa fa-cog f-s-20px pr-2"
-                              v-b-tooltip.hover
-                              :title="$t('dataMapping')"
-                            ></i>
-                            {{
-                              Array.isArray(chartData[index].indicator.name)
-                                ? chartData[index].indicator.name[0]
-                                : chartData[index].indicator.name
-                            }}
-                          </button>
-                        </h2>
+              </b-card-header>
+              <b-collapse
+                id="accordion-an12"
+                accordion="my-accordion"
+                role="tabpanel"
+                class="border-module"
+              >
+                <b-card-body>
+                  <b-card-text>
+                    <div class="row" v-if="chartData.length">
+                      <div class="col">
+                        <div class="card">
+                          <div class="card-body">
+                            <div>
+                              <b-alert show class="">
+                                <!-- <i class="fa-duotone fa-circle-info f-s-20px pr-2"></i> -->
+                                <div>{{ $t("DQRICChanges") }}</div>
+                              </b-alert>
+                            </div>
+                            <div class="form-group row">
+                              <label
+                                for="finalYear"
+                                class="col-sm-3 col-form-label"
+                                >{{ $t("catInformation") }}</label
+                              >
+                              <div class="col-sm-9">
+                                <b-input-group>
+                                  <vue-editor
+                                    v-model="tabCategoryInfo[0][$i18n.locale]"
+                                    :editorToolbar="customToolbar"
+                                    disabled
+                                  ></vue-editor>
+                                  <b-input-group-append is-text>
+                                    <Translations
+                                      :transText.sync="tabCategoryInfo[0]"
+                                      type="editor"
+                                    />
+                                  </b-input-group-append>
+                                </b-input-group>
+                              </div>
+                            </div>
+                            <div
+                              class="row"
+                              v-for="(chart, index) in chartData"
+                              :key="index"
+                            >
+                              <div class="col-12">
+                                <div
+                                  class="default-card-border-radius accordion-delete"
+                                  :id="
+                                    'headingChartSettings' +
+                                    index +
+                                    chartBySubtype
+                                  "
+                                >
+                                  <!-- mb-0 class removed to remove fa-plus icon from right corner -->
+                                  <h2 class="">
+                                    <button
+                                      class="btn p-0 w-100 text-left text-uppercase color-default f-s-0-875rem"
+                                      type="button"
+                                      data-toggle="collapse"
+                                      :data-target="
+                                        '#collapseChartSettings' +
+                                        index +
+                                        chartBySubtype +
+                                        chartByType
+                                      "
+                                      aria-expanded="false"
+                                      :aria-controls="
+                                        'collapseChartSettings' +
+                                        index +
+                                        chartBySubtype +
+                                        chartByType
+                                      "
+                                    >
+                                      <!-- <i
+                                        class="fa fa-cog f-s-20px pr-2"
+                                        v-b-tooltip.hover
+                                        :title="$t('dataMapping')"
+                                      ></i> -->
+                                      <img
+                                        src="@/assets/images/icons/adminsetting-icon.svg"
+                                        :style="{ filter: filterColor }"
+                                        class="pr-2 cursor-pointer f-s-20px mb-lg-1"
+                                        v-b-tooltip.hover
+                                        :title="$t('dataMapping')"
+                                      />
+                                      {{
+                                        chartData[index].indicator.name[
+                                          $i18n.locale
+                                        ]
+                                      }}
+                                    </button>
+                                  </h2>
+                                </div>
+
+                                <div
+                                  :id="
+                                    'collapseChartSettings' +
+                                    index +
+                                    chartBySubtype +
+                                    chartByType
+                                  "
+                                  class="collapse mt-3"
+                                  :aria-labelledby="
+                                    'headingChartSettings' +
+                                    index +
+                                    chartBySubtype +
+                                    chartByType
+                                  "
+                                >
+                                  <div class="row m-0 mb-2 mb-lg-n3">
+                                    <div class="col-sm-12 col-lg-6">
+                                      <div class="form-group row mt-3">
+                                        <label
+                                          class="col-sm-6 col-form-label"
+                                          >{{ $t("disable_chart") }}</label
+                                        >
+                                        <div class="col-sm-6 pr-0">
+                                          <b-form-checkbox
+                                            checked="derived.chartOptions.disableChart"
+                                            v-model="
+                                              chart.indicator.disableChart
+                                            "
+                                            name="disableChartTitle"
+                                            switch
+                                            size="lg"
+                                            class="mt-1"
+                                          />
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <transition name="slide-fade">
+                                    <div v-if="!chart.indicator.disableChart">
+                                      <div class="row m-0 mb-2">
+                                        <div class="col-sm-12 col-lg-6">
+                                          <div class="form-group row">
+                                            <label
+                                              class="col-sm-6 col-form-label"
+                                              >{{ $t("displayName") }}</label
+                                            >
+                                            <div class="col-sm-6">
+                                              <b-input-group>
+                                                <input
+                                                  type="text"
+                                                  class="form-control"
+                                                  placeholder=""
+                                                  v-model="
+                                                    chart.indicator.name[
+                                                      $i18n.locale
+                                                    ]
+                                                  "
+                                                  disabled
+                                                />
+                                                <b-input-group-append is-text>
+                                                  <Translations
+                                                    :transText.sync="
+                                                      chart.indicator.name
+                                                    "
+                                                  />
+                                                </b-input-group-append>
+                                              </b-input-group>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        <div class="col-sm-12 col-lg-6">
+                                          <div class="form-group row">
+                                            <label
+                                              class="col-sm-5 col-form-label"
+                                              >{{ $t("dataLabels") }}</label
+                                            >
+                                            <div class="col-sm-7">
+                                              <b-form-checkbox
+                                                checked="chart.indicator.dataLabels.enabled"
+                                                v-model="
+                                                  chart.indicator.dataLabels
+                                                    .enabled
+                                                "
+                                                name="someSwitchOptionDataLabels"
+                                                switch
+                                                size="lg"
+                                                class="mt-1"
+                                              />
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div class="row m-0 mb-2">
+                                        <div class="col-sm-12 col-lg-6">
+                                          <div class="form-group row">
+                                            <label
+                                              class="col-sm-6 col-form-label"
+                                              >{{ $t("chart_title") }}</label
+                                            >
+                                            <div class="col-sm-2 pr-0">
+                                              <b-form-checkbox
+                                                checked="chartTitleVisible"
+                                                v-model="
+                                                  chart.indicator.chartOptions
+                                                    .title.visible
+                                                "
+                                                name="someSwitchOptionTitle"
+                                                switch
+                                                size="lg"
+                                                class="mt-1"
+                                              />
+                                            </div>
+                                            <transition name="slide-fade">
+                                              <div
+                                                class="col-sm-5 pl-0"
+                                                v-if="
+                                                  chart.indicator.chartOptions
+                                                    .title.visible
+                                                "
+                                              >
+                                                <b-input-group>
+                                                  <input
+                                                    type="text"
+                                                    class="form-control"
+                                                    placeholder=""
+                                                    v-model="
+                                                      chart.indicator
+                                                        .chartOptions.title
+                                                        .text[$i18n.locale]
+                                                    "
+                                                    disabled
+                                                  />
+                                                  <b-input-group-append is-text>
+                                                    <Translations
+                                                      :transText.sync="
+                                                        chart.indicator
+                                                          .chartOptions.title
+                                                          .text
+                                                      "
+                                                    />
+                                                  </b-input-group-append>
+                                                </b-input-group>
+                                              </div>
+                                            </transition>
+                                          </div>
+                                        </div>
+                                        <div class="col-sm-12 col-lg-6">
+                                          <div class="form-group row">
+                                            <label
+                                              for="inputChartSubtitle"
+                                              class="col-sm-5 col-form-label"
+                                              >{{ $t("chart_subtitle") }}</label
+                                            >
+                                            <div class="col-sm-2 pr-0">
+                                              <b-form-checkbox
+                                                checked="chartSubTitleVisible"
+                                                v-model="
+                                                  chart.indicator.chartOptions
+                                                    .subTitle.visible
+                                                "
+                                                name="someSwitchOptionSubtitle"
+                                                switch
+                                                size="lg"
+                                                class="mt-1"
+                                              />
+                                            </div>
+                                            <transition name="slide-fade">
+                                              <div
+                                                class="col-sm-5 pl-0"
+                                                v-if="
+                                                  chart.indicator.chartOptions
+                                                    .subTitle.visible
+                                                "
+                                              >
+                                                <b-input-group>
+                                                  <input
+                                                    type="text"
+                                                    class="form-control"
+                                                    id="inputChartSubtitle"
+                                                    v-model="
+                                                      chart.indicator
+                                                        .chartOptions.subTitle
+                                                        .text[$i18n.locale]
+                                                    "
+                                                    disabled
+                                                  />
+                                                  <b-input-group-append is-text>
+                                                    <Translations
+                                                      :transText.sync="
+                                                        chart.indicator
+                                                          .chartOptions.subTitle
+                                                          .text
+                                                      "
+                                                    />
+                                                  </b-input-group-append>
+                                                </b-input-group>
+                                              </div>
+                                            </transition>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div
+                                        class="row m-0 mb-2"
+                                        v-if="
+                                          chart.indicator.chartOptions.xAxis &&
+                                          chart.indicator.chartOptions.yAxis
+                                        "
+                                      >
+                                        <div
+                                          class="col-sm-12 col-lg-6"
+                                          v-if="
+                                            chart.indicator.chartOptions.xAxis
+                                          "
+                                        >
+                                          <div class="form-group row">
+                                            <label
+                                              class="col-sm-6 col-form-label"
+                                              >{{ $t("x_axis") }}</label
+                                            >
+                                            <div class="col-sm-2 pr-0">
+                                              <b-form-checkbox
+                                                checked="chartXAxisTitleVisible"
+                                                v-model="
+                                                  chart.indicator.chartOptions
+                                                    .xAxis.visible
+                                                "
+                                                name="someSwitchOptionXAxis"
+                                                switch
+                                                size="lg"
+                                                class="mt-1"
+                                              />
+                                            </div>
+                                            <transition name="slide-fade">
+                                              <div
+                                                class="col-sm-5 pl-0"
+                                                v-if="
+                                                  chart.indicator.chartOptions
+                                                    .xAxis.visible
+                                                "
+                                              >
+                                                <b-input-group>
+                                                  <input
+                                                    type="text"
+                                                    class="form-control"
+                                                    placeholder=""
+                                                    v-model="
+                                                      chart.indicator
+                                                        .chartOptions.xAxis
+                                                        .title.text[
+                                                        $i18n.locale
+                                                      ]
+                                                    "
+                                                    disabled
+                                                  />
+                                                  <b-input-group-append is-text>
+                                                    <Translations
+                                                      :transText.sync="
+                                                        chart.indicator
+                                                          .chartOptions.xAxis
+                                                          .title.text
+                                                      "
+                                                    />
+                                                  </b-input-group-append>
+                                                </b-input-group>
+                                              </div>
+                                            </transition>
+                                          </div>
+                                        </div>
+                                        <div
+                                          class="col-sm-12 col-lg-6"
+                                          v-if="
+                                            chart.indicator.chartOptions.yAxis
+                                          "
+                                        >
+                                          <div class="form-group row">
+                                            <label
+                                              class="col-sm-5 col-form-label"
+                                              >{{ $t("y_axis") }}</label
+                                            >
+                                            <div class="col-sm-2 pr-0">
+                                              <b-form-checkbox
+                                                checked="chartYAxisTitleVisible"
+                                                v-model="
+                                                  chart.indicator.chartOptions
+                                                    .yAxis.visible
+                                                "
+                                                name="someSwitchOptionYAxis"
+                                                switch
+                                                size="lg"
+                                                class="mt-1"
+                                              />
+                                            </div>
+                                            <transition name="slide-fade">
+                                              <div
+                                                class="col-sm-5 pl-0"
+                                                v-if="
+                                                  chart.indicator.chartOptions
+                                                    .yAxis.visible
+                                                "
+                                              >
+                                                <b-input-group>
+                                                  <input
+                                                    type="text"
+                                                    class="form-control"
+                                                    placeholder=""
+                                                    v-model="
+                                                      chart.indicator
+                                                        .chartOptions.yAxis
+                                                        .title.text[
+                                                        $i18n.locale
+                                                      ]
+                                                    "
+                                                    disabled
+                                                  />
+                                                  <b-input-group-append is-text>
+                                                    <Translations
+                                                      :transText.sync="
+                                                        chart.indicator
+                                                          .chartOptions.yAxis
+                                                          .title.text
+                                                      "
+                                                    />
+                                                  </b-input-group-append>
+                                                </b-input-group>
+                                              </div>
+                                            </transition>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div class="row m-0 mb-2">
+                                        <div class="col-sm-12 col-lg-12">
+                                          <div class="form-group row">
+                                            <label
+                                              class="col-sm-3 col-lg-3 col-form-label"
+                                              >{{ $t("color") }}</label
+                                            >
+                                            <div class="col-sm-2 col-lg-2">
+                                              <input
+                                                type="color"
+                                                class="form-control"
+                                                placeholder=""
+                                                v-model="
+                                                  chart.indicator.chartOptions
+                                                    .color
+                                                "
+                                              />
+                                            </div>
+                                            <div class="col-sm-5 col-lg-4">
+                                              <input
+                                                type="text"
+                                                class="form-control"
+                                                placeholder=""
+                                                v-model="
+                                                  chart.indicator.chartOptions
+                                                    .color
+                                                "
+                                              />
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div class="row m-0 mb-2">
+                                        <div class="col-sm-12 col-lg-12">
+                                          <div class="form-group row">
+                                            <label
+                                              class="col-sm-3 col-lg-3 col-form-label"
+                                              >{{ $t("chartHeading") }}</label
+                                            >
+                                            <div class="col-sm-9 col-lg-9">
+                                              <b-input-group>
+                                                <b-form-textarea
+                                                  id="inputChartInfoDerived"
+                                                  v-model="
+                                                    chart.indicator.chartName[
+                                                      $i18n.locale
+                                                    ]
+                                                  "
+                                                  :state="
+                                                    chart.indicator.chartName &&
+                                                    chart.indicator.chartName[
+                                                      $i18n.locale
+                                                    ] &&
+                                                    chart.indicator.chartName[
+                                                      $i18n.locale
+                                                    ].length !== 0 &&
+                                                    chart.indicator.chartName[
+                                                      $i18n.locale
+                                                    ].length <=
+                                                      chartTitleMaxLength
+                                                  "
+                                                  placeholder=""
+                                                  rows="3"
+                                                  :maxlength="
+                                                    chartTitleMaxLength
+                                                  "
+                                                  disabled
+                                                ></b-form-textarea>
+                                                <b-input-group-append is-text>
+                                                  <Translations
+                                                    :transText.sync="
+                                                      chart.indicator.chartName
+                                                    "
+                                                  />
+                                                </b-input-group-append>
+                                              </b-input-group>
+
+                                              <span
+                                                >{{
+                                                  chart.indicator.chartName[
+                                                    $i18n.locale
+                                                  ]
+                                                    ? chart.indicator.chartName[
+                                                        $i18n.locale
+                                                      ].length
+                                                    : 0
+                                                }}/{{
+                                                  chartTitleMaxLength
+                                                }}</span
+                                              >
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div class="row m-0 mb-3">
+                                        <div class="col-12">
+                                          <div class="form-group row">
+                                            <label
+                                              for="inputChartSource"
+                                              class="col-sm-3 col-lg-3 col-form-label"
+                                              >{{
+                                                $t("chartInformation")
+                                              }}</label
+                                            >
+                                            <div class="col-sm-9 col-lg-9">
+                                              <b-input-group>
+                                                <b-form-textarea
+                                                  id="inputChartInfoDerived"
+                                                  v-model="
+                                                    chart.indicator.chartInfo[
+                                                      $i18n.locale
+                                                    ]
+                                                  "
+                                                  :state="
+                                                    chart.indicator.chartInfo &&
+                                                    chart.indicator.chartInfo[
+                                                      $i18n.locale
+                                                    ] &&
+                                                    chart.indicator.chartInfo[
+                                                      $i18n.locale
+                                                    ].length !== 0 &&
+                                                    chart.indicator.chartInfo[
+                                                      $i18n.locale
+                                                    ].length <=
+                                                      chartInfoMaxLength
+                                                  "
+                                                  :placeholder="
+                                                    chartInfoPlaceholder
+                                                  "
+                                                  rows="3"
+                                                  :maxlength="
+                                                    chartInfoMaxLength
+                                                  "
+                                                  disabled
+                                                ></b-form-textarea>
+                                                <b-input-group-append is-text>
+                                                  <Translations
+                                                    :transText.sync="
+                                                      chart.indicator.chartInfo
+                                                    "
+                                                  />
+                                                </b-input-group-append>
+                                              </b-input-group>
+                                              <span
+                                                >{{
+                                                  chart.indicator.chartInfo[
+                                                    $i18n.locale
+                                                  ]
+                                                    ? chart.indicator.chartInfo[
+                                                        $i18n.locale
+                                                      ].length
+                                                    : 0
+                                                }}/{{
+                                                  chartInfoMaxLength
+                                                }}</span
+                                              >
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div
+                                        class="row m-0 mt-4 mb-lg-n3"
+                                        v-if="
+                                          chartData[index].indicator
+                                            .subIndicator.length
+                                        "
+                                      >
+                                        <div
+                                          class="col-12 p-b-15px bordertop-grey"
+                                        >
+                                          <div
+                                            class="accordion mt-3"
+                                            role="tablist"
+                                          >
+                                            <b-card no-body class="mb-1">
+                                              <b-card-header
+                                                header-tag="header"
+                                                class="p-1 map-header f-s-0-875rem font-weight-bold"
+                                                role="tab"
+                                              >
+                                                <b-button
+                                                  block
+                                                  v-b-toggle.accordion-an23
+                                                  variant="info"
+                                                >
+                                                  {{
+                                                    $t("dataMapping")
+                                                  }}</b-button
+                                                >
+                                              </b-card-header>
+                                              <b-collapse
+                                                id="accordion-an23"
+                                                visible
+                                                accordion="my-accordion23"
+                                                role="tabpanel"
+                                                class="border-module"
+                                              >
+                                                <b-card-body
+                                                  class="p-3 mb-lg-n2"
+                                                >
+                                                  <b-card-text>
+                                                    <div
+                                                      class="col-12"
+                                                      v-for="(
+                                                        subIndicator, ind
+                                                      ) in chartData[index]
+                                                        .indicator.subIndicator"
+                                                      :key="ind"
+                                                    >
+                                                      <div class="row mb-3">
+                                                        <div class="col">
+                                                          <a
+                                                            data-toggle="collapse"
+                                                            :href="
+                                                              '#additionalSettingsCollapse' +
+                                                              chartBySubtype +
+                                                              ind +
+                                                              index +
+                                                              chartByType
+                                                            "
+                                                            role="button"
+                                                            aria-expanded="false"
+                                                            :aria-controls="
+                                                              'additionalSettingsCollapse' +
+                                                              chartBySubtype +
+                                                              ind +
+                                                              index +
+                                                              chartByType
+                                                            "
+                                                            class="pr-2"
+                                                          >
+                                                            <!-- <i
+                                                  class="fa fa-link f-s-20px"
+                                                  v-b-tooltip.hover
+                                                  :title="
+                                                    $t('link_IndicatorsData_Elements')
+                                                  "
+                                                ></i> -->
+                                                            <img
+                                                              src="@/assets/images/icons/adminlink-icon.svg"
+                                                              class="mr-2 cursor-pointer f-s-0-875rem w-auto"
+                                                              :style="{
+                                                                filter:
+                                                                  filterColor,
+                                                              }"
+                                                              v-b-tooltip.hover
+                                                              :title="
+                                                                $t(
+                                                                  'link_IndicatorsData_Elements'
+                                                                )
+                                                              "
+                                                            />
+                                                          </a>
+                                                          <span>{{
+                                                            chartData[index]
+                                                              .indicator
+                                                              .subIndicator[ind]
+                                                              .name[
+                                                              $i18n.locale
+                                                            ]
+                                                          }}</span>
+                                                        </div>
+                                                      </div>
+
+                                                      <div
+                                                        class="row border-bottomgrey mb-3"
+                                                      >
+                                                        <div class="col-lg-12">
+                                                          <div
+                                                            class="collapse"
+                                                            :id="
+                                                              'additionalSettingsCollapse' +
+                                                              chartBySubtype +
+                                                              ind +
+                                                              index +
+                                                              chartByType
+                                                            "
+                                                            :aria-labelledby="
+                                                              'additionalSettingsCollapse' +
+                                                              chartBySubtype +
+                                                              ind +
+                                                              index +
+                                                              chartByType
+                                                            "
+                                                          >
+                                                            <div
+                                                              class="card-header default-card-border-radius color-black f-s-0-875rem p-10px accordion-header1 f-s-0-875rem font-weight-bold bt-10"
+                                                            >
+                                                              {{
+                                                                $t("settings")
+                                                              }}
+                                                            </div>
+                                                            <div
+                                                              class="card card-body admin-emucard mb-3"
+                                                            >
+                                                              <div class="row">
+                                                                <div
+                                                                  class="col-12"
+                                                                >
+                                                                  <div
+                                                                    class="form-group row"
+                                                                  >
+                                                                    <label
+                                                                      class="col-sm-5 col-form-label"
+                                                                      >{{
+                                                                        $t(
+                                                                          "displayName"
+                                                                        )
+                                                                      }}</label
+                                                                    >
+                                                                    <div
+                                                                      class="col-sm-7"
+                                                                    >
+                                                                      <b-input-group>
+                                                                        <input
+                                                                          type="text"
+                                                                          class="form-control"
+                                                                          placeholder=""
+                                                                          v-model="
+                                                                            chartData[
+                                                                              index
+                                                                            ]
+                                                                              .indicator
+                                                                              .subIndicator[
+                                                                              ind
+                                                                            ]
+                                                                              .name[
+                                                                              $i18n
+                                                                                .locale
+                                                                            ]
+                                                                          "
+                                                                          disabled
+                                                                        />
+                                                                        <b-input-group-append
+                                                                          is-text
+                                                                        >
+                                                                          <Translations
+                                                                            :transText.sync="
+                                                                              chartData[
+                                                                                index
+                                                                              ]
+                                                                                .indicator
+                                                                                .subIndicator[
+                                                                                ind
+                                                                              ]
+                                                                                .name
+                                                                            "
+                                                                          />
+                                                                        </b-input-group-append>
+                                                                      </b-input-group>
+                                                                    </div>
+                                                                  </div>
+                                                                  <div
+                                                                    class="form-group row"
+                                                                  >
+                                                                    <label
+                                                                      class="col-sm-5 col-form-label"
+                                                                      >{{
+                                                                        $t(
+                                                                          "color"
+                                                                        )
+                                                                      }}</label
+                                                                    >
+                                                                    <div
+                                                                      class="col-sm-2"
+                                                                    >
+                                                                      <input
+                                                                        type="color"
+                                                                        class="form-control"
+                                                                        placeholder=""
+                                                                        v-model="
+                                                                          chartData[
+                                                                            index
+                                                                          ]
+                                                                            .indicator
+                                                                            .subIndicator[
+                                                                            ind
+                                                                          ]
+                                                                            .color
+                                                                        "
+                                                                      />
+                                                                    </div>
+                                                                    <div
+                                                                      class="col-sm-5"
+                                                                    >
+                                                                      <input
+                                                                        type="text"
+                                                                        class="form-control"
+                                                                        placeholder=""
+                                                                        v-model="
+                                                                          chartData[
+                                                                            index
+                                                                          ]
+                                                                            .indicator
+                                                                            .subIndicator[
+                                                                            ind
+                                                                          ]
+                                                                            .color
+                                                                        "
+                                                                      />
+                                                                    </div>
+                                                                  </div>
+                                                                  <!-- <div class="form-group row"> -->
+                                                                  <div
+                                                                    class="form-group row"
+                                                                    v-if="
+                                                                      typeof chartData[
+                                                                        index
+                                                                      ]
+                                                                        .indicator
+                                                                        .subIndicator[
+                                                                        ind
+                                                                      ]
+                                                                        .scalingFactor !==
+                                                                      'undefined'
+                                                                    "
+                                                                  >
+                                                                    <label
+                                                                      class="col-sm-5 col-form-label"
+                                                                      >{{
+                                                                        $t(
+                                                                          "emu_mon_quest3"
+                                                                        )
+                                                                      }}</label
+                                                                    >
+                                                                    <div
+                                                                      class="col-sm-7"
+                                                                    >
+                                                                      <select
+                                                                        class="form-control"
+                                                                        v-model="
+                                                                          chartData[
+                                                                            index
+                                                                          ]
+                                                                            .indicator
+                                                                            .subIndicator[
+                                                                            ind
+                                                                          ]
+                                                                            .scalingFactor
+                                                                        "
+                                                                      >
+                                                                        <option
+                                                                          :value="
+                                                                            0.5
+                                                                          "
+                                                                        >
+                                                                          {{
+                                                                            $t(
+                                                                              "emu_mon_quest3_opt1"
+                                                                            )
+                                                                          }}
+                                                                        </option>
+                                                                        <option
+                                                                          :value="
+                                                                            0
+                                                                          "
+                                                                        >
+                                                                          {{
+                                                                            $t(
+                                                                              "emu_mon_quest3_opt2"
+                                                                            )
+                                                                          }}
+                                                                        </option>
+                                                                        <option
+                                                                          :value="
+                                                                            1
+                                                                          "
+                                                                        >
+                                                                          {{
+                                                                            $t(
+                                                                              "emu_mon_quest3_opt3"
+                                                                            )
+                                                                          }}
+                                                                        </option>
+                                                                      </select>
+                                                                    </div>
+                                                                  </div>
+                                                                </div>
+                                                                <div
+                                                                  class="col-12 bordertop-grey"
+                                                                >
+                                                                  <div
+                                                                    class="accordion-heading f-s-0-875rem font-weight-bold mt-4"
+                                                                  >
+                                                                    {{
+                                                                      $t(
+                                                                        "indicators_Data_Elements_Mapping"
+                                                                      )
+                                                                    }}
+                                                                  </div>
+                                                                </div>
+                                                                <div
+                                                                  class="col-12"
+                                                                >
+                                                                  <AddMapping
+                                                                    :metrixList="
+                                                                      metrixList
+                                                                    "
+                                                                    :dataSetsList="
+                                                                      dataSetsList
+                                                                    "
+                                                                    :indicatorsList="
+                                                                      indicatorsList
+                                                                    "
+                                                                    :dataElementsList="
+                                                                      dataElementsList
+                                                                    "
+                                                                    :modalKey="
+                                                                      'add-mapping' +
+                                                                      chartBySubtype +
+                                                                      ind +
+                                                                      chartByType +
+                                                                      index
+                                                                    "
+                                                                    :mappingType.sync="
+                                                                      chartData[
+                                                                        index
+                                                                      ]
+                                                                        .indicator
+                                                                        .subIndicator[
+                                                                        ind
+                                                                      ].type
+                                                                    "
+                                                                    :selectedDE.sync="
+                                                                      chartData[
+                                                                        index
+                                                                      ]
+                                                                        .indicator
+                                                                        .subIndicator[
+                                                                        ind
+                                                                      ]
+                                                                        .selectedDE
+                                                                    "
+                                                                    v-if="
+                                                                      isDataFetched
+                                                                    "
+                                                                  />
+                                                                </div>
+                                                              </div>
+                                                            </div>
+                                                          </div>
+                                                        </div>
+                                                      </div>
+                                                    </div>
+                                                  </b-card-text>
+                                                </b-card-body>
+                                              </b-collapse>
+                                            </b-card>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </transition>
+                                </div>
+                                <div class="bordertop-grey"></div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
+                    </div>
+                    <div
+                      class="p-1 accordion-header f-s-0-875rem font-weight-bold bt-10"
+                      :id="
+                        'adHeadingReportingRate' + chartByType + chartBySubtype
+                      "
+                      v-if="reportingRate.length"
+                    >
+                      <h2 class="mb-0 mt-lg-n1">
+                        <button
+                          class="btn btn-link w-100 text-left"
+                          type="button"
+                          data-toggle="collapse"
+                          :data-target="
+                            '#adCollapseReportingRate' +
+                            chartByType +
+                            chartBySubtype
+                          "
+                          aria-expanded="false"
+                          :aria-controls="
+                            'adCollapseReportingRate' +
+                            chartByType +
+                            chartBySubtype
+                          "
+                        >
+                          {{ $t("rrm") }}
+                        </button>
+                      </h2>
+                    </div>
+                    <div
+                      :id="
+                        'adCollapseReportingRate' + chartByType + chartBySubtype
+                      "
+                      class="collapse border-module"
+                      :aria-labelledby="
+                        'adHeadingReportingRate' + chartByType + chartBySubtype
+                      "
+                      v-if="reportingRate.length"
+                    >
+                      <div class="col-sm-12 col-lg-12">
+                        <div class="form-group row">
+                          <label class="col-sm-5 col-form-label">{{
+                            $t("excRr")
+                          }}</label>
+                          <div class="col-sm-7">
+                            <b-form-checkbox
+                              checked="reportingRate[0].indicator.disableChart"
+                              v-model="reportingRate[0].indicator.disableChart"
+                              name="someSwitchOptionDisableChart"
+                              switch
+                              size="lg"
+                              class="mt-1"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <!-- v-if="reportingRate[0].indicator.disableChart == false" -->
                       <div
-                        :id="
-                          'collapseChartSettings' +
-                          index +
-                          chartBySubtype +
-                          chartByType
-                        "
-                        class="collapse collapse-section-border"
-                        :aria-labelledby="
-                          'headingChartSettings' +
-                          index +
-                          chartBySubtype +
-                          chartByType
-                        "
+                        class="p-2"
+                        v-if="reportingRate[0].indicator.disableChart == false"
                       >
-                        <div class="row m-0 mt-4 mb-2">
+                        <div class="row m-0 mb-2">
+                          <div class="col-sm-12 col-lg-6">
+                            <div class="form-group row">
+                              <label class="col-sm-6 col-form-label">{{
+                                $t("displayName")
+                              }}</label>
+                              <div class="col-sm-6">
+                                <b-input-group>
+                                  <input
+                                    type="text"
+                                    class="form-control"
+                                    placeholder=""
+                                    v-model="
+                                      reportingRate[0].indicator.name[
+                                        $i18n.locale
+                                      ]
+                                    "
+                                    disabled
+                                  />
+                                  <b-input-group-append is-text>
+                                    <Translations
+                                      :transText.sync="
+                                        reportingRate[0].indicator.name
+                                      "
+                                    />
+                                  </b-input-group-append>
+                                </b-input-group>
+                              </div>
+                            </div>
+                          </div>
                           <div class="col-sm-12 col-lg-6">
                             <div class="form-group row">
                               <label class="col-sm-5 col-form-label">{{
-                                $t("disable_chart")
+                                $t("dataLabels")
                               }}</label>
-                              <div class="col-sm-7 pr-0">
+                              <div class="col-sm-7">
                                 <b-form-checkbox
-                                  checked="derived.chartOptions.disableChart"
-                                  v-model="chart.indicator.disableChart"
-                                  name="disableChartTitle"
+                                  checked="reportingRate[0].indicator.dataLabels.enabled"
+                                  v-model="
+                                    reportingRate[0].indicator.dataLabels
+                                      .enabled
+                                  "
+                                  name="someSwitchOptionDataLabels"
                                   switch
                                   size="lg"
                                   class="mt-1"
@@ -189,1427 +1181,1117 @@
                             </div>
                           </div>
                         </div>
-                        <transition name="slide-fade">
-                          <div v-if="!chart.indicator.disableChart">
-                            <div class="row m-0 mb-2">
-                              <div class="col-sm-12 col-lg-6">
-                                <div class="form-group row hide">
-                                  <label class="col-sm-5 col-form-label">{{
-                                    $t("identifier")
-                                  }}</label>
-                                  <div class="col-sm-7">
+                        <div class="row m-0 mb-2">
+                          <div class="col-sm-12 col-lg-6">
+                            <div class="form-group row">
+                              <label class="col-sm-6 col-form-label">{{
+                                $t("chart_title")
+                              }}</label>
+                              <div class="col-sm-2 pr-0">
+                                <b-form-checkbox
+                                  checked="chartTitleVisible"
+                                  v-model="
+                                    reportingRate[0].indicator.chartOptions
+                                      .title.visible
+                                  "
+                                  name="someSwitchOptionTitle"
+                                  switch
+                                  size="lg"
+                                  class="mt-1"
+                                />
+                              </div>
+                              <transition name="slide-fade">
+                                <div
+                                  class="col-sm-6 pl-0"
+                                  v-if="
+                                    reportingRate[0].indicator.chartOptions
+                                      .title.visible
+                                  "
+                                >
+                                  <b-input-group>
                                     <input
                                       type="text"
                                       class="form-control"
                                       placeholder=""
-                                      :value="
-                                        Array.isArray(
-                                          chart.indicator.static_name
-                                        )
-                                          ? $t(
-                                              `${chart.indicator.static_name[0]}`
-                                            )
-                                          : $t(`${chart.indicator.static_name}`)
+                                      v-model="
+                                        reportingRate[0].indicator.chartOptions
+                                          .title.text[$i18n.locale]
                                       "
                                       disabled
                                     />
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                            <div class="row m-0 mb-2">
-                              <div class="col-sm-12 col-lg-6">
-                                <div class="form-group row">
-                                  <label class="col-sm-5 col-form-label">{{
-                                    $t("displayName")
-                                  }}</label>
-                                  <div class="col-sm-7">
-                                    <input
-                                      type="text"
-                                      class="form-control"
-                                      placeholder=""
-                                      v-model="chart.indicator.name"
-                                    />
-                                  </div>
-                                </div>
-                              </div>
-                              <div class="col-sm-12 col-lg-6">
-                                <div class="form-group row">
-                                  <label class="col-sm-5 col-form-label">{{
-                                    $t("dataLabels")
-                                  }}</label>
-                                  <div class="col-sm-7">
-                                    <b-form-checkbox
-                                      checked="chart.indicator.dataLabels.enabled"
-                                      v-model="
-                                        chart.indicator.dataLabels.enabled
-                                      "
-                                      name="someSwitchOptionDataLabels"
-                                      switch
-                                      size="lg"
-                                      class="mt-1"
-                                    />
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                            <div class="row m-0 mb-2">
-                              <div class="col-sm-12 col-lg-6">
-                                <div class="form-group row">
-                                  <label class="col-sm-5 col-form-label">{{
-                                    $t("chart_title")
-                                  }}</label>
-                                  <div class="col-sm-2 pr-0">
-                                    <b-form-checkbox
-                                      checked="chartTitleVisible"
-                                      v-model="
-                                        chart.indicator.chartOptions.title
-                                          .visible
-                                      "
-                                      name="someSwitchOptionTitle"
-                                      switch
-                                      size="lg"
-                                      class="mt-1"
-                                    />
-                                  </div>
-                                  <transition name="slide-fade">
-                                    <div
-                                      class="col-sm-5 pl-0"
-                                      v-if="
-                                        chart.indicator.chartOptions.title
-                                          .visible
-                                      "
-                                    >
-                                      <input
-                                        type="text"
-                                        class="form-control"
-                                        placeholder=""
-                                        v-model="
-                                          chart.indicator.chartOptions.title
-                                            .text
+                                    <b-input-group-append is-text>
+                                      <Translations
+                                        :transText.sync="
+                                          reportingRate[0].indicator
+                                            .chartOptions.title.text
                                         "
                                       />
-                                    </div>
-                                  </transition>
+                                    </b-input-group-append>
+                                  </b-input-group>
                                 </div>
-                              </div>
-                              <div class="col-sm-12 col-lg-6">
-                                <div class="form-group row">
-                                  <label
-                                    for="inputChartSubtitle"
-                                    class="col-sm-5 col-form-label"
-                                    >{{ $t("chart_subtitle") }}</label
-                                  >
-                                  <div class="col-sm-2 pr-0">
-                                    <b-form-checkbox
-                                      checked="chartSubTitleVisible"
-                                      v-model="
-                                        chart.indicator.chartOptions.subTitle
-                                          .visible
-                                      "
-                                      name="someSwitchOptionSubtitle"
-                                      switch
-                                      size="lg"
-                                      class="mt-1"
-                                    />
-                                  </div>
-                                  <transition name="slide-fade">
-                                    <div
-                                      class="col-sm-5 pl-0"
-                                      v-if="
-                                        chart.indicator.chartOptions.subTitle
-                                          .visible
-                                      "
-                                    >
-                                      <input
-                                        type="text"
-                                        class="form-control"
-                                        id="inputChartSubtitle"
-                                        v-model="
-                                          chart.indicator.chartOptions.subTitle
-                                            .text
-                                        "
-                                      />
-                                    </div>
-                                  </transition>
-                                </div>
-                              </div>
+                              </transition>
                             </div>
-                            <div
-                              class="row m-0 mb-2"
-                              v-if="
-                                chart.indicator.chartOptions.xAxis &&
-                                chart.indicator.chartOptions.yAxis
-                              "
-                            >
-                              <div
-                                class="col-sm-12 col-lg-6"
-                                v-if="chart.indicator.chartOptions.xAxis"
+                          </div>
+                          <div class="col-sm-12 col-lg-6">
+                            <div class="form-group row">
+                              <label
+                                for="inputChartSubtitle"
+                                class="col-sm-5 col-form-label"
+                                >{{ $t("chart_subtitle") }}</label
                               >
-                                <div class="form-group row">
-                                  <label class="col-sm-5 col-form-label">{{
-                                    $t("x-axis")
-                                  }}</label>
-                                  <div class="col-sm-2 pr-0">
-                                    <b-form-checkbox
-                                      checked="chartXAxisTitleVisible"
-                                      v-model="
-                                        chart.indicator.chartOptions.xAxis
-                                          .visible
-                                      "
-                                      name="someSwitchOptionXAxis"
-                                      switch
-                                      size="lg"
-                                      class="mt-1"
-                                    />
-                                  </div>
-                                  <transition name="slide-fade">
-                                    <div
-                                      class="col-sm-5 pl-0"
-                                      v-if="
-                                        chart.indicator.chartOptions.xAxis
-                                          .visible
-                                      "
-                                    >
-                                      <input
-                                        type="text"
-                                        class="form-control"
-                                        placeholder=""
-                                        v-model="
-                                          chart.indicator.chartOptions.xAxis
-                                            .text
-                                        "
-                                      />
-                                    </div>
-                                  </transition>
-                                </div>
+                              <div class="col-sm-2 pr-0">
+                                <b-form-checkbox
+                                  checked="chartSubTitleVisible"
+                                  v-model="
+                                    reportingRate[0].indicator.chartOptions
+                                      .subTitle.visible
+                                  "
+                                  name="someSwitchOptionSubtitle"
+                                  switch
+                                  size="lg"
+                                  class="mt-1"
+                                />
                               </div>
-                              <div
-                                class="col-sm-12 col-lg-6"
-                                v-if="chart.indicator.chartOptions.yAxis"
-                              >
-                                <div class="form-group row">
-                                  <label class="col-sm-5 col-form-label">{{
-                                    $t("y-axis")
-                                  }}</label>
-                                  <div class="col-sm-2 pr-0">
-                                    <b-form-checkbox
-                                      checked="chartYAxisTitleVisible"
-                                      v-model="
-                                        chart.indicator.chartOptions.yAxis
-                                          .visible
-                                      "
-                                      name="someSwitchOptionYAxis"
-                                      switch
-                                      size="lg"
-                                      class="mt-1"
-                                    />
-                                  </div>
-                                  <transition name="slide-fade">
-                                    <div
-                                      class="col-sm-5 pl-0"
-                                      v-if="
-                                        chart.indicator.chartOptions.yAxis
-                                          .visible
-                                      "
-                                    >
-                                      <input
-                                        type="text"
-                                        class="form-control"
-                                        placeholder=""
-                                        v-model="
-                                          chart.indicator.chartOptions.yAxis
-                                            .text
-                                        "
-                                      />
-                                    </div>
-                                  </transition>
-                                </div>
-                              </div>
-                            </div>
-                            <div class="row m-0 mb-2">
-                              <div class="col-sm-12 col-lg-12">
-                                <div class="form-group row">
-                                  <label
-                                    class="col-sm-5 col-lg-6 col-form-label"
-                                    >{{ $t("color") }}</label
-                                  >
-                                  <div class="col-sm-2 col-lg-2">
-                                    <input
-                                      type="color"
-                                      class="form-control"
-                                      placeholder=""
-                                      v-model="
-                                        chart.indicator.chartOptions.color
-                                      "
-                                    />
-                                  </div>
-                                  <div class="col-sm-5 col-lg-4">
-                                    <input
-                                      type="text"
-                                      class="form-control"
-                                      placeholder=""
-                                      v-model="
-                                        chart.indicator.chartOptions.color
-                                      "
-                                    />
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                            <div class="row m-0 mb-2">
-                              <div class="col-sm-12 col-lg-12">
-                                <div class="form-group row">
-                                  <label
-                                    class="col-sm-5 col-lg-6 col-form-label"
-                                    >{{ $t("chartHeading") }}</label
-                                  >
-                                  <div class="col-sm-7 col-lg-6">
-                                    <b-form-textarea
-                                      id="inputChartInfoDerived"
-                                      v-model="chart.indicator.chartName"
-                                      :state="
-                                        chart.indicator.chartName.length !==
-                                          0 &&
-                                        chart.indicator.chartName.length <=
-                                          chartTitleMaxLength
-                                      "
-                                      placeholder=""
-                                      rows="3"
-                                      :maxlength="chartTitleMaxLength"
-                                    ></b-form-textarea>
-                                    <span
-                                      >{{ chart.indicator.chartName.length }}/{{
-                                        chartTitleMaxLength
-                                      }}</span
-                                    >
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                            <div class="row m-0 mb-2">
-                              <div class="col-12">
-                                <div class="form-group row">
-                                  <label
-                                    for="inputChartSource"
-                                    class="col-sm-5 col-lg-6 col-form-label"
-                                    >{{ $t("chartInformation") }}</label
-                                  >
-                                  <div class="col-sm-7 col-lg-6">
-                                    <b-form-textarea
-                                      id="inputChartInfoDerived"
-                                      v-model="chart.indicator.chartInfo"
-                                      :state="
-                                        chart.indicator.chartInfo.length !==
-                                          0 &&
-                                        chart.indicator.chartInfo.length <=
-                                          chartInfoMaxLength
-                                      "
-                                      :placeholder="chartInfoPlaceholder"
-                                      rows="3"
-                                      :maxlength="chartInfoMaxLength"
-                                    ></b-form-textarea>
-                                    <span
-                                      >{{ chart.indicator.chartInfo.length }}/{{
-                                        chartInfoMaxLength
-                                      }}</span
-                                    >
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                            <div
-                              class="row m-0 mt-4 mb-2"
-                              v-if="
-                                chartData[index].indicator.subIndicator.length
-                              "
-                            >
-                              <div class="col-12 p-b-15px">
+                              <transition name="slide-fade">
                                 <div
-                                  class="card-header bg-faint-grey color-black border-radius-0 text-uppercase f-s-0-875rem font-weight-bold"
+                                  class="col-sm-5 pl-0"
+                                  v-if="
+                                    reportingRate[0].indicator.chartOptions
+                                      .subTitle.visible
+                                  "
                                 >
-                                  {{ $t("dataMapping") }}
+                                  <b-input-group>
+                                    <input
+                                      type="text"
+                                      class="form-control"
+                                      id="inputChartSubtitle"
+                                      v-model="
+                                        reportingRate[0].indicator.chartOptions
+                                          .subTitle.text[$i18n.locale]
+                                      "
+                                      disabled
+                                    />
+                                    <b-input-group-append is-text>
+                                      <Translations
+                                        :transText.sync="
+                                          reportingRate[0].indicator
+                                            .chartOptions.subTitle.text
+                                        "
+                                      />
+                                    </b-input-group-append>
+                                  </b-input-group>
                                 </div>
+                              </transition>
+                            </div>
+                          </div>
+                        </div>
+                        <div
+                          class="row m-0 mb-2"
+                          v-if="
+                            reportingRate[0].indicator.chartOptions.xAxis &&
+                            reportingRate[0].indicator.chartOptions.yAxis
+                          "
+                        >
+                          <div
+                            class="col-sm-12 col-lg-6"
+                            v-if="reportingRate[0].indicator.chartOptions.xAxis"
+                          >
+                            <div class="form-group row">
+                              <label class="col-sm-6 col-form-label">{{
+                                $t("x_axis")
+                              }}</label>
+                              <div class="col-sm-2 pr-0">
+                                <b-form-checkbox
+                                  checked="chartXAxisTitleVisible"
+                                  v-model="
+                                    reportingRate[0].indicator.chartOptions
+                                      .xAxis.visible
+                                  "
+                                  name="someSwitchOptionXAxis"
+                                  switch
+                                  size="lg"
+                                  class="mt-1"
+                                />
+                              </div>
+                              <transition name="slide-fade">
+                                <div
+                                  class="col-sm-5 pl-0"
+                                  v-if="
+                                    reportingRate[0].indicator.chartOptions
+                                      .xAxis.visible
+                                  "
+                                >
+                                  <b-input-group>
+                                    <input
+                                      type="text"
+                                      class="form-control"
+                                      placeholder=""
+                                      v-model="
+                                        reportingRate[0].indicator.chartOptions
+                                          .xAxis.title.text[$i18n.locale]
+                                      "
+                                      disabled
+                                    />
+                                    <b-input-group-append is-text>
+                                      <Translations
+                                        :transText.sync="
+                                          reportingRate[0].indicator
+                                            .chartOptions.xAxis.title.text
+                                        "
+                                      />
+                                    </b-input-group-append>
+                                  </b-input-group>
+                                </div>
+                              </transition>
+                            </div>
+                          </div>
+                          <div
+                            class="col-sm-12 col-lg-6"
+                            v-if="reportingRate[0].indicator.chartOptions.yAxis"
+                          >
+                            <div class="form-group row">
+                              <label class="col-sm-5 col-form-label">{{
+                                $t("y_axis")
+                              }}</label>
+                              <div class="col-sm-2 pr-0">
+                                <b-form-checkbox
+                                  checked="chartYAxisTitleVisible"
+                                  v-model="
+                                    reportingRate[0].indicator.chartOptions
+                                      .yAxis.visible
+                                  "
+                                  name="someSwitchOptionYAxis"
+                                  switch
+                                  size="lg"
+                                  class="mt-1"
+                                />
+                              </div>
+                              <transition name="slide-fade">
+                                <div
+                                  class="col-sm-5 pl-0"
+                                  v-if="
+                                    reportingRate[0].indicator.chartOptions
+                                      .yAxis.visible
+                                  "
+                                >
+                                  <b-input-group>
+                                    <input
+                                      type="text"
+                                      class="form-control"
+                                      placeholder=""
+                                      v-model="
+                                        reportingRate[0].indicator.chartOptions
+                                          .yAxis.title.text[$i18n.locale]
+                                      "
+                                      disabled
+                                    />
+                                    <b-input-group-append is-text>
+                                      <Translations
+                                        :transText.sync="
+                                          reportingRate[0].indicator
+                                            .chartOptions.yAxis.title.text
+                                        "
+                                      />
+                                    </b-input-group-append>
+                                  </b-input-group>
+                                </div>
+                              </transition>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row m-0 mb-2">
+                          <div class="col-sm-12 col-lg-12">
+                            <div class="form-group row">
+                              <label class="col-sm-5 col-lg-6 col-form-label">{{
+                                $t("color")
+                              }}</label>
+                              <div class="col-sm-2 col-lg-2">
+                                <input
+                                  type="color"
+                                  class="form-control"
+                                  placeholder=""
+                                  v-model="
+                                    reportingRate[0].indicator.chartOptions
+                                      .color
+                                  "
+                                />
+                              </div>
+                              <div class="col-sm-5 col-lg-4">
+                                <input
+                                  type="text"
+                                  class="form-control"
+                                  placeholder=""
+                                  v-model="
+                                    reportingRate[0].indicator.chartOptions
+                                      .color
+                                  "
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row m-0 mb-2">
+                          <div class="col-sm-12 col-lg-12">
+                            <div class="form-group row">
+                              <label class="col-sm-3 col-lg-3 col-form-label">{{
+                                $t("chartHeading")
+                              }}</label>
+                              <div class="col-sm-9 col-lg-9">
+                                <b-input-group>
+                                  <b-form-textarea
+                                    id="inputChartInfoDerived"
+                                    v-model="
+                                      reportingRate[0].indicator.chartName[
+                                        $i18n.locale
+                                      ]
+                                    "
+                                    :state="
+                                      reportingRate[0].indicator.chartName &&
+                                      reportingRate[0].indicator.chartName[
+                                        $i18n.locale
+                                      ] &&
+                                      reportingRate[0].indicator.chartName[
+                                        $i18n.locale
+                                      ].length !== 0 &&
+                                      reportingRate[0].indicator.chartName[
+                                        $i18n.locale
+                                      ].length <= chartTitleMaxLength
+                                    "
+                                    placeholder=""
+                                    rows="3"
+                                    :maxlength="chartTitleMaxLength"
+                                    disabled
+                                  ></b-form-textarea>
+                                  <b-input-group-append is-text>
+                                    <Translations
+                                      :transText.sync="
+                                        reportingRate[0].indicator.chartName
+                                      "
+                                    />
+                                  </b-input-group-append>
+                                </b-input-group>
+                                <span
+                                  >{{
+                                    reportingRate[0].indicator.chartName[
+                                      $i18n.locale
+                                    ]
+                                      ? reportingRate[0].indicator.chartName[
+                                          $i18n.locale
+                                        ].length
+                                      : 0
+                                  }}/{{ chartTitleMaxLength }}</span
+                                >
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row m-0 mb-2">
+                          <div class="col-12">
+                            <div class="form-group row">
+                              <label
+                                for="inputChartSource"
+                                class="col-sm-3 col-lg-3 col-form-label"
+                                >{{ $t("chartInformation") }}</label
+                              >
+                              <div class="col-sm-9 col-lg-9">
+                                <b-input-group>
+                                  <b-form-textarea
+                                    id="inputChartInfoDerived"
+                                    v-model="
+                                      reportingRate[0].indicator.chartInfo[
+                                        $i18n.locale
+                                      ]
+                                    "
+                                    :state="
+                                      reportingRate[0].indicator.chartInfo &&
+                                      reportingRate[0].indicator.chartInfo[
+                                        $i18n.locale
+                                      ] &&
+                                      reportingRate[0].indicator.chartInfo[
+                                        $i18n.locale
+                                      ].length !== 0 &&
+                                      reportingRate[0].indicator.chartInfo[
+                                        $i18n.locale
+                                      ].length <= chartInfoMaxLength
+                                    "
+                                    :placeholder="chartInfoPlaceholder"
+                                    rows="3"
+                                    :maxlength="chartInfoMaxLength"
+                                    disabled
+                                  ></b-form-textarea>
+                                  <b-input-group-append is-text>
+                                    <Translations
+                                      :transText.sync="
+                                        reportingRate[0].indicator.chartInfo
+                                      "
+                                    />
+                                  </b-input-group-append>
+                                </b-input-group>
+                                <span
+                                  >{{
+                                    reportingRate[0].indicator.chartInfo[
+                                      $i18n.locale
+                                    ]
+                                      ? reportingRate[0].indicator.chartInfo[
+                                          $i18n.locale
+                                        ].length
+                                      : 0
+                                  }}/{{ chartInfoMaxLength }}</span
+                                >
+                              </div>
+                            </div>
+                            <div class="form-group row">
+                              <label
+                                for="inputChartSource"
+                                class="col-sm-3 col-lg-3 col-form-label"
+                                >{{ $t("catInformation") }}</label
+                              >
+                              <div class="col-sm-9 col-lg-9">
+                                <b-input-group>
+                                  <vue-editor
+                                    v-model="
+                                      reportingRate[0].indicator.categoryInfo[
+                                        $i18n.locale
+                                      ]
+                                    "
+                                    :state="
+                                      reportingRate[0].indicator.categoryInfo &&
+                                      reportingRate[0].indicator.categoryInfo[
+                                        $i18n.locale
+                                      ] &&
+                                      reportingRate[0].indicator.categoryInfo[
+                                        $i18n.locale
+                                      ].length !== 0
+                                    "
+                                    :editorToolbar="customToolbar"
+                                    disabled
+                                  ></vue-editor>
+                                  <b-input-group-append is-text>
+                                    <Translations
+                                      :transText.sync="
+                                        reportingRate[0].indicator.categoryInfo
+                                      "
+                                      type="editor"
+                                    />
+                                  </b-input-group-append>
+                                </b-input-group>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="accordion m-2" role="tablist">
+                          <b-card no-body class="mb-1">
+                            <b-card-header
+                              header-tag="header"
+                              class="p-1 map-header f-s-0-875rem font-weight-bold"
+                              role="tab"
+                            >
+                              <b-button
+                                block
+                                v-b-toggle.accordion-mapping1
+                                variant="info"
+                              >
+                                {{ $t("dataMapping") }}</b-button
+                              >
+                            </b-card-header>
+                            <b-collapse
+                              id="accordion-mapping1"
+                              accordion="my-mappingaccordion"
+                              role="tabpanel"
+                              class="border-module"
+                            >
+                              <b-card-body>
+                                <b-card-text
+                                  ><AddMapping
+                                    :metrixList="metrixList"
+                                    :dataSetsList="dataSetsList"
+                                    :indicatorsList="indicatorsList"
+                                    :dataElementsList="dataElementsList"
+                                    :modalKey="
+                                      'add-mapping-reportingRate' +
+                                      chartBySubtype +
+                                      0 +
+                                      chartByType +
+                                      0
+                                    "
+                                    :mappingType.sync="
+                                      reportingRate[0].indicator.subIndicator[0]
+                                        .type
+                                    "
+                                    :selectedDE.sync="
+                                      reportingRate[0].indicator.subIndicator[0]
+                                        .selectedDE
+                                    "
+                                    v-if="isDataFetched"
+                                /></b-card-text>
+                              </b-card-body>
+                            </b-collapse>
+                          </b-card>
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      class="p-1 accordion-header f-s-0-875rem font-weight-bold bt-10 mt-2"
+                      :id="'adHeadingFPSource' + chartByType + chartBySubtype"
+                      v-if="reportingSector"
+                    >
+                      <h2 class="mb-0 mt-lg-n1">
+                        <button
+                          class="btn btn-link w-100 text-left"
+                          type="button"
+                          data-toggle="collapse"
+                          :data-target="
+                            '#adCollapseFPSource' + chartByType + chartBySubtype
+                          "
+                          aria-expanded="false"
+                          :aria-controls="
+                            'adCollapseFPSource' + chartByType + chartBySubtype
+                          "
+                        >
+                          {{ $t("sectorReporting") }}
+                        </button>
+                      </h2>
+                    </div>
+                    <div
+                      :id="'adCollapseFPSource' + chartByType + chartBySubtype"
+                      class="collapse border-module"
+                      :aria-labelledby="
+                        'adHeadingFPSource' + chartByType + chartBySubtype
+                      "
+                      v-if="reportingSector"
+                    >
+                      <!-- FP Source Component -->
+                      <bachmarkFpSource
+                        :FPSource="fpSource"
+                        :indicatorsList="indicatorsList"
+                        :dataElementsList="dataElementsList"
+                      />
+                    </div>
+                  </b-card-text>
+                </b-card-body>
+              </b-collapse>
+            </b-card>
+          </div>
+
+          <!-- FPSource collapse start-->
+
+          <div class="mt-2 mb-4" v-if="derivedCharts.length">
+            <div class="">
+              <div class="">
+                <div class="">
+                  <div class="accordion" role="tablist">
+                    <b-card no-body class="mb-1">
+                      <b-card-header
+                        header-tag="header"
+                        class="p-1 map-header f-s-0-875rem font-weight-bold"
+                        role="tab"
+                      >
+                        <b-button
+                          block
+                          v-b-toggle.accordion-an22
+                          variant="info"
+                        >
+                          {{
+                            chartBySubtype === "Output"
+                              ? $t("outputChartsSetting")
+                              : $t("derivedChartsSetting")
+                          }}</b-button
+                        >
+                      </b-card-header>
+                      <b-collapse
+                        id="accordion-an22"
+                        accordion="my-accordion"
+                        role="tabpanel"
+                        class="border-module"
+                      >
+                        <b-card-body>
+                          <b-card-text>
+                            <div
+                              class="form-group row"
+                              v-if="chartBySubtype != 'Output'"
+                            >
+                              <label
+                                for="finalYear"
+                                class="col-sm-3 col-form-label"
+                                >{{ $t("catInformation") }}</label
+                              >
+                              <div class="col-sm-9">
+                                <b-input-group>
+                                  <vue-editor
+                                    v-model="tabCategoryInfo[1][$i18n.locale]"
+                                    :editorToolbar="customToolbar"
+                                    disabled
+                                  ></vue-editor>
+                                  <b-input-group-append is-text>
+                                    <Translations
+                                      :transText.sync="tabCategoryInfo[1]"
+                                      type="editor"
+                                    />
+                                  </b-input-group-append>
+                                </b-input-group>
+                              </div>
+                            </div>
+                            <div
+                              class="mb-2"
+                              v-for="(derived, ind) in derivedCharts"
+                              :key="ind"
+                            >
+                              <div
+                                class="p-1 accordion-header f-s-0-875rem font-weight-bold bt-10"
+                                :id="
+                                  'headingChartSettings' +
+                                  chartBySubtype +
+                                  chartByType +
+                                  ind
+                                "
+                              >
+                                <h2 class="mb-0 mt-lg-n1">
+                                  <button
+                                    class="btn btn-link w-100 text-left"
+                                    type="button"
+                                    data-toggle="collapse"
+                                    :data-target="
+                                      '#collapseChartSettings' +
+                                      chartBySubtype +
+                                      chartByType +
+                                      ind
+                                    "
+                                    aria-expanded="false"
+                                    :aria-controls="
+                                      'collapseChartSettings' +
+                                      chartBySubtype +
+                                      chartByType +
+                                      ind
+                                    "
+                                  >
+                                    {{
+                                      derived.chartOptions.chartName[
+                                        $i18n.locale
+                                      ]
+                                    }}
+                                  </button>
+                                </h2>
                               </div>
                               <div
-                                class="col-12"
-                                v-for="(subIndicator, ind) in chartData[index]
-                                  .indicator.subIndicator"
-                                :key="ind"
+                                :id="
+                                  'collapseChartSettings' +
+                                  chartBySubtype +
+                                  chartByType +
+                                  ind
+                                "
+                                class="collapse border-module"
+                                :aria-labelledby="
+                                  'headingChartSettings' +
+                                  chartBySubtype +
+                                  chartByType +
+                                  ind
+                                "
                               >
-                                <div class="row">
-                                  <div class="col">
-                                    <div
-                                      class="form-check form-check-inline mr-0 hide"
-                                    >
-                                      <div class="pure-checkbox">
-                                        <input
-                                          name="checkbox"
-                                          type="checkbox"
-                                          :id="
-                                            'checkbox1' +
-                                            chartBySubtype +
-                                            index +
-                                            ind
+                                <div class="row m-0 mt-4 mb-2">
+                                  <div class="col-sm-12 col-lg-6">
+                                    <div class="form-group row">
+                                      <label class="col-sm-6 col-form-label">{{
+                                        $t("disable_chart")
+                                      }}</label>
+                                      <div class="col-sm-6 pr-0">
+                                        <b-form-checkbox
+                                          checked="derived.chartOptions.disableChart"
+                                          v-model="
+                                            derived.chartOptions.disableChart
                                           "
+                                          name="disableChartTitle"
+                                          switch
+                                          size="lg"
+                                          class="mt-1"
                                         />
-                                        <label
-                                          :for="
-                                            'checkbox1' +
-                                            chartBySubtype +
-                                            index +
-                                            ind
-                                          "
-                                        ></label>
                                       </div>
                                     </div>
-                                    <a
-                                      data-toggle="collapse"
-                                      :href="
-                                        '#additionalSettingsCollapse' +
-                                        chartBySubtype +
-                                        ind +
-                                        index +
-                                        chartByType
-                                      "
-                                      role="button"
-                                      aria-expanded="false"
-                                      :aria-controls="
-                                        'additionalSettingsCollapse' +
-                                        chartBySubtype +
-                                        ind +
-                                        index +
-                                        chartByType
-                                      "
-                                      class="pr-2"
-                                      ><i
-                                        class="fa fa-link f-s-20px"
-                                        v-b-tooltip.hover
-                                        :title="
-                                          $t('link_IndicatorsData_Elements')
-                                        "
-                                      ></i
-                                    ></a>
-                                    <span>{{
-                                      Array.isArray(
-                                        chartData[index].indicator.subIndicator[
-                                          ind
-                                        ].name
-                                      )
-                                        ? chartData[index].indicator
-                                            .subIndicator[ind].name[0]
-                                        : chartData[index].indicator
-                                            .subIndicator[ind].name
-                                    }}</span>
                                   </div>
                                 </div>
-                                <div class="row my-3">
-                                  <div class="col-lg-12">
+                                <transition name="slide-fade">
+                                  <div
+                                    v-if="!derived.chartOptions.disableChart"
+                                  >
+                                    <div class="row m-0 mb-2">
+                                      <div class="col-sm-12 col-lg-12">
+                                        <div class="form-group row">
+                                          <label
+                                            class="col-sm-3 col-lg-3 col-form-label"
+                                            >{{ $t("chartHeading") }}</label
+                                          >
+                                          <div class="col-sm-9 col-lg-9">
+                                            <b-input-group>
+                                              <b-form-textarea
+                                                id="inputChartInfoDerived"
+                                                v-model="
+                                                  derived.chartOptions
+                                                    .chartName[$i18n.locale]
+                                                "
+                                                :state="
+                                                  derived.chartOptions
+                                                    .chartName &&
+                                                  derived.chartOptions
+                                                    .chartName[$i18n.locale] &&
+                                                  derived.chartOptions
+                                                    .chartName[$i18n.locale]
+                                                    .length !== 0 &&
+                                                  derived.chartOptions
+                                                    .chartName[$i18n.locale]
+                                                    .length <=
+                                                    chartTitleMaxLength
+                                                "
+                                                placeholder=""
+                                                rows="3"
+                                                :maxlength="chartTitleMaxLength"
+                                                disabled
+                                              ></b-form-textarea>
+                                              <b-input-group-append is-text>
+                                                <Translations
+                                                  :transText.sync="
+                                                    derived.chartOptions
+                                                      .chartName
+                                                  "
+                                                />
+                                              </b-input-group-append>
+                                            </b-input-group>
+                                            <span
+                                              >{{
+                                                derived.chartOptions.chartName[
+                                                  $i18n.locale
+                                                ]
+                                                  ? derived.chartOptions
+                                                      .chartName[$i18n.locale]
+                                                      .length
+                                                  : 0
+                                              }}/{{ chartTitleMaxLength }}</span
+                                            >
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
                                     <div
-                                      class="collapse border-grey"
-                                      :id="
-                                        'additionalSettingsCollapse' +
-                                        chartBySubtype +
-                                        ind +
-                                        index +
-                                        chartByType
-                                      "
-                                      :aria-labelledby="
-                                        'additionalSettingsCollapse' +
-                                        chartBySubtype +
-                                        ind +
-                                        index +
-                                        chartByType
+                                      class="row m-0 mb-2"
+                                      v-if="
+                                        derived.chartOptions.title &&
+                                        derived.chartOptions.subTitle
                                       "
                                     >
                                       <div
-                                        class="card-header bg-faint-grey default-card-border-radius color-black f-s-0-875rem"
+                                        class="col-sm-12 col-lg-6"
+                                        v-if="derived.chartOptions.title"
                                       >
-                                        {{ $t("settings") }}
-                                      </div>
-                                      <div class="card card-body">
-                                        <div class="row">
-                                          <div class="col-12">
-                                            <div class="form-group row hide">
-                                              <label
-                                                class="col-sm-5 col-form-label"
-                                                >{{ $t("identifier") }}</label
-                                              >
-                                              <div class="col-sm-7">
+                                        <div class="form-group row">
+                                          <label
+                                            class="col-sm-6 col-form-label"
+                                            >{{ $t("chart_title") }}</label
+                                          >
+                                          <div class="col-sm-3 pr-0">
+                                            <b-form-checkbox
+                                              checked="chartTitleVisible"
+                                              v-model="
+                                                derived.chartOptions.title
+                                                  .visible
+                                              "
+                                              name="someSwitchOptionTitle"
+                                              switch
+                                              size="lg"
+                                              class="mt-1"
+                                            />
+                                          </div>
+                                          <transition name="slide-fade">
+                                            <div
+                                              class="col-sm-5 pl-0"
+                                              v-if="
+                                                derived.chartOptions.title
+                                                  .visible
+                                              "
+                                            >
+                                              <b-input-group>
                                                 <input
                                                   type="text"
                                                   class="form-control"
                                                   placeholder=""
-                                                  :value="
-                                                    Array.isArray(
-                                                      chartData[index].indicator
-                                                        .subIndicator[ind]
-                                                        .static_name
-                                                    )
-                                                      ? $t(
-                                                          `${chartData[index].indicator.subIndicator[ind].static_name[0]}`
-                                                        )
-                                                      : $t(
-                                                          `${chartData[index].indicator.subIndicator[ind].static_name}`
-                                                        )
+                                                  v-model="
+                                                    derived.chartOptions.title
+                                                      .text[$i18n.locale]
                                                   "
                                                   disabled
                                                 />
-                                              </div>
+                                                <b-input-group-append is-text>
+                                                  <Translations
+                                                    :transText.sync="
+                                                      derived.chartOptions.title
+                                                        .text
+                                                    "
+                                                  />
+                                                </b-input-group-append>
+                                              </b-input-group>
                                             </div>
-                                            <div class="form-group row">
-                                              <label
-                                                class="col-sm-5 col-form-label"
-                                                >{{ $t("displayName") }}</label
-                                              >
-                                              <div class="col-sm-7">
-                                                <input
-                                                  type="text"
-                                                  class="form-control"
-                                                  placeholder=""
-                                                  v-model="
-                                                    chartData[index].indicator
-                                                      .subIndicator[ind].name
-                                                  "
-                                                />
-                                              </div>
-                                            </div>
-                                            <div class="form-group row">
-                                              <label
-                                                class="col-sm-5 col-form-label"
-                                                >{{ $t("color") }}</label
-                                              >
-                                              <div class="col-sm-2">
-                                                <input
-                                                  type="color"
-                                                  class="form-control"
-                                                  placeholder=""
-                                                  v-model="
-                                                    chartData[index].indicator
-                                                      .subIndicator[ind].color
-                                                  "
-                                                />
-                                              </div>
-                                              <div class="col-sm-5">
-                                                <input
-                                                  type="text"
-                                                  class="form-control"
-                                                  placeholder=""
-                                                  v-model="
-                                                    chartData[index].indicator
-                                                      .subIndicator[ind].color
-                                                  "
-                                                />
-                                              </div>
-                                            </div>
-                                            <!-- <div class="form-group row"> -->
-                                            <div
-                                              class="form-group row"
-                                              v-if="
-                                                typeof chartData[index]
-                                                  .indicator.subIndicator[ind]
-                                                  .scalingFactor !== 'undefined'
+                                          </transition>
+                                        </div>
+                                      </div>
+                                      <div
+                                        class="col-sm-12 col-lg-6"
+                                        v-if="derived.chartOptions.subTitle"
+                                      >
+                                        <div class="form-group row">
+                                          <label
+                                            for="inputChartSubtitle"
+                                            class="col-sm-6 col-form-label"
+                                            >{{ $t("chart_subtitle") }}</label
+                                          >
+                                          <div class="col-sm-3 pr-0">
+                                            <b-form-checkbox
+                                              checked="chartSubTitleVisible"
+                                              v-model="
+                                                derived.chartOptions.subTitle
+                                                  .visible
                                               "
-                                            >
-                                              <label
-                                                class="col-sm-5 col-form-label"
-                                                >{{
-                                                  $t("emu_mon_quest3")
-                                                }}</label
-                                              >
-                                              <div class="col-sm-7">
-                                                <select
-                                                  class="form-control"
-                                                  v-model="
-                                                    chartData[index].indicator
-                                                      .subIndicator[ind]
-                                                      .scalingFactor
-                                                  "
-                                                >
-                                                  <option :value="0.5">
-                                                    {{
-                                                      $t("emu_mon_quest3_opt1")
-                                                    }}
-                                                  </option>
-                                                  <option :value="0">
-                                                    {{
-                                                      $t("emu_mon_quest3_opt2")
-                                                    }}
-                                                  </option>
-                                                  <option :value="1">
-                                                    {{
-                                                      $t("emu_mon_quest3_opt3")
-                                                    }}
-                                                  </option>
-                                                </select>
-                                              </div>
-                                            </div>
-                                          </div>
-                                          <div class="col-12">
-                                            <div
-                                              class="card-header bg-faint-grey color-black border-radius-0 text-uppercase f-s-0-875rem font-weight-bold"
-                                            >
-                                              {{
-                                                $t(
-                                                  "indicators_Data_Elements_Mapping"
-                                                )
-                                              }}
-                                            </div>
-                                          </div>
-                                          <div class="col-12">
-                                            <AddMapping
-                                              :ind="ind"
-                                              :index="index"
-                                              dataKey="subIndicator"
-                                              :metrixList="metrixList"
-                                              :chartByType="chartByType"
-                                              :dataSetsList="dataSetsList"
-                                              :chartBySubtype="chartBySubtype"
-                                              :indicatorsList="indicatorsList"
-                                              :dataElementsList="
-                                                dataElementsList
-                                              "
-                                              :key="
-                                                'add-mapping' +
-                                                chartBySubtype +
-                                                ind +
-                                                chartByType +
-                                                index
-                                              "
-                                              :mappingType="
-                                                chartData[index].indicator
-                                                  .subIndicator[ind].type
-                                              "
-                                              :selectedDE="
-                                                chartData[index].indicator
-                                                  .subIndicator[ind].selectedDE
-                                              "
-                                              @addDE="addDE"
-                                              @resetDE="resetDE"
-                                              @deleteDE="deleteDE"
-                                              v-if="isDataFetched"
+                                              name="someSwitchOptionSubtitle"
+                                              switch
+                                              size="lg"
+                                              class="mt-1"
                                             />
+                                          </div>
+                                          <transition name="slide-fade">
+                                            <div
+                                              class="col-sm-5 pl-0"
+                                              v-if="
+                                                derived.chartOptions.subTitle
+                                                  .visible
+                                              "
+                                            >
+                                              <b-input-group>
+                                                <input
+                                                  type="text"
+                                                  class="form-control"
+                                                  id="inputChartSubtitle"
+                                                  v-model="
+                                                    derived.chartOptions
+                                                      .subTitle.text[
+                                                      $i18n.locale
+                                                    ]
+                                                  "
+                                                  disabled
+                                                />
+                                                <b-input-group-append is-text>
+                                                  <Translations
+                                                    :transText.sync="
+                                                      derived.chartOptions
+                                                        .subTitle.text
+                                                    "
+                                                  />
+                                                </b-input-group-append>
+                                              </b-input-group>
+                                            </div>
+                                          </transition>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div
+                                      class="row m-0 mb-2"
+                                      v-if="
+                                        derived.chartOptions.title1 &&
+                                        derived.chartOptions.subTitle1
+                                      "
+                                    >
+                                      <div
+                                        class="col-sm-12 col-lg-6"
+                                        v-if="derived.chartOptions.title1"
+                                      >
+                                        <div class="form-group row">
+                                          <label
+                                            class="col-sm-5 col-form-label"
+                                            >{{ $t("chart_title2") }}</label
+                                          >
+                                          <div class="col-sm-2 pr-0">
+                                            <b-form-checkbox
+                                              checked="chartTitleVisible"
+                                              v-model="
+                                                derived.chartOptions.title1
+                                                  .visible
+                                              "
+                                              name="someSwitchOptionTitle"
+                                              switch
+                                              size="lg"
+                                              class="mt-1"
+                                            />
+                                          </div>
+                                          <transition name="slide-fade">
+                                            <div
+                                              class="col-sm-5 pl-0"
+                                              v-if="
+                                                derived.chartOptions.title1
+                                                  .visible
+                                              "
+                                            >
+                                              <b-input-group>
+                                                <input
+                                                  type="text"
+                                                  class="form-control"
+                                                  placeholder=""
+                                                  v-model="
+                                                    derived.chartOptions.title1
+                                                      .text[$i18n.locale]
+                                                  "
+                                                  disabled
+                                                />
+                                                <b-input-group-append is-text>
+                                                  <Translations
+                                                    :transText.sync="
+                                                      derived.chartOptions
+                                                        .title1.text
+                                                    "
+                                                  />
+                                                </b-input-group-append>
+                                              </b-input-group>
+                                            </div>
+                                          </transition>
+                                        </div>
+                                      </div>
+                                      <div
+                                        class="col-sm-12 col-lg-6"
+                                        v-if="derived.chartOptions.subTitle1"
+                                      >
+                                        <div class="form-group row">
+                                          <label
+                                            for="inputChartSubtitle"
+                                            class="col-sm-5 col-form-label"
+                                            >{{ $t("chart_subtitle2") }}</label
+                                          >
+                                          <div class="col-sm-2 pr-0">
+                                            <b-form-checkbox
+                                              checked="chartSubTitleVisible"
+                                              v-model="
+                                                derived.chartOptions.subTitle1
+                                                  .visible
+                                              "
+                                              name="someSwitchOptionSubtitle"
+                                              switch
+                                              size="lg"
+                                              class="mt-1"
+                                            />
+                                          </div>
+                                          <transition name="slide-fade">
+                                            <div
+                                              class="col-sm-5 pl-0"
+                                              v-if="
+                                                derived.chartOptions.subTitle1
+                                                  .visible
+                                              "
+                                            >
+                                              <b-input-group>
+                                                <input
+                                                  type="text"
+                                                  class="form-control"
+                                                  id="inputChartSubtitle"
+                                                  v-model="
+                                                    derived.chartOptions
+                                                      .subTitle1.text[
+                                                      $i18n.locale
+                                                    ]
+                                                  "
+                                                  disabled
+                                                />
+                                                <b-input-group-append is-text>
+                                                  <Translations
+                                                    :transText.sync="
+                                                      derived.chartOptions
+                                                        .subTitle1.text
+                                                    "
+                                                  />
+                                                </b-input-group-append>
+                                              </b-input-group>
+                                            </div>
+                                          </transition>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div
+                                      class="row m-0 mb-2"
+                                      v-if="
+                                        derived.chartOptions.xAxis &&
+                                        derived.chartOptions.yAxis
+                                      "
+                                    >
+                                      <div
+                                        class="col-sm-12 col-lg-6"
+                                        v-if="derived.chartOptions.xAxis"
+                                      >
+                                        <div class="form-group row">
+                                          <label
+                                            class="col-sm-6 col-form-label"
+                                            >{{ $t("x_axis") }}</label
+                                          >
+                                          <div class="col-sm-3 pr-0">
+                                            <b-form-checkbox
+                                              checked="chartXAxisTitleVisible"
+                                              v-model="
+                                                derived.chartOptions.xAxis
+                                                  .visible
+                                              "
+                                              name="someSwitchOptionXAxis"
+                                              switch
+                                              size="lg"
+                                              class="mt-1"
+                                            />
+                                          </div>
+                                          <transition name="slide-fade">
+                                            <div
+                                              class="col-sm-5 pl-0"
+                                              v-if="
+                                                derived.chartOptions.xAxis
+                                                  .visible
+                                              "
+                                            >
+                                              <b-input-group>
+                                                <input
+                                                  type="text"
+                                                  class="form-control"
+                                                  placeholder=""
+                                                  v-model="
+                                                    derived.chartOptions.xAxis
+                                                      .text[$i18n.locale]
+                                                  "
+                                                  disabled
+                                                />
+                                                <b-input-group-append is-text>
+                                                  <Translations
+                                                    :transText.sync="
+                                                      derived.chartOptions.xAxis
+                                                        .text
+                                                    "
+                                                  />
+                                                </b-input-group-append>
+                                              </b-input-group>
+                                            </div>
+                                          </transition>
+                                        </div>
+                                      </div>
+                                      <div
+                                        class="col-sm-12 col-lg-6"
+                                        v-if="derived.chartOptions.yAxis"
+                                      >
+                                        <div class="form-group row">
+                                          <label
+                                            class="col-sm-5 col-form-label"
+                                            >{{ $t("y_axis") }}</label
+                                          >
+                                          <div class="col-sm-2 pr-0">
+                                            <b-form-checkbox
+                                              checked="chartYAxisTitleVisible"
+                                              v-model="
+                                                derived.chartOptions.yAxis
+                                                  .visible
+                                              "
+                                              name="someSwitchOptionYAxis"
+                                              switch
+                                              size="lg"
+                                              class="mt-1"
+                                            />
+                                          </div>
+                                          <transition name="slide-fade">
+                                            <div
+                                              class="col-sm-5 pl-0"
+                                              v-if="
+                                                derived.chartOptions.yAxis
+                                                  .visible
+                                              "
+                                            >
+                                              <b-input-group>
+                                                <input
+                                                  type="text"
+                                                  class="form-control"
+                                                  placeholder=""
+                                                  v-model="
+                                                    derived.chartOptions.yAxis
+                                                      .text[$i18n.locale]
+                                                  "
+                                                  disabled
+                                                />
+                                                <b-input-group-append is-text>
+                                                  <Translations
+                                                    :transText.sync="
+                                                      derived.chartOptions.yAxis
+                                                        .text
+                                                    "
+                                                  />
+                                                </b-input-group-append>
+                                              </b-input-group>
+                                            </div>
+                                          </transition>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div class="row m-0 mb-2">
+                                      <div class="col-12">
+                                        <div class="form-group row">
+                                          <label
+                                            for="inputChartSource"
+                                            class="col-sm-3 col-lg-3 col-form-label"
+                                            >{{ $t("chartInformation") }}</label
+                                          >
+                                          <div class="col-sm-9 col-lg-9">
+                                            <b-input-group>
+                                              <b-form-textarea
+                                                id="inputChartInfoDerived"
+                                                v-model="
+                                                  derived.chartOptions
+                                                    .chartInfo[$i18n.locale]
+                                                "
+                                                :state="
+                                                  derived.chartOptions
+                                                    .chartInfo &&
+                                                  derived.chartOptions
+                                                    .chartInfo[$i18n.locale] &&
+                                                  derived.chartOptions
+                                                    .chartInfo[$i18n.locale]
+                                                    .length !== 0 &&
+                                                  derived.chartOptions
+                                                    .chartInfo[$i18n.locale]
+                                                    .length <=
+                                                    chartInfoMaxLength
+                                                "
+                                                :placeholder="
+                                                  chartInfoPlaceholder
+                                                "
+                                                rows="3"
+                                                :maxlength="chartInfoMaxLength"
+                                                disabled
+                                              ></b-form-textarea>
+                                              <b-input-group-append is-text>
+                                                <Translations
+                                                  :transText.sync="
+                                                    derived.chartOptions
+                                                      .chartInfo
+                                                  "
+                                                />
+                                              </b-input-group-append>
+                                            </b-input-group>
+                                            <span
+                                              >{{
+                                                derived.chartOptions.chartInfo[
+                                                  $i18n.locale
+                                                ]
+                                                  ? derived.chartOptions
+                                                      .chartInfo[$i18n.locale]
+                                                      .length
+                                                  : 0
+                                              }}/{{ chartInfoMaxLength }}</span
+                                            >
                                           </div>
                                         </div>
                                       </div>
                                     </div>
                                   </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </transition>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div
-            class="card-header p-5px bg-faint-grey default-card-border-radius"
-            :id="'adHeadingReportingRate' + chartByType + chartBySubtype"
-            v-if="reportingRate.length"
-          >
-            <h2 class="mb-0">
-              <button
-                class="btn btn-link w-100 text-left text-uppercase color-grey f-s-0-875rem"
-                type="button"
-                data-toggle="collapse"
-                :data-target="
-                  '#adCollapseReportingRate' + chartByType + chartBySubtype
-                "
-                aria-expanded="false"
-                :aria-controls="
-                  'adCollapseReportingRate' + chartByType + chartBySubtype
-                "
-              >
-                {{ $t("rrm") }}
-              </button>
-            </h2>
-          </div>
-          <div
-            :id="'adCollapseReportingRate' + chartByType + chartBySubtype"
-            class="collapse collapse-section-border"
-            :aria-labelledby="
-              'adHeadingReportingRate' + chartByType + chartBySubtype
-            "
-            v-if="reportingRate.length"
-          >
-            <div class="p-2">
-              <div class="row m-0 mb-2">
-                <div class="col-sm-12 col-lg-6">
-                  <div class="form-group row">
-                    <label class="col-sm-5 col-form-label">{{
-                      $t("displayName")
-                    }}</label>
-                    <div class="col-sm-7">
-                      <input
-                        type="text"
-                        class="form-control"
-                        placeholder=""
-                        v-model="reportingRate[0].indicator.name"
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div class="col-sm-12 col-lg-6">
-                  <div class="form-group row">
-                    <label class="col-sm-5 col-form-label">{{
-                      $t("dataLabels")
-                    }}</label>
-                    <div class="col-sm-7">
-                      <b-form-checkbox
-                        checked="reportingRate[0].indicator.dataLabels.enabled"
-                        v-model="reportingRate[0].indicator.dataLabels.enabled"
-                        name="someSwitchOptionDataLabels"
-                        switch
-                        size="lg"
-                        class="mt-1"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="row m-0 mb-2">
-                <div class="col-sm-12 col-lg-6">
-                  <div class="form-group row">
-                    <label class="col-sm-5 col-form-label">{{
-                      $t("chart_title")
-                    }}</label>
-                    <div class="col-sm-2 pr-0">
-                      <b-form-checkbox
-                        checked="chartTitleVisible"
-                        v-model="
-                          reportingRate[0].indicator.chartOptions.title.visible
-                        "
-                        name="someSwitchOptionTitle"
-                        switch
-                        size="lg"
-                        class="mt-1"
-                      />
-                    </div>
-                    <transition name="slide-fade">
-                      <div
-                        class="col-sm-5 pl-0"
-                        v-if="
-                          reportingRate[0].indicator.chartOptions.title.visible
-                        "
-                      >
-                        <input
-                          type="text"
-                          class="form-control"
-                          placeholder=""
-                          v-model="
-                            reportingRate[0].indicator.chartOptions.title.text
-                          "
-                        />
-                      </div>
-                    </transition>
-                  </div>
-                </div>
-                <div class="col-sm-12 col-lg-6">
-                  <div class="form-group row">
-                    <label
-                      for="inputChartSubtitle"
-                      class="col-sm-5 col-form-label"
-                      >{{ $t("chart_subtitle") }}</label
-                    >
-                    <div class="col-sm-2 pr-0">
-                      <b-form-checkbox
-                        checked="chartSubTitleVisible"
-                        v-model="
-                          reportingRate[0].indicator.chartOptions.subTitle
-                            .visible
-                        "
-                        name="someSwitchOptionSubtitle"
-                        switch
-                        size="lg"
-                        class="mt-1"
-                      />
-                    </div>
-                    <transition name="slide-fade">
-                      <div
-                        class="col-sm-5 pl-0"
-                        v-if="
-                          reportingRate[0].indicator.chartOptions.subTitle
-                            .visible
-                        "
-                      >
-                        <input
-                          type="text"
-                          class="form-control"
-                          id="inputChartSubtitle"
-                          v-model="
-                            reportingRate[0].indicator.chartOptions.subTitle
-                              .text
-                          "
-                        />
-                      </div>
-                    </transition>
-                  </div>
-                </div>
-              </div>
-              <div
-                class="row m-0 mb-2"
-                v-if="
-                  reportingRate[0].indicator.chartOptions.xAxis &&
-                  reportingRate[0].indicator.chartOptions.yAxis
-                "
-              >
-                <div
-                  class="col-sm-12 col-lg-6"
-                  v-if="reportingRate[0].indicator.chartOptions.xAxis"
-                >
-                  <div class="form-group row">
-                    <label class="col-sm-5 col-form-label">{{
-                      $t("x-axis")
-                    }}</label>
-                    <div class="col-sm-2 pr-0">
-                      <b-form-checkbox
-                        checked="chartXAxisTitleVisible"
-                        v-model="
-                          reportingRate[0].indicator.chartOptions.xAxis.visible
-                        "
-                        name="someSwitchOptionXAxis"
-                        switch
-                        size="lg"
-                        class="mt-1"
-                      />
-                    </div>
-                    <transition name="slide-fade">
-                      <div
-                        class="col-sm-5 pl-0"
-                        v-if="
-                          reportingRate[0].indicator.chartOptions.xAxis.visible
-                        "
-                      >
-                        <input
-                          type="text"
-                          class="form-control"
-                          placeholder=""
-                          v-model="
-                            reportingRate[0].indicator.chartOptions.xAxis.text
-                          "
-                        />
-                      </div>
-                    </transition>
-                  </div>
-                </div>
-                <div
-                  class="col-sm-12 col-lg-6"
-                  v-if="reportingRate[0].indicator.chartOptions.yAxis"
-                >
-                  <div class="form-group row">
-                    <label class="col-sm-5 col-form-label">{{
-                      $t("y-axis")
-                    }}</label>
-                    <div class="col-sm-2 pr-0">
-                      <b-form-checkbox
-                        checked="chartYAxisTitleVisible"
-                        v-model="
-                          reportingRate[0].indicator.chartOptions.yAxis.visible
-                        "
-                        name="someSwitchOptionYAxis"
-                        switch
-                        size="lg"
-                        class="mt-1"
-                      />
-                    </div>
-                    <transition name="slide-fade">
-                      <div
-                        class="col-sm-5 pl-0"
-                        v-if="
-                          reportingRate[0].indicator.chartOptions.yAxis.visible
-                        "
-                      >
-                        <input
-                          type="text"
-                          class="form-control"
-                          placeholder=""
-                          v-model="
-                            reportingRate[0].indicator.chartOptions.yAxis.text
-                          "
-                        />
-                      </div>
-                    </transition>
-                  </div>
-                </div>
-              </div>
-              <div class="row m-0 mb-2">
-                <div class="col-sm-12 col-lg-12">
-                  <div class="form-group row">
-                    <label class="col-sm-5 col-lg-6 col-form-label">{{
-                      $t("color")
-                    }}</label>
-                    <div class="col-sm-2 col-lg-2">
-                      <input
-                        type="color"
-                        class="form-control"
-                        placeholder=""
-                        v-model="reportingRate[0].indicator.chartOptions.color"
-                      />
-                    </div>
-                    <div class="col-sm-5 col-lg-4">
-                      <input
-                        type="text"
-                        class="form-control"
-                        placeholder=""
-                        v-model="reportingRate[0].indicator.chartOptions.color"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="row m-0 mb-2">
-                <div class="col-sm-12 col-lg-12">
-                  <div class="form-group row">
-                    <label class="col-sm-5 col-lg-6 col-form-label">{{
-                      $t("chartHeading")
-                    }}</label>
-                    <div class="col-sm-7 col-lg-6">
-                      <b-form-textarea
-                        id="inputChartInfoDerived"
-                        v-model="reportingRate[0].indicator.chartName"
-                        :state="
-                          reportingRate[0].indicator.chartName.length !== 0 &&
-                          reportingRate[0].indicator.chartName.length <=
-                            chartTitleMaxLength
-                        "
-                        placeholder=""
-                        rows="3"
-                        :maxlength="chartTitleMaxLength"
-                      ></b-form-textarea>
-                      <span
-                        >{{ reportingRate[0].indicator.chartName.length }}/{{
-                          chartTitleMaxLength
-                        }}</span
-                      >
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="row m-0 mb-2">
-                <div class="col-12">
-                  <div class="form-group row">
-                    <label
-                      for="inputChartSource"
-                      class="col-sm-5 col-lg-6 col-form-label"
-                      >{{ $t("chartInformation") }}</label
-                    >
-                    <div class="col-sm-7 col-lg-6">
-                      <b-form-textarea
-                        id="inputChartInfoDerived"
-                        v-model="reportingRate[0].indicator.chartInfo"
-                        :state="
-                          reportingRate[0].indicator.chartInfo.length !== 0 &&
-                          reportingRate[0].indicator.chartInfo.length <=
-                            chartInfoMaxLength
-                        "
-                        :placeholder="chartInfoPlaceholder"
-                        rows="3"
-                        :maxlength="chartInfoMaxLength"
-                      ></b-form-textarea>
-                      <span
-                        >{{ reportingRate[0].indicator.chartInfo.length }}/{{
-                          chartInfoMaxLength
-                        }}</span
-                      >
-                    </div>
-                  </div>
-                  <div class="form-group row">
-                    <label
-                      for="inputChartSource"
-                      class="col-sm-5 col-lg-6 col-form-label"
-                      >{{ $t("chartInformation") }}</label
-                    >
-                    <div class="col-sm-7 col-lg-6">
-                      <vue-editor
-                        v-model="reportingRate[0].indicator.categoryInfo"
-                        :state="
-                          reportingRate[0].indicator.categoryInfo.length !== 0
-                        "
-                        :editorToolbar="customToolbar"
-                        :placeholder="$t('enter_category_information')"
-                      ></vue-editor>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div
-                class="card-header bg-faint-grey color-black border-radius-0 text-uppercase f-s-0-875rem font-weight-bold mb-3"
-              >
-                {{ $t("dataMapping") }}
-              </div>
-              <AddMapping
-                :ind="0"
-                :index="0"
-                calcType="C2"
-                dataKey="subIndicator"
-                :metrixList="metrixList"
-                :chartByType="chartByType"
-                :dataSetsList="dataSetsList"
-                :chartBySubtype="chartBySubtype"
-                :indicatorsList="indicatorsList"
-                :dataElementsList="dataElementsList"
-                :key="
-                  'add-mapping-reportingRate' +
-                  chartBySubtype +
-                  0 +
-                  chartByType +
-                  0
-                "
-                :mappingType="reportingRate[0].indicator.subIndicator[0].type"
-                :selectedDE="
-                  reportingRate[0].indicator.subIndicator[0].selectedDE
-                "
-                @addDE="addDE"
-                @resetDE="resetDE"
-                @deleteDE="deleteDE"
-                v-if="isDataFetched"
-              />
-            </div>
-          </div>
-          <!-- FPSource collapse start-->
-          <div
-            class="card-header p-5px bg-faint-grey default-card-border-radius mt-3"
-            :id="'adHeadingFPSource' + chartByType + chartBySubtype"
-            v-if="reportingSector"
-          >
-            <h2 class="mb-0">
-              <button
-                class="btn btn-link w-100 text-left text-uppercase color-grey f-s-0-875rem"
-                type="button"
-                data-toggle="collapse"
-                :data-target="
-                  '#adCollapseFPSource' + chartByType + chartBySubtype
-                "
-                aria-expanded="false"
-                :aria-controls="
-                  'adCollapseFPSource' + chartByType + chartBySubtype
-                "
-              >
-                {{ $t("sectorReporting") }}
-              </button>
-            </h2>
-          </div>
-          <div
-            :id="'adCollapseFPSource' + chartByType + chartBySubtype"
-            class="collapse collapse-section-border"
-            :aria-labelledby="
-              'adHeadingFPSource' + chartByType + chartBySubtype
-            "
-            v-if="reportingSector"
-          >
-            <!-- FP Source Component -->
-            <bachmarkFpSource
-              :FPSource="fpSource"
-              :indicatorsList="indicatorsList"
-              :dataElementsList="dataElementsList"
-            />
-          </div>
-          <div class="row mt-3 mb-4" v-if="derivedCharts.length">
-            <div class="col">
-              <div class="card">
-                <div
-                  class="card-header bg-faint-grey color-black border-radius-0 text-uppercase f-s-0-875rem font-weight-bold"
-                >
-                  {{
-                    chartBySubtype === "Output"
-                      ? $t("outputChartsSetting")
-                      : $t("derivedChartsSetting")
-                  }}
-                  <!-- {{tabCategoryInfo}} -->
-                </div>
-                <div class="card-body">
-                  <div class="form-group row" v-if="chartBySubtype != 'Output'">
-                    <label for="finalYear" class="col-sm-6 col-form-label">{{
-                      $t("catInformation")
-                    }}</label>
-                    <div class="col-sm-6">
-                      <vue-editor
-                        v-model="tabCategoryInfo[1]"
-                        :editorToolbar="customToolbar"
-                        :placeholder="$t('enter_category_information')"
-                      ></vue-editor>
-                    </div>
-                  </div>
-                  <div
-                    class="mb-3"
-                    v-for="(derived, ind) in derivedCharts"
-                    :key="ind"
-                  >
-                    <div
-                      class="card-header p-5px bg-faint-grey default-card-border-radius"
-                      :id="
-                        'headingChartSettings' +
-                        chartBySubtype +
-                        chartByType +
-                        ind
-                      "
-                    >
-                      <h2 class="mb-0">
-                        <button
-                          class="btn btn-link w-100 text-left text-uppercase color-grey f-s-0-875rem"
-                          type="button"
-                          data-toggle="collapse"
-                          :data-target="
-                            '#collapseChartSettings' +
-                            chartBySubtype +
-                            chartByType +
-                            ind
-                          "
-                          aria-expanded="false"
-                          :aria-controls="
-                            'collapseChartSettings' +
-                            chartBySubtype +
-                            chartByType +
-                            ind
-                          "
-                        >
-                          {{ derived.chartOptions.chartName }}
-                        </button>
-                      </h2>
-                    </div>
-                    <div
-                      :id="
-                        'collapseChartSettings' +
-                        chartBySubtype +
-                        chartByType +
-                        ind
-                      "
-                      class="collapse collapse-section-border"
-                      :aria-labelledby="
-                        'headingChartSettings' +
-                        chartBySubtype +
-                        chartByType +
-                        ind
-                      "
-                    >
-                      <div class="row m-0 mt-4 mb-2">
-                        <div class="col-sm-12 col-lg-6">
-                          <div class="form-group row">
-                            <label class="col-sm-5 col-form-label">{{
-                              $t("disable_chart")
-                            }}</label>
-                            <div class="col-sm-7 pr-0">
-                              <b-form-checkbox
-                                checked="derived.chartOptions.disableChart"
-                                v-model="derived.chartOptions.disableChart"
-                                name="disableChartTitle"
-                                switch
-                                size="lg"
-                                class="mt-1"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <transition name="slide-fade">
-                        <div v-if="!derived.chartOptions.disableChart">
-                          <div class="row m-0 mb-2">
-                            <div class="col-sm-12 col-lg-12">
-                              <div class="form-group row">
-                                <label
-                                  class="col-sm-5 col-lg-6 col-form-label"
-                                  >{{ $t("chartHeading") }}</label
-                                >
-                                <div class="col-sm-7 col-lg-6">
-                                  <b-form-textarea
-                                    id="inputChartInfoDerived"
-                                    v-model="derived.chartOptions.chartName"
-                                    :state="
-                                      derived.chartOptions.chartName.length !==
-                                        0 &&
-                                      derived.chartOptions.chartName.length <=
-                                        chartTitleMaxLength
-                                    "
-                                    placeholder=""
-                                    rows="3"
-                                    :maxlength="chartTitleMaxLength"
-                                  ></b-form-textarea>
-                                  <span
-                                    >{{
-                                      derived.chartOptions.chartName.length
-                                    }}/{{ chartTitleMaxLength }}</span
-                                  >
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          <div
-                            class="row m-0 mb-2"
-                            v-if="
-                              derived.chartOptions.title &&
-                              derived.chartOptions.subTitle
-                            "
-                          >
-                            <div
-                              class="col-sm-12 col-lg-6"
-                              v-if="derived.chartOptions.title"
-                            >
-                              <div class="form-group row">
-                                <label class="col-sm-5 col-form-label">{{
-                                  $t("chart_title")
-                                }}</label>
-                                <div class="col-sm-2 pr-0">
-                                  <b-form-checkbox
-                                    checked="chartTitleVisible"
-                                    v-model="derived.chartOptions.title.visible"
-                                    name="someSwitchOptionTitle"
-                                    switch
-                                    size="lg"
-                                    class="mt-1"
-                                  />
-                                </div>
-                                <transition name="slide-fade">
-                                  <div
-                                    class="col-sm-5 pl-0"
-                                    v-if="derived.chartOptions.title.visible"
-                                  >
-                                    <input
-                                      type="text"
-                                      class="form-control"
-                                      placeholder=""
-                                      v-model="derived.chartOptions.title.text"
-                                    />
-                                  </div>
                                 </transition>
                               </div>
                             </div>
-                            <div
-                              class="col-sm-12 col-lg-6"
-                              v-if="derived.chartOptions.subTitle"
-                            >
-                              <div class="form-group row">
-                                <label
-                                  for="inputChartSubtitle"
-                                  class="col-sm-5 col-form-label"
-                                  >{{ $t("chart_subtitle") }}</label
-                                >
-                                <div class="col-sm-2 pr-0">
-                                  <b-form-checkbox
-                                    checked="chartSubTitleVisible"
-                                    v-model="
-                                      derived.chartOptions.subTitle.visible
-                                    "
-                                    name="someSwitchOptionSubtitle"
-                                    switch
-                                    size="lg"
-                                    class="mt-1"
-                                  />
-                                </div>
-                                <transition name="slide-fade">
-                                  <div
-                                    class="col-sm-5 pl-0"
-                                    v-if="derived.chartOptions.subTitle.visible"
-                                  >
-                                    <input
-                                      type="text"
-                                      class="form-control"
-                                      id="inputChartSubtitle"
-                                      v-model="
-                                        derived.chartOptions.subTitle.text
-                                      "
-                                    />
-                                  </div>
-                                </transition>
-                              </div>
-                            </div>
-                          </div>
-                          <div
-                            class="row m-0 mb-2"
-                            v-if="
-                              derived.chartOptions.title1 &&
-                              derived.chartOptions.subTitle1
-                            "
-                          >
-                            <div
-                              class="col-sm-12 col-lg-6"
-                              v-if="derived.chartOptions.title1"
-                            >
-                              <div class="form-group row">
-                                <label class="col-sm-5 col-form-label">{{
-                                  $t("chart_title2")
-                                }}</label>
-                                <div class="col-sm-2 pr-0">
-                                  <b-form-checkbox
-                                    checked="chartTitleVisible"
-                                    v-model="
-                                      derived.chartOptions.title1.visible
-                                    "
-                                    name="someSwitchOptionTitle"
-                                    switch
-                                    size="lg"
-                                    class="mt-1"
-                                  />
-                                </div>
-                                <transition name="slide-fade">
-                                  <div
-                                    class="col-sm-5 pl-0"
-                                    v-if="derived.chartOptions.title1.visible"
-                                  >
-                                    <input
-                                      type="text"
-                                      class="form-control"
-                                      placeholder=""
-                                      v-model="derived.chartOptions.title1.text"
-                                    />
-                                  </div>
-                                </transition>
-                              </div>
-                            </div>
-                            <div
-                              class="col-sm-12 col-lg-6"
-                              v-if="derived.chartOptions.subTitle1"
-                            >
-                              <div class="form-group row">
-                                <label
-                                  for="inputChartSubtitle"
-                                  class="col-sm-5 col-form-label"
-                                  >{{ $t("chart_subtitle2") }}</label
-                                >
-                                <div class="col-sm-2 pr-0">
-                                  <b-form-checkbox
-                                    checked="chartSubTitleVisible"
-                                    v-model="
-                                      derived.chartOptions.subTitle1.visible
-                                    "
-                                    name="someSwitchOptionSubtitle"
-                                    switch
-                                    size="lg"
-                                    class="mt-1"
-                                  />
-                                </div>
-                                <transition name="slide-fade">
-                                  <div
-                                    class="col-sm-5 pl-0"
-                                    v-if="
-                                      derived.chartOptions.subTitle1.visible
-                                    "
-                                  >
-                                    <input
-                                      type="text"
-                                      class="form-control"
-                                      id="inputChartSubtitle"
-                                      v-model="
-                                        derived.chartOptions.subTitle1.text
-                                      "
-                                    />
-                                  </div>
-                                </transition>
-                              </div>
-                            </div>
-                          </div>
-                          <div
-                            class="row m-0 mb-2"
-                            v-if="
-                              derived.chartOptions.xAxis &&
-                              derived.chartOptions.yAxis
-                            "
-                          >
-                            <div
-                              class="col-sm-12 col-lg-6"
-                              v-if="derived.chartOptions.xAxis"
-                            >
-                              <div class="form-group row">
-                                <label class="col-sm-5 col-form-label">{{
-                                  $t("x-axis")
-                                }}</label>
-                                <div class="col-sm-2 pr-0">
-                                  <b-form-checkbox
-                                    checked="chartXAxisTitleVisible"
-                                    v-model="derived.chartOptions.xAxis.visible"
-                                    name="someSwitchOptionXAxis"
-                                    switch
-                                    size="lg"
-                                    class="mt-1"
-                                  />
-                                </div>
-                                <transition name="slide-fade">
-                                  <div
-                                    class="col-sm-5 pl-0"
-                                    v-if="derived.chartOptions.xAxis.visible"
-                                  >
-                                    <input
-                                      type="text"
-                                      class="form-control"
-                                      placeholder=""
-                                      v-model="derived.chartOptions.xAxis.text"
-                                    />
-                                  </div>
-                                </transition>
-                              </div>
-                            </div>
-                            <div
-                              class="col-sm-12 col-lg-6"
-                              v-if="derived.chartOptions.yAxis"
-                            >
-                              <div class="form-group row">
-                                <label class="col-sm-5 col-form-label">{{
-                                  $t("y-axis")
-                                }}</label>
-                                <div class="col-sm-2 pr-0">
-                                  <b-form-checkbox
-                                    checked="chartYAxisTitleVisible"
-                                    v-model="derived.chartOptions.yAxis.visible"
-                                    name="someSwitchOptionYAxis"
-                                    switch
-                                    size="lg"
-                                    class="mt-1"
-                                  />
-                                </div>
-                                <transition name="slide-fade">
-                                  <div
-                                    class="col-sm-5 pl-0"
-                                    v-if="derived.chartOptions.yAxis.visible"
-                                  >
-                                    <input
-                                      type="text"
-                                      class="form-control"
-                                      placeholder=""
-                                      v-model="derived.chartOptions.yAxis.text"
-                                    />
-                                  </div>
-                                </transition>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="row m-0 mb-2">
-                            <div class="col-12">
-                              <div class="form-group row">
-                                <label
-                                  for="inputChartSource"
-                                  class="col-sm-5 col-lg-6 col-form-label"
-                                  >{{ $t("chartInformation") }}</label
-                                >
-                                <div class="col-sm-7 col-lg-6">
-                                  <b-form-textarea
-                                    id="inputChartInfoDerived"
-                                    v-model="derived.chartOptions.chartInfo"
-                                    :state="
-                                      derived.chartOptions.chartInfo.length !==
-                                        0 &&
-                                      derived.chartOptions.chartInfo.length <=
-                                        chartInfoMaxLength
-                                    "
-                                    :placeholder="chartInfoPlaceholder"
-                                    rows="3"
-                                    :maxlength="chartInfoMaxLength"
-                                  ></b-form-textarea>
-                                  <span
-                                    >{{
-                                      derived.chartOptions.chartInfo.length
-                                    }}/{{ chartInfoMaxLength }}</span
-                                  >
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </transition>
-                    </div>
+                          </b-card-text>
+                        </b-card-body>
+                      </b-collapse>
+                    </b-card>
                   </div>
                 </div>
               </div>
@@ -1630,7 +2312,7 @@
             {{ $t("mappingMandatory") }}</span
           ><button
             type="button"
-            class="btn btn-primary black-btn"
+            class="btn btn-primary black-btn save-btn"
             v-on:click="updateConfigData"
             :disabled="
               dataOnContraceptive === 'No'
@@ -1644,7 +2326,7 @@
         <div class="col text-right" v-else>
           <button
             type="button"
-            class="btn btn-primary black-btn"
+            class="btn btn-primary black-btn save-btn"
             v-on:click="updateConfigData"
           >
             {{ $t("savebtn") }}
@@ -1657,11 +2339,11 @@
 <script>
 import emuAnnual from "@/config/emuAnnualConfig.js";
 import service from "@/service";
+import DynamicImageMixin from "@/helpers/DynamicImageMixin";
 import bachmarkFpSource from "./bachmarkFpSource";
 import { VueEditor } from "vue2-editor";
-import merge from "lodash/merge";
-import audit from "../audit.js";
 import assign from "lodash/assign";
+import ReFetchConfigMixin from "@/helpers/ReFetchConfigMixin";
 import VueEditorOptionMixin from "@/helpers/VueEditorOptionMixin";
 export default {
   props: [
@@ -1674,21 +2356,17 @@ export default {
     "metrixList",
     "globalMapping",
   ],
-  mixins: [VueEditorOptionMixin],
+  mixins: [DynamicImageMixin, ReFetchConfigMixin, VueEditorOptionMixin],
   components: {
     bachmarkFpSource,
     VueEditor,
-    copyMapping: () =>
-      import(
-        /* webpackChunkName: "admin_copyMapping"*/ "@/components/config/copyMapping"
-      ),
-    SyncMapping: () =>
-      import(
-        /* webpackChunkName: "admin_SyncMapping"*/ "@/components/config/SyncMapping"
-      ),
     AddMapping: () =>
       import(
         /* webpackChunkName: "admin_AddMapping"*/ "@/components/config/AddMapping"
+      ),
+    Translations: () =>
+      import(
+        /*webpackChunkName: 'translations'*/ "@/components/config/Common/Translations"
       ),
   },
   data() {
@@ -1723,7 +2401,7 @@ export default {
 
       chartTitleMaxLength: 100,
       categoryInfo: cData.categoryInfo ? cData.categoryInfo : "",
-      tabCategoryInfo: cData.tabCategoryInfo ? cData.tabCategoryInfo : [],
+      tabCategoryInfo: cData.tabCategoryInfo ? cData.tabCategoryInfo : [{}, {}],
       originalData: null,
       isDataFetched: false,
     };
@@ -1744,160 +2422,11 @@ export default {
           this.updateConfigData();
         });
       } else {
-        this.$swal({
+        this.sweetAlert({
           title: this.$i18n.t("oops"),
           text: this.$i18n.t("no_match_found"),
         });
       }
-    },
-    syncMapping(selectedLocaleToCopy) {
-      // console.log(selectedLocaleToCopy);
-      this.$store.state.loading = true;
-      let key = this.generateKey(
-        this.chartByModule,
-        true,
-        true,
-        selectedLocaleToCopy
-      );
-
-      let response = service.getSavedConfig(key);
-      response.then((response) => {
-        let data = response.data[this.chartByType][this.chartBySubtype],
-          updatedData = [];
-
-        this.chartData.forEach((c, i) => {
-          let innerData = c.indicator,
-            dataFromLocale = data.chartData.find((cLocale) => {
-              if (Array.isArray(innerData.static_name)) {
-                if (Array.isArray(cLocale.indicator.static_name)) {
-                  return (
-                    cLocale.indicator.static_name[0].toLowerCase() ===
-                    innerData.static_name[0].toLowerCase()
-                  );
-                } else {
-                  return (
-                    cLocale.indicator.static_name.toLowerCase() ===
-                    innerData.static_name[0].toLowerCase()
-                  );
-                }
-              } else {
-                if (Array.isArray(cLocale.indicator.static_name)) {
-                  return (
-                    cLocale.indicator.static_name[0].toLowerCase() ===
-                    innerData.static_name.toLowerCase()
-                  );
-                } else {
-                  return (
-                    cLocale.indicator.static_name.toLowerCase() ===
-                    innerData.static_name.toLowerCase()
-                  );
-                }
-              }
-            }),
-            innerSubInd = [];
-          if (dataFromLocale) {
-            innerData.subIndicator.forEach((subInd, j) => {
-              let dataFromSubLocale =
-                dataFromLocale.indicator.subIndicator.find((cSubLocale) => {
-                  if (Array.isArray(subInd.static_name)) {
-                    if (Array.isArray(cSubLocale.static_name)) {
-                      return (
-                        cSubLocale.static_name[0].toLowerCase() ===
-                        subInd.static_name[0].toLowerCase()
-                      );
-                    } else {
-                      return (
-                        cSubLocale.static_name.toLowerCase() ===
-                        subInd.static_name[0].toLowerCase()
-                      );
-                    }
-                  } else {
-                    if (Array.isArray(cSubLocale.static_name)) {
-                      return (
-                        cSubLocale.static_name[0].toLowerCase() ===
-                        subInd.static_name.toLowerCase()
-                      );
-                    } else {
-                      return (
-                        cSubLocale.static_name.toLowerCase() ===
-                        subInd.static_name.toLowerCase()
-                      );
-                    }
-                  }
-                });
-              if (dataFromSubLocale) {
-                innerSubInd.push({
-                  ...subInd,
-                  de: dataFromSubLocale.de,
-                  selectedDE: dataFromSubLocale.selectedDE,
-                  type: dataFromSubLocale.type,
-                  color: dataFromSubLocale.color,
-                });
-              } else {
-                innerSubInd.push({
-                  ...subInd,
-                });
-              }
-            });
-            updatedData.push({
-              indicator: {
-                ...innerData,
-                subIndicator: innerSubInd,
-                color: dataFromLocale.indicator.color,
-                visible: dataFromLocale.indicator.visible,
-              },
-            });
-          } else {
-            updatedData.push({
-              indicator: {
-                ...innerData,
-              },
-            });
-          }
-        });
-        this.chartData = updatedData;
-
-        this.reportingRate[0].indicator.subIndicator[0].de =
-          data.reportingRate[0].indicator.subIndicator[0].de;
-        this.reportingRate[0].indicator.subIndicator[0].selectedDE =
-          data.reportingRate[0].indicator.subIndicator[0].selectedDE;
-        this.reportingRate[0].indicator.subIndicator[0].type =
-          data.reportingRate[0].indicator.subIndicator[0].type;
-
-        this.$store.state.loading = false;
-        if (this.$refs.syncMapping) {
-          this.$refs.syncMapping.syncMappingModal();
-        }
-        this.$nextTick(() => {
-          this.updateConfigData();
-        });
-      });
-    },
-    //Delete specific mapping
-    deleteDE({ index, ind, deIndex, dataKey, calcType }) {
-      let mappingKey = calcType === "C2" ? "reportingRate" : "chartData";
-      this[mappingKey][index].indicator[dataKey][ind].selectedDE.splice(
-        deIndex,
-        1
-      );
-      this[mappingKey][index].indicator[dataKey][ind].de.splice(deIndex, 1);
-    },
-    //Reset the mapping
-    resetDE({ index, ind, dataKey, calcType }) {
-      let mappingKey = calcType === "C2" ? "reportingRate" : "chartData";
-      this[mappingKey][index].indicator[dataKey][ind].de = [];
-      this[mappingKey][index].indicator[dataKey][ind].selectedDE = [];
-    },
-    //Store the selected mapping in configuration object
-    addDE({ index, ind, type, selectedDataSource, dataKey, calcType }) {
-      let mappingKey = calcType === "C2" ? "reportingRate" : "chartData";
-      this[mappingKey][index].indicator[dataKey][ind].type = type;
-      this[mappingKey][index].indicator[dataKey][ind].selectedDE.push(
-        selectedDataSource
-      );
-      this[mappingKey][index].indicator[dataKey][ind].de.push(
-        selectedDataSource.id
-      );
     },
     //This is to fetch config data on page load
     getConfigData() {
@@ -1915,12 +2444,12 @@ export default {
           ) {
             let data = response.data[this.chartByType][this.chartBySubtype];
             // console.log(data)
-            this.chartData = data.chartData
-              ? merge(this.chartData, data.chartData)
-              : this.chartData;
+            this.chartData = data.chartData ? data.chartData : this.chartData;
+            // ? merge(this.chartData, data.chartData)
             this.derivedCharts = data.derivedCharts
-              ? merge(this.derivedCharts, data.derivedCharts)
+              ? data.derivedCharts
               : this.derivedCharts;
+            // ? merge(this.derivedCharts, data.derivedCharts)
             this.dataOnContraceptive = data.dataOnContraceptive
               ? data.dataOnContraceptive
               : this.dataOnContraceptive;
@@ -1934,12 +2463,12 @@ export default {
             this.reportingSector = data.reportingSector
               ? data.reportingSector
               : this.reportingSector;
-            this.fpSource = data.FPSource
-              ? merge(this.fpSource, data.FPSource)
-              : this.fpSource;
+            this.fpSource = data.FPSource ? data.FPSource : this.fpSource;
+            // ? merge(this.fpSource, data.FPSource)
             this.reportingRate = data.reportingRate
-              ? merge(this.reportingRate, data.reportingRate)
+              ? data.reportingRate
               : this.reportingRate;
+            // ? merge(this.reportingRate, data.reportingRate)
             this.categoryInfo = data.categoryInfo
               ? data.categoryInfo
               : this.categoryInfo;
@@ -1953,10 +2482,11 @@ export default {
           }
           this.isDataFetched = true;
         })
-        .catch((res) => {
+        .catch((err) => {
           console.log("Config not found...");
           this.isDataFetched = true;
           this.$store.state.loading = false;
+          this.reFetchConfig(err);
         });
     },
     //This is to update config data on click of save button
@@ -2085,34 +2615,25 @@ export default {
                 [this.chartBySubtype]: chartBySubtypeData,
               };
             }
-            let configChanges = audit.configAudit(
-              this.originalData,
-              configData[this.chartByType][this.chartBySubtype]
-            );
+            let configChanges = {};
+            // let configChanges = audit.configAudit(
+            //   this.originalData,
+            //   configData[this.chartByType][this.chartBySubtype]
+            // );
             // console.log("configChanges", configChanges)
             let response = service.updateConfig(configData, key);
             response
               .then((response) => {
                 if (response.data.status === "OK") {
                   // console.log("response update ", response.data)
-                  this.$swal({
+                  this.sweetAlert({
                     title: this.$i18n.t("data_saved_successfully"),
-                  }).then(() => {
-                    if (Object.keys(configChanges).length) {
-                      audit.processAudit(
-                        "process2",
-                        key,
-                        configChanges,
-                        this.chartByType,
-                        this.chartBySubtype
-                      );
-                    }
                   });
                   this.getConfigData();
 
                   this.$store.state.loading = false;
                 } else {
-                  this.$swal({
+                  this.sweetAlert({
                     title: this.$i18n.t("error"),
                     text: `${response.data.message}`,
                   });
@@ -2122,7 +2643,7 @@ export default {
                 }
               })
               .catch((error) => {
-                this.$swal({
+                this.sweetAlert({
                   title: this.$i18n.t("error"),
                 });
 
@@ -2140,13 +2661,13 @@ export default {
           response.then((response) => {
             if (response.data.status === "OK") {
               // console.log("response save ", response.data)
-              this.$swal({
+              this.sweetAlert({
                 title: this.$i18n.t("data_saved_successfully"),
               });
 
               this.$store.state.loading = false;
             } else {
-              this.$swal({
+              this.sweetAlert({
                 title: this.$i18n.t("error"),
                 text: `${response.data.message}`,
               });
@@ -2165,9 +2686,9 @@ export default {
 };
 </script>
 <style>
-.noteBackground{
-  background-color: #353362;
-  color: #fff;
-  border-color:#353362;
+.noteBackground {
+  background-color: var(--modal-bg-color);
+  color: var(--text-color);
+  border-color: var(--modal-bg-color);
 }
 </style>

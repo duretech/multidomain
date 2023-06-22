@@ -3,7 +3,7 @@
     <b-card no-body class="mb-1">
       <b-card-header header-tag="header" class="p-1" role="tab">
         <b-button block v-b-toggle.periodsettings variant="info"
-          >Actual Report</b-button
+          >{{$t("actualReports")}}</b-button
         >
       </b-card-header>
       <b-collapse
@@ -15,7 +15,7 @@
         <b-card-body>
           <div>
             <div class="d-flex justify-content-between align-items-center my-3">
-              <div class="w-50">Method Name:</div>
+              <div class="w-50">{{$t("methodName")}}</div>
               <b-form-input
                 class="w-50"
                 id="input-1"
@@ -26,7 +26,7 @@
               ></b-form-input>
             </div>
             <div class="d-flex justify-content-between align-items-center my-3">
-              <div class="w-50">Method Name:</div>
+              <div class="w-50">{{$t("methodName")}}</div>
               <b-form-select
                 class="w-50"
                 v-model="form.selected2"
@@ -35,7 +35,7 @@
               ></b-form-select>
             </div>
             <div class="d-flex justify-content-between align-items-center my-3">
-              <div class="w-50">Method Name:</div>
+              <div class="w-50">{{$t("methodName")}}</div>
               <b-form-input
                 class="w-50"
                 id="input-1"
@@ -46,7 +46,7 @@
               ></b-form-input>
             </div>
             <div class="d-flex justify-content-between align-items-center my-3">
-              <div class="w-50">Method Name:</div>
+              <div class="w-50">{{$t("methodName")}}</div>
               <b-form-input
                 class="w-50"
                 id="input-1"
@@ -57,7 +57,7 @@
               ></b-form-input>
             </div>
             <div class="d-flex justify-content-between align-items-center my-3">
-              <div class="w-50">Method Name:</div>
+              <div class="w-50">{{$t("methodName")}}</div>
               <b-form-select
                 class="w-50"
                 v-model="form.selected1"
@@ -71,7 +71,7 @@
     <b-card no-body class="mb-1">
       <b-card-header header-tag="header" class="p-1" role="tab">
         <b-button block v-b-toggle.outputdata variant="info"
-          >Actual Report</b-button
+          >{{$t("actualReports")}}</b-button
         >
       </b-card-header>
       <b-collapse
@@ -83,7 +83,7 @@
         <b-card-body>
           <div>
             <div class="d-flex justify-content-between align-items-center my-3">
-              <div class="">Method Name:</div>
+              <div class="">{{$t("methodName")}}</div>
               <b-form-input
                 class="w-50"
                 id="input-1"
@@ -94,7 +94,7 @@
               ></b-form-input>
             </div>
             <div class="d-flex justify-content-between align-items-center my-3">
-              <div class="w-50">Method Name:</div>
+              <div class="w-50">{{$t("methodName")}}</div>
               <div class="w-50 d-flex justify-content-between">
                 <b-form-input
                   class=""
@@ -110,7 +110,7 @@
               </div>
             </div>
             <div class="d-flex justify-content-between align-items-center my-3">
-              <div class="">Method Name:</div>
+              <div class="">{{$t("methodName")}}</div>
               <b-form-input
                 class="w-50"
                 id="input-1"
@@ -121,7 +121,7 @@
               ></b-form-input>
             </div>
             <div class="d-flex justify-content-between align-items-center my-3">
-              <div class="w-50">Method Name:</div>
+              <div class="w-50">{{$t("methodName")}}</div>
               <div class="w-50 d-flex justify-content-between">
                 <b-form-input
                   class=""
@@ -137,7 +137,7 @@
               </div>
             </div>
             <div class="d-flex justify-content-between align-items-center my-3">
-              <div class="">Method Name:</div>
+              <div class="">{{$t("methodName")}}</div>
               <b-form-input
                 class="w-50"
                 id="input-1"
@@ -148,7 +148,7 @@
               ></b-form-input>
             </div>
             <div class="d-flex justify-content-between align-items-center my-3">
-              <div class="w-50">Method Name:</div>
+              <div class="w-50">{{$t("methodName")}}</div>
               <div class="w-50 d-flex justify-content-between">
                 <b-form-input
                   class=""
@@ -164,7 +164,7 @@
               </div>
             </div>
             <div class="d-flex justify-content-between align-items-center my-3">
-              <div class="w-50">Method Name:</div>
+              <div class="w-50">{{$t("methodName")}}</div>
               <div class="w-50 d-flex justify-content-between">
                 <b-form-input
                   class=""

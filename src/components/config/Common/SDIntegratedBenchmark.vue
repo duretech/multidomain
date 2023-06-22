@@ -1,42 +1,125 @@
 <template>
-	<b-row v-if="integrated.linked">
-		<b-col sm="12" lg="12">
-			<b-row class="mb-3">
-				<b-col sm="5">
-					<label :for="`displayName-${i}-${j}`">{{ $t("displayName") }}</label>
-				</b-col>
-				<b-col sm="7">
-					<b-form-input
-						:id="`displayName-${i}-${j}`"
-						type="text"
-						v-model="integrated.displayName"
-					></b-form-input>
-				</b-col>
-			</b-row>
-		</b-col>
-		<b-col sm="12" lg="12">
-			<b-row class="mb-3">
-				<b-col sm="5">
-					<label :for="`color-${i}-${j}`">{{ $t("color") }}</label>
-				</b-col>
-				<b-col sm="7">
-					<b-input-group :id="`color-${i}-${j}`">
-						<b-form-input
-							type="text"
-							v-model="integrated.color"
-						></b-form-input>
-						<b-input-group-append>
-							<b-form-input
-								type="color"
-								class="w-40px"
-								v-model="integrated.color"
-							></b-form-input>
-						</b-input-group-append>
-					</b-input-group>
-				</b-col>
-			</b-row>
-		</b-col>
-		<!-- <b-col sm="12" lg="12">
+  <b-row v-if="integrated.linked">
+    <b-col
+      sm="12"
+      lg="12"
+      v-if="$store.getters.getNamespace === 'multi_program_mnch-dashboard'"
+    >
+      <b-row class="mb-3">
+        <b-col sm="4"
+          ><label :for="`chartDataMapping-${i}-${j}`">{{
+            $t("dataMapping")
+          }}</label></b-col
+        >
+        <b-col sm="8" class="search-text">
+          <treeselect
+            :id="`chartDataMapping-${i}-${j}`"
+            :flat="true"
+            :multiple="true"
+            :show-count="true"
+            :default-expand-level="1"
+            :placeholder="$t('search')"
+            sort-value-by="ORDER_SELECTED"
+            v-model="integrated.dataMapping"
+            :options="allMappings"
+            :disable-branch-nodes="true"
+            search-nested
+            ><label
+              slot="option-label"
+              slot-scope="{ node, labelClassName }"
+              :class="labelClassName"
+            >
+              <b-badge
+                v-for="t in node.raw.type"
+                :key="'type' + t.alias"
+                class="mr-2 text-body"
+                variant="light"
+                :title="t.text"
+                v-b-tooltip.hover
+                :style="{
+                  backgroundColor: t.color,
+                  width: '25px',
+                }"
+                >{{ t.alias }}</b-badge
+              >
+              {{ node.label }}
+            </label>
+          </treeselect>
+        </b-col>
+      </b-row>
+    </b-col>
+    <b-col
+      sm="12"
+      lg="12"
+      v-if="$store.getters.getNamespace === 'multi_program_mnch-dashboard'"
+    >
+      <b-row class="mb-3">
+        <b-col sm="4">
+          <label :for="`percentIndicator-${i}-${j}`">{{
+            $t("percentageIndicator")
+          }}</label>
+        </b-col>
+        <b-col sm="8">
+          <b-input-group :id="`percentIndicator-${i}-${j}`">
+            <b-input-group-prepend is-text>
+              <b-form-checkbox
+                switch
+                class="mr-n2"
+                v-model="integrated.percentIndicator"
+              >
+              </b-form-checkbox>
+            </b-input-group-prepend>
+          </b-input-group>
+        </b-col>
+      </b-row>
+    </b-col>
+    <b-col
+      sm="12"
+      lg="12"
+      v-if="$store.getters.getNamespace === 'multi_program_mnch-dashboard'"
+    >
+      <b-row class="mb-3">
+        <b-col sm="4">
+          <label :for="`displayName-${i}-${j}`">{{ $t("displayName") }}</label>
+        </b-col>
+        <b-col sm="8">
+          <b-input-group :id="`displayName-${i}-${j}`">
+            <b-form-input
+              type="text"
+              v-model="integrated.displayName[$i18n.locale]"
+              disabled
+            ></b-form-input>
+            <b-input-group-append is-text>
+              <Translations :transText.sync="integrated.displayName" />
+            </b-input-group-append>
+          </b-input-group>
+        </b-col>
+      </b-row>
+    </b-col>
+    <b-col
+      sm="12"
+      lg="12"
+      v-if="$store.getters.getNamespace === 'multi_program_mnch-dashboard'"
+    >
+      <b-row class="mb-3">
+        <b-col sm="4">
+          <label :for="`color-${i}-${j}`">{{ $t("color") }}</label>
+        </b-col>
+        <b-col sm="8">
+          <b-input-group :id="`color-${i}-${j}`">
+            <b-form-input type="text" v-model="integrated.color"></b-form-input>
+            <b-input-group-append>
+              <b-form-input
+                type="color"
+                class="w-40px"
+                v-model="integrated.color"
+              ></b-form-input>
+            </b-input-group-append>
+          </b-input-group>
+        </b-col>
+      </b-row>
+    </b-col>
+    <!-- <b-col sm="12" lg="12">
 												<b-row class="mb-3">
 													<b-col sm="5">
 														<label :for="`minThreshold-${i}-${j}`"
@@ -52,8 +135,8 @@
 																type="number"
 																v-model="integrated.minThreshold"
 															></b-form-input>
-															<!--UI not loading properly due to _signoff.scss file css -->
-		<!-- <b-input-group-append is-text>
+															< !-- UI not loading properly due to _signoff.scss file css -->
+    <!-- <b-input-group-append is-text>
 																<b-form-input
 																	v-model="integrated.minThreshold"
 																	type="range"
@@ -66,7 +149,7 @@
 													</b-col>
 												</b-row>
 											</b-col> -->
-		<!-- <b-col sm="12" lg="12">
+    <!-- <b-col sm="12" lg="12">
 												<b-row class="mb-3">
 													<b-col sm="5">
 														<label :for="`maxThreshold-${i}-${j}`"
@@ -95,68 +178,153 @@
 													</b-col>
 												</b-row>
 											</b-col> -->
-		<b-col sm="12" lg="12">
-			<b-row class="mb-3">
-				<b-col sm="5">
-					<label :for="`benchmarkLabel-${i}-${j}`"
-						>{{ $t("benchmark") }} {{ $t("label") }}</label
-					>
-				</b-col>
-				<b-col sm="7">
-					<b-form-input
-						:id="`benchmarkLabel-${i}-${j}`"
-						type="text"
-						v-model="integrated.benchmarkLabel"
-					></b-form-input>
-				</b-col>
-			</b-row>
-		</b-col>
-		<b-col sm="12" lg="12">
-			<b-row class="mb-3">
-				<b-col sm="5">
-					<label :for="`benchmarkColor-${i}-${j}`"
-						>{{ $t("benchmark") }} {{ $t("color") }}</label
-					>
-				</b-col>
-				<b-col sm="7">
-					<b-input-group :id="`benchmarkColor-${i}-${j}`">
-						<b-form-input
-							type="text"
-							v-model="integrated.benchmarkColor"
-						></b-form-input>
-						<b-input-group-append>
-							<b-form-input
-								type="color"
-								class="w-40px"
-								v-model="integrated.benchmarkColor"
-							></b-form-input>
-						</b-input-group-append>
-					</b-input-group>
-				</b-col>
-			</b-row>
-		</b-col>
-		<b-col sm="12" lg="12">
-			<b-row class="mb-3">
-				<b-col sm="5">
-					<label :for="`benchmarkValue-${i}-${j}`">{{
-						$t("placeholderBenchmarkValue")
-					}}</label>
-				</b-col>
-				<b-col sm="7">
-					<b-button
-						class="black-btn btn-sm"
-						v-on:click="
-							dataEntry(`benchmark-${tabGroup}-${tabId}-${subTabId}`)
-						"
-						>{{ $t("dataEntry") }}</b-button
-					>
-				</b-col>
-			</b-row>
-		</b-col>
-	</b-row>
+    <b-col sm="12" lg="12">
+      <b-row class="mb-3">
+        <b-col sm="4">
+          <label :for="`benchmarkLabel-${i}-${j}`"
+            >{{ $t("benchmark") }} {{ $t("label") }}</label
+          >
+        </b-col>
+        <b-col sm="8">
+          <b-input-group :id="`benchmarkLabel-${i}-${j}`">
+            <b-form-input
+              type="text"
+              v-model="integrated.benchmarkLabel[$i18n.locale]"
+              disabled
+            ></b-form-input>
+            <b-input-group-append is-text>
+              <Translations :transText.sync="integrated.benchmarkLabel" />
+            </b-input-group-append>
+          </b-input-group>
+        </b-col>
+      </b-row>
+    </b-col>
+    <b-col sm="12" lg="12">
+      <b-row class="mb-3">
+        <b-col sm="4">
+          <label :for="`benchmarkColor-${i}-${j}`"
+            >{{ $t("benchmark") }} {{ $t("color") }}</label
+          >
+        </b-col>
+        <b-col sm="8">
+          <b-input-group :id="`benchmarkColor-${i}-${j}`">
+            <b-form-input
+              type="text"
+              v-model="integrated.benchmarkColor"
+            ></b-form-input>
+            <b-input-group-append>
+              <b-form-input
+                type="color"
+                class="w-40px"
+                v-model="integrated.benchmarkColor"
+              ></b-form-input>
+            </b-input-group-append>
+          </b-input-group>
+        </b-col>
+      </b-row>
+    </b-col>
+    <b-col sm="12" lg="12">
+      <b-row class="mb-3">
+        <b-col sm="4">
+          <label :for="`benchmarkValue-${i}-${j}`">{{
+            $t("placeholderBenchmarkValue")
+          }}</label>
+        </b-col>
+        <b-col sm="8">
+          <b-button
+            class="black-btn blue-btn btn-sm"
+            v-on:click="dataEntry(`benchmark-${tabGroup}-${tabId}-${subTabId}`)"
+            >{{ $t("dataEntry") }}</b-button
+          >
+        </b-col>
+      </b-row>
+    </b-col>
+  </b-row>
 </template>
 <script>
+import Treeselect from "@riophae/vue-treeselect";
+import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 export default {
-	props: ["i", "j", "tabGroup", "tabId", "subTabId", "dataEntry", "integrated"]
-}
+  props: ["i", "j", "tabGroup", "tabId", "subTabId", "dataEntry", "integrated"],
+  data() {
+    return {
+      allMappings: null,
+    };
+  },
+  components: {
+    Treeselect,
+    Translations: () =>
+      import(
+        /*webpackChunkName: 'translations'*/ "@/components/config/Common/Translations"
+      ),
+  },
+  methods: {
+    getMappings() {
+      let allMappings = [];
+      let gSetting = this.$store.getters.getGlobalFactors();
+      if (
+        gSetting.globalMappings &&
+        gSetting.globalMappings.mappings &&
+        gSetting.globalMappings.mappings.length
+      ) {
+        gSetting.globalMappings.mappings.forEach((ms) => {
+          let obj = {
+            id: ms.id,
+            label: ms.tabName[this.$i18n.locale],
+            children: [],
+          };
+          if (ms.mapping && ms.mapping.length) {
+            ms.mapping.forEach((m) => {
+              let type = [];
+              let isMapping = m.indicator.subIndicator.find(
+                (s) => s.selectedDE.length
+              );
+              m.indicator.subIndicator.forEach((sm) => {
+                let isFound = type.find((t) => t.type === sm.type);
+                if (!isFound) {
+                  if (sm.type === "indicator") {
+                    type.push({
+                      alias: "I",
+                      color: "#5c9fef",
+                      type: "indicator",
+                      text: this.$i18n.t("indicator"),
+                    });
+                  }
+                  if (sm.type === "data_element") {
+                    type.push({
+                      alias: "DE",
+                      color: "#ed8d34",
+                      type: "data_element",
+                      text: this.$i18n.t("dataElement"),
+                    });
+                  }
+                  if (sm.type === "data_sets") {
+                    type.push({
+                      alias: "DS",
+                      color: "#72b656",
+                      type: "data_sets",
+                      text: this.$i18n.t("dataSets"),
+                    });
+                  }
+                }
+              });
+              if (isMapping) {
+                obj.children.push({
+                  label: m.indicator.name[this.$i18n.locale],
+                  id: m.indicator.static_name,
+                  type,
+                });
+              }
+            });
+          }
+          allMappings.push(obj);
+        });
+      }
+      this.allMappings = allMappings;
+    },
+  },
+  created() {
+    this.getMappings();
+  },
+};
 </script>

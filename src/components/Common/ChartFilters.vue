@@ -3,7 +3,10 @@
     <div
       class="col-12 text-right d-flex align-items-center justify-content-end"
     >
-      <div class="ml-2" v-if="reportingForm && formOptions.length > 0">
+      <div
+        class="ml-2"
+        v-if="reportingForm && formOptions.length > 0 && cObj.series.length > 0"
+      >
         <b-form-select
           class="typeDropdown"
           v-model="reportingForm"
@@ -18,7 +21,15 @@
         >
         </b-form-select>
       </div>
-      <div class="ml-2" v-if="plotOptions && plotOptions.length && !ddOptions">
+      <div
+        class="ml-2"
+        v-if="
+          plotOptions &&
+          plotOptions.length &&
+          !ddOptions &&
+          cObj.series.length > 0
+        "
+      >
         <b-form-select
           class="typeDropdown"
           v-model="chartPlotType"
@@ -31,7 +42,8 @@
         v-if="
           dataOptions &&
           (source === 'Commodities_Client' ||
-            source === 'Commodities_Facilities')
+            source === 'Commodities_Facilities') &&
+          cObj.series.length > 0
         "
       >
         <b-form-select
@@ -46,7 +58,8 @@
         v-if="
           seriesOptions &&
           (source === 'Commodities_Client' ||
-            source === 'Commodities_Facilities')
+            source === 'Commodities_Facilities') &&
+          cObj.series.length > 0
         "
       >
         <b-form-select
@@ -64,7 +77,10 @@
         >
         </b-form-select>
       </div>
-      <div class="ml-2" v-if="periodList && periodList.length">
+      <div
+        class="ml-2"
+        v-if="periodList && periodList.length && cObj.series.length > 0"
+      >
         <b-form-select
           class="typeDropdown"
           v-model="averagePeriod"
@@ -72,7 +88,7 @@
         >
         </b-form-select>
       </div>
-      <div class="ml-2" v-if="ddOptions">
+      <div class="ml-2" v-if="ddOptions && cObj.series.length > 0">
         <select
           class="form-control typeDropdown custom-select"
           style="padding: 2px 2px 2px 5px"
@@ -94,6 +110,7 @@
 <script>
 export default {
   props: [
+    "cObj",
     "source",
     "ddValue",
     "pLength",
@@ -132,6 +149,9 @@ export default {
   },
   computed: {},
   watch: {
+    plotType(newValue) {
+      this.chartPlotType = newValue;
+    },
     chartPlotType(newValue) {
       this.$emit("changePlotType", newValue, this.chartRef);
     },

@@ -3,15 +3,15 @@ import { LOAD_CHILDREN_OPTIONS } from "@riophae/vue-treeselect";
 export default {
 	methods: {
 		loadOptions({ action, parentNode, callback }, addLevelID = true) {
-			console.log("action", action);
-			console.log("parentNode", parentNode);
-			console.log("callback", callback);
-			console.log("addLevelID", addLevelID);
+			// console.log("action", action);
+			// console.log("parentNode", parentNode);
+			// console.log("callback", callback);
+			// console.log("addLevelID", addLevelID);
 			// Do the AJAX stuff here.
 			// Once the server has responded,
 			// assign children options to the parent node & call the callback.
 			if (action === LOAD_CHILDREN_OPTIONS) {
-				console.log("parentNode", parentNode);
+				// console.log("parentNode", parentNode);
 				let id =
 					parentNode.id.split("/").length > 1
 						? parentNode.id.split("/")[1]
@@ -27,7 +27,7 @@ export default {
 								},
 								addLevelID
 							);
-							console.log("renamedObj", renamedObj);
+							// console.log("renamedObj", renamedObj);
 							parentNode.children = JSON.parse(
 								JSON.stringify(renamedObj.children)
 							);

@@ -1,13 +1,13 @@
 <template>
   <div>
-    <div class="row m-0 mt-2 mb-2 mr-2 ml-2">
-      <div class="col-lg-4 card-header text-muted">
+    <div class="row m-0 mt-2 mb-2 mr-2 ml-2 text-center accordion-header">
+      <div class="col-lg-4">
         {{ $t("public_sector") }}
       </div>
-      <div class="col-lg-4 card-header text-muted">
+      <div class="col-lg-4">
         {{ $t("public_medical_sector") }}
       </div>
-      <div class="col-lg-4 card-header text-muted">
+      <div class="col-lg-4">
         {{ $t("other_source") }}
       </div>
     </div>

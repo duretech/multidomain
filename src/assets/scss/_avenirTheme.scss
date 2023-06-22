@@ -1,347 +1,352 @@
-/* Summary Dashboard - Ministrial Dashboard Style Starts */
-.pt-2px{
-    padding-top: 2%;
-}
-.card.key_insights .percentage-card{
-    background-color: #181735;
+
+.ml-2 .custom-select{
+    background: #4B4A69 url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='4' height='5' viewBox='0 0 4 5'%3e%3cpath fill='%23ffffff' d='M2 0L0 2h4zm0 5L0 3h4z'/%3e%3c/svg%3e") right 0.75rem center/8px 10px no-repeat !important;
 }
 
-.card.key_insights .percentage-card .bottom-card-text.isNotExport span{
-    color: #fff;
+.para span{
+  font-size: 0.9rem;
 }
 
-.card-body.key-insights_card-body,
-.card-body.key-insights_card-body.check_box_div{
-    background-color: #12122a !important;
-    color: #fff;
-}
-
-.card.key_insights .card-header{
-    // background-color: #121221 !important;
-    background-color: var(--chart-container-color) !important;
-    padding-bottom: 0px !important;
-}
-
-.card-body.key-insights_card-body .btn-secondary{
-    background-color: #343361;
-    border-color: #343361;
-}
-
-.card-body.key-insights_card-body .alert-secondary{
-    background-color: #2B2A49;
-    color: #fff;
-}
-
-.card-body.key-insights_card-body button.bg-white{
-    background-color: #343361 !important;
-    color: #fff;
-}
-
-.bottom_toolbar_wrap .input-select-items .form-group .form-control{
-    background: transparent linear-gradient(180deg, #343361 0%, #292850 100%) 0% 0% no-repeat padding-box;
-    box-shadow: 0px 3px 6px #00000029;
-    border-radius: 4px 4px 0px 0px;
-    border: 1px solid transparent;
-    background-color: transparent !important;
-    color: #fff !important;
-}
-
-.bottom-tabbar{
-    background-color: #181735;
-    box-shadow: 0px 0 10px rgb(0 0 0 / 80%);
-}
-
-.bottomcheckbox_strip{
-    background-color: #2e2e48 !important;
-    color: #e5e5e5;
-}
-
-.vue-treeselect__single-value, .mx-input, .bottom-tabbar .vue-treeselect__single-value{
-    color: #fff !important;
-}
-
-.bottom_toolbar_wrap .input-select-items .form-group,
-.bottom_toolbar_wrap .select-wrapper:after,
-.mx-icon-calendar{
-    color: #e5e5e5 !important;
-}
-
-.form-control.tabbarselect option{
-    background-color: #181735;
-}
-
-.vue-treeselect__menu-container{
-    color: #333 !important;
-}
-
-.bottomcheckbox_strip .btn.black-grey,
-.bottomcheckbox_strip .btn.black-grey:hover{
-    background-color: transparent !important;
-    border-color: transparent !important;
-    color: #fff !important;
-}
-
-.mdgridviewpage-bg #topDiv{
-    background-color: #2E2E48;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    margin-top: -20px;
-}
-
-.mdgridviewpage-bg{
-    // padding-top: 0px !important;
-}
-
-.mdgridviewpage-bg #topDiv .black-btn{
-    background-color: #5E57B3 !important;
-    border-color: #5E57B3 !important;
-    color: #fff !important;
-}
-
-.card-body.key-insights_card-body.check_box_div .grid-view-card .card .row.px-3.pt-2,
-.card-body.key-insights_card-body.check_box_div .grid-view-card .card,
-.card-body.key-insights_card-body.check_box_div .grid-view-card .card .card-footer,
-.card-body.key-insights_card-body.check_box_div .card .row.px-3.pt-2,
-.card-body.key-insights_card-body.check_box_div .card,
-.card-body.key-insights_card-body.check_box_div .card .card-footer{
-    background-color: #181735 !important;
-    color: #fff !important;
-}
-
-.card-body.key-insights_card-body.check_box_div .grid-view-card .card .row.px-3.pt-2 select{
-    background-color: #343361;
-    border-color: #343361;
-    color: #fff !important;
-}
-
-.highcharts-yaxis-labels text,
-.highcharts-xaxis-labels text,
-.highcharts-yaxis text,
-.highcharts-line-series text, .highcharts-legend-item text,.highcharts-label text{
-    fill:#d6d6d6 !important;
-    // text-decoration: none !important;
-}
-
-.highcharts-label text{
-//    fill: unset !important;
-    text-decoration: none !important;
-}
-
-.highcharts-legend-item-hidden text {
-    color      : #666 !important;
-    fill       : #666666 !important;
-    font-weight: 500 !important;
+.dropdown-toggle::after{
+    display: none;
 }
 
 
-.bottom_toolbar_wrap .input-select-items .form-group .form-control .view_option{
-    color: #fff;
+ .leaflet-interactive{
+     stroke-width: 0.5 !important;
+ }
+ 
+ .leaflet-container a {
+     color: var(--text-color)!important;
+ }
+ 
+//check css
+.map-container .map #dropdownmap .btn{
+    word-break: break-word;
+    white-space: pre-line;
+    text-align: left;
 }
 
-/* Summary Dashboard - Analytical Dashboard Style Starts */
-
-.mdgridviewpage-bg > .container-fluid:first-child{
-    background-color: #2E2E48;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    margin-top: -20px;
+#createModuleModal{ 
+    
+    .modal-header{
+    background-color: var(--primary-color-button) !important;
+    color: var(--text-color)!important;
+    padding: 0.5rem 1rem !important;
+    }
 }
 
-#progtabwrapper .card .card-header{
-    // background-color: #2f2d55 !important;
-    background-color: var(--chart-container-color) !important;
-}
-
-#progchartcontainer .card .row.px-3.pt-2,
-#progchartcontainer .card .card-body,
-#progchartcontainer .card .card-footer,
-#progchartcontainer .card{
-    background-color: #181735 !important;
-    color: #fff !important;
-}
-
-#progchartcontainer .card{
-    // border: 1px solid #212041;
-}
-
-#progchartcontainer .card .row.px-3.pt-2{
-    margin-left: 0px;
-    margin-right: 0px;
-}
 
 .chartHeight table tbody td,
 .chartHeight table tbody th,
 table tbody td,
 table tbody th{
-    background-color: #181735 !important;
-    color: #fff !important;
+    background-color: var(--new-footer-color) !important;
+    color: var(--text-color)!important;
 }
 
 .chartHeight table thead th,
 table thead th{
-    background-color: #343361 !important;
-    color: #fff !important;
+    background-color: var(--new-footer-component-color) !important;
+    color: var(--text-color)!important;
 }
 
 .typeDropdown{
-    background-color: #343361 !important;
-    border-color: #343361 !important;
-    color: #fff !important;
+    background-color: var(--sidebar-main-active-color) !important;
+    border-color: var(--sidebar-main-active-color) !important;
+    color: var(--text-color)!important;
 }
 
 .typeDropdown:hover{
     cursor: pointer;
 }
 
+
 /* Summary Dashboard - Data Quality Review Style Starts */
 
-.mdgridviewpage-bg #page-content-wrapper > .container-fluid:first-child{
-    background-color: #2E2E48;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    margin-top: -20px;
+#myTabContent{ 
+    
+
+    .summarysubcardqr.offwhite-bg{
+        background-color: transparent !important;
+    }
+
+    .card-body.ext_const.bg-white{
+        background-color: var(--new-footer-color) !important;
+        color: var(--sidebar-activecolor);
+    }
+
+    .card-body.cardFullHeight{
+        // background-color: #222143 !important;
+        color: var(--sidebar-activecolor);
+    }
+
+    .card-body.cardFullHeight .userName,
+    .card-body.cardFullHeight .location_date,
+    .card-body.cardFullHeight .sect_quest,
+    .card-body.cardFullHeight .selectionName{
+        color: var(--sidebar-activecolor);
+    }
+
+    
+.card-body.cardFullHeight .details_cmd_card h5.userName,
+.card-body.cardFullHeight .details_cmd_card h6.userName,
+.card-body.cardFullHeight .details_cmd_card .location_date{
+    color: var(--sidebar-activecolor);
 }
 
-// #myTabContent .black-card-header{
-//     background-color: #121221 !important;
-// }
-
-#myTabContent .dqurcard-body{
-    background-color: #12122a !important;
-    color: #fff;
+.card-body.cardFullHeight .cardActive .userName,
+.card-body.cardFullHeight .cardActive .location_date,
+.card-body.cardFullHeight .cardActive .sect_quest,
+.card-body.cardFullHeight .cardActive .selectionName{
+    color: var(--text-color)!important;
 }
 
-#myTabContent .dqurcard-body .card-body.colBoxtext.bg-white{
-    background-color: var(--signoff-card-bg) !important;
-    color: #fff !important;
+.card-body.cardFullHeight .cardActive .actionBtn button:hover,
+.card-body.cardFullHeight .cardActive .actionBtn button.active{
+    color: var(--text-color)!important;
+    border-bottom: 2px solid var(--text-color)!important;
 }
 
-.dqr-maincard .dqr-card1,
-.dqr-card2,
-.dqr-card3{
-    height: 80px !important;
-}
-
-#myTabContent .summarysubcardqr.offwhite-bg{
-    background-color: transparent !important;
-}
-
-#myTabContent .card-body.ext_const.bg-white{
-    background-color: #181735 !important;
-    color: #fff;
-}
-
-#myTabContent .card-body.cardFullHeight{
-    // background-color: #222143 !important;
-    color: #fff;
-}
-
-#myTabContent .card-body.cardFullHeight .userName,
-#myTabContent .card-body.cardFullHeight .location_date,
-#myTabContent .card-body.cardFullHeight .sect_quest,
-#myTabContent .card-body.cardFullHeight .selectionName{
-    color: #fff;
-}
-
-#myTabContent .card-body.cardFullHeight .details_cmd_card h5.userName,
-#myTabContent .card-body.cardFullHeight .details_cmd_card h6.userName,
-#myTabContent .card-body.cardFullHeight .details_cmd_card .location_date{
-    color: #fff;
-}
-
-#myTabContent .card-body.cardFullHeight .cardActive{
-    // background-color: #2E2E48 !important;
-}
-
-#myTabContent .card-body.cardFullHeight .cardActive .userName,
-#myTabContent .card-body.cardFullHeight .cardActive .location_date,
-#myTabContent .card-body.cardFullHeight .cardActive .sect_quest,
-#myTabContent .card-body.cardFullHeight .cardActive .selectionName{
-    color: #fff !important;
-}
-
-#myTabContent .card-body.cardFullHeight .cardActive .actionBtn button:hover,
-#myTabContent .card-body.cardFullHeight .cardActive .actionBtn button.active{
-    color: #fff !important;
-    border-bottom: 2px solid #fff !important;
-}
-
-#myTabContent .dqurcard-body .btn.btn-secondary{
-    background-color: #343361;
-    border-color: #343361;
+.dqurcard-body .btn.btn-secondary{
+    background-color: var(--new-footer-component-color);
+    border-color: var(--new-footer-component-color);
     border-radius: 5px;
 }
 
-#myTabContent .details_cmd_card .card{
-    background-color: #12122a !important;
-    color: #fff;
+.details_cmd_card .card{
+    background-color: var(--chart-container-color) !important;
+    color: var(--sidebar-activecolor);
 }
 
-#myTabContent .card-body.cardFullHeight .actionBtn button:hover, #myTabContent .card-body.cardFullHeight .actionBtn button.active,
-#myTabContent .card-body.cardFullHeight .actionBtn button{
-    color: #fff !important;
-    border-bottom: 2px solid #fff !important;
+.card-body.cardFullHeight .actionBtn button:hover, .card-body.cardFullHeight .actionBtn button.active,
+.card-body.cardFullHeight .actionBtn button{
+    color: var(--text-color)!important;
+    border-bottom: 2px solid var(--text-color)!important;
 }
 
+}
+
+//dynamic Module 
 #myModalEdit{
+    padding-left: 0px !important;
     .modal-body{
-        background-color: #181736 !important;
-        color: #fff;
+        background-color: var(--new-bg-dark-color ) !important;
+        color: var(--sidebar-activecolor);
     }
-}
 
-
-.modal-body .card{
-    background-color:#181735;
-    border: 1px solid #212041;
-}
-
-.col_wrap_sect{
-    background-color: #181735 !important;
-}
-
-.para span{
-  font-size: 0.9rem;
-}
-.modal-body .card-footer{
-    background-color: #2B2A49 !important;
-    color: #fff;
-    border-top: 1px solid #212041 !important;
-}
-#myModalEdit{
     .modal-body .card-header{
-        background-color: #222143 !important;
+        background-color: var(--modal-header-bg) !important;
     }
 
     .modal-body .card-body{
-        background-color: #181735 !important;
+        background-color: var(--new-footer-color) !important;
+    }
+
+    .border{
+        border:none !important;
+    }
+
+    .bg-white.card .card-header{
+        background: var(--new-footer-color) !important;
+    }
+    
+    .bg-white.card{
+        background-color: var(--chart-container-color) !important;
+        color: var(--text-color)!important;
+        margin: 20px;
+    }
+    
+    .bg-white.card .chartIconsDiv {
+        margin: 10px;
+        background-color: transparent;
+        color: var(--text-color)!important;
+    }
+    
+    .bg-white.card .chartIconsDiv label{
+        color: var(--text-color)!important;
+    }
+    
+    .card-footer a h6{
+        color: var(--text-color)!important;
+    }
+    
+    .card-footer a h6 span{
+        border-bottom-color: var(--text-color)!important;
+    }
+    
+    .modal-title.text-uppercase{
+        color: var(--text-color)!important;
+    }
+    
+    .modal-body > .row:first-child{
+        background: var(--new-header-color);
+        color: var(--text-color)!important;
+        margin-top: -1rem;
+        padding: 8px;
+    }
+    
+    .modal-content.bg-faint-grey{
+        background-color: transparent !important;
+    }
+    
+    .rightButtons a h6,
+    .rightButtons i.fa{
+        color: var(--text-color)!important;
+    }
+    
+    .rightButtons a h6 span{
+        border-bottom-color: var(--text-color)!important;
+    }
+    
+    .rightButtons button{
+        color: var(--text-color)!important;
+    }
+    
+    .input-group-append .input-group-text{
+        background-color: var(--new-footer-component-color);
+        border-color: var(--new-footer-component-color);
+    }
+    
+    .input-group-append .input-group-text i.fa{
+        color: var(--text-color)!important;
+    }
+
+    i.fa {
+        color: var(--fa-color);
+      }
+}
+
+.linked-btn{
+    border: none;
+    border-radius: 5px;
+    padding: 6px 20px;   
+}
+
+//dynamic dashboard
+.dynamic-modules-section{
+    padding-top: 60px;
+    .card{
+        background-color: transparent!important;
+    }
+
+    .card-header{
+        background-color: transparent!important;
+        border-bottom: transparent !important;
+    }
+
+    .card-body {
+        background-color: transparent !important;
+        border-radius: 10px !important;
+    }
+
+    .fullContainer{
+        border: 1px solid var(--border-grey-color) !important;
+        border-radius: 5px;
+    }
+   
+}
+
+
+.secondDivCard.commonCardDiv .card.secCard{ 
+    background-color: var(--signoff-bottom-card) !important; 
+    border: 1px solid var(--signoff-bottom-card) !important;
+    .card-body.secCardBody{
+    background-color: var(--signoff-bottom-card) !important;
+    border-radius: 10px;
+    }
+
+}
+
+.creatmodule .vue-treeselect--multi,
+#myModalEdit .vue-treeselect--open-below {
+    border-radius   : 0px;
+    font-size       : 0.875rem;
+    font-weight     : 200;
+    border          : 0px solid var(--border-grey-color);
+    background-color: transparent;
+    min-height      : calc(1.5em + 0.75rem + 2px);
+}
+
+.modal {
+	background: var(--modal-overlay);
+}
+
+.modal-body{ 
+    
+    .card{
+    background-color:var(--new-footer-color);
+    border: 1px solid var(--border-grey-color);
+    }
+
+    .card-footer{
+        background-color: var(--new-footer-color) !important;
+        color: var(--sidebar-activecolor);
+        border-top: 1px solid var(--border-grey-color) !important;
+    }
+    
+
+}
+
+.modal-header{
+    background-color: var(--grey-color-button) !important;
+    margin-bottom: -3px;
+
+    .close {
+        margin-top: -15px;
+        color: var(--main-font-color) !important;
+    }
+    
+}
+
+.v-step__header{
+    background-color: var(--grey-color-button) !important;
+}
+
+.v-step{
+    background-color: var(--bg-main-color) !important;
+
+    .v-step__button{
+        border-radius: 4px !important;
     }
 }
 
+.modal-content .modal-body{ 
+    .btn-secondary{
+    background-color: var(--primary-color-button) !important;
+    border-color: var(--primary-color-button) !important;
+    
+    }
 
-.modal-header{
-    background-color: #64648D !important;
-    margin-bottom: -3px;
+    .resetbtn{
+        background-color: var(--black-btn-color) !important;
+        border-color: var(--black-btn-color) !important;
+    }
+
 }
 
-#actualSummaryTab, #ontimeSummaryTab,#agreeSummaryTab{
-    color: rgb(255, 255, 255) !important;
-    background-color: #12122a !important;
+.modal-footer{ 
+    
+    .btn-primary{
+    background-color: var(--black-btn-color) !important;
+    border-color: var(--black-btn-color) !important;
 }
 
-#actualSummaryTab p, #ontimeSummaryTab p,
-#agreeSummaryTab p,#InjectableSummaryTab p{
-    margin-bottom: 0px !important;
+.btn-secondary{
+    background-color: var(--grey-color-button) !important;
+    border-color: var(--grey-color-button) !important;
 }
 
-.summaryBtn.active{
-    background: #2f2d55;
+}
+
+.modal-dialog-scrollable .modal-body {
+    overflow-y: auto;
 }
 
 #dqreporting .card-header,
 #benchmarking-sub-tab .card-header,
 #input_tab_content_commoditiesToClients .card-header,
-#output_tab_content_commoditiesToClients .card-header,
+
 #benchmarking-comfacilities .card-header,
 #dqrSummary .emuchart .card-header,
 #input_tab_content_fp_visits .card-header,
@@ -352,7 +357,9 @@ table thead th{
 #benchmarking-sub-tabContent .card-header{
     // background-color: #121221 !important;
     background-color: var(--chart-container-color) !important;
+    border-color: transparent;
 }
+
 
 #dqreporting .card-body.offwhite-bg,
 #benchmarking-sub-tab .card-body.offwhite-bg,
@@ -379,12 +386,7 @@ table thead th{
 #benchmarking-sub-tabContent .card-body,
 #benchmarking-sub-tabContent .card-footer
 {
-    background-color: #181735 !important;
-}
-
-#dqrSummary .emuchart .card-body,
-#dqrSummary .emuchart .row.px-3.pt-2{
-    // background-color: #222143 !important;
+    background-color: var(--new-footer-color) !important;
 }
 
 #input_tab_content_commoditiesToClients .row.px-3.pt-2,
@@ -394,30 +396,15 @@ table thead th{
     margin-right: 0px;
 }
 
-#dqreporting .card,
-#benchmarking-sub-tab .card,
-#input_tab_content_commoditiesToClients .card,
-#output_tab_content_commoditiesToClients .card,
-#benchmarking-comfacilities .card,
-#input_tab_content_fp_visits .card,
-#output_tab_content_fp_visits .card,
-#reporting_tab_content_commoditiesToClients .card,
-#reporting_tab_content_fp_visits .card,
-#benchmarking-fpemuoutput .card,
-#benchmarking-sub-tabContent .card
-{
-    // border: 1px solid #212041 !important;
-}
-
 #dqreporting .bg-warm-grey,
 #benchmarking-sub-tab .bg-warm-grey {
-    background-color: #343361 !important;
-    color: #e5e5e5 !important;
+    background-color: var(--new-footer-component-color) !important;
+    color: var(--main-font-color) !important;
 }
 
 #dqreporting .bg-warm-grey p span.border-bottom-black,
 #benchmarking-sub-tab .bg-warm-grey p span.border-bottom-black {
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--border-grey-color);
 }
 
 #benchmarking-sub-tab .card-footer,
@@ -429,15 +416,17 @@ table thead th{
 #benchmarking-fpemuoutput .card-footer
 {
     background-color: transparent !important;
-    color: #fff;
+    color: var(--sidebar-activecolor);
+    border-top-color: transparent !important;
 }
+
 
 #benchmarking-sub-tab .small,
 #output_tab_content_commoditiesToClients .card-body p,
 #output_tab_content_commoditiesToFacilities .card-body p,
 #output_tab_content_fp_visits .card-body p,
 #benchmarking-sub-tabContent .card-footer{
-    color: #fff;
+    color: var(--sidebar-activecolor);
 }
 
 #benchmarking-sub-tab .card .card-footer p,
@@ -451,204 +440,23 @@ table thead th{
 }
 
 #benchmarking-sub-tab .table-danger td{
-    border-color: #fff;
+    border-color: var(--sidebar-activecolor);
 }
 
-.placeholderchart .card-body{
+//placeholder section css
+
+.placeholderchart{ 
+
+    .card-body{
+    background-color: transparent !important;
+    }
+
+    #progmapcontainer .card{
     background-color: transparent !important;
 }
 
-.placeholderchart, #progmapcontainer .card{
-    background-color: transparent !important;
 }
 
-
-/* Saved Favourites - Style Starts */
-
-.card.bookmarkchart-card.secCard .card-header{
-    background-color: #121221 !important;
-}
-
-.card.bookmarkchart-card.secCard .card-body,
-.card.bookmarkchart-card.secCard{
-    background-color: #12122a !important;
-    color: #fff !important;
-}
-
-.card.bookmarkchart-card.secCard{
-    border: 1px solid #212041 !important;
-}
-
-.card.bookmarkchart-card.secCard .card-body .media.color-black{
-    color: #fff !important;
-}
-
-.modal-header .close {
-    margin-top: -15px;
-}
-
-#createModuleModal .modal-header{
-    background-color: #7f7faf !important;
-    color: #fff !important;
-    padding: 0.5rem 1rem !important;
-}
-
-#createModuleModal .modal-content{
-    border: none !important;
-}
-
-#createModuleModal label{
-    color: #d6d6d6 !important;
-}
-
-#createModuleModal .logoSelect-dropdown button{
-    background-color: #2a2951 !important;
-    border: none !important;
-    border-radius: 5px;
-}
-
-#createModuleModal .btn-primary.submitbtn{
-    background-color: #64648d !important;
-    border-color: #64648d !important;
-}
-#createModuleModal .dropdown-item{
-    background-color: #121221;
-}
-
-#createModuleModal .vue-treeselect__placeholder{
-    color: #d6d6d6 !important;
-}
-
-#createModuleModal .selectItemsDiv{
-    border: none !important;
-}
-
-.secondDivCard.commonCardDiv .card.secCard .card-body.secCardBody{
-    background-color: #12122a !important;
-    border-radius: 10px;
-}
-
-.secondDivCard.commonCardDiv .card.secCard{
-    background-color: #12122a !important;
-    border: 1px solid #212041 !important;
-   
-}
-
-#myModalEdit .border{
-    border:none !important;
-}
-
-#myModalEdit .bg-white.card .card-header{
-    background: #181735 !important;
-}
-
-#myModalEdit .bg-white.card{
-    background-color: #12122a !important;
-    color: #fff !important;
-    margin: 20px;
-}
-
-#myModalEdit .bg-white.card .chartIconsDiv {
-    margin: 10px;
-    background-color: transparent;
-    color: #fff !important;
-}
-
-#myModalEdit .bg-white.card .chartIconsDiv label{
-    color: #fff !important;
-}
-
-#myModalEdit .card-footer a h6{
-    color: #fff !important;
-}
-
-#myModalEdit .card-footer a h6 span{
-    border-bottom-color: #fff !important;
-}
-
-#myModalEdit .modal-title.text-uppercase{
-    color: #fff !important;
-}
-
-#myModalEdit .modal-body > .row:first-child{
-    background: #2E2E48;
-    color: #fff !important;
-    margin-top: -1rem;
-    padding: 8px;
-}
-
-#myModalEdit .modal-content.bg-faint-grey{
-    background-color: transparent !important;
-}
-
-#myModalEdit .rightButtons a h6,
-#myModalEdit .rightButtons i.fa{
-    color: #fff !important;
-}
-
-#myModalEdit .rightButtons a h6 span{
-    border-bottom-color: #fff !important;
-}
-
-#myModalEdit .rightButtons button{
-    color: #fff !important;
-}
-
-#myModalEdit .input-group-append .input-group-text{
-    background-color: #121221;
-    border-color: #343361;
-}
-
-#myModalEdit .input-group-append .input-group-text i.fa{
-    color: #fff !important;
-}
-
-.savefavrightcontrol .input-group-prepend ,
-.savefavrightcontrol .input-group-prepend .input-group-text,
-.savefavrightcontrol input,
-.savefavrightcontrol input:focus{
-    background-color: #343361;
-    border-color: #343361;
-    border: 1px solid #343361 !important;
-    color: #fff !important;
-}
-
-.savefavrightcontrol .input-group-prepend{
-    border-top-left-radius: 0.25rem;
-    border-bottom-left-radius: 0.25rem;
-}
-
-.savefavrightcontrol .input-group-prepend .input-group-text .fa{
-    color: #fff !important;
-}
-
-.savefavrightcontrol select.custom-select{
-    background-color: #343361;
-    border-color: #343361;
-    border: 1px solid #343361 !important;
-    color: #fff !important;
-}
-
-.ml-2 .custom-select{
-    background: #343361 url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='4' height='5' viewBox='0 0 4 5'%3e%3cpath fill='%23ffffff' d='M2 0L0 2h4zm0 5L0 3h4z'/%3e%3c/svg%3e") right 0.75rem center/8px 10px no-repeat !important;
-}
-.table.b-table > thead > tr > [aria-sort=none]{
-    background-image:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='4' height='5' viewBox='0 0 4 5'%3e%3cpath fill='%23ffffff' d='M2 0L0 2h4zm0 5L0 3h4z'/%3e%3c/svg%3e") !important;
-}
-
-#createModuleModal input{
-    border: 1px solid transparent !important;
-    border-radius: 5px;
-    color: #d6d6d6;
-}
-
-.mx-icon-clear{
-    color: #e5e5e5 !important;
-}
-
-.vue-treeselect svg{
-    fill:#e5e5e5 !important;
-}
 
 .card-header,.card-body.key-insights_card-body, .card-body.key-insights_card-body.check_box_div,
 .card.key_insights .percentage-card .bottom-card-text.isNotExport span,.card-body.key-insights_card-body .alert-secondary,
@@ -662,41 +470,53 @@ table thead th{
 #output_tab_content_commoditiesToClients .card-body p,
 #output_tab_content_commoditiesToFacilities .card-body p,
 #output_tab_content_fp_visits .card-body p,
-.nav-side-menu .brand,
 .interactive_analytics .card .card-body,
 .iaaccordion .card .card-header span,
 .card.bookmarkchart-card.secCard .card-body, .card.bookmarkchart-card.secCard,
 .card.bookmarkchart-card.secCard .card-body .media.color-black{
-    color: #d6d6d6 !important;
+    color: var(--home-main-color) !important;
 }
 
-.selection-pills{
-    background-color: #d6d6d6;
-}
-
-.highcharts-grid.highcharts-yaxis-grid .highcharts-grid-line,
-.highcharts-axis.highcharts-xaxis .highcharts-axis-line{
-    stroke: #212041;
-}
 
 .table thead th{
-    border-bottom: 1px solid #212041;
+    border-bottom: 1px solid var(--border-grey-color);
 }
 
 .table td, .table th{
-    border-top: 1px solid #212041;
+    border-top: 1px solid var(--border-grey-color);
 }
 
 .table-bordered td,.table-bordered th{
-    border: 1px solid #212041 !important;
+    border: 1px solid var(--border-grey-color) !important;
 }
 
 .table .thead-light th{
-    border-color: #212041 !important;
+    border-color: var(--sidebar-main-active-color) !important;
+    
+    color: var(--text-color)!important;
+}
+
+.table thead th,
+.userMappingTable .table .thead-dark th{
+
+background-color: var(--sidebar-main-active-color) !important;
+border: 1px solid var(--border-grey-color) !important;
+
+}
+
+table tbody th,
+table tbody td{
+    background-color: var(--new-footer-color);
+    border-color: var( --new-footer-color);
+    color: var(--sidebar-activecolor);
 }
 
 table tbody td,.chartHeight table tbody td{
-    color: #d6d6d6 !important;
+    color: var(--home-main-color) !important;
+}
+
+table tbody td{
+    border: 1px solid var(--border-grey-color) !important;
 }
 
 .table.b-table > thead > tr > [aria-sort=descending]{
@@ -711,89 +531,131 @@ table tbody td,.chartHeight table tbody td{
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='101' height='101' view-box='0 0 101 101' preserveAspectRatio='none'%3e%3cpath fill='white' opacity='.3' d='M51 1l25 23 24 22H1l25-22zM51 101l25-23 24-22H1l25 22z'/%3e%3c/svg%3e");
 }
 
-// h6.title-header{
-//     font-size: 1.125rem;
-// }
 
-.logo-img-header {
-    width: 35px;
-    height: 35px;
-    object-fit: scale-down;
-}
-
-.dropdown-toggle::after{
-    display: none;
-}
-
-.setting-icon{
-    font-size: 21px;
-    padding-top: 6px;
-}
-
-.vue-treeselect__menu-container{
-    color: #d6d6d6 !important;
-}
-
-.footer-row .vue-treeselect__menu-container{
-    color: #333 !important;
-
-    // .vue-treeselect__menu{
-    //     display: block;
-    //     z-index: 9999 !important;
-    // }
-}
-
-.footer-row .vue-treeselect__x-container{
-    padding-right: 10px;
-}
-
-.timeFrequenncyDropdown {
-    height: 200px;
-    overflow-y: auto;
-    background-color: #353362;
-    color: #d6d6d6;
-}
-
-.footer-row .b-dropdown button{
-    color: #d9d6d6 !important;
-    font-size: 14px;
-}
-.dashboardchart-container .form-control#exampleFormControlSelect1{
-    color: #fff;
-    background-color: #343361;
-    border: 1px solid #343361;
-}
-.modal-content .modal-body .btn-secondary{
-    background-color: #7f7faf !important;
-    border-color: rgba(127, 127, 175, 0.6196078431) !important;
-    // border-color: #343361 !important;
-    // border-radius: 30px;
-}
-
-.modal-content .modal-body .resetbtn{
-    background-color: #5E57B3 !important;
-    border-color: #5E57B3 !important;
-}
-.summary-dqr-page .sign-off-card .sign-off-card-body .card.level-card{
-    // overflow-y: auto;
-}
-
-.vue-treeselect__menu{
-    overflow-y: auto;
-    height: auto;
-}
-
-.draggable-chart .card.barchart-body .card-body.charts{
-    margin-top: 40px;
-}
-
-.draggable-chart .card.barchart-body .card-body.charts .float-right{
-    margin-right: 30px;
+.table.b-table > thead > tr > [aria-sort=none]{
+    background-image:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='4' height='5' viewBox='0 0 4 5'%3e%3cpath fill='%23ffffff' d='M2 0L0 2h4zm0 5L0 3h4z'/%3e%3c/svg%3e") !important;
 }
 
 button.sidebar-sub-menu-option{
     display: flex;
 }
+
+.sumContainer,.dqrContainer{
+    margin-left: 230px;
+}
+
+.sumContainer.main{
+	padding-top: 60px;
+}
+
+.sumContainer, .dqrContainer{
+	overflow-y: auto;
+    height: calc(100vh - 60px);
+	
+}
+
+#dashboardchartholder.sumContainer{
+	// margin-top: 100px !important;
+	padding-top: 65px;
+}
+
+.dqrContainer{
+	padding-top: 60px;
+	background-color: var(--chart-container-color) !important;
+	
+	
+	.modal-dialog-scrollable .modal-body {
+		overflow-y: auto !important;
+	}
+}
+
+.form-control-file, .form-control-range {
+    color: var(--main-font-color);
+}
+
+.subgrpBtn,.addgrpBtn,.indiBtn,.editBtn{
+    background-color: var(--main-header-color) !important;
+    border-color: var(--main-header-color) !important;
+}
+
+.deleteBtn{
+    background-color: var(--grey-color-button) !important;
+    border-color: var(--grey-color-button) !important;
+}
+
+.black-btn.pointer-events-none{
+    margin-bottom: 10px;
+}
+
+.swal2-select {
+    background-color: var(--primary-color-button);
+    border-color: var(--primary-color-button) !important;
+    border-radius: 0.25rem;
+}
+
+.new-btn{
+    background-color: var(--grey-color-button) !important;
+    border-color: var(--grey-color-button) !important;
+}
+
+.new-btn1 {
+    background-color: var(--black-btn-color) !important;
+}
+
+.new-btndisable{
+  background-color: var(--grey-color-button) !important;
+  border-color: var(--grey-color-button) !important;
+}
+
+.modal-content .modal-body .new-resetbtn {
+    background-color: var(--grey-color-button) !important;
+    border-color: var(--grey-color-button) !important;
+    color: var(--text-color)!important;
+}
+
+.createmodal .btn-primary.submitbtn {
+    background-color: var(--grey-color-button) !important;
+    border-color: var(--grey-color-button) !important;
+}
+
+.swal2-popup h2{
+    font-size: 1.4rem !important;
+}
+
+.swal2-popup .swal2-select{
+    font-size: 1rem !important;
+}
+
+.swal2-popup .swal2-styled{
+    padding: 0.5em 1.1em !important;
+}
+
+.footer-buttons .btn-primary{
+    background-color: var(--grey-color-button) !important;
+}
+
+.search-text .vue-treeselect--has-value .vue-treeselect__input,
+.search-text .vue-treeselect--multi .vue-treeselect__input {
+    color: var(--text-color)!important;
+}
+
+
+.search-text .vue-treeselect__menu{
+    overflow-x: hidden;
+    overflow-y: auto;
+    max-height: 200px !important;
+}
+
+.cancel-newbtn {
+    background-color: var(--grey-color-button)  !important;
+}
+
+.btn-dark {
+	background-color: var(--export-btn-color) !important;
+	border-color: var(--export-btn-color) !important;
+}
+
+// responsive css
 
 @media (min-width: 1920px) {
     .fs-10-1920{
@@ -841,336 +703,7 @@ button.sidebar-sub-menu-option{
     .fs-40-1920{
         font-size: 		2.5rem !important;
     }
-    // .complete-list li div{
-    //     font-size: 15px !important;
-    // }
-    // .internal-list li div{
-    //     font-size: 16px !important;
-    // }
-    // .summary-btn{
-    //     font-size: 16px !important;
-    // }
-    // .summary-dqr .dqr-summary-text-collapse{
-    //     font-size: 15px !important;
-    // }
-    // .summary-dqr-page .overview-card .dqr-card-body .generate-btn {
-    //     font-size: 16px !important;
-    // }
-    // .home-page #dropdownhome .btn p{
-    //     font-size: 16px !important;
-    // }
-    // .explore-col btn, .explore-col btn:hover, .explore-col btn:focus{
-    //     font-size: 16px !important;
-    // }
-    // .home-main .select_dashboard_btn .btn{
-    //     font-size: 16px !important;
-    // }
-    // .home-main .purple-btn{
-    //     font-size: 16px !important;
-    // }
-    // .title-header {
-    //     color: #E5E5E5;
-    //     font-size: 20px !important;
-    // }
-    // .logo-of-dashboard {
-    //     width: 32px !important;
-    // }
-    // .homelogo-img {
-    //     width: 29px !important;
-    // }
-    // .integratedFamilyWrap .integratedPlanningText {
-
-    //     font-size: 16px !important;
-    // }
-    // .integratedFamilyWrap .integratedBoxWrap .programName {
-
-    //     top: -20px !important;
-    //     font-size: 16px !important;
-
-    // }
-    // .integratedFamilyWrap .integratedBoxWrap .textDivWrap .courseName {
-
-    //     font-size: 20px !important;
-
-    // }
-    // .integratedFamilyWrap .integratedBoxWrap .textDivWrap .courseCount {
-
-    //     font-size: 30px !important;
-    // }
-    // .integratedFamilyWrap .integratedBoxWrap .textDivWrap .courseText {
-    //     font-size: 16px !important;
-    // }
-    // .integratedFamilyWrap .transparentDiv .purple-btn {
-
-    //     font-size: 16px !important;
-    // }
-    // .integratedFamilyWrap .rightSidetext {
-
-    //     font-size: 16px !important;
-
-    // }
-    // .integratedFamilyWrap .scorboardWrap .program-name {
-
-    //     font-size: 16px !important;
-
-    // }
-    // .integratedFamilyWrap .scorboardWrap .locationName {
-
-    //     font-size: 16px !important;
-
-    // }
-    // .sidebar-sub-menu-option{
-    //     font-size: 14px !important;
-    // }
-    // .summary-title{
-    //     font-size: 14px !important;
-    // }
-    // .performance-in-card{
-    //     font-size: 14px !important;
-    // }
-    // .emu-status{
-    //     font-size: 14px !important;
-    // }
-    // .from-last-year{
-    //     font-size: 14px !important;
-    // }
-    // .summary-card-bg{
-    //     font-size: 14px !important;
-    // }
-    // .summary-dot{
-    //     font-size: 24px !important;
-    // }
-    // .summary-view-more-btn{
-    //     font-size: 14px !important;
-    // }
-    // .igmapslidertext{
-    //     font-size: 14px !important;
-    // }
-    // .dqr-title{
-    //     font-size: 18px !important;
-    // }
-    // .quality-text{
-    //     font-size: 16px !important;
-    // }
-    // .rounded-pill{
-    //     font-size: 14px !important;
-    // }
-    // .scoretitle{
-    //     font-size: 22px !important;
-    // }
-    // .totalscore{
-    //     font-size: 22px !important;
-    // }
-    // .sign-off-card-body .card-body{
-    //     font-size: 16px !important;
-    // }
-    // .userName{
-    //     font-size: 14px !important;
-    // }
-    // .inner-card .card-header h6{
-    //     font-size: 16px !important;
-    // }
-    // .wide-btn .grid-txt, .wide-btn .wide-txt, .grid-btn .grid-txt, .grid-btn .wide-txt{
-    //     // font-size: ;
-    // }
-    // .summary-dqr-page .sign-off-card .sign-off-card-body .sign-questions .sign-titles{
-    //     font-size: 15px !important;
-    // }
-    
-    // .data-btn-item, .decleration{
-    //     font-size: 16px !important;
-    // }
-
-    // .dsl label,.summary-dqr-page .level-card .dsl .nDiv,.summary-dqr-page .sign-off-card .sign-off-card-body .count,.summary-dqr-page .level-card #dropdown-user .btn,.summary-dqr-page .level-card #dropdown-category .btn {
-    //     font-size: 14px !important;
-    // }
-    // .nav-side-menu li a[data-v-e03fc488],.mapDivLegend ul li a[data-v-6fdbb28e],.toggleLegend[data-v-6fdbb28e] {
-    //     font-size: 16px !important;
-    // }
-    // .interactive-page .interactive .interactive-card .interactive-card-title,.interactive-page .interactive .interactive-card .interactive-card-title h6{
-    //     font-size: 18px !important;
-    // }
-    // .interactive-page .interactive .interactive-card .main-title{
-    //     font-size: 16px !important;
-    // }
-    // .interactive-page .interactive .interactive-card .indi .btn {
-    //     font-size: 12px !important;
-    // }
-    // .med-list-item{
-    //     font-size: 16px !important;
-    // }
-    // .interactive-page .interactive .interactive-card .period .btn{
-    //     font-size: 14px !important;
-    // }
-    // .interactive-page .interactive .interactive-card .year-btn-left, .interactive-page .interactive .interactive-card .year-btn-right {
-    //     font-size: 14px !important;
-    // }
-    // .year-list-item{
-    //     font-size: 12px !important;
-    // }
-    // .vue-treeselect__label{
-    //     font-size: 14px !important;
-    // }
-    // .interactive-page .interactive .interactive-card .update-btn{
-    //     font-size: 14px !important;
-    // }
-    // .interactive-page .interactive .interactive-card .chart .chart-type{
-    //     font-size: 14px !important;
-    // }
-    // .configure-chart-text{
-    //     font-size: 16px !important;
-    // }
-    // .interactive-page .interactive .interactive-card .chart .layout{
-    //     font-size: 12px !important;
-    // }
-    // .interactive-page .interactive .interactive-card .chart .layout-info{
-    //     font-size: 12px !important;
-    // }
-    // .text-line{
-    //     font-size: 16px !important;
-    // }
-    // .saved-fav-heading-text{
-    //     font-size: 18px !important;
-    // }
-    // .saved-fav-show-text{
-    //     font-size: 16px !important;
-    // }
-    // .saved-fav-card-header{
-    //     font-size: 16px !important;
-    // }
-    // .card-details{
-    //     font-size: 15px !important;
-    // }
-    // .modal-content .form-container{
-    //     font-size: 16px !important;
-    // }
-    // .saved-modules{
-    //     font-size: 16px !important;
-    // }
-    // .title_text{
-    //     font-size: 12px !important;
-    // }
-    // .card.key_insights .card-header{
-    //     font-size: 18px !important;
-    // }
-    // .bottom-card-text[data-v-ba29249c],.alert span.float-left[data-v-ba29249c],.bottom-card-text[data-v-edbf65c6] {
-    //     font-size: 14px !important;
-    // }
-
-    // .form-check-inline{
-    //     font-size: 16px !important;
-    // }
-    // .black-btn{
-    //     font-size: 18px !important;
-    // }
-    // .btn-fixed[data-v-1b1df698]{
-    //     font-size: 14px !important;
-    // }
-    // .title_p{
-    //     font-size: 18px !important;
-    // }
-    // .summarysubcardqr .colBoxtext span[data-v-35453fa4]{
-    //     font-size: 16px !important;
-    // }
-    // .nDiv[data-v-35453fa4],.tabs_name[data-v-35453fa4]{
-    //     font-size: 14px !important;
-    // }
-    // .userName[data-v-35453fa4],.location_date[data-v-35453fa4],.actionBtn button[data-v-35453fa4],.userName[data-v-35453fa4],.selectionName[data-v-35453fa4],.question_div[data-v-35453fa4] {
-    //     font-size: 16px !important;
-    // }
-    // .summaryTabSection .summary_Card p{
-    //     font-size: 15px !important;
-    // }
-    // .typeDropdown[data-v-5dae497c],.typeDropdown[data-v-6ae17d2a] {
-    //     font-size: 14px !important ;
-    // }
-    // .top-date-page-div span[data-v-0f9688b6],.top-date-page-div span[data-v-2198fd5c],.top-date-page-div span[data-v-2198fd5c]{
-    //     font-size: 14px !important;
-    // }
-    // .condom-filter[data-v-2198fd5c] {
-    //     font-size: 14px !important;
-    // }
-    // .table-responsive{
-    //     font-size: 16px !important;
-    // }
-    // #exampleFormControlSelect1{
-    //     font-size: 16px !important;
-    // }
-    // .no-gutters{
-    //     font-size: 18px !important;
-    // }
-    // .bg-white p{
-    //     font-size: 16px !important;
-    // }
-    // .summaryBtn{
-    //     font-size: 18px !important;
-    // }
-    // .appConfigtabMain .nav-link{
-    //     font-size: 18px !important;
-    // }
-    // .benchmarking-sub-tab .nav-link{
-    //     font-size: 18px !important;
-    // }
-    // .nav-side-menu .brand[data-v-e03fc488]{
-    //     font-size: 18px !important;
-    // }
-    // .mapDivLegend ul li a[data-v-6fdbb28e]{
-    //     font-size: 16px !important;
-    // }
-    // .leaflet-container{
-    //     font-size: 14px !important;
-    // }
-    // .text-truncate{
-    //     font-size: 16px !important;
-    // }
-    // // .badgeNumberPosition{
-    // //     font-size: 12px !important;
-    // // }
-    // .has-search input{
-    //     font-size: 16px !important;
-    // }
-    // .custom-control-inline label{
-    //     font-size: 16px !important;
-    // }
-    // .f-s-0-875rem {
-    //     font-size: 16px !important;
-    // }
-    // .border-bottom-white{
-    //     font-size: 16px !important;
-    // }
-    // .sav_title{
-    //     font-size: 18px !important;
-    // }
-    // .text-rightmr-5  label{
-    //     font-size: 16px !important;
-    // }
-    // .summary-chart-title{
-    //     font-size: 16px !important;.toggleLegend
-    // }
-    // .summary-chart-title,.barchart-body .delivery-title,.barchart-body .delivery-title{
-    //     font-size: 16px !important;
-    // }
-    // #modal-anc .modal-content .table-heading p{
-    //     font-size: 14px !important;
-    // }
-    // #modal-anc .modal-content .anc-map .map-header .map-title,#modal-anc #dropdownvisit .btn{
-    //     font-size: 16px !important;
-    // }
-    // .toggleLegend{
-    //     font-size: 15px !important;
-    // }
-    // .map-container .map .l-map .mapDivLegend li a{
-    //     font-size: 15px !important;
-    // }
-    // .scorboardLabel{
-    //     font-size: 16px !important;
-    // }
-    // .title-report-card{
-    //     font-size: 18px !important;
-    // }
-    // .report-container .heading{
-    //     font-size: 16px;
-    // }   
+   
 }
 
 @media screen and (min-width: 1920px) {
@@ -1182,7 +715,7 @@ button.sidebar-sub-menu-option{
 @media screen and (min-width: 1500px) {
 
 .home-main .dqr-content , .home-main .sum-content{
-    width: 340px;
+    width: 340px !important;
 }
 
 .home-main .home-dqr , .home-main .home-sum{
@@ -1195,9 +728,9 @@ button.sidebar-sub-menu-option{
 }
 
 .home-main .dqr-content .img-dqr {
-    position: absolute;
-    right: 5px;
-    transform: skewX(1deg);
+    position: absolute !important;
+    right: 5px !important;
+    transform: skewX(1deg) !important;
     
 }
 
@@ -1213,19 +746,15 @@ button.sidebar-sub-menu-option{
 }
 
 .sumry-content button{
-    margin-right: 20px;
-}
-
-.select_dashboard_btn.btn-group{
-}
-
+    margin-right: 20px !important;
 }
 
 
+}
 
 @media screen and (min-width: 1920px) {
     .home-main .dqr-content , .home-main .sum-content{
-        width: 400px;
+        width: 400px !important;
     }
 
     .home-main .dqr-content .img-dqr img{
@@ -1234,53 +763,18 @@ button.sidebar-sub-menu-option{
     }
 
     .home-main .home-dqr {
-        position: relative;
-        left: -58px;
+        position: relative !important;
+        // left: -58px !important;
     }
 
     .sumry-content button {
-        margin-left: 40px;
+        margin-left: 40px !important;
     }
 
     .select_dashboard_btn.btn-group{
-        margin-top: 0px;
+        margin-top: 0px !important;
     }
 }
-
-.map-container .map #dropdownmap .btn{
-    word-break: break-word;
-    white-space: pre-line;
-    text-align: left;
-}
-
-.map-container.fp-map .leaflet-top.leaflet-right,
-.leaflet-bottom.leaflet-left,.leaflet-top.leaflet-right,
-.leaflet-bottom.leaflet-right{
-    z-index: 100 !important;
-}
-
-.header-body li.dropDownBorderBottomColor button , .header-body li button.dropdown-item {
-    font-size: 12px;
-    padding: 10px;
-}
-
-.header-body li.dropDownBorderBottomColor button img , .header-body li button.dropdown-item img{
-    height: 15px;
-}
-
-.map-container .map .l-map .play-content .btn-group > .btn:nth-child(3),.map-container .map .l-map .play-content .btn-group > .btn:first-child,.map-container .map .l-map .play-content .btn-group > .btn:nth-child(2){
-    width: 38px !important;
-}
-
-.ql-editor-text {
-    background-color:var(--chart-container-color) !important;
-    padding: 8px;
-
-    p{
-        margin-bottom: 0px !important;
-    }
-}
-
 
 @media (min-width: 1366px)
 {
@@ -1289,19 +783,19 @@ button.sidebar-sub-menu-option{
     // height: calc(100vh - 130px) !important;
 }
 
-// .b-sidebar-outer{
-//     z-index: 900 !important;
-// }
-
 .home-main .sum-content .sumry-content{
     margin-top: 9px !important;
+}
+
+.not-emu .signoff-modal-content .list-of-questions{
+    height: calc(100vh - 412px) !important;
 }
 
 }
 
 @media only screen and (min-device-width: 1280px) and (max-device-width: 1350px) {
         .sidebar-newbody #sidebar-2 {
-            width: 218px !important;
+            width: 214px !important;
             top: 6px !important;
             
         }
@@ -1340,340 +834,18 @@ button.sidebar-sub-menu-option{
         .sidebar-newbody #sidebar-2 .sidebar .sidebar-item{
             width: 200px !important;
         }
+
+        .sidebar-newbody #sidebar-2 .sidebar .sidebar-item.subgroups{
+            width: 190px !important;
+        }
         
 }    
 
-.mx-datepicker{
-   
-    .mx-input{
-        padding: 6px 10px !important;
-        font-size: 14px;
-    }
-}
-
-.mapDropdown{
-    background-color: var(--map-elements-bg-color);
-    border: none;
-}
-
-.linked-btn{
-    background-color: #5e57b3 !important;
-    border: none;
-    border-radius: 5px;
-    padding: 6px 20px;
-    
-}
-
-.sumContainer,.dqrContainer{
-    margin-left: 230px;
-}
-
-.subgrpBtn,.addgrpBtn,.indiBtn,.editBtn,.deleteBtn{
-    background-color: var(--export-btn-color) !important;
-    border-color: var(--export-btn-color) !important;
-}
-
-.emu-status{
-    overflow: hidden;
-text-overflow: ellipsis;
-display: -webkit-box;
--webkit-line-clamp: 2;
--webkit-box-orient: vertical;
-}
-.emu-read{
-    font-size: var(--font-small);
-}
-
-.readMoreBtn{
-    border: none;
-    border-radius: 0px;
-    border-bottom: 1px solid #d9d9d9;
-    background-color: transparent !important;
-    font-size: 10px !important;
-    color: #e9e9e9;
-    font-weight: 300 !important;
-}
-
-.form-control-file, .form-control-range {
-    color: #e5e5e5;
-}
-
-.scoreBtn{
-    background-color: #343361 !important;
-    border-color: #343361 !important;
-    border-radius: 5px !important;
-}
-
-.dynamic-modules-section{
-    .card{
-        background-color: var(--chart-container-color) !important;
-    }
-}
-
-
-.intImg{
-    margin-left: 20px !important;
-}
-
-.quality-text {
-    font-size: var(--font-size-p-normal-text);
-    color: var(--innertext-font-color) !important;
-}
-
-.dqrSummaryrow{
-    background-color: var(--chart-container-color) !important;
-    color: var(--fonts-white-shade);
-    font-size: var(--font-size-chart-sidebar-heading);
-    border-radius: 7px;
-    border-bottom-left-radius: 0px !important;
-    border-bottom-right-radius: 0px !important;
-    border: transparent;
-}
-
-.vue-treeselect__limit-tip {
-   padding-top: 0px !important;
-}
-
-.vue2leaflet-map{
-    background-color: var(--primary-bg-color) !important;
-}
-
-.leaflet-interactive{
-    stroke-width: 0.5 !important;
-}
-
-.leaflet-container a {
-    color: #fff !important;
-}
-
-.footer-col .form-control{
-    border-radius: 5px 5px 0 0 !important;
-}
-
-.transparentDiv .mapContainer .card-body{
-    padding-top: 0px !important;
-}
-
-.black-btn.pointer-events-none{
-    margin-bottom: 10px;
-}
-
-.vue-treeselect--open .vue-treeselect__control{
-    border: none !important;
-}
-
-
-.dqr-title {
-    color: var(--innertext-font-color) !important;
-    font-size: var(--font-size-chart-sidebar-heading);
-    font-weight: 500;
-    text-transform: uppercase;
-}
-
-// .summarysubcardqr{
-//     background-color: transparent !important;
-// }
-
-.viewemuBtn{
-    background-color: #343361 !important;
-    color: #fff;
-    padding: 10px;
-    border-radius: 4px;
-}
-
-.mdgridviewpage-bg.dqrbgchart{
-    background-color: var(--primary-bg-color) !important;
-}
-
-.card.listcards{
-    background-color: var(--signoff-card-bg);
-    border-radius: 10px;
-    padding: 10px;
-    border: 0px var(--signoff-bottom-card) solid !important;
+@media (min-width: 576px){
+	.modal-dialog-scrollable .modal-content {
+		max-height: calc(100vh - 1rem);
+		// overflow-y: scroll;
+	}
 
 }
-
-.map-legend2 .legend-menu{
-    background-color: #181735 !important;
-    border-radius: 2%;
-    float: right;
-    left: 171px !important;
-}
-
-
-#modal-anc p {
-    font-size: 0.9rem;
-}
-
-.map-firstitem {
-    background: transparent linear-gradient(180deg, #343361 0%, #292850 100%) 0% 0% no-repeat padding-box;
-    opacity: 1;
-    border-top-right-radius: 30px;
-    border-bottom-right-radius: 30px;
-    padding-left: 5%;
-
-}
-.home-page #dropdownhome .btn p{
-    font-size: 0.875rem !important;
-}
-.map-activeitem:active{
-    color: #fff !important;
-}
-
-.sub-head {
-    color: #E5E5E5 !important;
-}
-
-.swal2-select {
-    background-color: #7F7FAF;
-    border-color: rgba(127, 127, 175, 0.6196078431) !important;
-    border-radius: 0.25rem;
-}
-
-.new-btn{
-    background-color: #64648D !important;
-}
-
-.new-btn1 {
-    background-color: #5e57b3 !important;
-}
-
-.new-btndisable{
-  background-color: #64648D !important;
-  border-color: #64648D !important;
-}
-
-.modal-content .modal-body .new-resetbtn {
-    background-color: #5E57B3 !important;
-    border-color: #5E57B3 !important;
-}
-
-.createmodal .btn-primary.submitbtn {
-    background-color: #64648D !important;
-    border-color: #64648D !important;
-}
-
-.swal2-popup h2{
-    font-size: 1.4rem !important;
-}
-
-.swal2-popup .swal2-select{
-    font-size: 1rem !important;
-}
-
-.swal2-popup .swal2-styled{
-    padding: 0.5em 1.1em !important;
-}
-
-.border-left {
-    border-left: 3px solid var(--sidebar-border-left) !important;
-}
-
-// .footer-buttons .btn-secondary {
-//     background-color: #5E57B3 !important;
-// }
-
-.footer-buttons .btn-primary{
-    background-color: #64648D !important;
-}
-
-.modal-footer .btn-primary{
-    background-color: #5E57B3 !important;
-    border-color: #5E57B3 !important;
-}
-
-.modal-footer .btn-secondary{
-    background-color: #64648D !important;
-    border-color: #64648D !important;
-}
-
-/* Admin New layout Css */
-.adminConfigInner .nav-tabs .nav-link.active{
-    background: #181735 !important;
-    border: 1px solid transparent !important;
-    border-top-left-radius: 0.25rem !important;
-    border-top-right-radius: 0.25rem !important;
-    border-color: #dee2e6 #dee2e6 #fff !important;
-    border-bottom-color: transparent !important;
-}
-
-
-.adminConfigInner{
-    background-color: #181735 !important;
-}
-.adminConfig .nav-tabs .nav-link.active
-{
-    background: #5E57B3 !important;
-    border-top-right-radius: 30px;
-    border-bottom-right-radius: 30px;
-    border-top-left-radius: 0px !important;
-}
-
-.adminConfig .nav-tabs .nav-link:hover {
-    border-top-right-radius: 30px;
-    border-bottom-right-radius: 30px;
-    border-top-left-radius: 0px !important;
-    background: linear-gradient(180deg, rgb(47, 46, 89) 48%, rgb(24, 23, 54) 100%);
-    border-top-color: #2f2e59 !important;
-    
-}
-
-.adminConfig .nav-tabs .nav-link::before:hover {
-    padding-right: 2px !important;
-}
-
-.adminConfig .card-header{
-    width: 300px !important;
-}
-
-.adminConfigInner .nav-tabs {
-    border-bottom: 1px solid #fff !important;
-}
-
-.new-gradbtn {
-    letter-spacing: 0.6px;
-    color: #E5E5E5;
-    opacity: 1;
-    background: transparent linear-gradient(180deg, #5E57B3 0%, #292850 100%) 0% 0% no-repeat padding-box;
-    opacity: 1;
-    border: none !important;
-}
-
-.legend-map{
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    text-align: center;
-    margin-bottom: -12px;
-}
-
-.search-text .vue-treeselect--has-value .vue-treeselect__input,
-.search-text .vue-treeselect--multi .vue-treeselect__input {
-    color: #fff !important;
-}
-
-//hidden for now by Ravindra, do not add 
-// .adminConfigInner .nav-tabs{
-//     height: 42px;
-//     flex-wrap: wrap;
-//     flex-direction: column;
-//     overflow: hidden;
-//     // width: fit-content;
-//     display: flex;
-//     justify-content: flex-start;
-//     align-items: flex-start;
-// }
-
-.search-text .vue-treeselect__menu{
-    overflow-x: hidden;
-    overflow-y: auto;
-    max-height: 200px !important;
-}
-
-.cancel-newbtn {
-    background-color: #64648D  !important;
-}
-
-
-
 

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h6>Indicator 1</h6>
+    <h6>{{$t("ind1")}}</h6>
     <p>
       Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi vulputate
       dignissim pretium. Maecenas ac nulla risus. Cras pellentesque odio eget

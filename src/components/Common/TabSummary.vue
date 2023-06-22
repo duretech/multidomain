@@ -1,11 +1,11 @@
 <template>
-	<div v-if="content" class="summary-dqr py-2">
+	<div v-if="content" class="summary-dqr py-2 mt-2">
 		<!-- <b-container fluid> -->
 		<b-row class="mx-0">
 			<b-col sm="12">
 				<div>
 					<b-button
-						class="summary-btn dqr-summary-btn"
+						class="dqr-summary-btn"
 						v-b-toggle="'tabCollapse' + contKey"
 						>{{ $t("Summary")
 						}}<span

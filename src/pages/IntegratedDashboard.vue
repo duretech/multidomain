@@ -15,37 +15,50 @@
         <b-row>
           <b-col sm="12" class="mb-3">
             <p class="fs-17-1920 integratedPlanningText">
-              This section is designed to highlight priority indicators that
-              show how the FP and MH program is performing. Understanding what
-              indicators are changing can help point to areas of strong
-              performance as well as areas that need greater attention.
+              {{ $t("indDashboard") }}
             </p>
             <button
               type="button"
-              class="btn btn-primary black-btn ml-3 float-right"
+              class="btn btn-primary blue-btn ml-3 float-right"
               @click.prevent.stop="downloadReport()"
             >
-              {{ $t("generatePDF") }}
+              <span class="">
+                <img
+                  :src="require('@/assets/images/icons/generateReport.svg')"
+                  class="img-fluid mt-xl-n1"
+                />
+              </span>
+              <span class="mx-1"> {{ $t("exportbtn") }} </span>
             </button>
           </b-col>
           <b-col sm="12">
             <div id="myDivToPrint">
               <b-row>
-                <b-col class="transparentDiv" id="myDivToPrintLeft">
+                <b-col
+                  ref="leftBox"
+                  class="transparentDiv"
+                  id="myDivToPrintLeft"
+                >
                   <div class="integratedSummaryCountWrap" ref="leftSummaryBox">
                     <b-row class="pl-3 pr-3">
                       <b-col sm="3" class="pr-1 pl-0" v-if="isFPModules">
-                         <div class="fs-17-1920 programName" :class="{ programNameDownload : exportingPdf }">Family Planning</div>
+                        <div
+                          class="fs-17-1920 programName"
+                          :class="{ programNameDownload: exportingPdf }"
+                        >
+                          {{ $t("family_planning") }}
+                        </div>
                         <div
                           class="integratedBoxWrap purpleBox"
                           :style="{ 'background-color': emuValueColor }"
                         >
-                         
                           <div class="textDivWrap">
-                            <p class="fs-17-1920 courseName">EMU</p>
+                            <p class="fs-17-1920 courseName">{{ $t("EMU") }}</p>
                             <div class="fs-17-1920 courseCount" v-if="emuValue">
                               {{
-                                emuValue === "N/A" ? emuValue : `${emuValue}%`
+                                emuValue === $t("NA")
+                                  ? emuValue
+                                  : `${emuValue}%`
                               }}
                             </div>
                             <b-spinner
@@ -54,7 +67,7 @@
                               v-else
                             ></b-spinner>
                             <p class="fs-17-1920 courseText">
-                              Estimated Modern Use
+                              {{ $t("estimatedUse") }}
                             </p>
                             <div class="overlay">
                               <div class="text">
@@ -69,14 +82,15 @@
                                       goTo({
                                         module: 'fp-dashboard',
                                         setNamespace: true,
-                                        routeName: 'fp-dashboard',
+                                        routeName: 'dashboard',
                                         redirectDetails: {
-                                          routeName: 'summary-dashboard',
+                                          routeName: 'SummaryDashboard',
+                                          locationPeriod: locationPeriod,
                                         },
                                       })
                                     "
                                   >
-                                    View More
+                                    {{ $t("viewMore") }}
                                   </button>
                                 </div>
                               </div>
@@ -91,26 +105,35 @@
                           v-for="(summary, i) in summaryScore"
                           :key="'summary' + i"
                         >
-                        <div class="fs-17-1920 programName" :class="{ programNameDownload : exportingPdf, hidden: i !== 0 }">
-                          Maternal Health
-                        </div>
+                          <div
+                            class="fs-17-1920 programName"
+                            :class="{
+                              programNameDownload: exportingPdf,
+                              hidden: i !== 0,
+                            }"
+                          >
+                            {{ $t("maternalHealth") }}
+                          </div>
                           <div
                             class="integratedBoxWrap pinkBox"
                             :style="{ 'background-color': summary.color }"
                           >
-                           
                             <div class="textDivWrap">
                               <p class="fs-17-1920 courseName">
                                 {{ summary.shortName }}
                               </p>
                               <div
                                 class="fs-17-1920 courseCount"
-                                v-if="summary.value"
+                                v-if="
+                                  !isNaN(summary.value) && summary.value !== ''
+                                "
                               >
                                 {{
-                                  summary.value === "N/A"
+                                  summary.value === $t("NA")
                                     ? summary.value
-                                    : `${summary.value}%`
+                                    : `${summary.value}${
+                                        summary.percentIndicator ? "%" : ""
+                                      }`
                                 }}
                               </div>
                               <b-spinner
@@ -134,15 +157,16 @@
                                         goTo({
                                           module: 'mnch-dashboard',
                                           setNamespace: true,
-                                          routeName: 'mnch-dashboard',
+                                          routeName: 'dashboard',
                                           redirectDetails: {
                                             routeName: 'SummaryDashboard',
                                             activeTab: summary.link,
+                                            locationPeriod: locationPeriod,
                                           },
                                         })
                                       "
                                     >
-                                      View More
+                                      {{ $t("viewMore") }}
                                     </button>
                                   </div>
                                 </div>
@@ -161,12 +185,12 @@
                           goTo({
                             module: 'fp-dashboard',
                             setNamespace: true,
-                            routeName: 'fp-dashboard',
+                            routeName: 'dashboard',
                           })
                         "
                         v-show="isFPModules"
                       >
-                        FP dashboard
+                        {{ $t("FPDashboard") }}
                       </button>
                       <button
                         class="btn fs-17-1920 purple-btn"
@@ -174,12 +198,12 @@
                           goTo({
                             module: 'mnch-dashboard',
                             setNamespace: true,
-                            routeName: 'mnch-dashboard',
+                            routeName: 'dashboard',
                           })
                         "
                         v-show="isMNCHModules"
                       >
-                        MH dashboard
+                        {{ $t("MHDashboard") }}
                       </button>
                     </b-col>
                   </b-row>
@@ -190,6 +214,7 @@
                           class="mapContainer position-relative"
                           :class="{ 'text-center': !loadMap }"
                           :style="leftColStyles"
+                          style="height: 535px"
                         >
                           <template #header>
                             <h6 class="mb-0 fs-17-1920">
@@ -214,7 +239,7 @@
                                 @resetMap="resetMap"
                                 :geoJson="geoJson"
                                 :mapData="actMapData"
-                                showIcons="true"
+                                :showIcons="true"
                                 :key="updateDom"
                                 :exportingPdf="exportingPdf"
                               />
@@ -232,20 +257,20 @@
                                   <slide v-if="mapData">
                                     <div
                                       class="iganchorMap"
-                                      @click="setMapData(mapData, 'EMU')"
+                                      @click="setMapData(mapData, $t('EMU'))"
                                     >
                                       <Maps
                                         v-if="geoJson && mapData"
                                         :geoJson="geoJson"
                                         :mapData="mapData"
-                                        showIcons="false"
+                                        :showIcons="false"
                                         :exportingPdf="exportingPdf"
                                       />
                                     </div>
                                     <p
                                       class="igmapslidertext fs-17-1920 text-center"
                                     >
-                                      EMU
+                                      {{ $t("EMU") }}
                                     </p>
                                   </slide>
                                   <slide
@@ -262,7 +287,7 @@
                                         v-if="geoJson && indMapData[ind]"
                                         :geoJson="geoJson"
                                         :mapData="indMapData[ind]"
-                                        showIcons="false"
+                                        :showIcons="false"
                                         :exportingPdf="exportingPdf"
                                       />
                                     </div>
@@ -286,7 +311,7 @@
                               sm="12"
                               class="text-center no-data-error-msg"
                             >
-                              Not authorized to view this section
+                              {{ $t("notAuthorized") }}
                             </b-col>
                           </b-row>
                         </b-card>
@@ -303,10 +328,9 @@
                     <b-col>
                       <div class="m-1 pt-3 mt-2">
                         <h6 class="fs-17-1920 rightSidetext">
-                          Coverage estimates for the interventions across
-                          multiprogram
+                          {{ $t("coverageEstimates") }}
                         </h6>
-                        <b-card class="mapContainer">
+                        <b-card ref="rightChart" class="mapContainer">
                           <b-card-text class="text-center">
                             <template
                               v-if="
@@ -336,18 +360,19 @@
                                 sm="12"
                                 class="text-center no-data-error-msg"
                               >
-                                Not authorized to view this section
+                                {{ $t("notAuthorized") }}
                               </b-col>
                             </b-row>
                           </b-card-text>
                         </b-card>
                         <b-card
-                          class="mapContainer scorboardcardHeader mt-4 pt-2"
+                          ref="rightScore"
+                          class="mapContainer scorboardcardHeader mt-5 pt-2"
                           :class="{ 'text-center': dqrScorecard.length === 0 }"
                         >
                           <template #header>
                             <h6 class="mb-0 fs-17-1920 scorboardLabel">
-                              DQR Scoreboard
+                              {{ $t("DQRScoreboard") }}
                             </h6>
                           </template>
                           <b-row v-if="dqrScorecard.length">
@@ -366,6 +391,8 @@
                                       <img
                                         src="@/assets/images/Group 111.svg"
                                       />
+                                      <!-- Do not add below code -->
+                                      <!-- :style="{ filter: filterColor }" -->
                                     </div>
                                   </b-col>
                                   <b-col sm="2">
@@ -383,7 +410,7 @@
                                   </b-col>
                                   <b-col sm="4" class="position-relative">
                                     <Gauge
-                                      v-if="scoreCard.score"
+                                      v-if="scoreCard.score !== null"
                                       :score="scoreCard.score"
                                       :scoreLimit="scoreCard.scoreLimit"
                                     />
@@ -408,6 +435,7 @@
                                               routeName:
                                                 scoreCard.redirectRoute,
                                               activeTab: scoreCard.link,
+                                              locationPeriod: locationPeriod,
                                             },
                                           })
                                         "
@@ -433,7 +461,7 @@
                               sm="12"
                               class="text-center no-data-error-msg"
                             >
-                              Not authorized to view this section
+                              {{ $t("notAuthorized") }}
                             </b-col>
                           </b-row>
                         </b-card>
@@ -449,6 +477,7 @@
     </div>
     <Footer
       ref="toolbar"
+      v-if="globalPeriodData"
       :globalPeriodData="globalPeriodData"
       @getLocationPeriod="getLocationPeriod"
     />
@@ -456,27 +485,29 @@
 </template>
 <script>
 import service from "@/service";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 import { decompress } from "compress-json";
 import { Carousel, Slide } from "vue-carousel";
 import Gauge from "@/components/Highcharts/Gauge.vue";
 import NavigationMixin from "@/helpers/NavigationMixin";
 import Maps from "@/components/Maps/IntegratedFPMap.vue";
+import DynamicImageMixin from "@/helpers/DynamicImageMixin";
 import DocumentTitleMixin from "@/helpers/DocumentTitleMixin";
+import ReFetchConfigMixin from "@/helpers/ReFetchConfigMixin";
 import LanguageChangeMixin from "@/helpers/LanguageChangeMixin";
+import { integratedChartConfig } from "@/config/basicChartConfig";
 import FpIntegrated from "@/components/Highcharts/FpIntegrated.vue";
 import EmitTourCallbackMixin from "@/helpers/EmitTourCallbackMixin";
-import FpIntegratedConfig from "@/components/Highcharts/FpIntegratedConfig.js";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
 import {
+  getChild,
   getDateRange,
   getLocationName,
   formatSingleDate,
 } from "@/components/Common/commonFunctions";
 
-
 export default {
-  props: ["dataElements"],
+  props: ["preFetchData", "dataElements"],
   components: {
     Maps,
     FpIntegrated,
@@ -486,7 +517,9 @@ export default {
   },
   mixins: [
     NavigationMixin,
+    DynamicImageMixin,
     DocumentTitleMixin,
+    ReFetchConfigMixin,
     LanguageChangeMixin,
     EmitTourCallbackMixin,
   ],
@@ -505,7 +538,7 @@ export default {
       globalPeriodData: null,
       selectedLocation: null,
       emuValueColor: "#B83C6D",
-      chartData: JSON.parse(JSON.stringify(FpIntegratedConfig)),
+      chartData: JSON.parse(JSON.stringify(integratedChartConfig)),
       mapData: null,
       geoJson: null,
       indMapData: {},
@@ -513,7 +546,7 @@ export default {
       updateDom: 0,
       activeMapTitle: "",
       benchmarkData: {},
-      summaryFPData: null,
+      benchmarkDataFP: {},
       fileName: "Scoreboard",
       exportingPdf: false,
     };
@@ -572,13 +605,20 @@ export default {
     emuValue(newValue) {
       if (!isNaN(newValue) && newValue !== "") {
         let obj = {
-          y: !isNaN(newValue) && newValue !== "" ? newValue : null,
-          name: "EMU",
+          y:
+            !isNaN(newValue) && newValue !== ""
+              ? newValue.toFixed(2) * 1
+              : null,
+          name: this.$i18n.t("EMU"),
           color: this.emuValueColor,
         };
         // let arr = [20, 0, 35];
-        let obj1 = { y: null, name: "EMU Benchmark", color: "#DF5353" };
-        this.chartData.xAxis[0].categories.unshift("EMU");
+        let obj1 = {
+          y: null,
+          name: this.$i18n.t("emuBenchmark"),
+          color: "#DF5353",
+        };
+        this.chartData.xAxis[0].categories.unshift(this.$i18n.t("EMU"));
         this.chartData.series[0].data.unshift(obj);
         this.chartData.series[1].data.unshift(obj1);
         this.setBenchmarkData("fp");
@@ -605,7 +645,7 @@ export default {
       this.getIndMapData(newValue);
     },
     mapData() {
-      this.activeMapTitle = "EMU";
+      this.activeMapTitle = this.$i18n.t("EMU");
     },
     indMapData(newValue) {
       if (!this.mapData) {
@@ -644,15 +684,29 @@ export default {
       let subLevelID = levelID + 1;
       let locID = [],
         locIDLabels = [];
-      await service.getChildOrganisation(location).then((response) => {
-        service.renameKeys({ ...response.data })?.children?.forEach((l) => {
-          locID.push(l.id.split("/")[1]);
+      let children = [];
+      if (this.preFetchData?.orgList?.length) {
+        children = getChild({
+          locationList: this.preFetchData.orgList,
+          location: location,
+        });
+      } else {
+        try {
+          let response = await service.getChildOrganisation(location);
+          children = response?.data?.children || [];
+        } catch (err) {
+          console.log("err", err);
+        }
+      }
+      if (children.length) {
+        children.forEach((l) => {
+          locID.push(l.id);
           locIDLabels.push({
-            id: l.id.split("/")[1],
-            label: l.label,
+            id: l.id,
+            label: l.displayName,
           });
         });
-      });
+      }
       newValue.forEach((d) => {
         let de = d.dx.join(";");
         promises.push(
@@ -664,7 +718,7 @@ export default {
           let key = newValue[i]["shortName"];
           finalObj[key] = [];
           if (res.status === "fulfilled") {
-            let value = 0;
+            let value = null;
             locID.forEach((lc) => {
               let locInd = {
                 data: "",
@@ -672,12 +726,13 @@ export default {
                 locationLabel: locIDLabels.filter((obj) => obj["id"] === lc),
               };
               let findD = res.value.data.rows.filter((obj) => obj[2] === lc);
+
               if (findD.length > 0) {
                 findD.forEach((r) => {
-                  value = value * 1 + r[3] * 1;
+                  value = value == null ? r[3] * 1 : value * 1 + r[3] * 1;
                 });
               }
-              locInd["data"] = value;
+              locInd["data"] = value ? value.toFixed(2) * 1 : null;
               finalObj[key].push(locInd);
             });
           }
@@ -712,9 +767,9 @@ export default {
             res.value.data.rows.forEach((r) => {
               value = value * 1 + r[3] * 1;
             });
-            newValue[i].value = value;
+            newValue[i].value = value.toFixed(2) * 1;
           } else {
-            newValue[i].value = "N/A";
+            newValue[i].value = this.$i18n.t("NA");
           }
           if (i === results.length - 1) {
             this.setChartData(newValue);
@@ -725,7 +780,7 @@ export default {
     setChartData(newValue) {
       newValue.forEach((d) => {
         let obj = {
-          y: !isNaN(d.value) && d.value !== "" ? d.value : null,
+          y: !isNaN(d.value) && d.value !== "" ? d.value.toFixed(2) * 1 : null,
           name: d.shortName,
           color: d.color,
         };
@@ -734,7 +789,8 @@ export default {
           y: null,
           link: d.link,
           color: d.benchmarkColor || "#DF5353",
-          name: d.benchmarkLabel || `${d.shortName} Benchmark`,
+          name:
+            d.benchmarkLabel || `${d.shortName} ${this.$i18n.t("benchmark")}`,
         };
         this.chartData.xAxis[0].categories.push(d.shortName);
         this.chartData.series[0].data.push(obj);
@@ -743,27 +799,32 @@ export default {
       this.setBenchmarkData();
     },
     matchHeight() {
-      let rightBox = this.$refs.rightBox.clientHeight;
-      let leftSummaryBox = this.$refs.leftSummaryBox.clientHeight;
-      let leftNavOptions = this.$refs.leftNavOptions.clientHeight;
-      let heightString = rightBox - (leftSummaryBox + leftNavOptions + 24 + 15);
-      this.$set(this.leftColStyles, "height", heightString + "px");
+      // let rightBox = this.$refs.rightBox.clientHeight;
+      // let leftSummaryBox = this.$refs.leftSummaryBox.clientHeight;
+      // let leftNavOptions = this.$refs.leftNavOptions.clientHeight;
+      // let heightString = rightBox - (leftSummaryBox + leftNavOptions + 24 + 15);
+      // this.$set(this.leftColStyles, "height", heightString + "px");
       this.loadMap = true;
     },
-    resetValues() {
+    resetValues(isLocationChanges) {
       this.emuValue = "";
       this.geoJson = null;
       this.mapData = null;
       this.loadMap = false;
       this.indMapData = {};
-      this.locIDLabels = [];
+      if (isLocationChanges) {
+        this.locIDLabels = [];
+      }
       this.actMapData = null;
       this.leftColStyles = {};
       this.chartData.series[0].data = [];
       this.chartData.series[1].data = [];
       this.chartData.xAxis[0].categories = [];
       this.summaryScore = this.summaryScore.map((d) => ({ ...d, value: "" }));
-      this.dqrScorecard = this.dqrScorecard.map((d) => ({ ...d, score: null }));
+      this.dqrScorecard = this.dqrScorecard.map((d) => ({
+        ...d,
+        score: null,
+      }));
     },
     getLocationPeriod(locPeObj) {
       let oldData = JSON.parse(JSON.stringify(this.locationPeriod));
@@ -771,7 +832,7 @@ export default {
       this.selectedLocation = locName;
       this.locationPeriod = locPeObj;
       let isLocationChanges = oldData.location !== locPeObj.location;
-      this.resetValues();
+      this.resetValues(isLocationChanges);
       this.getScorecard();
       this.getGeoJson();
       if (
@@ -781,7 +842,7 @@ export default {
       ) {
         this.getEMUData(isLocationChanges);
       } else {
-        this.emuValue = "N/A";
+        this.emuValue = this.$i18n.t("NA");
       }
     },
     async getScorecard() {
@@ -790,7 +851,6 @@ export default {
         rawDate: this.locationPeriod.period,
         periodType: this.locationPeriod.periodType,
       });
-      let scoreKey = `${this.locationPeriod.location.split("/")[1]}_${period}`;
       if (this.isMNCHModules && this.isMNCHDQRModules) {
         if (!this.mnchScorecard) {
           try {
@@ -805,17 +865,18 @@ export default {
         }
         if (this.mnchScorecard) {
           this.dqrScorecard = this.dqrScorecard.map((d) => {
-            if (this.mnchScorecard.data[d.id]) {
-              if (
-                this.mnchScorecard.data[d.id][scoreKey] &&
-                this.mnchScorecard.data[d.id][scoreKey].scores[
-                  this.locationPeriod.locationName
-                ]
-              ) {
+            if (
+              d.module === "mnch-dashboard" &&
+              this.mnchScorecard.data[d.id] &&
+              this.mnchScorecard.data[d.id].length
+            ) {
+              let isFound = this.mnchScorecard.data[d.id].find(
+                (s) =>
+                  s.id === this.locationPeriod.location && s.period === period
+              );
+              if (isFound) {
                 let score = 0;
-                this.mnchScorecard.data[d.id][scoreKey].scores[
-                  this.locationPeriod.locationName
-                ].score.forEach((s) => {
+                isFound.score.forEach((s) => {
                   if (s.score) {
                     score++;
                   }
@@ -823,31 +884,30 @@ export default {
                 return {
                   ...d,
                   score: score,
-                  scoreLimit:
-                    this.mnchScorecard.data[d.id][scoreKey].scores[
-                      this.locationPeriod.locationName
-                    ].score.length,
+                  scoreLimit: isFound.score.length,
                 };
               } else {
                 return {
                   ...d,
-                  score: "N/A",
+                  score: this.$i18n.t("NA"),
                 };
               }
             } else {
-              return {
-                ...d,
-                score: "N/A",
-              };
+              return d.module === "fp-dashboard"
+                ? d
+                : {
+                    ...d,
+                    score: this.$i18n.t("NA"),
+                  };
             }
           });
         } else {
           this.dqrScorecard = this.dqrScorecard.map((d) => {
-            return d.id === "FPDashboard"
+            return d.module === "fp-dashboard"
               ? d
               : {
                   ...d,
-                  score: "N/A",
+                  score: this.$i18n.t("NA"),
                 };
           });
         }
@@ -864,108 +924,223 @@ export default {
             console.log("Error in fetching fp scorecard...");
           }
         }
-        let isFound = this.dqrScorecard.findIndex(
-          (d) => d.id === "FPDashboard"
-        );
         if (this.fpScorecard) {
-          if (isFound >= 0) {
+          this.dqrScorecard = this.dqrScorecard.map((d) => {
             if (
-              this.fpScorecard.data[scoreKey] &&
-              this.fpScorecard.data[scoreKey].scores[
-                this.locationPeriod.locationName
-              ]
+              d.module === "fp-dashboard" &&
+              this.fpScorecard.data[d.id] &&
+              this.fpScorecard.data[d.id].length
             ) {
-              let score = 0;
-              this.fpScorecard.data[scoreKey].scores[
-                this.locationPeriod.locationName
-              ].score.forEach((s) => {
-                if (s.value) {
-                  score++;
-                }
-              });
-              this.dqrScorecard[isFound] = {
-                ...this.dqrScorecard[isFound],
-                score: score,
-                scoreLimit:
-                  this.fpScorecard.data[scoreKey].scores[
-                    this.locationPeriod.locationName
-                  ].score.length,
-              };
+              let isFound = this.fpScorecard.data[d.id].find(
+                (s) =>
+                  s.id === this.locationPeriod.location && s.period === period
+              );
+              if (isFound) {
+                let score = 0;
+                isFound.score.forEach((s) => {
+                  if (s.score) {
+                    score++;
+                  }
+                });
+                return {
+                  ...d,
+                  score: score,
+                  scoreLimit: isFound.score.length,
+                };
+              } else {
+                return {
+                  ...d,
+                  score: this.$i18n.t("NA"),
+                };
+              }
             } else {
-              this.dqrScorecard[isFound] = {
-                ...this.dqrScorecard[isFound],
-                score: "N/A",
-              };
+              return d.module === "mnch-dashboard"
+                ? d
+                : {
+                    ...d,
+                    score: this.$i18n.t("NA"),
+                  };
             }
-          }
+          });
         } else {
-          this.dqrScorecard[isFound] = {
-            ...this.dqrScorecard[isFound],
-            score: "N/A",
-          };
+          this.dqrScorecard = this.dqrScorecard.map((d) => {
+            return d.module === "mnch-dashboard"
+              ? d
+              : {
+                  ...d,
+                  score: this.$i18n.t("NA"),
+                };
+          });
         }
       }
     },
-    getConfigData() {
-      if (this.isMNCHDQRModules) {
-        let key = this.generateKey("dqrDashboard");
-        service.getSavedConfig(key, false, "mnch-dashboard").then((res) => {
-          res.data.forEach((s) => {
-            this.dqrScorecard.push({
-              id: s.group,
-              name: s.tabName,
-              score: null,
-              scoreLimit: null,
-              createAt: null,
-              module: "mnch-dashboard",
-              route: "mnch-dashboard",
-              redirectRoute: "DQRDashboard",
-              link: `${s.group}-${s.id}-dqr-summary`,
-            });
+    async getConfigData() {
+      let n = "mnch-dashboard";
+      if (Object.keys(this.$store.getters.getGlobalFactors(n)).length === 0) {
+        let key = this.generateKey("globalFactors");
+        try {
+          let response = await service.getSavedConfig(key, false, n);
+          this.$store.commit("setGlobalFactors", {
+            payload: response.data,
+            namespace: n,
           });
-        });
+        } catch (err) {
+          this.reFetchConfig(err);
+        }
       }
-      if (this.isMNCHSummaryModules) {
-        let key1 = this.generateKey("summaryDashboard");
-        service.getSavedConfig(key1, false, "mnch-dashboard").then((res) => {
-          let summaryScore = [];
-          res.data.forEach((d) => {
-            d.subTabs.forEach((s) => {
-              if (s.integrated.linked) {
-                let obj = {
-                  dx: [],
-                  value: "",
-                  shortName: d.tabName,
-                  color: s.integrated.color,
-                  link: `${d.group}-${d.id}-${s.id}`,
-                  displayName: s.integrated.displayName,
-                  minThreshold: s.integrated.minThreshold,
-                  maxThreshold: s.integrated.maxThreshold,
-                  benchmarkLabel: s.integrated.benchmarkLabel,
-                  benchmarkColor: s.integrated.benchmarkColor,
-                };
-                s.mapping.forEach((element) => {
-                  element.indicator.subIndicator.forEach((subEle) => {
-                    subEle.selectedDE.forEach((s) => {
-                      obj.dx.push(s.id);
-                    });
-                  });
+      n = "fp-dashboard";
+      if (Object.keys(this.$store.getters.getGlobalFactors(n)).length === 0) {
+        let key = this.generateKey("globalFactors");
+        try {
+          let response = await service.getSavedConfig(key, false, n);
+          this.$store.commit("setGlobalFactors", {
+            payload: response.data,
+            namespace: n,
+          });
+        } catch (err) {
+          this.reFetchConfig(err);
+        }
+      }
+      if (this.isFPModules && this.isFPDQRModules) {
+        let key = this.generateKey("dqrDashboard");
+        await service
+          .getSavedConfig(key, false, "fp-dashboard")
+          .then((res) => {
+            res.data.forEach((s) => {
+              let isMapping = false;
+              for (let i = 0; i < s.subTabs.length - 1; i++) {
+                let isM = s.subTabs[i].chartSetting.find(
+                  (c) =>
+                    c.chartOptions.isSavedData ||
+                    (c.chartOptions.dataMapping &&
+                      c.chartOptions.dataMapping.length)
+                );
+                if (isM) {
+                  isMapping = true;
+                  break;
+                }
+              }
+              if (isMapping) {
+                this.dqrScorecard.push({
+                  id: s.group,
+                  name: s.tabName[this.$i18n.locale],
+                  score: null,
+                  scoreLimit: null,
+                  createAt: null,
+                  module: "fp-dashboard",
+                  route: "dashboard",
+                  redirectRoute: "DQRDashboard",
+                  link: `${s.group}-${s.id}-dqr-summary`,
                 });
-                summaryScore.push(obj);
               }
             });
+          })
+          .catch((err) => {
+            this.reFetchConfig(err);
           });
-          this.summaryScore = summaryScore;
-        });
+      }
+      if (this.isMNCHModules && this.isMNCHDQRModules) {
+        let key = this.generateKey("dqrDashboard");
+        await service
+          .getSavedConfig(key, false, "mnch-dashboard")
+          .then((res) => {
+            res.data.forEach((s) => {
+              let isMapping = false;
+              for (let i = 0; i < s.subTabs.length - 1; i++) {
+                let isM = s.subTabs[i].chartSetting.find(
+                  (c) =>
+                    c.chartOptions.isSavedData ||
+                    (c.chartOptions.dataMapping &&
+                      c.chartOptions.dataMapping.length)
+                );
+                if (isM) {
+                  isMapping = true;
+                  break;
+                }
+              }
+              if (isMapping) {
+                this.dqrScorecard.push({
+                  id: s.group,
+                  name: s.tabName[this.$i18n.locale],
+                  score: null,
+                  scoreLimit: null,
+                  createAt: null,
+                  module: "mnch-dashboard",
+                  route: "dashboard",
+                  redirectRoute: "DQRDashboard",
+                  link: `${s.group}-${s.id}-dqr-summary`,
+                });
+              }
+            });
+          })
+          .catch((err) => {
+            this.reFetchConfig(err);
+          });
+      }
+
+      if (this.isMNCHModules && this.isMNCHSummaryModules) {
+        let allMappings = [];
+        let gSetting = this.$store.getters.getGlobalFactors("mnch-dashboard");
+        if (
+          gSetting.globalMappings &&
+          gSetting.globalMappings.mappings &&
+          gSetting.globalMappings.mappings.length
+        ) {
+          allMappings = [].concat(
+            ...gSetting.globalMappings.mappings.map(
+              ({ mapping }) => mapping || []
+            )
+          );
+        }
+        let key1 = this.generateKey("summaryDashboard");
+        await service
+          .getSavedConfig(key1, false, "mnch-dashboard")
+          .then((res) => {
+            let summaryScore = [];
+            res.data.forEach((d) => {
+              d.subTabs.forEach((s) => {
+                if (s.integrated.linked) {
+                  let obj = {
+                    dx: [],
+                    value: "",
+                    shortName: d.tabName[this.$i18n.locale],
+                    color: s.integrated.color,
+                    link: `${d.group}-${d.id}-${s.id}`,
+                    displayName: s.integrated.displayName[this.$i18n.locale],
+                    minThreshold: s.integrated.minThreshold,
+                    maxThreshold: s.integrated.maxThreshold,
+                    benchmarkLabel:
+                      s.integrated.benchmarkLabel[this.$i18n.locale],
+                    benchmarkColor: s.integrated.benchmarkColor,
+                    percentIndicator: s.integrated.percentIndicator,
+                  };
+                  let rMapping = allMappings.filter((m) =>
+                    s.integrated.dataMapping.includes(m.indicator.static_name)
+                  );
+                  rMapping.forEach((m) =>
+                    m.indicator.subIndicator.forEach((subEle) => {
+                      subEle.selectedDE.forEach((s) => {
+                        obj.dx.push(s.id);
+                      });
+                    })
+                  );
+                  summaryScore.push(obj);
+                }
+              });
+            });
+            this.summaryScore = summaryScore;
+          })
+          .catch((err) => {
+            this.reFetchConfig(err);
+          });
       }
     },
-    getBenchmarkValue(de) {
+    getBenchmarkValue(de, isFP) {
       let loc = this.locationPeriod.location.split("/");
       let y = null;
-      if (this.benchmarkData[loc[0]]) {
-        let isFound = this.benchmarkData[loc[0]].filter(
-          (b) => b[0] === `benchmark-${de}`
-        );
+      let data = isFP === null ? this.benchmarkData : this.benchmarkDataFP;
+      if (data[loc[0]]) {
+        let isFound = data[loc[0]].filter((b) => b[0] === `benchmark-${de}`);
         let sorted = isFound.sort(function (a, b) {
           return parseInt(b[1]) - parseInt(a[1]);
         });
@@ -997,67 +1172,108 @@ export default {
         this.chartData.series[1].data = this.chartData.series[1].data.map(
           (d) => ({
             ...d,
-            y: d.link && d.y === null ? this.getBenchmarkValue(d.link) : d.y,
+            y:
+              d.link && d.y === null
+                ? this.getBenchmarkValue(d.link, isFP)
+                : d.y,
           })
         );
       }
       if (this.isFPSummaryModules && isFP) {
-        if (!this.summaryFPData) {
-          let key = this.generateKey("ministrialModule");
+        let loc = this.locationPeriod.location.split("/");
+        if (!this.benchmarkDataFP[loc[0]]) {
+          let key = `benchmark_${loc[0]}`;
           try {
-            let sData = await service.getSavedConfig(
+            let bData = await service.getSavedConfig(
               key,
               false,
               "fp-dashboard"
             );
-            this.summaryFPData = sData.data;
+            let data =
+              typeof bData.data.rows == "string"
+                ? decompress(JSON.parse(bData.data.rows))
+                : bData.data.rows;
+            this.$set(this.benchmarkDataFP, loc[0], data);
           } catch (e) {
-            console.log("Error in fetching FP summary dashboard config...");
+            console.log("Error in fetching benchmark data...");
           }
         }
-        let eData =
-          this.summaryFPData && this.summaryFPData.summary
-            ? this.summaryFPData.summary.find((s) => s.name === "EMU")
-            : null;
-        if (eData) {
-          let data = {
-            ...this.chartData.series[1].data[0],
-            y: eData.selected.benchmark ? eData.selected.benchmark * 1 : null,
-          };
-          this.$set(this.chartData.series[1].data, 0, data);
-        }
+
+        this.chartData.series[1].data = this.chartData.series[1].data.map(
+          (d) => ({
+            ...d,
+            y:
+              d.link && d.y === null
+                ? this.getBenchmarkValue(d.link, isFP)
+                : d.y,
+          })
+        );
       }
     },
     async getEMUData(isLocationChanges) {
       let locationID = this.locationPeriod.location.split("/")[1];
       if (isLocationChanges) {
-        await service.getChildOrganisation(locationID).then((response) => {
-          service.renameKeys({ ...response.data })?.children?.forEach((l) => {
+        let children = [];
+        if (this.preFetchData?.orgList?.length) {
+          children = getChild({
+            locationList: this.preFetchData.orgList,
+            location: locationID,
+          });
+        } else {
+          try {
+            let response = await service.getChildOrganisation(locationID);
+            children = response?.data?.children || [];
+          } catch (err) {
+            console.log("err", err);
+          }
+        }
+        if (children.length) {
+          children.forEach((l) => {
             this.locIDLabels.push({
-              id: l.id.split("/")[1],
-              label: l.label,
+              id: l.id,
+              label: l.displayName,
             });
           });
-        });
+        }
       }
-      if (!this.emuData[this.locationPeriod.periodType]) {
+      if (
+        this.preFetchData &&
+        this.preFetchData[
+          `${this.locationPeriod.periodType}_${this.$i18n.locale}`
+        ]
+      ) {
+        this.$set(
+          this.emuData,
+          `${this.locationPeriod.periodType}_${this.$i18n.locale}`,
+          this.preFetchData[
+            `${this.locationPeriod.periodType}_${this.$i18n.locale}`
+          ]
+        );
+      }
+      if (
+        !this.emuData[`${this.locationPeriod.periodType}_${this.$i18n.locale}`]
+      ) {
         let configKey = null;
         if (this.locationPeriod.periodType === "monthly") {
-          configKey = "monthlyEMU";
+          configKey = `monthlyEMU_${this.$i18n.locale}`;
         }
         if (this.locationPeriod.periodType === "yearly") {
-          configKey = "annualEMU";
+          configKey = `annualEMU_${this.$i18n.locale}`;
         }
         let key = this.generateKey(configKey);
         try {
-          this.emuData[this.locationPeriod.periodType] =
-            await service.getSavedConfig(key, false, "fp-dashboard");
+          let res = await service.getSavedConfig(key, false, "fp-dashboard");
+          this.emuData[
+            `${this.locationPeriod.periodType}_${this.$i18n.locale}`
+          ] = res.data;
         } catch (e) {
           console.log("Error in fetching EMU data...");
         }
       }
 
-      if (this.emuData[this.locationPeriod.periodType]) {
+      if (
+        this.emuData[`${this.locationPeriod.periodType}_${this.$i18n.locale}`]
+      ) {
         let emuData = null,
           emuDataKey =
             this.locationPeriod.periodType === "monthly"
@@ -1066,13 +1282,17 @@ export default {
         let emuSourceKey = null;
 
         let eData =
-          typeof this.emuData[this.locationPeriod.periodType].data[
-            emuDataKey
-          ] === "string"
+          typeof this.emuData[
+            `${this.locationPeriod.periodType}_${this.$i18n.locale}`
+          ][emuDataKey] === "string"
             ? JSON.parse(
-                this.emuData[this.locationPeriod.periodType].data[emuDataKey]
+                this.emuData[
+                  `${this.locationPeriod.periodType}_${this.$i18n.locale}`
+                ][emuDataKey]
               )
-            : this.emuData[this.locationPeriod.periodType].data[emuDataKey];
+            : this.emuData[
+                `${this.locationPeriod.periodType}_${this.$i18n.locale}`
+              ][emuDataKey];
         emuData = eData[locationID];
 
         if (this.locationPeriod.periodType === "yearly") {
@@ -1121,18 +1341,18 @@ export default {
                 ? emuData.saveCategories.findIndex((c) => c === toolbarDate)
                 : emuData.categories.findIndex((c) => c === toolbarDate);
             if (isFound >= 0) {
-              this.emuValue = emuObj.data[isFound];
+              this.emuValue = (emuObj.data[isFound] * 1).toFixed(2) * 1;
             } else {
-              this.emuValue = "N/A";
+              this.emuValue = this.$i18n.t("NA");
             }
           } else {
-            this.emuValue = "N/A";
+            this.emuValue = this.$i18n.t("NA");
           }
         } else {
-          this.emuValue = "N/A";
+          this.emuValue = this.$i18n.t("NA");
         }
       } else {
-        this.emuValue = "N/A";
+        this.emuValue = this.$i18n.t("NA");
       }
     },
     getGeoJson() {
@@ -1147,7 +1367,7 @@ export default {
     getEmuMapData(locIDLabels, eMethodData) {
       let emuMapData = [];
       locIDLabels.forEach((loc) => {
-        let val = "NA";
+        let val = this.$i18n.t("NA");
         if (eMethodData && eMethodData[loc.id]) {
           let emuData = eMethodData[loc.id];
           let emuObj = null,
@@ -1179,12 +1399,12 @@ export default {
                 ? emuData.saveCategories.findIndex((c) => c === toolbarDate)
                 : emuData.categories.findIndex((c) => c === toolbarDate);
             if (isFound >= 0) {
-              val = emuObj.data[isFound];
+              val = emuObj.data[isFound].toFixed(2) * 1;
             } else {
-              val = "N/A";
+              val = this.$i18n.t("NA");
             }
           } else {
-            val = "N/A";
+            val = this.$i18n.t("NA");
           }
           let obj = {
             data: val,
@@ -1195,7 +1415,6 @@ export default {
           emuMapData.push(obj);
         }
       });
-
       this.mapData = JSON.parse(JSON.stringify(emuMapData));
       this.actMapData = JSON.parse(JSON.stringify(emuMapData));
       this.updateDom++;
@@ -1212,12 +1431,14 @@ export default {
           '"/>',
         focusConfirm: true,
         showCancelButton: true,
+        reverseButtons: true,
         confirmButtonText: this.$i18n.t("exportbtn"),
+        cancelButtonText: this.$i18n.t("cancelbtn"),
         preConfirm: () => {
           return [document.getElementById("fileName").value];
         },
       });
-      
+
       if (formValues) {
         this.$store.state.loading = true;
         let canvas1 = await html2canvas(
@@ -1249,36 +1470,20 @@ export default {
         width = cnv.width,
         height = cnv.height;
       newCanvas.width = width + 30;
-      newCanvas.height = height + 30 ;
-        ctx.beginPath();
-        ctx.drawImage(cnv, 15, 15, width, height);
+      newCanvas.height = height + 30;
+      ctx.beginPath();
+      ctx.drawImage(cnv, 15, 15, width, height);
       let imgdata = newCanvas.toDataURL();
       return imgdata;
     },
   },
-  created() {
+  async created() {
     this.chartData.xAxis[0].categories = [];
     this.chartData.series[0].data = [];
     this.chartData.series[1].data = [];
-    this.globalPeriodData = this.$store.getters.getGlobalFactors().period.Period;
-    if (this.isFPModules && this.isFPDQRModules) {
-      this.dqrScorecard = [
-        {
-          id: "FPDashboard",
-          name: "FP Dashboard",
-          score: null,
-          scoreLimit: null,
-          createAt: null,
-          module: "fp-dashboard",
-          route: "fp-dashboard",
-          redirectRoute: "dqr-dashboard",
-          link: "",
-        },
-      ];
-    }
-    if (this.isMNCHModules) {
-      this.getConfigData();
-    }
+    await this.getConfigData();
+    this.globalPeriodData =
+      this.$store.getters.getGlobalFactors().period.Period;
   },
 };
 </script>

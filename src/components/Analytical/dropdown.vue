@@ -1,5 +1,5 @@
 <template>
-    <select class="form-control typeDropdown" v-model="value" @change="onChange">
+    <select class="form-control typeDropdown new-theme" v-model="value" @change="onChange">
         <option v-for="(option,ind) in ddoptions" 
             :value="option.val"
             :key="ind">{{option.label}}

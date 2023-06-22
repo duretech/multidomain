@@ -6,38 +6,37 @@
       @click="showModal"
       >{{ title }}</b-button
     >
-
     <b-modal ref="my-modal" hide-footer :title="`Select ${title}`">
-      <div class="d-block text-left">
-        <h5 v-if="title == 'Data Sets'">Select Matrix</h5>
+      <div class="d-block text-left modaladmin-heading">
+        <h5 v-if="title == 'Data Sets'">{{$t("selectMatrix")}}</h5>
         <b-form-select
           v-if="title == 'Data Sets'"
           v-model="matrixSelected"
           :options="matrixOptionList"
         ></b-form-select>
-        <h5>Select {{ title }}</h5>
-
+        <h5>{{$t("select")}} {{ title }}</h5>
         <b-form-select
           v-model="optionSelected"
           :options="optionList"
         ></b-form-select>
-        <h5 v-if="title === 'Data Element' && categoryCombo.length > 0">
-          Select Category Combo
+        <h5 v-if="title === 'Data Element' && categoryCombo.length > 0" class="mt-3">
+          {{$t("selectCategoryCombo")}}
         </h5>
-
         <b-form-select
           v-if="title === 'Data Element' && categoryCombo.length > 0"
           v-model="categoryComboSelected"
           :options="categoryCombo"
         ></b-form-select>
       </div>
+      <div class="d-flex justify-content-end">
       <b-button
-        class="btn btn-primary black-btn mt-2"
+        class="btn btn-primary black-btn mt-3 blue-btn w-30"
         variant="outline-warning"
         block
         @click="emitData"
-        >Save Changes</b-button
+        >{{$t("saveChanges")}}</b-button
       >
+    </div>
     </b-modal>
   </div>
 </template>

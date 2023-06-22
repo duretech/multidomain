@@ -3,24 +3,18 @@
     <b-button
       class="btn-fixed dec-btn"
       @click="decreaseFont"
-      v-b-tooltip.hover title="Decrease Font Size"
       :disabled="$store.state.baseFontSize === $store.state.defaultFontSize - 3"
     >
-      A-
+      <span v-b-tooltip.hover :title="$t('decreaseFont')">A-</span>
     </b-button>
-    <b-button
-      class="btn-fixed mx-1 active-btn"
-      @click="resetFont"
-      v-b-tooltip.hover title="Reset Font Size"
-    >
-      A
+    <b-button class="btn-fixed mx-1 active-btn" @click="resetFont">
+      <span v-b-tooltip.hover :title="$t('resetFont')">A</span>
     </b-button>
     <b-button
       class="btn-fixed inc-btn"
       @click="increaseFont"
-      v-b-tooltip.hover title="Increase Font Size"
       :disabled="$store.state.baseFontSize === $store.state.defaultFontSize + 3"
-      >A+</b-button
+      ><span v-b-tooltip.hover :title="$t('increaseFont')"> A+ </span></b-button
     >
   </div>
 </template>
@@ -45,14 +39,14 @@ export default {
 };
 </script>
 <style scoped lang="scss">
-.font-size{
+.font-size {
   display: flex;
   align-items: baseline;
 }
 .btn-fixed {
   width: 30px;
-      height: 30px;
-      font-size: 11px !important;
-      padding: 0.375rem 0.25rem;
+  height: 30px;
+  font-size: 11px !important;
+  padding: 0.375rem 0.25rem;
 }
 </style>

@@ -1,5 +1,38 @@
 <template>
-  <div class="p-2 border" :class="{ 'mb-3': moduleKey === 'dqrDashboard' }">
+  <div class="p-2" :class="{ 'mb-3': moduleKey === 'dqrDashboard' }">
+    <template v-if="subTabGroup.includes('-CT-')">
+      <b-row>
+        <b-col sm="12" lg="6">
+          <b-row>
+            <b-col sm="5"
+              ><label :for="`bgData-st-${i}-${j}`">{{
+                $t("subChange")
+              }}</label></b-col
+            >
+            <b-col sm="7">
+              <b-input-group :id="`bgData-st-${i}-${j}`">
+                <b-form-input
+                  min="1"
+                  max="15"
+                  step="1"
+                  type="number"
+                  v-model="backgroundData.substantialChange"
+                ></b-form-input>
+                <b-input-group-append is-text>
+                  <b-form-input
+                    v-model="backgroundData.substantialChange"
+                    type="range"
+                    min="1"
+                    max="15"
+                    step="1"
+                  ></b-form-input>
+                </b-input-group-append>
+              </b-input-group>
+            </b-col>
+          </b-row>
+        </b-col>
+      </b-row>
+    </template>
     <template v-if="subTabGroup.includes('-IC-')">
       <b-row>
         <b-col sm="12" lg="6">
@@ -33,14 +66,14 @@
         </b-col>
       </b-row>
     </template>
-    <template v-if="subTabGroup.includes('-CC-')">
+    <template v-if="subTabGroup.includes('-CC-') || isShowBG">
       <b-row>
         <b-col sm="12" class="text-right small pb-3">
           <span class="mr-4">
-            <strong>*Info 1: </strong> Used for charts with 2 source
+            <strong>{{ $t("Info1") }}</strong> {{ $t("usedCharts2") }}
           </span>
           <span>
-            <strong>*Info 2: </strong> Used for charts with single source
+            <strong>{{ $t("Info2") }}</strong> {{ $t("usedCharts1") }}
           </span>
         </b-col>
         <b-col sm="12" lg="6" class="mb-3">
@@ -108,7 +141,9 @@
             <b-col sm="5"
               ><label :for="`bgData-wastageFactor-${i}-${j}`"
                 >{{ $t("wastageFactor")
-                }}<sub><strong>&nbsp;(*Info 1)</strong></sub></label
+                }}<sub
+                  ><strong>&nbsp;({{ $t("Info1") }})</strong></sub
+                ></label
               ></b-col
             >
             <b-col sm="7">
@@ -210,7 +245,9 @@
             <b-col sm="5"
               ><label :for="`bgData-qualityThreshold-${i}-${j}`"
                 >{{ $t("qualityThreshold")
-                }}<sub><strong>&nbsp;(*Info 2)</strong></sub></label
+                }}<sub
+                  ><strong>&nbsp;({{ $t("Info2") }})</strong></sub
+                ></label
               ></b-col
             >
             <b-col sm="7">
@@ -240,7 +277,9 @@
             <b-col sm="5"
               ><label :for="`bgData-qualityThresholdColor-${i}-${j}`"
                 >{{ $t("threshold_color")
-                }}<sub><strong>&nbsp;(*Info 2)</strong></sub></label
+                }}<sub
+                  ><strong>&nbsp;({{ $t("Info2") }})</strong></sub
+                ></label
               ></b-col
             >
             <b-col sm="7">
@@ -266,6 +305,20 @@
 </template>
 <script>
 export default {
-  props: ["i", "j", "moduleKey", "subTabGroup", "backgroundData"],
+  props: ["i", "j", "charts", "moduleKey", "subTabGroup", "backgroundData"],
+  computed: {
+    isShowBG() {
+      let show = false;
+      let isChart = this.charts.find(
+        (c) =>
+          c.chartOptions.type === "scatter" ||
+          c.chartOptions.chartCalculation === "SOURCE_DIFF"
+      );
+      if (isChart) {
+        show = true;
+      }
+      return show;
+    },
+  },
 };
 </script>

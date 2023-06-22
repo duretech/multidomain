@@ -9,19 +9,20 @@
           class="btn btn-primary black-btn mr-2"
           id="show-btn"
           @click="openLoc()"
-          >Select Location for Scheduler</b-button
+          >{{ $t("selectLocationScheduler") }}</b-button
         >
         <b-button
           class="btn btn-primary black-btn mr-2"
           id="show-btn-start"
           @click="startProcess"
-          >Start Calculation</b-button
+          >{{ $t("startCalc") }}</b-button
         >
       </div>
 
-      <b-modal ref="my-modal" hide-footer :title="`Select Location`">
-        <div class="d-block text-left">
-          <h5>Select Location</h5>
+      <b-modal ref="my-modal" hide-footer centered :title="$t('selectLocation')">
+        <div class="d-block text-left default-btn">
+          <h5>{{ $t("selectLocation") }}</h5>
+          
           <treeselect
             :multiple="true"
             class=""
@@ -35,22 +36,28 @@
           <!--             value-format="object"
  -->
         </div>
-        <b-button
-          class="btn btn-primary black-btn mt-2"
-          variant="outline-danger"
-          block
-          @click="hideModal"
-          >Close</b-button
-        >
-        <b-button
-          class="btn btn-primary black-btn mt-2"
-          variant="outline-warning"
-          block
-          @click="closeLoc"
-          >Save Changes</b-button
-        >
+        <b-row>
+          <b-col class="mx-5">
+            <b-button
+              class="btn btn-primary black-btn greycolor-btn mt-2 w-75"
+              variant="outline-danger"
+              block
+              @click="hideModal"
+              >{{ $t("close") }}</b-button
+            >
+          </b-col>
+          <b-col>
+            <b-button
+              class="btn btn-primary black-btn mt-2 blue-btn w-75"
+              variant="outline-warning"
+              block
+              @click="closeLoc"
+              >{{ $t("saveChanges") }}</b-button
+            >
+          </b-col>
+        </b-row>
       </b-modal>
-      <h6>Indicator 1</h6>
+      <h6>{{ $t("ind1") }}</h6>
       <p>
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi vulputate
         dignissim pretium. Maecenas ac nulla risus. Cras pellentesque odio eget
@@ -65,13 +72,13 @@
       </p>
     </div>
     <b-card no-body class="mb-1" v-if="tabType === 'Numerator'">
-      <b-card-header header-tag="header" class="p-1" role="tab">
+      <b-card-header header-tag="header" class="p-1 method-header" role="tab">
         <b-button
           class="text-left"
           block
           v-b-toggle.methodmapping
           variant="info"
-          >Category Mapping</b-button
+          >{{ $t("categoryMapping") }}</b-button
         >
       </b-card-header>
       <b-collapse
@@ -84,11 +91,15 @@
           <div class="accordion" role="tablist">
             <b-form
               no-body
-              class="mb-1"
+              class="mb-2"
               :key="index"
               v-for="(obj, index) in config['stockOut'][this.indKey]['methods']"
             >
-              <b-card-header header-tag="header" class="p-1" role="tab">
+              <b-card-header
+                header-tag="header"
+                class="p-1 method-header"
+                role="tab"
+              >
                 <b-button
                   class="text-left"
                   block
@@ -96,10 +107,17 @@
                   variant="info"
                 >
                   {{ obj.name }}
-                  <i
+                  <!-- <i
                     class="fa fa-trash delButton float-right"
+                  
+                  ></i> -->
+
+                  <img
+                    src="@/assets/images/icons/admindelete-icon.svg"
+                    :style="{ filter: filterColor }"
+                    class="delButton float-right w-auto mx-4 mt-1"
                     @click="deleteMethod(index)"
-                  ></i>
+                  />
                 </b-button>
               </b-card-header>
               <b-collapse
@@ -110,12 +128,10 @@
               >
                 <b-card-body>
                   <b-form>
-                    <div
-                      class="d-flex justify-content-between align-items-center"
-                    >
-                      <div class="w-50">Method Name:</div>
+                    <div class="d-flex align-items-center">
+                      <div class="">{{ $t("methodName") }}</div>
                       <b-form-input
-                        class="w-50"
+                        class="w-75 mx-4"
                         id="input-1"
                         v-model="obj.name"
                         type="text"
@@ -129,27 +145,31 @@
                         label="Mapping"
                         v-slot="{ ariaDescribedby }"
                       >
-                        <b-form-radio
-                          v-model="obj.type"
-                          :aria-describedby="ariaDescribedby"
-                          name="some-radios"
-                          value="indicator"
-                          >Indicator</b-form-radio
-                        >
-                        <b-form-radio
-                          v-model="obj.type"
-                          :aria-describedby="ariaDescribedby"
-                          name="some-radios"
-                          value="data_element"
-                          >Data Element</b-form-radio
-                        >
-                        <b-form-radio
-                          v-model="obj.type"
-                          :aria-describedby="ariaDescribedby"
-                          name="some-radios"
-                          value="data_sets"
-                          >Data Sets</b-form-radio
-                        >
+                        <div class="d-flex">
+                          <b-form-radio
+                            v-model="obj.type"
+                            :aria-describedby="ariaDescribedby"
+                            name="some-radios"
+                            value="indicator"
+                            >{{ $t("indicator") }}</b-form-radio
+                          >
+                          <b-form-radio
+                            v-model="obj.type"
+                            :aria-describedby="ariaDescribedby"
+                            name="some-radios"
+                            value="data_element"
+                            class="mx-3"
+                            >{{ $t("dataElement") }}</b-form-radio
+                          >
+                          <b-form-radio
+                            v-model="obj.type"
+                            :aria-describedby="ariaDescribedby"
+                            name="some-radios"
+                            value="data_sets"
+                            class="mx-2"
+                            >{{ $t("dataSets") }}</b-form-radio
+                          >
+                        </div>
                       </b-form-group>
                       <!-- <b-form-group label="Mapping">
                         <b-form-checkbox-group
@@ -213,13 +233,20 @@
                     </div>
                     <div>
                       <template v-for="(innObj, subind) in obj.selectedDE">
-                        <div :key="subind">
+                        <div :key="subind" class="mt-3">
                           <label>{{ innObj.displayName }}</label>
                           &nbsp;&nbsp;&nbsp;&nbsp;
-                          <i
+                          <!-- <i
                             class="fa fa-trash delButton"
                             @click="deleteDe(index, innObj.id)"
-                          ></i>
+                          ></i> -->
+
+                          <img
+                            src="@/assets/images/icons/admindelete-icon.svg"
+                            class="delButton w-auto"
+                            :style="{ filter: filterColor }"
+                            @click="deleteDe(index, innObj.id)"
+                          />
                           <br />
                         </div>
                       </template>
@@ -229,11 +256,11 @@
               </b-collapse>
             </b-form>
           </div>
-          <div class="float-right">
+          <div class="float-right mt-2 mb-2">
             <b-button
               class="btn btn-primary black-btn"
               @click="addMethod('methods')"
-              >+ Method</b-button
+              >+&nbsp;{{ $t("method") }}</b-button
             >
           </div>
         </b-card-body>
@@ -244,21 +271,31 @@
       <div class="accordion" role="tablist">
         <b-form
           no-body
-          class="mb-1"
+          class="mb-2"
           :key="index"
           v-for="(obj, index) in config['stockOut'][this.indKey]['repoRate']"
         >
-          <b-card-header header-tag="header" class="p-1" role="tab">
+          <b-card-header
+            header-tag="header"
+            class="p-1 method-header"
+            role="tab"
+          >
             <b-button
               class="text-left"
               block
               v-b-toggle="'accordion-' + index"
               variant="info"
               >{{ obj.name }}
-              <i
+              <!-- <i
                 class="fa fa-trash delButton float-right"
                 @click="deleteMethod(index)"
-              ></i>
+              ></i> -->
+              <img
+                src="@/assets/images/icons/admindelete-icon.svg"
+                :style="{ filter: filterColor }"
+                class="delButton float-right w-auto mx-4 mt-sm-1"
+                @click="deleteMethod(index)"
+              />
             </b-button>
           </b-card-header>
           <b-collapse
@@ -269,10 +306,10 @@
           >
             <b-card-body>
               <b-form>
-                <div class="d-flex justify-content-between align-items-center">
-                  <div class="w-50">Method Name:</div>
+                <div class="d-flex align-items-center">
+                  <div class="">{{ $t("methodName") }}</div>
                   <b-form-input
-                    class="w-50"
+                    class="w-75 mx-4"
                     id="input-1"
                     v-model="obj.name"
                     type="text"
@@ -282,32 +319,33 @@
                 </div>
 
                 <div class="my-3">
-                  <b-form-group
-                        label="Mapping"
-                        v-slot="{ ariaDescribedby }"
+                  <b-form-group label="Mapping" v-slot="{ ariaDescribedby }">
+                    <div class="d-flex">
+                      <b-form-radio
+                        v-model="obj.type"
+                        :aria-describedby="ariaDescribedby"
+                        name="some-radios"
+                        value="indicator"
+                        >{{ $t("indicator") }}</b-form-radio
                       >
-                        <b-form-radio
-                          v-model="obj.type"
-                          :aria-describedby="ariaDescribedby"
-                          name="some-radios"
-                          value="indicator"
-                          >Indicator</b-form-radio
-                        >
-                        <b-form-radio
-                          v-model="obj.type"
-                          :aria-describedby="ariaDescribedby"
-                          name="some-radios"
-                          value="data_element"
-                          >Data Element</b-form-radio
-                        >
-                        <b-form-radio
-                          v-model="obj.type"
-                          :aria-describedby="ariaDescribedby"
-                          name="some-radios"
-                          value="data_sets"
-                          >Data Sets</b-form-radio
-                        >
-                      </b-form-group>
+                      <b-form-radio
+                        v-model="obj.type"
+                        :aria-describedby="ariaDescribedby"
+                        name="some-radios"
+                        value="data_element"
+                        class="mx-3"
+                        >{{ $t("dataElement") }}</b-form-radio
+                      >
+                      <b-form-radio
+                        v-model="obj.type"
+                        :aria-describedby="ariaDescribedby"
+                        name="some-radios"
+                        value="data_sets"
+                        class="mx-2"
+                        >{{ $t("dataSets") }}</b-form-radio
+                      >
+                    </div>
+                  </b-form-group>
                   <!-- <b-form-group label="Mapping">
                     <b-form-checkbox-group v-model="obj.type" id="checkboxes-2">
                       <b-form-checkbox value="indicator"
@@ -364,13 +402,19 @@
                 </div>
                 <div>
                   <template v-for="(innObj, subind) in obj.selectedDE">
-                    <div :key="subind">
+                    <div :key="subind" class="mt-3">
                       <label>{{ innObj.displayName }}</label>
                       &nbsp;&nbsp;&nbsp;&nbsp;
-                      <i
+                      <!-- <i
                         class="fa fa-trash delButton"
                         @click="deleteDe(index, innObj.id)"
-                      ></i>
+                      ></i> -->
+                      <img
+                        src="@/assets/images/icons/admindelete-icon.svg"
+                        :style="{ filter: filterColor }"
+                        class="delButton w-auto"
+                        @click="deleteDe(index, innObj.id)"
+                      />
                       <br />
                     </div>
                   </template>
@@ -381,7 +425,7 @@
         </b-form>
       </div>
     </b-card>
-    <b-card no-body class="mb-1" v-if="tabType === 'Basic'">
+    <b-card no-body class="mb-1 basic-header" v-if="tabType === 'Basic'">
       <b-card-header header-tag="header" class="p-1" role="tab">
         <b-button
           class="text-left"
@@ -403,7 +447,7 @@
               <div
                 class="d-flex justify-content-between align-items-center my-3"
               >
-                <div class="w-50">First year of data available</div>
+                <div class="w-50">{{ $t("emu_initial_year_quest") }}</div>
                 <b-form-input
                   class="w-50"
                   id="input-1"
@@ -416,7 +460,7 @@
               <div
                 class="d-flex justify-content-between align-items-center my-3"
               >
-                <div class="w-50">Period Frequency</div>
+                <div class="w-50">{{ $t("periodFrequency") }}</div>
                 <b-form-select
                   multiple
                   class="w-50"
@@ -428,7 +472,7 @@
               <div
                 class="d-flex justify-content-between align-items-center my-3"
               >
-                <div class="w-50">Most recent year</div>
+                <div class="w-50">{{ $t("mostRecentYear") }}</div>
                 <b-form-input
                   class="w-50"
                   id="input-1"
@@ -441,7 +485,7 @@
               <div
                 class="d-flex justify-content-between align-items-center my-3"
               >
-                <div class="w-50">Most recent year and month</div>
+                <div class="w-50">{{ $t("mostRecentYearMonth") }}</div>
                 <b-form-input
                   class="w-50"
                   id="input-1"
@@ -454,7 +498,7 @@
               <div
                 class="d-flex justify-content-between align-items-center my-3"
               >
-                <div class="w-50">Backtracking Month</div>
+                <div class="w-50">{{ $t("backtrackingMonth") }}</div>
                 <b-form-input
                   class="w-50"
                   id="input-1"
@@ -468,28 +512,31 @@
         </b-card-body>
       </b-collapse>
     </b-card>
-    <b-card no-body class="mb-1" v-if="tabType === 'Basic'">
+    <b-card no-body class="mb-1 basic-header" v-if="tabType === 'Basic'">
       <b-card-header header-tag="header" class="p-1" role="tab">
-        <b-button class="text-left" block v-b-toggle.outputdata variant="info"
-          >Output Data Settings</b-button
+        <b-button
+          class="text-left"
+          block
+          v-b-toggle.outputdata
+          variant="info"
+          >{{ $t("outputDataSettings") }}</b-button
         >
       </b-card-header>
-      <b-collapse
-        id="outputdata"
-        visible
-        accordion="outputdata"
-        role="tabpanel"
-      >
+      <b-collapse id="outputdata" accordion="outputdata" role="tabpanel">
         <b-card-body>
           <div>
             <b-card no-body class="mb-1">
-              <b-card-header header-tag="header" class="p-1" role="tab">
+              <b-card-header
+                header-tag="header"
+                class="p-1 method-header"
+                role="tab"
+              >
                 <b-button
                   class="text-left"
                   block
                   v-b-toggle.outputdatainner
                   variant="info"
-                  >Output Data
+                  >{{ $t("outputData") }}
                 </b-button>
               </b-card-header>
               <b-collapse
@@ -502,7 +549,7 @@
                   <div
                     class="d-flex justify-content-between align-items-center my-3"
                   >
-                    <div class="w-50">Data Element Name :</div>
+                    <div class="w-50">{{ $t("dataElementName") }}</div>
                     <div class="w-50 d-flex justify-content-between">
                       <b-form-input
                         class=""
@@ -522,7 +569,7 @@
                   <div
                     class="d-flex justify-content-between align-items-center my-3"
                   >
-                    <div class="">Display Name</div>
+                    <div class="">{{ $t("displayName") }}</div>
                     <b-form-input
                       class="w-50"
                       id="input-1"
@@ -540,7 +587,7 @@
                   block
                   v-b-toggle.numerator
                   variant="info"
-                  >Numerator
+                  >{{ $t("numerator") }}
                 </b-button>
               </b-card-header>
               <b-collapse
@@ -553,7 +600,7 @@
                   <div
                     class="d-flex justify-content-between align-items-center my-3"
                   >
-                    <div class="w-50">Data Element Name :</div>
+                    <div class="w-50">{{ $t("dataElementName") }}</div>
                     <div class="w-50 d-flex justify-content-between">
                       <b-form-input
                         class=""
@@ -573,7 +620,7 @@
                   <div
                     class="d-flex justify-content-between align-items-center my-3"
                   >
-                    <div class="">Dsiplay Name:</div>
+                    <div class="">{{ $t("displayName") }}</div>
                     <b-form-input
                       class="w-50"
                       id="input-1"
@@ -591,7 +638,7 @@
                   block
                   v-b-toggle.denominator
                   variant="info"
-                  >Denominator
+                  >{{ $t("denominator") }}
                 </b-button>
               </b-card-header>
               <b-collapse
@@ -604,7 +651,7 @@
                   <div
                     class="d-flex justify-content-between align-items-center my-3"
                   >
-                    <div class="w-50">Data Element Name :</div>
+                    <div class="w-50">{{ $t("dataElementName") }}</div>
                     <div class="w-50 d-flex justify-content-between">
                       <b-form-input
                         class=""
@@ -624,7 +671,7 @@
                   <div
                     class="d-flex justify-content-between align-items-center my-3"
                   >
-                    <div class="">Display Name :</div>
+                    <div class="">{{ $t("displayName") }}</div>
                     <b-form-input
                       class="w-50"
                       id="input-1"
@@ -642,7 +689,7 @@
                   block
                   v-b-toggle.method
                   variant="info"
-                  >Method Data
+                  >{{ $t("methodData") }}
                 </b-button>
               </b-card-header>
               <b-collapse
@@ -655,7 +702,7 @@
                   <div
                     class="d-flex justify-content-between align-items-center my-3"
                   >
-                    <div class="w-50">Keyword for Method Data Element :</div>
+                    <div class="w-50">{{ $t("KeywordMethodDataElement") }}</div>
                     <div class="w-50 d-flex justify-content-between">
                       <b-form-input
                         class=""
@@ -678,21 +725,22 @@
       </b-collapse>
     </b-card>
     <b-button
-      class="btn btn-primary black-btn"
+      class="btn btn-primary black-btn float-right blue-btn mr-3 mt-3"
       id="show-btn"
       @click="saveJson"
       v-if="tabType !== 'Information'"
     >
-      Save Changes</b-button
+      {{ $t("saveChanges") }}</b-button
     >
   </div>
 </template>
 <script>
-import { getYearFormated } from "./DataMassaging.js";
+import dataM from "./DataMassaging.js";
 import ModalPopup from "./ModalPopup";
 import Treeselect from "@riophae/vue-treeselect";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 import service from "@/service";
+import DynamicImageMixin from "@/helpers/DynamicImageMixin";
 export default {
   props: [
     "config",
@@ -705,6 +753,7 @@ export default {
     "categoryOptionID",
     "locOrgList",
   ],
+  mixins:[DynamicImageMixin],
   components: { ModalPopup, Treeselect },
   data() {
     // console.log(this.orgList);
@@ -818,17 +867,15 @@ export default {
         });
         if (DECount === 0) {
           this.$store.commit("setLoading", false);
-          this.$swal({
-            title: "Methods mapping is not done",
-            icon: "error",
-          }).then((val) => {});
+          this.sweetAlert({
+            title: this.$i18n.t("error5"),
+          });
         }
       } else {
         this.$store.commit("setLoading", false);
-        this.$swal({
-          title: "Methods are not mapped for calculation",
-          icon: "error",
-        }).then((val) => {});
+        this.sweetAlert({
+          title: this.$i18n.t("error6"),
+        });
       }
       let firstN1 = 0,
         secondN1 = 0;
@@ -886,10 +933,9 @@ export default {
         });
       } else {
         this.$store.commit("setLoading", false);
-        this.$swal({
-          title: "Denominator method is not mapped for calculation",
-          icon: "error",
-        }).then((val) => {});
+        this.sweetAlert({
+          title: this.$i18n.t("error7"),
+        });
       }
     },
     startProcess() {
@@ -988,9 +1034,8 @@ export default {
         if (!deName || deName === "") {
           // setIsLoading(false);
 
-          this.$swal({
-            title: "Kindly enter Data Element Name",
-            icon: "error",
+          this.sweetAlert({
+            title: this.$i18n.t("error8"),
           });
         } else {
           let isExistDEArId = deList.filter((obj) => {
@@ -1119,9 +1164,8 @@ export default {
       if (!deName || deName === "") {
         // setIsLoading(false);
 
-        this.$swal({
-          title: "Kindly enter Data Element Name",
-          icon: "error",
+        this.sweetAlert({
+          title: this.$i18n.t("error8"),
         });
       } else {
         let isExistDEArId = deList.filter((obj) => {
@@ -1241,35 +1285,33 @@ export default {
     },
     saveJson() {
       this.$store.commit("setLoading", true);
+      let key = this.generateKey("stockOut");
       service
-        .updateConfig(this.config, "stockOut_en", false ,"fp-dashboard")
+        .updateConfig(this.config, key, false, "fp-dashboard")
         .then((resp) => {
           if (resp.data.status === "OK") {
             this.$store.commit("setLoading", false);
-            this.$swal({
-              title: "Data updated successfully.",
-              type: "success",
-            }).then(() => {});
+            this.sweetAlert({
+              title: this.$i18n.t("updateSuccessful"),
+            });
           }
         })
         .catch((err) => {
           service
-            .saveConfig(this.config, "stockOut_en", false ,"fp-dashboard")
+            .saveConfig(this.config, key, false, "fp-dashboard")
             .then((resp) => {
               if (resp.data.status === "OK") {
                 this.$store.commit("setLoading", false);
-                this.$swal({
-                  title: "Data saved successfully.",
-                  type: "success",
-                }).then(() => {});
+                this.sweetAlert({
+                  title: this.$i18n.t("data_saved_successfully"),
+                });
               }
             })
             .catch((er) => {
               this.$store.commit("setLoading", false);
-              this.$swal({
-                title: "Something went wrong. Please try again later.",
-                type: "error",
-              }).then(() => {});
+              this.sweetAlert({
+                title: this.$i18n.t("error2"),
+              });
             });
         });
     },
@@ -1366,9 +1408,8 @@ export default {
             if (resp.data.status === "OK") {
               return resp;
             } else {
-              // swal.fire({
+              // this.sweetAlert({
               //   title: "Include condom Data not imported successfully. Please try again later.",
-              //   icon: "success",
               // }).then(() => {
               //   //handleClose()
               // });
@@ -1391,22 +1432,19 @@ export default {
                   ) {
                     this.stopProcessing();
                     this.uploadDEJson = { dataValues: [] };
-                    this.$swal({
-                      title:
-                        "Stock Out Calculation is done for all saved locations",
-                      icon: "success",
-                    }).then((val) => {});
+                    this.sweetAlert({
+                      title: this.$i18n.t("success1"),
+                    });
                   } else {
                     this.stopProcessing();
                     this.uploadDEJson = { dataValues: [] };
-                    this.$swal({
-                      title: "Stock Out Calculation not done",
-                      icon: "error",
-                    }).then((val) => {});
+                    this.sweetAlert({
+                      title: this.$i18n.t("error4"),
+                    });
                   }
                 });
               });
-              this.$store.commit("setLoading", false);
+            this.$store.commit("setLoading", false);
           })
           .catch((err) => {
             this.$store.commit("setLoading", false);
@@ -1578,7 +1616,7 @@ export default {
     let fYear1 = this.$moment(curr_date, "YYYY-MM")
       .subtract(months, "months")
       .format("YYYY");
-    let yearStr = getYearFormated(iYear, fYear1);
+    let yearStr = dataM.getYearFormated(iYear, fYear1);
     this.period = yearStr;
     service.getCategoryOptionCombo("default").then((resp) => {
       if (resp.data) {
@@ -1592,7 +1630,7 @@ export default {
       }
     });
   },
-  mounted(){},
+  mounted() {},
   watch: {
     selectedLoc(loc) {
       if (loc != "") {
@@ -1603,10 +1641,9 @@ export default {
     locIndex(newVal) {
       console.log("in locIndex watch", newVal, this.stockOutLoc);
       if (this.stPr && this.stockOutLoc && this.stockOutLoc.length === 0) {
-        this.$swal({
-          title: "Location is not saved to start Stockout calculation",
-          icon: "error",
-        }).then(() => {});
+        this.sweetAlert({
+          title: this.$i18n.t("error3"),
+        });
       } else if (
         newVal > -1 &&
         newVal < this.stockOutLoc.length &&

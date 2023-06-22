@@ -2,7 +2,7 @@
   <div class="card summary-highchart-body">
     <div class="card-header p-10px text-decoration-none">
       <div class="row no-gutters">
-        <div class="col-lg-10 col-md-10 p-t-4px">
+        <div class="col-lg-10 col-md-10 p-t-4px summary-chart-title">
           <i
             class="
               fa fa-info-circle
@@ -20,7 +20,7 @@
               html: true,
             }"
           ></i
-          >{{ chartName }} {{ data.source ? `: ${data.source}` : "" }}
+          >{{ chartName }}{{ data.source ? `: ${data.source}` : "" }}
         </div>
         <div
           class="col-lg-2 col-md-2"
@@ -32,7 +32,7 @@
         >
           <dropdown
             :ddVal="timeFrequency"
-            :ddoptions="dropdownoptions"
+            :ddoptions="dropDownOptions"
             :onChangeFn="getMonthsVal"
           />
         </div>
@@ -152,12 +152,7 @@ export default {
   },
   data() {
     return {
-      dropdownoptions: [
-        { val: 1, label: "1 Months" },
-        { val: 3, label: "3 Months" },
-        { val: 6, label: "6 Months" },
-        { val: 12, label: "12 Months" },
-      ],
+      dropDownOptions: [],
       tableChartMethods: null,
       tableChartData: null,
       timeFrequency: 1,
@@ -237,15 +232,13 @@ export default {
     },
   },
   created() {
+    this.dropDownOptions = [
+      { val: 1, label: this.$i18n.t("nMonth", { n: 1 }) },
+      { val: 3, label: this.$i18n.t("nMonth", { n: 3 }) },
+      { val: 6, label: this.$i18n.t("nMonth", { n: 6 }) },
+      { val: 12, label: this.$i18n.t("nMonth", { n: 12 }) },
+    ];
     this.computeMonthsData();
-    if (this.$i18n.locale === "fr") {
-      this.dropdownoptions = [
-        { val: 1, label: this.$i18n.t("month1") },
-        { val: 3, label: this.$i18n.t("month3") },
-        { val: 6, label: this.$i18n.t("month6") },
-        { val: 12, label: this.$i18n.t("month12") },
-      ];
-    }
   },
 };
 </script>

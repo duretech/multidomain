@@ -95,6 +95,9 @@ export default {
         },
       },
       backgroundData: {
+        CT: {
+          substantialChange: 5,
+        },
         IC: {
           standardDeviation: 2,
         },

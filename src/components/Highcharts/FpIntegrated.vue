@@ -23,7 +23,7 @@
     </div>
     <div class="arrow-content ml-5 mr-3 pt-3 row">
       <span class="col" v-if="!isNaN(emuValue) && emuValue !== ''"
-        >Estimated Modern Use</span
+        >{{$t("estimatedUse")}}</span
       >
       <template v-for="(s, i) in summaryScore">
         <span

@@ -1,38 +1,35 @@
 .dqr-page {
   background-color: var(--primary-bg-color);
   position        : relative;
-}
 
-.dqr-main {
-  background-color: var(--chart-container-color);
-  // height          : 90vh;
-  // overflow-y      : auto;
-  // overflow-x      : hidden;
-}
-
-.dqr-breadcrumbs {
-  .breadcrumb {
-    background-color: var(--chart-container-color);
-    color           : antiquewhite;
-    padding         : 0 !important;
-    margin          : 0 !important;
-    font-size       : var(--font-size-p-small-text) !important;
-
-    a {
-      color: #6c757d;
-    }
-
-    .active {
-      color: white;
-    }
+  .totalicons{
+    right: 17px !important;
   }
 }
 
+#progtabwrapper,.dqr-page .dqr{
+	height: calc(100vh - 120px) !important;
+    overflow-y: auto;
+	overflow-x: hidden;
+}
+
+.dqr-page .dqr,.dynamic-modules-section{
+	height: calc(100vh - 56px) !important;
+    overflow-y: auto;
+	overflow-x: hidden;
+}
+
+
+.dqr-main {
+  background-color: var(--bg-main-color);
+  height: 100vh !important;
+ 
+}
+
 .summary-dqr {
-  background-color: var(--chart-container-color);
+  background-color: var(--bg-main-color);
   position        : relative;
-  color           : antiquewhite;
-  margin-bottom   : 10px;
+  margin-bottom: 44px !important;
 
   p {
     font-size: var(--font-size-p-small-text) !important;
@@ -41,14 +38,18 @@
   .dqr-summary-text-collapse {
     color: var(--innertext-font-color) !important;
   }
+
+  .dqr-summary-btn:focus.collapsed{
+    background-color: transparent !important;
+    border: 1px solid var(--border-grey-color) !important;
+  }
 }
 
 .summary-btn {
   background-color: var(--primary-bg-color);
   font-size       : var(--font-size-chart-sidebar-heading);
   color           : var(--fonts-white-shade);
-  background-color: var(--chart-container-color);
-  border-color    : var(--chart-container-color);
+  border-color    : var(--border-grey-color);
   border-radius   : 50px;
 
   &:hover,
@@ -59,18 +60,18 @@
     border-radius   : 50px;
     color           : var(--color-white);
     box-shadow      : none !important;
-    background-color: var(--chart-container-color) !important;
-    border-color    : var(--chart-container-color) !important;
+    border-color    : var(--border-grey-color) !important;
   }
 }
 
 .dqr-charts {
   max-width     : 100%;
   padding-bottom: 50px !important;
+  overflow-y: auto;
 }
 
 .dqr-summary-btn {
-  background-color: var(--primary-bg-color) !important;
+  // background-color: var(--primary-bg-color) !important;
   background      : transparent;
   font-family     : var(--heading-font-family);
   color           : var(--innertext-font-color) !important;
@@ -84,21 +85,24 @@
 }
 
 .dqr-summary-btn.not-collapsed {
-  background-color: var(--primary-bg-color) !important;
+  background-color: transparent !important;
   background      : transparent;
   font-family     : var(--heading-font-family);
   color           : var(--innertext-font-color) !important;
   font-size       : var(--font-size-p-normal-text);
   border-radius   : 10px 10px 0 0 !important;
+  border: 1px solid var(--border-grey-color) !important;
 }
 
 .dqr-summary-collapse {
   border-radius: 0px 10px 10px 10px !important;
+  background-color: transparent !important;
+  border: 1px solid var(--border-grey-color) !important;
 }
 
 .not-available {
   background-color: var(--primary-bg-color);
-  color           : var(--color-white);
+  color           : var(--text-color);
   text-align      : center;
   height          : 2.5rem;
   margin          : 2rem;
@@ -106,9 +110,82 @@
   border-radius   : 8px;
 }
 
-.border-bottom {
-  border-bottom: 2px solid var(--border-color) !important;
+
+.summary-dqr-page {
+  .score {
+    .totalscore {
+      font-size: var(--font-size-heading);
+    }
+  }
 }
+
+
+
+.summary-dqr-page .overview-card .dqr-card-body .inner-card .inner-card-body .complete-list li,
+.summary-dqr-page .overview-card .dqr-card-body .inner-card .inner-card-body .internal-list li,
+.summary-dqr-page .overview-card .dqr-card-body .inner-card .inner-card-body .consistency-list li {
+  display: flex;
+}
+
+
+.pickuserbtn .btn {
+  background-color: var(--footer-components-color) !important;
+  border-color    : var(--footer-components-color) !important;
+}
+
+#modal-anc .anchor-map .l-map {
+  height          : calc(100vh - 140px) !important;
+  background-color: transparent;
+}
+
+.dqr-main2{
+  background-color: var(--bg-main-color) !important;
+
+  .chart-dqrborder .card-body:first-child{
+      border: 1px solid var(--border-grey-color);
+          border-radius: 5px !important;
+          opacity: 1;
+          margin-left: 13px;
+          margin-right: 13px;
+          margin-bottom: 4%;
+  }
+
+  .dqr-greyvue .vue-treeselect__control{
+      background-color: var( --grey-color-button) !important;
+      border: 1px solid var( --grey-color-button) !important;
+      
+  }
+
+  
+  .border-bottom{
+      border: 1px solid transparent !important;
+  }
+
+  .table thead{
+      z-index: 1 !important;
+  }
+
+  .analytic-charts{
+      border: 1px solid transparent !important;
+      margin-bottom: -27px !important;
+     }
+
+     .summary-chart-title{
+      height: 22px;
+    }
+
+    .b-sidebar-outer {
+      z-index: 1000 !important;
+  }   
+}
+
+.pieChart-col.border-left{
+    border-left: 1px solid var(--border-grey-color) !important;
+}
+
+
+
+// responsive css
 
 @media (min-width: 768px) and (max-width: 1024px) {
   .dqr-page {
@@ -147,35 +224,5 @@
       margin-left: 306px;
     }
   }
-}
-
-
-.summary-dqr-page {
-  background-color: var(--primary-bg-color);
-
-  .score {
-    .totalscore {
-      font-size: var(--font-size-heading);
-    }
-  }
-}
-
-
-
-.summary-dqr-page .overview-card .dqr-card-body .inner-card .inner-card-body .complete-list li,
-.summary-dqr-page .overview-card .dqr-card-body .inner-card .inner-card-body .internal-list li,
-.summary-dqr-page .overview-card .dqr-card-body .inner-card .inner-card-body .consistency-list li {
-  display: flex;
-}
-
-
-.pickuserbtn .btn {
-  background-color: var(--footer-components-color) !important;
-  border-color    : var(--footer-components-color) !important;
-}
-
-#modal-anc .anchor-map .l-map {
-  height          : calc(100vh - 140px) !important;
-  background-color: transparent;
 }
 

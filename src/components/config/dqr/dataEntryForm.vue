@@ -11,9 +11,7 @@
     <div class="row">
       <div class="col">
         <div class="form-group">
-          <label class="">{{
-            $t("dataElement")
-          }}</label>
+          <label>{{ $t("dataElement") }}</label>
           <input
             type="text"
             class="form-control"
@@ -22,7 +20,7 @@
             disabled
           />
         </div>
-        <div class="form-group">
+        <div class="form-group admin-theme">
           <label class="">{{ $t("location") }}</label>
           <treeselect
             class=""
@@ -109,7 +107,7 @@
       </div>
     </div>
     <template #modal-footer>
-      <b-button class="black-btn btn-sm ml-3" @click="addData()">
+      <b-button class="black-btn btn-sm ml-3 blue-btn" @click="addData()">
         {{ $t("addbtn") }}
       </b-button>
     </template>
@@ -117,16 +115,17 @@
 </template>
 <script>
 import service from "@/service";
-import loadLocChildMixin from "@/helpers/LoadLocationChildMixin";
 import Treeselect from "@riophae/vue-treeselect";
+import { decompress } from "compress-json";
+import DataEntryMixin from "@/helpers/DataEntryMixin";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
-import { compress, decompress } from "compress-json";
+import loadLocChildMixin from "@/helpers/LoadLocationChildMixin";
 export default {
   props: ["isDataEntry", "dataEntryID", "bgDataType"],
   components: {
     Treeselect,
   },
-  mixins: [loadLocChildMixin],
+  mixins: [DataEntryMixin, loadLocChildMixin],
   data() {
     return {
       // isForm: this.isDataEntry,
@@ -139,6 +138,7 @@ export default {
       currentYear: new Date().getFullYear(),
       data: [],
       allData: [],
+      fileName: "",
     };
   },
   watch: {
@@ -167,33 +167,41 @@ export default {
     },
   },
   methods: {
+    showUploadCsv() {
+      this.$refs["uploadCsv"].show();
+    },
+    hideUploadCsv() {
+      this.$refs["uploadCsv"].hide();
+    },
+    updateFileName() {
+      this.fileName = event.target.files[0];
+    },
+    readFile() {
+      this.$papa.parse(this.fileName, {
+        header: true,
+        complete: this.onComplete,
+      });
+    },
+    onComplete(results) {
+      console.log(results);
+      let report = [];
+      results.data.map((val) => {
+        let arr = [];
+        for (let i in val) {
+          arr.push(val[i]);
+        }
+        report.push(arr);
+      });
+      console.log("report", report);
+      this.hideUploadCsv();
+    },
     getData(isLocationChanged = false) {
       this.$store.state.loading = true;
-      let key = "";
-      if (this.dataEntryID.includes("population")) {
-        key = `population_${this.bgDataType.toLowerCase()}_${
-          this.location.split("/")[0]
-        }`;
-      }
-      if (this.dataEntryID.includes("mcpr")) {
-        key = `mcpr_${this.bgDataType.toLowerCase()}_${
-          this.location.split("/")[0]
-        }`;
-      }
-      if (this.dataEntryID.includes("mcmm")) {
-        key = `mcmm_${this.bgDataType.toLowerCase()}_${
-          this.location.split("/")[0]
-        }`;
-      }
-      if (this.dataEntryID.includes("psa")) {
-        key = `psa_${this.location.split("/")[0]}`;
-      }
-      if (this.dataEntryID.includes("prevalence")) {
-        key = `prevalence_${this.location.split("/")[0]}`;
-      }
-      if (this.dataEntryID.includes("benchmark")) {
-        key = `benchmark_${this.location.split("/")[0]}`;
-      }
+      let key = this.getKey({
+        dataEntryID: this.dataEntryID,
+        bgDataType: this.bgDataType,
+        orgLevel: this.location.split("/")[0],
+      }); //Mixin method
       service
         .getSavedConfig(key)
         .then((response) => {
@@ -278,157 +286,12 @@ export default {
     },
     addData() {
       this.$store.state.loading = true;
-      let key = "";
-      if (this.dataEntryID.includes("population")) {
-        key = `population_${this.bgDataType.toLowerCase()}_${
-          this.location.split("/")[0]
-        }`;
-      }
-      if (this.dataEntryID.includes("mcpr")) {
-        key = `mcpr_${this.bgDataType.toLowerCase()}_${
-          this.location.split("/")[0]
-        }`;
-      }
-      if (this.dataEntryID.includes("mcmm")) {
-        key = `mcmm_${this.bgDataType.toLowerCase()}_${
-          this.location.split("/")[0]
-        }`;
-      }
-      if (this.dataEntryID.includes("psa")) {
-        key = `psa_${this.location.split("/")[0]}`;
-      }
-      if (this.dataEntryID.includes("prevalence")) {
-        key = `prevalence_${this.location.split("/")[0]}`;
-      }
-      if (this.dataEntryID.includes("benchmark")) {
-        key = `benchmark_${this.location.split("/")[0]}`;
-      }
-      if (key) {
-        let data = {
-          headers: [
-            {
-              name: "dx",
-            },
-            {
-              name: "pe",
-            },
-            {
-              name: "ou",
-            },
-            {
-              name: "value",
-            },
-          ],
-          rows: this.data,
-        };
-        service
-          .getSavedConfig(key)
-          .then((response) => {
-            let data =
-              typeof response.data.rows == "string"
-                ? {
-                    ...response.data,
-                    rows: decompress(JSON.parse(response.data.rows)),
-                  }
-                : response.data;
-            let updatedData = [];
-
-            //To update the existing values
-            for (let i = 0; i < data.rows.length; i++) {
-              let isFound = this.data.find(
-                (itmInner) =>
-                  itmInner[0] === data.rows[i][0] &&
-                  itmInner[1] === data.rows[i][1] &&
-                  itmInner[2] === data.rows[i][2]
-              );
-              if (isFound) {
-                updatedData.push([
-                  data.rows[i][0],
-                  data.rows[i][1],
-                  data.rows[i][2],
-                  isFound[3],
-                ]);
-              } else {
-                updatedData.push(data.rows[i]);
-              }
-            }
-
-            //To add new values
-            for (let i = 0; i < this.data.length; i++) {
-              let isFound = data.rows.find(
-                (itmInner) =>
-                  itmInner[0] === this.data[i][0] &&
-                  itmInner[1] === this.data[i][1] &&
-                  itmInner[2] === this.data[i][2]
-              );
-              if (!isFound) {
-                updatedData.push(this.data[i]);
-              }
-            }
-
-            data.rows = JSON.stringify(compress(updatedData));
-            service
-              .updateConfig(data, key)
-              .then((response) => {
-                if (response.data.status === "OK") {
-                  this.$swal({
-                    title: this.$i18n.t("data_saved_successfully"),
-                  }).then(() => {
-                    // if(Object.keys(configChanges).length) {
-                    //   audit.processAudit('process2', key, configChanges, this.type, this.subType)
-                    // }
-                  });
-                  this.$store.state.loading = false;
-                  this.$emit("hideModal");
-                } else {
-                  this.$swal({
-                    title: this.$i18n.t("error"),
-                    text: `${response.data.message}`,
-                  });
-
-                  this.$store.state.loading = false;
-                  this.$emit("hideModal");
-                  return;
-                }
-              })
-              .catch((error) => {
-                this.$swal({
-                  title: this.$i18n.t("error"),
-                });
-
-                this.$store.state.loading = false;
-                this.$emit("hideModal");
-                return;
-              });
-          })
-          .catch(() => {
-            let response = service.saveConfig(data, key);
-            response
-              .then((response) => {
-                if (response.data.status === "OK") {
-                  this.$swal({
-                    title: this.$i18n.t("data_saved_successfully"),
-                  });
-                  this.$store.state.loading = false;
-                  this.$emit("hideModal");
-                } else {
-                  this.$swal({
-                    title: this.$i18n.t("error"),
-                    text: `${response.data.message}`,
-                  });
-                  this.$store.state.loading = false;
-                  this.$emit("hideModal");
-                  return;
-                }
-              })
-              .catch(() => (this.$store.state.loading = false));
-          });
-      } else {
-        this.$swal({
-          title: this.$i18n.t("error"),
-        });
-        this.$store.state.loading = false;
-      }
+      let key = this.getKey({
+        dataEntryID: this.dataEntryID,
+        bgDataType: this.bgDataType,
+        orgLevel: this.location.split("/")[0],
+      }); //Mixin method
+      this.uploadData(key, this.data); //Mixin method
     },
     nextYear() {
       this.currentYear = this.currentYear * 1 + 1;

@@ -4,11 +4,11 @@
       <div class="card-body">
         <div class="row">
           <div class="col-lg-12">
-            <div class="form-group mb-1 row">
+            <div class="form-group mb-3 row">
               <label class="col-lg-3 col-sm-6 col-form-label"
                 >{{ $t("currentYearMonth") }}
               </label>
-              <div class="col-lg-4 col-sm-6 d-flex align-items-center">
+              <div class="col-lg-9 col-sm-6 d-flex align-items-center">
                 <input
                   type="text"
                   class="form-control"
@@ -19,11 +19,11 @@
             </div>
           </div>
           <div class="col-lg-12">
-            <div class="form-group mb-1 row">
+            <div class="form-group mb-3 row">
               <label class="col-lg-3 col-sm-6 col-form-label">{{
                 $t("backtrackingMonth")
               }}</label>
-              <div class="col-lg-4 col-sm-6">
+              <div class="col-lg-9 col-sm-6">
                 <div class="select-wrapper">
                   <select class="form-control" v-model="backtrackedMonth">
                     <option v-for="(n, index) in 61" :key="index">
@@ -35,11 +35,11 @@
             </div>
           </div>
           <div class="col-lg-12">
-            <div class="form-group mb-1 row">
+            <div class="form-group mb-3 row">
               <label class="col-lg-3 col-sm-6 col-form-label">{{
                 $t("backtrackedYearMonth")
               }}</label>
-              <div class="col-lg-4 col-sm-6 d-flex align-items-center">
+              <div class="col-lg-9 col-sm-6 d-flex align-items-center">
                 <input
                   type="text"
                   class="form-control"
@@ -50,11 +50,11 @@
             </div>
           </div>
           <div class="col-lg-12">
-            <div class="form-group mb-1 row">
+            <div class="form-group mb-3 row">
               <label class="col-lg-3 col-sm-6 col-form-label">{{
                 $t("backtrackingYearLimit")
               }}</label>
-              <div class="col-lg-4 col-sm-6">
+              <div class="col-lg-9 col-sm-6">
                 <div class="select-wrapper">
                   <select class="form-control" v-model="backtrackedYearLimit">
                     <option v-for="(n, index) in 16" :key="index">
@@ -66,11 +66,11 @@
             </div>
           </div>
           <div class="col-lg-12">
-            <div class="form-group mb-1 row">
+            <div class="form-group mb-3 row">
               <label class="col-lg-3 col-sm-6 col-form-label">{{
                 $t("applicationYearRange")
               }}</label>
-              <div class="col-lg-4 col-sm-6 d-flex align-items-center">
+              <div class="col-lg-9 col-sm-6 d-flex align-items-center">
                 <input
                   type="text"
                   class="form-control"
@@ -85,7 +85,7 @@
           <div class="col text-right">
             <button
               type="button"
-              class="btn btn-primary black-btn"
+              class="btn btn-primary black-btn save-btn"
               @click="updateConfigData"
             >
               {{ $t("savebtn") }}
@@ -98,11 +98,12 @@
 </template>
 <script>
 import service from "@/service";
-import audit from "@/components/config/audit.js";
+import ReFetchConfigMixin from "@/helpers/ReFetchConfigMixin";
 import globalFactorsConfig from "@/config/globalFactorsConfig.js";
 
 export default {
   props: ["module", "type", "subType"],
+  mixins: [ReFetchConfigMixin],
   data() {
     let currentDateLong = this.$moment().format();
     let format = this.$moment(currentDateLong, "YYYYMM").format("YYYY-MM");
@@ -118,8 +119,14 @@ export default {
         : 3,
       backtrackedDate: format,
       backtrackedLimitedDate: null,
-      yearRange: "",
     };
+  },
+  computed: {
+    yearRange() {
+      return `${this.backtrackedLimitedDate} ${this.$i18n.t("toSmall")} ${
+        this.backtrackedDate
+      }`;
+    },
   },
   watch: {
     backtrackedMonth(newValue) {
@@ -127,31 +134,22 @@ export default {
         this.backtrackedDate = this.$moment(this.currentDate, "YYYYMM")
           .subtract(newValue, "months")
           .format("YYYY-MM");
-        (this.backtrackedLimitedDate = this.$moment(
+        this.backtrackedLimitedDate = this.$moment(
           this.backtrackedDate,
           "YYYYMM"
         )
           .subtract(this.backtrackedYearLimit, "years")
-          .format("YYYY-MM")),
-          (this.yearRange = `${this.backtrackedLimitedDate} ${this.$i18n.t(
-            "toSmall"
-          )} ${this.backtrackedDate}`);
-
-        // console.log("yearRange",this.yearRange,this.$i18n.t('toSmall'))
+          .format("YYYY-MM");
       }
     },
     backtrackedYearLimit(newValue) {
       if (newValue) {
-        (this.backtrackedLimitedDate = this.$moment(
+        this.backtrackedLimitedDate = this.$moment(
           this.backtrackedDate,
           "YYYYMM"
         )
           .subtract(this.backtrackedYearLimit, "years")
-          .format("YYYY-MM")),
-          (this.yearRange = `${this.backtrackedLimitedDate} ${this.$i18n.t(
-            "toSmall"
-          )} ${this.backtrackedDate}`);
-        // console.log("yearRange",this.yearRange)
+          .format("YYYY-MM");
       }
     },
   },
@@ -182,15 +180,13 @@ export default {
             this.backtrackedLimitedDate = periodSettings.backtrackedLimitedDate
               ? periodSettings.backtrackedLimitedDate
               : this.backtrackedLimitedDate;
-            this.yearRange = periodSettings.yearRange
-              ? periodSettings.yearRange
-              : this.yearRange;
           }
           this.$store.state.loading = false;
         })
-        .catch((res) => {
+        .catch((err) => {
           console.log("Config not found...");
           this.$store.state.loading = false;
+          this.reFetchConfig(err);
         });
     },
     updateConfigData() {
@@ -203,7 +199,6 @@ export default {
         backtrackedYearLimit: this.backtrackedYearLimit,
         backtrackedDate: this.backtrackedDate,
         backtrackedLimitedDate: this.backtrackedLimitedDate,
-        yearRange: this.yearRange,
       };
 
       // console.log(metaConfigData, "metaConfigData")
@@ -225,27 +220,18 @@ export default {
                   [this.subType]: periodSettings,
                 };
               }
-              let configChanges = audit.configAudit(
-                this.originalPerioddata,
-                configData[this.type][this.subType]
-              );
+              let configChanges = {};
+              // let configChanges = audit.configAudit(
+              //   this.originalPerioddata,
+              //   configData[this.type][this.subType]
+              // );
               let response = service.updateConfig(configData, key);
               response
                 .then((response) => {
                   if (response.data.status === "OK") {
                     // console.log("response update ", response.data)
-                    this.$swal({
+                    this.sweetAlert({
                       title: this.$i18n.t("data_saved_successfully"),
-                    }).then(() => {
-                      if (Object.keys(configChanges).length) {
-                        audit.processAudit(
-                          "process2",
-                          key,
-                          configChanges,
-                          this.type,
-                          this.subType
-                        );
-                      }
                     });
                     this.$store.commit("setGlobalFactors", {
                       payload: configData,
@@ -255,7 +241,7 @@ export default {
                     );
                     this.$store.state.loading = false;
                   } else {
-                    this.$swal({
+                    this.sweetAlert({
                       title: this.$i18n.t("error"),
                       text: `${response.data.message}`,
                     });
@@ -265,7 +251,7 @@ export default {
                   }
                 })
                 .catch((error) => {
-                  this.$swal({
+                  this.sweetAlert({
                     title: this.$i18n.t("error"),
                   });
 
@@ -284,7 +270,7 @@ export default {
             response.then((response) => {
               if (response.data.status === "OK") {
                 // console.log("response save ", response.data)
-                this.$swal({
+                this.sweetAlert({
                   title: this.$i18n.t("data_saved_successfully"),
                 });
                 this.$store.commit("setGlobalFactors", {
@@ -295,7 +281,7 @@ export default {
                 );
                 this.$store.state.loading = false;
               } else {
-                this.$swal({
+                this.sweetAlert({
                   title: this.$i18n.t("error"),
                   text: `${response.data.message}`,
                 });
@@ -307,9 +293,9 @@ export default {
         })
         .catch(() => {
           this.$store.state.loading = false;
-          this.$swal({
+          this.sweetAlert({
             title: this.$i18n.t("error"),
-            title: this.$i18n.t("table_not_found"),
+            text: this.$i18n.t("table_not_found"),
           });
         });
     },
@@ -318,12 +304,9 @@ export default {
     // console.log("created")
     this.getConfigData(); //Remove / add $store.state.loading in updated when you enable / disable this call
 
-    (this.backtrackedLimitedDate = this.$moment(this.backtrackedDate, "YYYYMM")
+    this.backtrackedLimitedDate = this.$moment(this.backtrackedDate, "YYYYMM")
       .subtract(this.backtrackedYearLimit, "years")
-      .format("YYYY-MM")),
-      (this.yearRange = `${this.backtrackedLimitedDate} ${this.$i18n.t(
-        "toSmall"
-      )} ${this.backtrackedDate}`);
+      .format("YYYY-MM");
   },
   updated() {
     // this.$store.state.loading = false

@@ -1,9 +1,9 @@
 <template>
   <div class="md_tabs py-3">
-    <b-card no-body class="p-3">
+    <b-card no-body class="">
       <b-tabs pills card vertical>
         <b-tab
-          title="Save EMU"
+          :title="$t('Save EMU')"
           :active="activeTab === 'saveEMU'"
           @click="updateActiveTab('saveEMU')"
         >
@@ -25,18 +25,19 @@
           </b-card-text>
         </b-tab>
         <b-tab
-          title="Background Data"
+          :title="$t('Background Data')"
           :active="activeTab === 'bgData'"
           @click="updateActiveTab('bgData')"
         >
           <b-card-text v-if="activeTab === 'bgData'">
             <div class="md_nested_tabs">
               <b-card no-body>
-                <b-tabs card>
+                <b-tabs class="card-section mt-lg-auto default-emu">
                   <b-tab
-                    title="Background Data"
+                  :title="$t('Background Data')"
                     active
                     @click="updateActiveSubTab('background_data')"
+                  
                   >
                     <b-card-text v-if="activeSubTab === 'background_data'">
                       <div class="md_nested_tabs">
@@ -55,7 +56,7 @@
                       </div>
                     </b-card-text>
                   </b-tab>
-                  <b-tab title="CYP" @click="updateActiveSubTab('cyp')">
+                  <b-tab :title="$t('cyp')" @click="updateActiveSubTab('cyp')">
                     <b-card-text v-if="activeSubTab === 'cyp'">
                       <div class="md_nested_tabs">
                         <b-card class="border">
@@ -74,7 +75,7 @@
                     </b-card-text>
                   </b-tab>
                   <b-tab
-                    title="Continuation"
+                    :title="$t('continuationFactor')"
                     @click="updateActiveSubTab('continuation')"
                   >
                     <b-card-text v-if="activeSubTab === 'continuation'">
@@ -100,16 +101,16 @@
           </b-card-text>
         </b-tab>
         <b-tab
-          title="Data Mapping"
+          :title="$t('dataMapping')"
           :active="activeTab === 'data_mapping'"
           @click="updateActiveTab('data_mapping')"
         >
           <b-card-text v-if="activeTab === 'data_mapping'">
-            <div class="md_nested_tabs">
+            <div class="md_nested_tabs card-section">
               <b-card no-body>
-                <b-tabs card>
+                <b-tabs class="default-emu">
                   <b-tab
-                    title="Visits"
+                    :title="$t('visits')"
                     active
                     @click="updateActiveSubTab('Visits')"
                   >
@@ -132,7 +133,7 @@
                     </b-card-text>
                   </b-tab>
                   <b-tab
-                    title="Commodities Client"
+                    :title="$t('Commodities_Client')"
                     @click="updateActiveSubTab('Commodities_Client')"
                   >
                     <b-card-text v-if="activeSubTab === 'Commodities_Client'">
@@ -153,7 +154,7 @@
                     </b-card-text>
                   </b-tab>
                   <b-tab
-                    title="Commodities Facilities"
+                    :title="$t('Commodities_Facilities')"
                     @click="updateActiveSubTab('Commodities_Facilities')"
                   >
                     <b-card-text
@@ -175,7 +176,7 @@
                       </div>
                     </b-card-text>
                   </b-tab>
-                  <b-tab title="User" @click="updateActiveSubTab('User')">
+                  <b-tab :title="$t('users')" @click="updateActiveSubTab('User')">
                     <b-card-text v-if="activeSubTab === 'User'">
                       <div class="md_nested_tabs">
                         <b-card class="border">

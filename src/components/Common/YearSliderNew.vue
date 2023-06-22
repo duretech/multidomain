@@ -8,8 +8,7 @@
 					type="button"
 					class="btn btn-secondary"
 					v-b-tooltip.hover
-					title="
-        Previous"
+					:title="$t('previous')"
 				>
 					<i class="fa fa-angle-double-left" aria-hidden="true"></i>
 				</button>
@@ -19,8 +18,7 @@
 					type="button"
 					class="btn btn-secondary"
 					v-b-tooltip.hover
-					title="
-        Play"
+					:title="$t('play')"
 				>
 					<i class="fa fa-play" aria-hidden="true"></i>
 				</button>
@@ -30,8 +28,7 @@
 					type="button"
 					class="btn btn-secondary"
 					v-b-tooltip.hover
-					title="
-        Pause"
+					:title="$t('pause')"
 				>
 					<i class="fa fa-stop" aria-hidden="true"></i>
 				</button>
@@ -41,8 +38,7 @@
 					type="button"
 					class="btn btn-secondary"
 					v-b-tooltip.hover
-					title="
-        Next"
+					:title="$t('next')"
 				>
 					<i class="fa fa-angle-double-right" aria-hidden="true"></i>
 				</button>
@@ -257,7 +253,7 @@ export default {
 	position: absolute;
 	top: 2px;
 	right: 6px;
-	color: #d9d9d9;
+	color: var(--text-font-color);
 	pointer-events: none;
 }
 </style>

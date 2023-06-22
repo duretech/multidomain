@@ -4,29 +4,27 @@
 }
 
 .report-container {
-  background-color: #12122a !important;
-  height          : 100vh;
+  background-color: var(--bg-main-color) !important;
+  height          : 100%;
   overflow-y      : auto;
   overflow-x      : hidden;
   border-radius   : 10px;
 }
 
 .title-report-card {
-  color           : var(--color-white);
+  color           : var(--text-color);
   // background-color: var(--chart-container-color);
 }
 
 .heading {
-  background             : transparent linear-gradient(180deg, var(--dropdown-bg-color) 0%, var(--dropdown-item-bg) 100%) 0% 0% no-repeat padding-box;
+ 
   color                  : var(--color-white);
-  border-top-left-radius : 10px;
-  border-top-right-radius: 10px;
   font-size              : 14px
 }
 
 .sub-heading {
   background-color: var(--chart-body-color) !important;
-  color           : var(--color-white);
+  color           : var(--text-color);
   border-bottom   : 2px solid var(--new-header-color);
 }
 
@@ -37,14 +35,22 @@
 }
 
 .saved-report-card {
-  background  : transparent linear-gradient(180deg, var(--dropdown-bg-color) 0%, var(--dropdown-item-bg) 100%) 0% 0% no-repeat padding-box;
+ 
   height       : 75px;
   border-radius: 6px;
   text-align   : center;
-  color        : var(--font-white-color);
+  // color        : var(--font-white-color);
   font-weight  : 600;
   position     : relative;
 
+  .fw-400{
+    font-weight: 400;
+  }
+  .card-details {
+    margin-left  : 5px;
+    margin-bottom: 2px;
+    color: var(--sidebar-maincolor) !important;
+  }
   .img-title-flex {
 
     // display: flex;
@@ -53,15 +59,15 @@
     .saved-report-card-img-container {
       // flex: 1 1 50%;
       position: absolute;
-      top     : 17%;
-      left    : 20%;
+      top     : 29%;
+      // left    : 20%;
     }
 
     .saved-report-card-title {
-      transition: 0.2s all linear !important;
+      
       position  : absolute;
-      top       : 35%;
-      left      : 35%;
+      top       : 13%;
+      left      : 16%;
       // flex: 1 1 50%;
     }
   }
@@ -72,6 +78,10 @@
 
   .saved-report-card-opt {
     display: none;
+
+    .saved-report-card-title{
+      display: none;
+    }
   }
 
   &.red {
@@ -88,22 +98,29 @@
 }
 
 .saved-report-card:hover {
-  background  : transparent linear-gradient(180deg, var(--dropdown-bg-color) 0%, var(--dropdown-item-bg) 100%) 0% 0% no-repeat padding-box;
+ 
   display     : flex;
   // padding-left: 25px !important;
   font-size   : var(--font-small);
   font-weight : 100;
+ 
 
-  .saved-report-card-img-container {
-    display: none;
+ .card-body{
+  opacity: 0.1;
+ }
+  .saved-report-card-img-container,
+  .saved-report-card-title {
+    // display: none;
+    opacity: 0.1;
   }
 
   .img-title-flex {
     .saved-report-card-title {
-      text-decoration: underline;
-      top            : 10px;
+      // text-decoration: underline;
+      // top            : 10px;
       // left           : 15px;
-      left           : 10px;
+      
+    
     }
   }
 
@@ -111,7 +128,7 @@
     flex           : 1 1 69%;
     display        : flex !important;
     justify-content: space-between;
-    align-items    : flex-end;
+    align-items    : center;
   }
 
   .saved-report-card-opt-img {
@@ -127,9 +144,51 @@
 }
 
 .saved-report-card-border {
-  border-bottom: 2px solid var(--border-color);
+  border-bottom: 1px solid var(--border-grey-color);
+
+  .card{
+    height: 140px;
+    margin: 0.5rem 0px 1.2rem;
+    color: var(--text-color);
+    border-color: transparent !important;
+    background-color: transparent !important;
+    padding: 0px !important;
+    border-radius: 11px !important;
+    opacity: 0.7;
+}
+  
+
+  .card-body{
+    padding: 8px 10px 0px;
+    background-color: var(--signoff-bottom-card);
+    border-color: var(--signoff-bottom-card) !important;
+    border-radius: 0px 0px 7px 7px !important;
+   
+  }
+
+  .card-header{
+    padding: 10px;
+    height: 50px;
+    background-color: var(--signoff-top-card);
+    border: 1px sold var(--signoff-top-card);
+    border-radius: 7px 7px 0px 0px !important;
+  }
+
 }
 
+
+.report-mainsection{
+  height: 428px;
+  background-color: var(--bg-main-color) !important;
+  
+   
+  .save-heading{
+    margin-top: 70px !important;
+  }
+  
+}
+
+// responsive css
 @media (max-width: 1024px) {
   .report {
     margin-left: 50px;

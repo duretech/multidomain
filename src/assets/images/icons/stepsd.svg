@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16.826" height="20.284" viewBox="0 0 16.826 20.284">
+  <g id="Group_303" data-name="Group 303" transform="translate(-8800.431 -2167.174)">
+    <path id="Subtraction_14" data-name="Subtraction 14" d="M7.412,20.159H.963A.955.955,0,0,1,0,19.214V.945A.955.955,0,0,1,.963,0H8.99V5.355a.956.956,0,0,0,.964.945h5.458v3.771a7,7,0,0,0-8,10.086Zm-4.2-8.04a.63.63,0,1,0,0,1.26h.5a1.73,1.73,0,0,0,1.646-1.163l.426-1.256c.2.576.465.893.76.893.253,0,.5-.241.619-.613a1.391,1.391,0,0,0-.466-1.576.97.97,0,0,0-1.828,0l-.73,2.152a.451.451,0,0,1-.428.3ZM2.89,5.04a.319.319,0,0,0-.321.315v.63A.319.319,0,0,0,2.89,6.3H6.1a.318.318,0,0,0,.32-.315v-.63A.318.318,0,0,0,6.1,5.04Zm0-2.52a.319.319,0,0,0-.321.315v.63a.319.319,0,0,0,.321.315H6.1a.318.318,0,0,0,.32-.315v-.63A.318.318,0,0,0,6.1,2.52ZM15.413,5.04H10.274V0h.245A.969.969,0,0,1,11.2.275l3.929,3.859a.937.937,0,0,1,.281.665v.239Z" transform="translate(8800.431 2167.174)"/>
+    <g id="Icon_feather-search" data-name="Icon feather-search" transform="translate(8805.561 2175.761)">
+      <path id="Path_568" data-name="Path 568" d="M9.64,7.07A2.57,2.57,0,1,1,7.07,4.5,2.57,2.57,0,0,1,9.64,7.07Z" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+      <path id="Path_569" data-name="Path 569" d="M26.372,26.372l-1.4-1.4" transform="translate(-16.09 -16.09)" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+    </g>
+  </g>
+</svg>

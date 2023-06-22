@@ -5,10 +5,10 @@
       :subTabsBtn="showTabsBtn"
       :openTabPopUp="openTabPopUp"
       :bgDataConfig="bgDataConfig"
-      
+      :langList="langList"
     ></header-component>
     <div class="container-fluid mt-4">
-      <div class="scrollToTopDiv" v-if="lastScrollPosition > 800">
+      <div class="scrollToTopDiv" v-if="lastScrollPosition > 200">
         <button
           @click.stop.prevent="scrollToTop"
           class="scrollToTopBtn btn btn-light"
@@ -20,11 +20,11 @@
       </div>
       <div
         class="row admin-sidebar dashboardchart-container globalconfigcontainer px-2"
+        id="scrollBox"
       >
-        <div class="col-lg-12">
+        <div class="col-lg-12 mt-3">
           <div>
-            <!-- <b-tabs nav-class="appConfigtabMain"> -->
-            <b-tabs nav-class="">
+            <b-tabs nav-class="" lazy>
               <b-tab
                 :title="$t('applicationSetup')"
                 active
@@ -32,23 +32,29 @@
               >
                 <applicationSetup
                   @isGlobalConfigSet="globalConfigSet"
-                  @getModules="getModules"
-                  :supportedLanguages="supportedLanguages"
+                  @langChange="langChange"
+                  :langList="langList"
                   :levelIDList="levelIDList"
+                  :preFetchData="preFetchData"
                 />
               </b-tab>
-              <!-- v-if="
-                  isGlobalConfigSet && $store.getters.getNamespace === tableName
-                " -->
               <b-tab
                 title="Indicator Calculator"
                 id="IndicatorCalculator"
                 v-if="
-                  isGlobalConfigSet && $store.getters.getNamespace === tableName
+                  isGlobalConfigSet &&
+                  ((!$store.getters.getIsMultiProgram &&
+                    $store.getters.getNamespace.includes('_fp-dashboard')) ||
+                    ($store.getters.getIsMultiProgram &&
+                      $store.getters.getNamespace ===
+                        $store.getters.getAppSettings.tableName))
                 "
                 @click="showTabsBtns(true)"
               >
-                <indicatorCalculator :bgDataConfig="bgDataConfig" />
+                <indicatorCalculator
+                  v-if="bgDataConfig"
+                  :bgDataConfig="bgDataConfig"
+                />
               </b-tab>
               <b-tab
                 :title="$t('dataMapping')"
@@ -57,23 +63,22 @@
               >
                 <dataMapping
                   v-if="isGlobalConfigSet"
-                  :supportedLanguages="supportedLanguages"
-                  :modules="modules"
+                  :langList="langList"
                   :orgList="orgList"
                 />
               </b-tab>
               <b-tab
                 :title="$t('userManagement')"
                 v-if="
-                  isGlobalConfigSet && $store.getters.getNamespace === tableName
+                  isGlobalConfigSet &&
+                  (!$store.getters.getIsMultiProgram ||
+                    ($store.getters.getIsMultiProgram &&
+                      $store.getters.getNamespace ===
+                        $store.getters.getAppSettings.tableName))
                 "
                 @click="showTabsBtns(false)"
               >
-                <userManagement
-                  v-if="isGlobalConfigSet"
-                  :supportedLanguages="supportedLanguages"
-                  :modules="modules"
-                />
+                <userManagement v-if="isGlobalConfigSet" :langList="langList" />
               </b-tab>
             </b-tabs>
           </div>
@@ -83,7 +88,6 @@
   </div>
 </template>
 <script>
-/*global settings*/
 import service from "@/service";
 import DocumentTitleMixin from "@/helpers/DocumentTitleMixin";
 import LanguageChangeMixin from "@/helpers/LanguageChangeMixin";
@@ -94,104 +98,67 @@ import applicationSetup from "@/components/config/config_new/application_setup";
 import indicatorCalculator from "@/components/config/config_new/indicator_calculator";
 import bgDataConfig from "@/config/globalFactorsConfig.js";
 export default {
+  props: ["preFetchData"],
   components: {
-    headerComponent,
-    applicationSetup,
     dataMapping,
     userManagement,
+    headerComponent,
+    applicationSetup,
     indicatorCalculator,
   },
   mixins: [DocumentTitleMixin, LanguageChangeMixin],
   data() {
     return {
-      bgDataConfig: bgDataConfig,
-      isGlobalConfigSet: false,
-      supportedLanguages: ["en", "fr"],
-      modules: [],
-      levelIDList: [],
       orgList: [],
-      lastScrollPosition: 0,
-      tableName: settings.tableName,
+      levelIDList: [],
       showTabsBtn: false,
-      openTabPopUp: false,
+      lastScrollPosition: 0,
+      isGlobalConfigSet: false,
+      bgDataConfig: bgDataConfig,
     };
   },
-  created() {
-    service.getOrganisationUnitLevels().then((orgList) => {
-      // console.log("orgList",orgList.data.organisationUnitLevels);
-      this.levelIDList = orgList.data.filter(
-        (org) =>
-          org.level >=
-          this.$store.getters.getUserDetails.dataViewOrganisationUnits[0].level
-      );
-      this.orgList = orgList.data;
-    });
-    //@Keshav - Add condition here to call this API only when user selects "Default" admin
-    service
-      .getSavedConfig("globalFactors_en", false, "fp-dashboard")
-      .then((resp) => {
-        if (resp && resp.data) this.bgDataConfig = resp.data;
-      //   if(!this.bgDataConfig.showingTabs){ this.bgDataConfig.showingTabs = {}
-      //   this.bgDataConfig.showingTabs["ssToEmu"] = {}
-      //   this.bgDataConfig.showingTabs["facilityOfferingFp"] = {}
-      //   this.bgDataConfig.showingTabs["daysOfStockout"] = {}
-      //   this.bgDataConfig.showingTabs["newAcceptorsLessThan20"] = {}
-      //   this.bgDataConfig.showingTabs["HealthAreaOfferingCD"] = {}
-        
-      //     this.bgDataConfig.showingTabs["ssToEmu"]["name"] = "SS to EMU Annual-Monthly Mapping"
-      //     this.bgDataConfig.showingTabs["facilityOfferingFp"]["name"] = "Facilities offering FP"
-      //     this.bgDataConfig.showingTabs["daysOfStockout"]["name"] = "Days of Stockout"
-      //     this.bgDataConfig.showingTabs["newAcceptorsLessThan20"]["name"] = "New Acceptors less than 20"
-      //     this.bgDataConfig.showingTabs["HealthAreaOfferingCD"]["name"] = "Health Areas offering Community Distribution"
-      //     this.bgDataConfig.showingTabs["ssToEmu"]["value"] = false
-      //     this.bgDataConfig.showingTabs["facilityOfferingFp"]["value"] = false
-      //     this.bgDataConfig.showingTabs["daysOfStockout"]["value"] = false
-      //     this.bgDataConfig.showingTabs["newAcceptorsLessThan20"]["value"] = false
-      //     this.bgDataConfig.showingTabs["HealthAreaOfferingCD"]["value"] = false
-      // }
-      });
+  computed: {
+    langList() {
+      return this.$store.getters.getAppSettings.langList;
+    },
+    openTabPopUp() {
+      let flag = false;
+      if (
+        this.showTabsBtn &&
+        this.bgDataConfig.showingTabs &&
+        !this.bgDataConfig.showingTabs.ssToEmu &&
+        !this.bgDataConfig.showingTabs.facilityOfferingFp &&
+        !this.bgDataConfig.showingTabs.daysOfStockout &&
+        !this.bgDataConfig.showingTabs.newAcceptorsLessThan20 &&
+        !this.bgDataConfig.showingTabs.HealthAreaOfferingCD
+      ) {
+        flag = true;
+      } else {
+        flag = false;
+      }
+      return flag;
+    },
   },
   methods: {
-    globalConfigSet(value, locale) {
+    globalConfigSet(value) {
       this.isGlobalConfigSet = value;
-      this.$root.defaultLanguageLocale = locale;
-    },
-    getModules(modules) {
-      this.modules = modules;
     },
     scrollToTop() {
-      // window.scrollTo(0, 0);
-      var element = document.getElementById("box");
-      element.scrollIntoView({
+      var element = document.getElementById("scrollBox");
+      element.scrollTo({
+        top: 0,
+        left: 0,
         behavior: "smooth",
-        block: "start",
-        inline: "nearest",
       });
     },
-    showTabsBtns(flag) {
-      if (flag) {
-        this.showTabsBtn = true;
-        if (
-          this.bgDataConfig.showingTabs.ssToEmu === false &&
-          this.bgDataConfig.showingTabs.facilityOfferingFp === false &&
-          this.bgDataConfig.showingTabs.daysOfStockout === false &&
-          this.bgDataConfig.showingTabs.newAcceptorsLessThan20 === false &&
-          this.bgDataConfig.showingTabs.HealthAreaOfferingCD === false
-        ) {
-          this.openTabPopUp = true;
-        }
-        else{
-          this.openTabPopUp = false;    
-        }
-      } else {
-        this.showTabsBtn = false;
-        this.openTabPopUp = false;
-      }
+    showTabsBtns(flag = false) {
+      this.showTabsBtn = flag;
     },
     onScroll() {
       // Get the current scroll position
       const currentScrollPosition =
-        window.pageYOffset || document.documentElement.scrollTop;
+        document.getElementById("scrollBox").scrollTop;
+      // window.pageYOffset || document.documentElement.scrollTop;
       // Because of momentum scrolling on mobiles, we shouldn't continue if it is less than zero
       if (currentScrollPosition < 0) {
         return;
@@ -199,20 +166,81 @@ export default {
       // Set the current scroll position as the last scroll position
       this.lastScrollPosition = currentScrollPosition;
     },
+    setOrgData(orgList) {
+      this.levelIDList = orgList.filter(
+        (org) =>
+          org.level >=
+          this.$store.getters.getUserDetails.dataViewOrganisationUnits[0].level
+      );
+      this.orgList = orgList;
+    },
+  },
+  created() {
+    //Get the organization levels from store or DHIS2 using API call
+    if (this.$store.getters.getOrgLevels) {
+      this.setOrgData(this.$store.getters.getOrgLevels);
+    } else {
+      service.getOrganisationUnitLevels().then((orgList) => {
+        this.setOrgData(orgList.data);
+      });
+    }
+    //Get global factors
+    if (
+      this.$store.getters.getNamespace ===
+      this.$store.getters.getAppSettings.tableName
+    ) {
+      let key = this.generateKey("globalFactors");
+      service.getSavedConfig(key, false, "fp-dashboard").then((resp) => {
+        if (resp && resp.data) this.bgDataConfig = resp.data;
+        if (!this.bgDataConfig.showingTabs) {
+          this.bgDataConfig.showingTabs = {};
+          this.bgDataConfig.showingTabs["ssToEmu"] = {};
+          this.bgDataConfig.showingTabs["facilityOfferingFp"] = {};
+          this.bgDataConfig.showingTabs["daysOfStockout"] = {};
+          this.bgDataConfig.showingTabs["newAcceptorsLessThan20"] = {};
+          this.bgDataConfig.showingTabs["HealthAreaOfferingCD"] = {};
+
+          this.bgDataConfig.showingTabs["ssToEmu"]["name"] =
+            "SS to EMU Annual-Monthly Mapping";
+          this.bgDataConfig.showingTabs["facilityOfferingFp"]["name"] =
+            "Facilities offering FP";
+          this.bgDataConfig.showingTabs["daysOfStockout"]["name"] =
+            "Days of Stockout";
+          this.bgDataConfig.showingTabs["newAcceptorsLessThan20"]["name"] =
+            "New Acceptors less than 20";
+          this.bgDataConfig.showingTabs["HealthAreaOfferingCD"]["name"] =
+            "Health Areas offering Community Distribution";
+          this.bgDataConfig.showingTabs["ssToEmu"]["value"] = false;
+          this.bgDataConfig.showingTabs["facilityOfferingFp"]["value"] = false;
+          this.bgDataConfig.showingTabs["daysOfStockout"]["value"] = false;
+          this.bgDataConfig.showingTabs["newAcceptorsLessThan20"][
+            "value"
+          ] = false;
+          this.bgDataConfig.showingTabs["HealthAreaOfferingCD"][
+            "value"
+          ] = false;
+        }
+      });
+    }
   },
   mounted() {
-    window.addEventListener("scroll", this.onScroll);
+    //Add scroll event on page mount
+    if (document.getElementById("scrollBox")) {
+      document
+        .getElementById("scrollBox")
+        .addEventListener("scroll", this.onScroll);
+    }
   },
   beforeDestroy() {
-    window.removeEventListener("scroll", this.onScroll);
+    //Remove scroll event before page destroy
+    if (document.getElementById("scrollBox")) {
+      document
+        .getElementById("scrollBox")
+        .removeEventListener("scroll", this.onScroll);
+    }
   },
 };
 </script>
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
-.mdgridviewpage-bg {
-  min-height: 100vh;
-  // padding: 20px 40px;
-  background-color: #3471ce;
-}
 </style>

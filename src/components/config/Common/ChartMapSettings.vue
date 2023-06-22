@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="accordion-delete main-theme">
     <b-row
       class="mb-3"
       v-for="(chart, c) in settings"
@@ -7,10 +7,12 @@
     >
       <b-col sm="12">
         <div>
-          <i
-            class="fa fa-arrow-up mr-2 cursor-pointer f-s-0-875rem"
+          <img
+            src="@/assets/images/icons/up-adminarrow.svg"
+            :style="{ filter: filterColor }"
+            class="mr-2 cursor-pointer f-s-0-875rem w-8px"
             v-b-tooltip.hover
-            title="Move Up"
+            :title="$t('moveUp')"
             @click.prevent.stop="
               moveItem({
                 type: configKey,
@@ -20,11 +22,13 @@
                 places: -1,
               })
             "
-          ></i>
-          <i
-            class="fa fa-arrow-down mr-2 cursor-pointer f-s-0-875rem"
+          />
+          <img
+            src="@/assets/images/icons/down-adminarrow.svg"
+            :style="{ filter: filterColor }"
+            class="mr-2 cursor-pointer f-s-0-875rem w-8px"
             v-b-tooltip.hover
-            title="Move Down"
+            :title="$t('moveDown')"
             @click.prevent.stop="
               moveItem({
                 type: configKey,
@@ -34,9 +38,11 @@
                 places: 1,
               })
             "
-          ></i>
-          <i
-            class="fa fa-trash mr-2 cursor-pointer f-s-0-875rem"
+          />
+          <img
+            src="@/assets/images/icons/admindelete-icon.svg"
+            :style="{ filter: filterColor }"
+            class="mr-2 cursor-pointer f-s-0-875rem w-13"
             v-b-tooltip.hover
             :title="$t('deletebtn')"
             @click.prevent.stop="
@@ -47,39 +53,38 @@
                 delInd: c,
               })
             "
-          ></i>
+          />
           <b-button
-            class="
-              btn-link
-              p-0
-              text-uppercase
-              color-grey
-              f-s-0-875rem
-              bg-transparent
-              border-0
-            "
+            class="btn-link p-0 text-uppercase color-grey f-s-0-875rem bg-transparent border-0"
             v-b-toggle="'collapse' + configKey + i + j + c"
           >
-            <i
-              class="fa fa-cog mr-2 f-s-0-875rem"
+            <img
+              src="@/assets/images/icons/setting-icon.svg"
+              :style="{ filter: filterColor }"
+              class="mr-2 cursor-pointer f-s-0-875rem w-14 mb-lg-1 mt-1"
               v-b-tooltip.hover
               :title="$t('settings')"
-            ></i>
-            {{ chart.chartOptions.chartName }}
+            />
+            {{ chart.chartOptions.chartName[$i18n.locale] }}
           </b-button>
+
           <b-collapse
-            class="border border-b-l-radius-10px border-b-r-radius-10px p-2"
+            class="border-b-l-radius-10px border-b-r-radius-10px mt-4"
             :id="'collapse' + configKey + i + j + c"
           >
             <b-row class="mb-3">
-              <b-col sm="6">
+              <b-col sm="3">
                 <label :for="`visible-${configKey}-${i}-${j}-${c}`">{{
                   $t("disable")
                 }}</label>
               </b-col>
-              <b-col sm="6">
+              <b-col sm="9">
                 <b-input-group :id="`visible-${configKey}-${i}-${j}-${c}`">
-                  <b-input-group-prepend is-text>
+                  <b-input-group-prepend
+                    is-text
+                    class="custom-switch"
+                    style="margin-left: -45px"
+                  >
                     <b-form-checkbox
                       switch
                       class="mr-n2"
@@ -95,58 +100,86 @@
                 <b-row>
                   <b-col sm="12" class="mb-3">
                     <b-row>
-                      <b-col sm="6">
+                      <b-col sm="3">
                         <label
                           :for="`chartHeading-${configKey}-${i}-${j}-${c}`"
                           >{{ $t("chartHeading") }}</label
                         >
                       </b-col>
-                      <b-col sm="6">
-                        <b-form-textarea
+                      <b-col sm="9">
+                        <b-input-group
                           :id="`chartHeading-${configKey}-${i}-${j}-${c}`"
-                          v-model="chart.chartOptions.chartName"
-                          :state="
-                            chart.chartOptions.chartName.length !== 0 &&
-                            chart.chartOptions.chartName.length <=
-                              chartTitleMaxLength
-                          "
-                          placeholder=""
-                          rows="3"
-                          :maxlength="chartTitleMaxLength"
-                        ></b-form-textarea>
+                        >
+                          <b-form-textarea
+                            v-model="chart.chartOptions.chartName[$i18n.locale]"
+                            :state="
+                              chart.chartOptions.chartName[$i18n.locale] &&
+                              chart.chartOptions.chartName[$i18n.locale]
+                                .length !== 0 &&
+                              chart.chartOptions.chartName[$i18n.locale]
+                                .length <= chartTitleMaxLength
+                            "
+                            placeholder=""
+                            rows="3"
+                            :maxlength="chartTitleMaxLength"
+                            disabled
+                          ></b-form-textarea>
+                          <b-input-group-append is-text>
+                            <Translations
+                              :transText.sync="chart.chartOptions.chartName"
+                            />
+                          </b-input-group-append>
+                        </b-input-group>
                         <span class="small"
-                          >{{ chart.chartOptions.chartName.length }}/{{
-                            chartTitleMaxLength
-                          }}</span
+                          >{{
+                            chart.chartOptions.chartName[$i18n.locale]
+                              ? chart.chartOptions.chartName[$i18n.locale]
+                                  .length
+                              : 0
+                          }}/{{ chartTitleMaxLength }}</span
                         >
                       </b-col>
                     </b-row>
                   </b-col>
                   <b-col sm="12" class="mb-3">
                     <b-row>
-                      <b-col sm="6">
+                      <b-col sm="3">
                         <label
                           :for="`chartInformation-${configKey}-${i}-${j}-${c}`"
                           >{{ $t("chartInformation") }}</label
                         >
                       </b-col>
-                      <b-col sm="6">
-                        <b-form-textarea
+                      <b-col sm="9">
+                        <b-input-group
                           :id="`chartInformation-${configKey}-${i}-${j}-${c}`"
-                          v-model="chart.chartOptions.chartInfo"
-                          :state="
-                            chart.chartOptions.chartInfo.length !== 0 &&
-                            chart.chartOptions.chartInfo.length <=
-                              chartInfoMaxLength
-                          "
-                          placeholder=""
-                          rows="3"
-                          :maxlength="chartInfoMaxLength"
-                        ></b-form-textarea>
+                        >
+                          <b-form-textarea
+                            v-model="chart.chartOptions.chartInfo[$i18n.locale]"
+                            :state="
+                              chart.chartOptions.chartInfo[$i18n.locale] &&
+                              chart.chartOptions.chartInfo[$i18n.locale]
+                                .length !== 0 &&
+                              chart.chartOptions.chartInfo[$i18n.locale]
+                                .length <= chartInfoMaxLength
+                            "
+                            placeholder=""
+                            rows="3"
+                            :maxlength="chartInfoMaxLength"
+                            disabled
+                          ></b-form-textarea>
+                          <b-input-group-append is-text>
+                            <Translations
+                              :transText.sync="chart.chartOptions.chartInfo"
+                            />
+                          </b-input-group-append>
+                        </b-input-group>
                         <span class="small"
-                          >{{ chart.chartOptions.chartInfo.length }}/{{
-                            chartInfoMaxLength
-                          }}</span
+                          >{{
+                            chart.chartOptions.chartInfo[$i18n.locale]
+                              ? chart.chartOptions.chartInfo[$i18n.locale]
+                                  .length
+                              : 0
+                          }}/{{ chartInfoMaxLength }}</span
                         >
                       </b-col>
                     </b-row>
@@ -164,8 +197,9 @@
                   >
                     <b-row>
                       <b-col sm="6">
-                        <label :for="`isSavedData-${configKey}-${i}-${j}-${c}`"
-                          >Use Saved EMU Data</label
+                        <label
+                          :for="`isSavedData-${configKey}-${i}-${j}-${c}`"
+                          >{{ $t("useSavedEMU") }}</label
                         >
                       </b-col>
                       <b-col sm="6">
@@ -193,13 +227,13 @@
                     "
                   >
                     <b-row>
-                      <b-col sm="6">
+                      <b-col sm="3">
                         <label
                           :for="`isSingleSource-${configKey}-${i}-${j}-${c}`"
-                          >Single Source</label
+                          >{{ $t("singleSource") }}</label
                         >
                       </b-col>
-                      <b-col sm="6">
+                      <b-col sm="9" style="margin-left: -13px">
                         <b-input-group
                           :id="`isSingleSource-${configKey}-${i}-${j}-${c}`"
                         >
@@ -217,11 +251,11 @@
                   </b-col>
                   <b-col
                     sm="12"
-                    class="mb-3"
+                    class="mb-4"
                     v-if="!chart.chartOptions.isSavedData"
                   >
                     <b-row>
-                      <b-col sm="6"
+                      <b-col sm="3"
                         ><label
                           :for="`chartDataMapping-${configKey}-${i}-${j}-${c}`"
                           >{{ $t("dataMapping")
@@ -232,7 +266,7 @@
                           }}</label
                         ></b-col
                       >
-                      <b-col sm="6" class="search-text">
+                      <b-col sm="9" class="search-text">
                         <!-- :auto-load-root-options="false" -->
                         <!-- :load-options="loadOptions" -->
                         <!-- :always-open="true" -->
@@ -290,14 +324,14 @@
                       !chart.chartOptions.isSavedData
                     "
                   >
-                    <b-row>
-                      <b-col sm="6"
+                    <b-row class="mb-2">
+                      <b-col sm="3"
                         ><label
                           :for="`chartDataMapping2-${configKey}-${i}-${j}-${c}`"
-                          >{{ $t("dataMapping") }} (Source 2)</label
+                          >{{ $t("dataMapping") }} ({{ $t("Source2") }})</label
                         ></b-col
                       >
-                      <b-col sm="6" class="search-text">
+                      <b-col sm="9" class="search-text">
                         <!-- :auto-load-root-options="false" -->
                         <!-- :load-options="loadOptions" -->
                         <treeselect
@@ -366,7 +400,8 @@
                           :options="
                             chartCategories(
                               subTabGroup,
-                              chart.chartOptions.isSingleSource
+                              chart.chartOptions.isSingleSource,
+                              chart.chartOptions.isSavedData
                             )
                           "
                           @change="
@@ -385,12 +420,12 @@
                   </b-col>
                   <b-col sm="12" lg="6" class="mb-3">
                     <b-row>
-                      <b-col sm="5">
+                      <b-col sm="6">
                         <label :for="`chartType-${configKey}-${i}-${j}-${c}`"
                           >{{ $t("chart") }} {{ $t("type") }}</label
                         >
                       </b-col>
-                      <b-col sm="7">
+                      <b-col sm="6">
                         <b-form-select
                           :id="`chartType-${configKey}-${i}-${j}-${c}`"
                           :disabled="chart.chartOptions.type === 'map'"
@@ -440,9 +475,11 @@
                   </b-col>
                   <template
                     v-if="
-                      !['MATRIX_TABLE', 'OTHER_MATRIX_TABLE'].includes(
-                        chart.chartOptions.chartCalculation
-                      )
+                      ![
+                        'MATRIX_TABLE',
+                        'OTHER_MATRIX_TABLE',
+                        'OTHER_MATRIX_TABLE_CYP',
+                      ].includes(chart.chartOptions.chartCalculation)
                     "
                   >
                     <b-col
@@ -458,7 +495,7 @@
                         <b-col sm="5"
                           ><label
                             :for="`seasonalPeriod-${configKey}-${i}-${j}-${c}`"
-                            >Compare Years</label
+                            >{{ $t("compareYears") }}</label
                           >
                         </b-col>
                         <b-col sm="7">
@@ -532,11 +569,22 @@
                                 v-if="chart.chartOptions.chartDrillDown"
                               >
                                 <b-form-textarea
-                                  v-model="chart.chartOptions.drillYTitle"
-                                  :placeholder="$t('y-axis')"
+                                  v-model="
+                                    chart.chartOptions.drillYTitle[$i18n.locale]
+                                  "
+                                  :placeholder="$t('y_axis')"
+                                  disabled
                                 ></b-form-textarea>
                               </template>
                             </transition>
+                            <b-input-group-append
+                              is-text
+                              v-if="chart.chartOptions.chartDrillDown"
+                            >
+                              <Translations
+                                :transText.sync="chart.chartOptions.drillYTitle"
+                              />
+                            </b-input-group-append>
                           </b-input-group>
                         </b-col>
                       </b-row>
@@ -565,11 +613,11 @@
                             v-model="chart.chartOptions.drillCalculation"
                             :options="[
                               {
-                                text: 'Change (prior month to current month)',
+                                text: $t('changeMonth'),
                                 value: 'PERIOD_DIFF',
                               },
                               {
-                                text: 'Default',
+                                text: $t('default'),
                                 value: 'DEFAULT',
                               },
                             ]"
@@ -591,7 +639,7 @@
                         <b-col sm="5">
                           <label
                             :for="`drillPointBenchmark-${configKey}-${i}-${j}-${c}`"
-                            >Drilldown point as Benchmark</label
+                            >{{ $t("drillPointBenchmark") }}</label
                           >
                         </b-col>
                         <b-col sm="7">
@@ -654,12 +702,38 @@
                             </b-input-group-prepend>
                             <transition name="slide-fade">
                               <template v-if="chart.chartOptions.chartDataSum">
-                                <b-form-textarea
-                                  v-model="chart.chartOptions.sumLegend"
-                                  :placeholder="$t('legend')"
-                                ></b-form-textarea>
+                                <template
+                                  v-if="
+                                    chart.chartOptions.sumLegend &&
+                                    typeof chart.chartOptions.sumLegend ===
+                                      'object'
+                                  "
+                                >
+                                  <b-form-textarea
+                                    v-model="
+                                      chart.chartOptions.sumLegend[$i18n.locale]
+                                    "
+                                    :placeholder="$t('legend')"
+                                    disabled
+                                  ></b-form-textarea>
+                                </template>
+                                <template v-else>
+                                  <b-form-textarea
+                                    v-model="chart.chartOptions.sumLegend"
+                                    :placeholder="$t('legend')"
+                                    disabled
+                                  ></b-form-textarea>
+                                </template>
                               </template>
                             </transition>
+                            <b-input-group-append
+                              is-text
+                              v-if="chart.chartOptions.chartDataSum"
+                            >
+                              <Translations
+                                :transText.sync="chart.chartOptions.sumLegend"
+                              />
+                            </b-input-group-append>
                           </b-input-group>
                         </b-col>
                       </b-row>
@@ -677,7 +751,7 @@
                         <b-col sm="5">
                           <label
                             :for="`chartDataSum2-${configKey}-${i}-${j}-${c}`"
-                            >{{ $t("dataSum") }} (Source 2)</label
+                            >{{ $t("dataSum") }} ({{ $t("Source2") }})</label
                           >
                         </b-col>
                         <b-col sm="7">
@@ -707,12 +781,40 @@
                             </b-input-group-prepend>
                             <transition name="slide-fade">
                               <template v-if="chart.chartOptions.chartDataSum2">
-                                <b-form-textarea
-                                  v-model="chart.chartOptions.sumLegend2"
-                                  :placeholder="$t('legend')"
-                                ></b-form-textarea>
+                                <template
+                                  v-if="
+                                    chart.chartOptions.sumLegend2 &&
+                                    typeof chart.chartOptions.sumLegend2 ===
+                                      'object'
+                                  "
+                                >
+                                  <b-form-textarea
+                                    v-model="
+                                      chart.chartOptions.sumLegend2[
+                                        $i18n.locale
+                                      ]
+                                    "
+                                    :placeholder="$t('legend')"
+                                    disabled
+                                  ></b-form-textarea>
+                                </template>
+                                <template v-else>
+                                  <b-form-textarea
+                                    v-model="chart.chartOptions.sumLegend2"
+                                    :placeholder="$t('legend')"
+                                    disabled
+                                  ></b-form-textarea>
+                                </template>
                               </template>
                             </transition>
+                            <b-input-group-append
+                              is-text
+                              v-if="chart.chartOptions.chartDataSum2"
+                            >
+                              <Translations
+                                :transText.sync="chart.chartOptions.sumLegend2"
+                              />
+                            </b-input-group-append>
                           </b-input-group>
                         </b-col>
                       </b-row>
@@ -786,7 +888,6 @@
                         </b-col>
                       </b-row>
                     </b-col>
-
                     <b-col
                       sm="12"
                       lg="6"
@@ -895,10 +996,21 @@
                             <transition name="slide-fade">
                               <template v-if="chart.chartOptions.title.visible">
                                 <b-form-textarea
-                                  v-model="chart.chartOptions.title.text"
+                                  v-model="
+                                    chart.chartOptions.title.text[$i18n.locale]
+                                  "
+                                  disabled
                                 ></b-form-textarea>
                               </template>
                             </transition>
+                            <b-input-group-append
+                              is-text
+                              v-if="chart.chartOptions.title.visible"
+                            >
+                              <Translations
+                                :transText.sync="chart.chartOptions.title.text"
+                              />
+                            </b-input-group-append>
                           </b-input-group>
                         </b-col>
                       </b-row>
@@ -933,10 +1045,25 @@
                                 v-if="chart.chartOptions.subTitle.visible"
                               >
                                 <b-form-textarea
-                                  v-model="chart.chartOptions.subTitle.text"
+                                  v-model="
+                                    chart.chartOptions.subTitle.text[
+                                      $i18n.locale
+                                    ]
+                                  "
+                                  disabled
                                 ></b-form-textarea>
                               </template>
                             </transition>
+                            <b-input-group-append
+                              is-text
+                              v-if="chart.chartOptions.subTitle.visible"
+                            >
+                              <Translations
+                                :transText.sync="
+                                  chart.chartOptions.subTitle.text
+                                "
+                              />
+                            </b-input-group-append>
                           </b-input-group>
                         </b-col>
                       </b-row>
@@ -951,7 +1078,7 @@
                         <b-col sm="5"
                           ><label
                             :for="`chartXAxis-${configKey}-${i}-${j}-${c}`"
-                            >{{ $t("x-axis") }}</label
+                            >{{ $t("x_axis") }}</label
                           ></b-col
                         >
                         <b-col sm="7">
@@ -969,10 +1096,21 @@
                             <transition name="slide-fade">
                               <template v-if="chart.chartOptions.xAxis.visible">
                                 <b-form-textarea
-                                  v-model="chart.chartOptions.xAxis.text"
+                                  v-model="
+                                    chart.chartOptions.xAxis.text[$i18n.locale]
+                                  "
+                                  disabled
                                 ></b-form-textarea>
                               </template>
                             </transition>
+                            <b-input-group-append
+                              is-text
+                              v-if="chart.chartOptions.xAxis.visible"
+                            >
+                              <Translations
+                                :transText.sync="chart.chartOptions.xAxis.text"
+                              />
+                            </b-input-group-append>
                           </b-input-group>
                         </b-col>
                       </b-row>
@@ -987,7 +1125,7 @@
                         <b-col sm="5"
                           ><label
                             :for="`chartYAxis-${configKey}-${i}-${j}-${c}`"
-                            >{{ $t("y-axis") }}</label
+                            >{{ $t("y_axis") }}</label
                           ></b-col
                         >
                         <b-col sm="7">
@@ -1005,28 +1143,48 @@
                             <transition name="slide-fade">
                               <template v-if="chart.chartOptions.yAxis.visible">
                                 <b-form-textarea
-                                  v-model="chart.chartOptions.yAxis.text"
+                                  v-model="
+                                    chart.chartOptions.yAxis.text[$i18n.locale]
+                                  "
+                                  disabled
                                 ></b-form-textarea>
                               </template>
                             </transition>
+                            <b-input-group-append
+                              is-text
+                              v-if="chart.chartOptions.yAxis.visible"
+                            >
+                              <Translations
+                                :transText.sync="chart.chartOptions.yAxis.text"
+                              />
+                            </b-input-group-append>
                           </b-input-group>
                         </b-col>
                       </b-row>
                     </b-col>
                     <b-col sm="12" lg="6" class="mb-3">
                       <b-row>
-                        <b-col sm="5">
+                        <b-col sm="6">
                           <label
+                            class=""
                             :for="`chartSource-${configKey}-${i}-${j}-${c}`"
                             >{{ $t("source") }}</label
                           >
                         </b-col>
-                        <b-col sm="7">
-                          <b-form-input
-                            type="text"
+                        <b-col sm="6">
+                          <b-input-group
                             :id="`chartSource-${configKey}-${i}-${j}-${c}`"
-                            v-model="chart.chartOptions.source"
-                          ></b-form-input>
+                          >
+                            <b-form-textarea
+                              v-model="chart.chartOptions.source[$i18n.locale]"
+                              disabled
+                            ></b-form-textarea>
+                            <b-input-group-append is-text>
+                              <Translations
+                                :transText.sync="chart.chartOptions.source"
+                              />
+                            </b-input-group-append>
+                          </b-input-group>
                         </b-col>
                       </b-row>
                     </b-col>
@@ -1089,7 +1247,7 @@
                         <b-col sm="5">
                           <label
                             :for="`chartNarrations-${configKey}-${i}-${j}-${c}`"
-                            >Generate Summary</label
+                            >{{ $t("generateSummary") }}</label
                           >
                         </b-col>
                         <b-col sm="7">
@@ -1124,7 +1282,7 @@
                         <b-col sm="5">
                           <label
                             :for="`compareFlag-${configKey}-${i}-${j}-${c}`"
-                            >Compare Flag</label
+                            >{{ $t("compareFlag") }}</label
                           >
                         </b-col>
                         <b-col sm="7">
@@ -1158,7 +1316,7 @@
                         <b-col sm="5">
                           <label
                             :for="`priorityFlagIndicator-${configKey}-${i}-${j}-${c}`"
-                            >Priority Flag Indicator</label
+                            >{{ $t("priorityFlagIndicator") }}</label
                           >
                         </b-col>
                         <b-col sm="7">
@@ -1189,7 +1347,7 @@
                         <b-col sm="5">
                           <label
                             :for="`generateFlag-${configKey}-${i}-${j}-${c}`"
-                            >Generate Flag</label
+                            >{{ $t("generateFlag") }}</label
                           >
                         </b-col>
                         <b-col sm="7">
@@ -1227,7 +1385,7 @@
                         <b-col sm="5">
                           <label
                             :for="`generateOutliers-${configKey}-${i}-${j}-${c}`"
-                            >Generate Outliers</label
+                            >{{ $t("generateOutliers") }}</label
                           >
                         </b-col>
                         <b-col sm="7">
@@ -1259,7 +1417,7 @@
                         <b-col sm="5">
                           <label
                             :for="`chartPriorityIndicator-${configKey}-${i}-${j}-${c}`"
-                            >Priority Indicator</label
+                            >{{ $t("chartPriorityIndicator") }}</label
                           >
                         </b-col>
                         <b-col sm="7">
@@ -1294,7 +1452,7 @@
                         <b-col sm="5">
                           <label
                             :for="`generateTotal-${configKey}-${i}-${j}-${c}`"
-                            >Generate Total</label
+                            >{{ $t("generateTotal") }}</label
                           >
                         </b-col>
                         <b-col sm="7">
@@ -1311,12 +1469,40 @@
                             </b-input-group-prepend>
                             <transition name="slide-fade">
                               <template v-if="chart.chartOptions.generateTotal">
-                                <b-form-textarea
-                                  v-model="chart.chartOptions.totalLegend"
-                                  :placeholder="$t('legend')"
-                                ></b-form-textarea>
+                                <template
+                                  v-if="
+                                    chart.chartOptions.totalLegend &&
+                                    typeof chart.chartOptions.totalLegend ===
+                                      'object'
+                                  "
+                                >
+                                  <b-form-textarea
+                                    v-model="
+                                      chart.chartOptions.totalLegend[
+                                        $i18n.locale
+                                      ]
+                                    "
+                                    :placeholder="$t('legend')"
+                                    disabled
+                                  ></b-form-textarea>
+                                </template>
+                                <template v-else>
+                                  <b-form-textarea
+                                    v-model="chart.chartOptions.totalLegend"
+                                    :placeholder="$t('legend')"
+                                    disabled
+                                  ></b-form-textarea>
+                                </template>
                               </template>
                             </transition>
+                            <b-input-group-append
+                              is-text
+                              v-if="chart.chartOptions.generateTotal"
+                            >
+                              <Translations
+                                :transText.sync="chart.chartOptions.totalLegend"
+                              />
+                            </b-input-group-append>
                           </b-input-group>
                         </b-col>
                       </b-row>
@@ -1333,7 +1519,7 @@
                       <b-row>
                         <b-col sm="5">
                           <label :for="`totalColor-${configKey}-${i}-${j}-${c}`"
-                            >Total {{ $t("color") }}</label
+                            >{{ $t("Total") }} {{ $t("color") }}</label
                           >
                         </b-col>
                         <b-col sm="7">
@@ -1368,7 +1554,7 @@
                         <b-col sm="5">
                           <label
                             :for="`totalPosition-${configKey}-${i}-${j}-${c}`"
-                            >Total Position</label
+                            >{{ $t("totalPosition") }}</label
                           >
                         </b-col>
                         <b-col sm="7">
@@ -1377,11 +1563,11 @@
                             v-model="chart.chartOptions.totalPosition"
                             :options="[
                               {
-                                text: 'First',
+                                text: $t('first'),
                                 value: 'FIRST',
                               },
                               {
-                                text: 'Last',
+                                text: $t('last'),
                                 value: 'LAST',
                               },
                             ]"
@@ -1394,7 +1580,7 @@
                   <b-col
                     sm="12"
                     lg="12"
-                    class="mb-3"
+                    class="mb-3 mt-3"
                     v-if="chart.chartOptions.type === 'map'"
                   >
                     <b-row>
@@ -1402,7 +1588,7 @@
                         {{ $t("scales") }}
                       </b-col>
                       <b-col sm="9" class="mb-3">
-                        <b-tabs>
+                        <b-tabs class="charts-tabs">
                           <!-- content-class="mt-3" -->
                           <b-tab
                             v-for="(levelScale, levelIndex) in chart
@@ -1410,357 +1596,376 @@
                             :key="'levels-' + i + j + c + levelIndex"
                             :title="levelScale.levelName"
                           >
-                            <b-row class="mt-3">
-                              <b-col sm="5" class="mb-3">
-                                <b-input-group>
-                                  <b-form-input
-                                    type="text"
-                                    v-model="paletteColor"
-                                  ></b-form-input>
-                                  <b-input-group-append>
+                            <div
+                              class="border-adminmain border-adminradius mt-3 mb-3 p-3"
+                            >
+                              <b-row class="mt-3">
+                                <b-col sm="4" class="mb-3">
+                                  <b-input-group>
                                     <b-form-input
-                                      type="color"
-                                      class="w-40px"
+                                      type="text"
                                       v-model="paletteColor"
                                     ></b-form-input>
-                                  </b-input-group-append>
-                                </b-input-group>
-                              </b-col>
-                              <b-col sm="7" class="mb-3">
-                                <b-row>
-                                  <b-col sm="7" class="pr-1">
-                                    <b-input-group>
-                                      <b-input-group-prepend>
-                                        <div
-                                          class="
-                                            input-group-text
-                                            p-1
-                                            px-2
-                                            cursor-pointer
-                                          "
-                                          v-b-tooltip.hover
-                                          :title="$t('percentageInfo')"
-                                        >
-                                          <i
-                                            class="fa fa-info f-s-0-875rem"
-                                          ></i>
-                                        </div>
-                                      </b-input-group-prepend>
+                                    <b-input-group-append>
                                       <b-form-input
-                                        type="number"
-                                        min="-99"
-                                        max="99"
-                                        v-model="percentageLight"
+                                        type="color"
+                                        class="w-40px"
+                                        v-model="paletteColor"
                                       ></b-form-input>
-                                      <b-input-group-append
-                                        is-text
-                                        class="w-50"
-                                      >
+                                    </b-input-group-append>
+                                  </b-input-group>
+                                </b-col>
+                                <b-col sm="8" class="mb-3">
+                                  <b-row class="color-admingroup">
+                                    <b-col sm="6" class="pr-1">
+                                      <b-input-group>
+                                        <b-input-group-prepend>
+                                          <div
+                                            class="input-group-text p-1 px-2 cursor-pointer"
+                                            v-b-tooltip.hover
+                                            :title="$t('percentageInfo')"
+                                          >
+                                            <i
+                                              class="fa fa-info f-s-0-875rem"
+                                            ></i>
+                                          </div>
+                                        </b-input-group-prepend>
                                         <b-form-input
-                                          v-model="percentageLight"
-                                          type="range"
+                                          type="number"
                                           min="-99"
                                           max="99"
-                                          step="1"
+                                          v-model="percentageLight"
                                         ></b-form-input>
-                                      </b-input-group-append>
-                                    </b-input-group>
-                                  </b-col>
-                                  <b-col sm="5" class="pl-1">
-                                    <b-input-group>
-                                      <b-input-group-prepend>
-                                        <div
-                                          class="
-                                            input-group-text
-                                            p-1
-                                            px-2
-                                            cursor-pointer
-                                          "
-                                          v-b-tooltip.hover
-                                          :title="$t('shadesInfo')"
+                                        <b-input-group-append
+                                          is-text
+                                          class="w-50"
                                         >
-                                          <i
-                                            class="fa fa-info f-s-0-875rem"
-                                          ></i>
-                                        </div>
-                                      </b-input-group-prepend>
-                                      <b-form-input
-                                        type="number"
-                                        min="4"
-                                        max="9"
-                                        v-model="shadesNumber"
-                                      ></b-form-input>
-                                      <b-input-group-append
-                                        is-text
-                                        class="w-50"
-                                      >
+                                          <b-form-input
+                                            v-model="percentageLight"
+                                            type="range"
+                                            min="-99"
+                                            max="99"
+                                            step="1"
+                                          ></b-form-input>
+                                        </b-input-group-append>
+                                      </b-input-group>
+                                    </b-col>
+                                    <b-col sm="6" class="">
+                                      <b-input-group>
+                                        <b-input-group-prepend>
+                                          <div
+                                            class="input-group-text p-1 px-2 cursor-pointer"
+                                            v-b-tooltip.hover
+                                            :title="$t('shadesInfo')"
+                                          >
+                                            <i
+                                              class="fa fa-info f-s-0-875rem"
+                                            ></i>
+                                          </div>
+                                        </b-input-group-prepend>
                                         <b-form-input
-                                          v-model="shadesNumber"
-                                          type="range"
+                                          type="number"
                                           min="4"
                                           max="9"
-                                          step="1"
+                                          v-model="shadesNumber"
                                         ></b-form-input>
-                                      </b-input-group-append>
-                                    </b-input-group>
-                                  </b-col>
-                                </b-row>
-                              </b-col>
-                            </b-row>
-                            <b-row>
-                              <b-col sm="5" class="mb-3">
-                                <b-row class="mx-0">
-                                  <b-col
-                                    class="p-3 border"
-                                    v-for="(shade, sh) in shades"
-                                    :key="
-                                      'shades-' + i + j + c + levelIndex + sh
-                                    "
-                                    :style="{
-                                      'background-color': shade,
-                                    }"
-                                  ></b-col>
-                                </b-row>
-                              </b-col>
-                              <b-col sm="7" class="text-right mb-3">
-                                <b-button
-                                  class="black-btn btn-sm ml-2"
-                                  v-on:click.prevent.stop="
-                                    applyPalette({
-                                      tInd: i,
-                                      stInd: j,
-                                      cmInd: c,
-                                      key: configKey,
-                                      shades: shades,
-                                      levelInd: levelIndex,
-                                    })
-                                  "
-                                  >{{ $t("apply") }}</b-button
-                                >
-                                <b-button
-                                  class="black-btn btn-sm ml-2"
-                                  v-on:click.prevent.stop="
-                                    applyPalette({
-                                      tInd: i,
-                                      stInd: j,
-                                      cmInd: c,
-                                      key: configKey,
-                                      shades: shades,
-                                    })
-                                  "
-                                  >{{ $t("applyAll") }}</b-button
-                                >
-                              </b-col>
-                            </b-row>
-                            <b-row>
-                              <b-col sm="12" class="mb-3">
-                                <div class="cursor-pointer small">
-                                  <span @click="showShades = !showShades"
-                                    ><u>{{ $t("predefinedColors") }}</u></span
-                                  >
-                                </div>
-                                <transition name="slide-fade">
-                                  <div
-                                    v-if="showShades"
-                                    class="border p-2 border-radius-4px"
-                                  >
-                                    <b-row
-                                      class="mx-0"
-                                      v-for="(
-                                        predefinedShade, psi
-                                      ) in predefinedShades"
+                                        <b-input-group-append
+                                          is-text
+                                          class="w-50"
+                                        >
+                                          <b-form-input
+                                            v-model="shadesNumber"
+                                            type="range"
+                                            min="4"
+                                            max="9"
+                                            step="1"
+                                          ></b-form-input>
+                                        </b-input-group-append>
+                                      </b-input-group>
+                                    </b-col>
+                                  </b-row>
+                                </b-col>
+                              </b-row>
+                              <b-row class="color-shades">
+                                <b-col sm="5" class="mb-3">
+                                  <b-row class="mx-0 palettee1">
+                                    <b-col
+                                      class="p-3 border"
+                                      v-for="(shade, sh) in shades"
                                       :key="
-                                        'predefinedShades' +
-                                        i +
-                                        j +
-                                        c +
-                                        levelIndex +
-                                        psi
+                                        'shades-' + i + j + c + levelIndex + sh
                                       "
-                                      :class="
-                                        predefinedShades.length - 1 === psi
-                                          ? ''
-                                          : 'pb-2'
-                                      "
+                                      :style="{
+                                        'background-color': shade,
+                                      }"
+                                    ></b-col>
+                                  </b-row>
+                                </b-col>
+                                <b-col sm="7" class="mb-3 mt-2 text-right">
+                                  <b-button
+                                    class="black-btn btn-sm ml-2 admin-greybtn"
+                                    v-on:click.prevent.stop="
+                                      applyPalette({
+                                        tInd: i,
+                                        stInd: j,
+                                        cmInd: c,
+                                        key: configKey,
+                                        shades: shades,
+                                        levelInd: levelIndex,
+                                      })
+                                    "
+                                    >{{ $t("apply") }}</b-button
+                                  >
+                                  <b-button
+                                    class="black-btn btn-sm ml-2 blue-btn"
+                                    v-on:click.prevent.stop="
+                                      applyPalette({
+                                        tInd: i,
+                                        stInd: j,
+                                        cmInd: c,
+                                        key: configKey,
+                                        shades: shades,
+                                      })
+                                    "
+                                    >{{ $t("applyAll") }}</b-button
+                                  >
+                                </b-col>
+                              </b-row>
+
+                              <b-row>
+                                <b-col sm="12" class="mb-3">
+                                  <div class="cursor-pointer small">
+                                    <span @click="showShades = !showShades"
+                                      ><u>{{ $t("predefinedColors") }}</u></span
                                     >
-                                      <b-col sm="5">
-                                        <b-row class="row mx-0">
-                                          <b-col
-                                            class="p-3 border"
-                                            v-for="(
-                                              shade, si
-                                            ) in predefinedShade"
-                                            :key="
-                                              'predefinedShade' +
-                                              i +
-                                              j +
-                                              c +
-                                              levelIndex +
-                                              psi +
-                                              si
-                                            "
-                                            :style="{
-                                              'background-color': shade,
-                                            }"
-                                          ></b-col>
-                                        </b-row>
-                                      </b-col>
-                                      <b-col sm="7">
-                                        <b-button
-                                          class="black-btn btn-sm mx-1"
-                                          @click.prevent.stop="
-                                            applyPalette({
-                                              tInd: i,
-                                              stInd: j,
-                                              cmInd: c,
-                                              key: configKey,
-                                              levelInd: levelIndex,
-                                              shades: predefinedShade,
-                                            })
-                                          "
-                                          >{{ $t("apply") }}</b-button
-                                        >
-                                        <b-button
-                                          class="black-btn btn-sm mx-1"
-                                          @click.prevent.stop="
-                                            applyPalette({
-                                              tInd: i,
-                                              stInd: j,
-                                              cmInd: c,
-                                              key: configKey,
-                                              shades: predefinedShade,
-                                            })
-                                          "
-                                          >{{ $t("applyAll") }}</b-button
-                                        >
-                                      </b-col>
-                                    </b-row>
                                   </div>
-                                </transition>
-                              </b-col>
-                            </b-row>
-                            <b-row>
-                              <b-col sm="5" class="mb-3">
-                                <label
-                                  :for="`autoScaling-${configKey}-${i}-${j}-${c}-${levelIndex}`"
-                                  >{{ $t("autoScaling") }}</label
+                                  <transition name="slide-fade">
+                                    <div
+                                      v-if="showShades"
+                                      class="border p-2 border-radius-4px"
+                                    >
+                                      <b-row
+                                        class="mx-0"
+                                        v-for="(
+                                          predefinedShade, psi
+                                        ) in predefinedShades"
+                                        :key="
+                                          'predefinedShades' +
+                                          i +
+                                          j +
+                                          c +
+                                          levelIndex +
+                                          psi
+                                        "
+                                        :class="
+                                          predefinedShades.length - 1 === psi
+                                            ? ''
+                                            : 'pb-2'
+                                        "
+                                      >
+                                        <b-col sm="5">
+                                          <b-row class="row mx-0">
+                                            <b-col
+                                              class="p-3 border"
+                                              v-for="(
+                                                shade, si
+                                              ) in predefinedShade"
+                                              :key="
+                                                'predefinedShade' +
+                                                i +
+                                                j +
+                                                c +
+                                                levelIndex +
+                                                psi +
+                                                si
+                                              "
+                                              :style="{
+                                                'background-color': shade,
+                                              }"
+                                            ></b-col>
+                                          </b-row>
+                                        </b-col>
+                                        <b-col sm="7" class="text-right">
+                                          <b-button
+                                            class="black-btn btn-sm mx-1 admin-greybtn"
+                                            @click.prevent.stop="
+                                              applyPalette({
+                                                tInd: i,
+                                                stInd: j,
+                                                cmInd: c,
+                                                key: configKey,
+                                                levelInd: levelIndex,
+                                                shades: predefinedShade,
+                                              })
+                                            "
+                                            >{{ $t("apply") }}</b-button
+                                          >
+                                          <b-button
+                                            class="black-btn btn-sm mx-1 blue-btn"
+                                            @click.prevent.stop="
+                                              applyPalette({
+                                                tInd: i,
+                                                stInd: j,
+                                                cmInd: c,
+                                                key: configKey,
+                                                shades: predefinedShade,
+                                              })
+                                            "
+                                            >{{ $t("applyAll") }}</b-button
+                                          >
+                                        </b-col>
+                                      </b-row>
+                                    </div>
+                                  </transition>
+                                </b-col>
+                              </b-row>
+
+                              <b-row>
+                                <b-col sm="5" class="mb-3">
+                                  <label
+                                    :for="`autoScaling-${configKey}-${i}-${j}-${c}-${levelIndex}`"
+                                    >{{ $t("autoScaling") }}</label
+                                  >
+                                </b-col>
+                                <b-col sm="7" class="mb-3">
+                                  <b-form-checkbox
+                                    :id="`autoScaling-${configKey}-${i}-${j}-${c}-${levelIndex}`"
+                                    class="mr-n2 mb-n1"
+                                    v-model="levelScale.isAutoRange"
+                                    switch
+                                    size="lg"
+                                  ></b-form-checkbox>
+                                </b-col>
+                              </b-row>
+                              <b-row
+                                v-for="(
+                                  scaleRow, scaleIndex
+                                ) in levelScale.scales"
+                                :key="
+                                  'scales-' +
+                                  i +
+                                  j +
+                                  c +
+                                  levelIndex +
+                                  scaleIndex
+                                "
+                                class="translate-adminheight"
+                              >
+                                <b-col
+                                  sm="4"
+                                  class="mb-3"
+                                  :class="{
+                                    'col-sm-6': levelScale.isAutoRange,
+                                  }"
                                 >
-                              </b-col>
-                              <b-col sm="7" class="mb-3">
-                                <b-form-checkbox
-                                  :id="`autoScaling-${configKey}-${i}-${j}-${c}-${levelIndex}`"
-                                  class="mr-n2 mb-n1"
-                                  v-model="levelScale.isAutoRange"
-                                  switch
-                                  size="lg"
-                                ></b-form-checkbox>
-                              </b-col>
-                            </b-row>
-                            <b-row
-                              v-for="(
-                                scaleRow, scaleIndex
-                              ) in levelScale.scales"
-                              :key="
-                                'scales-' + i + j + c + levelIndex + scaleIndex
-                              "
-                            >
-                              <b-col
-                                sm="4"
-                                class="mb-3"
-                                :class="{
-                                  'col-sm-6': levelScale.isAutoRange,
-                                }"
-                              >
-                                <b-form-input
-                                  :id="`scaleLabel-${configKey}-${i}-${j}-${c}-${levelIndex}-${scaleIndex}`"
-                                  type="text"
-                                  :placeholder="$t('label')"
-                                  v-model="
-                                    levelScale.scales[scaleIndex].scaleLabel
-                                  "
-                                ></b-form-input>
-                              </b-col>
-                              <b-col
-                                sm="2"
-                                class="mb-3"
-                                :class="{
-                                  hide: levelScale.isAutoRange,
-                                }"
-                              >
-                                <b-form-input
-                                  :id="`lowScale-${configKey}-${i}-${j}-${c}-${levelIndex}-${scaleIndex}`"
-                                  type="number"
-                                  :placeholder="$t('placeholderLowRange')"
-                                  v-model="
-                                    levelScale.scales[scaleIndex].lowScale
-                                  "
-                                  :disabled="
-                                    scaleIndex === 0 && !levelScale.isAutoRange
-                                      ? false
-                                      : true
-                                  "
-                                ></b-form-input>
-                              </b-col>
-                              <b-col
-                                sm="2"
-                                class="mb-3"
-                                :class="{
-                                  hide: levelScale.isAutoRange,
-                                }"
-                              >
-                                <b-form-input
-                                  :id="`highScale-${configKey}-${i}-${j}-${c}-${levelIndex}-${scaleIndex}`"
-                                  type="number"
-                                  :placeholder="$t('placeholderHighRange')"
-                                  v-model="
-                                    levelScale.scales[scaleIndex].highScale
-                                  "
-                                  :disabled="levelScale.isAutoRange"
-                                  @change="
-                                    scaleIndex < levelScale.scales.length - 1
-                                      ? (levelScale.scales[
-                                          scaleIndex + 1
-                                        ].lowScale =
-                                          levelScale.scales[
-                                            scaleIndex
-                                          ].highScale)
-                                      : ''
-                                  "
-                                ></b-form-input>
-                              </b-col>
-                              <b-col
-                                sm="4"
-                                class="mb-3"
-                                :class="{
-                                  'col-sm-6': levelScale.isAutoRange,
-                                }"
-                              >
-                                <b-input-group>
+                                  <b-input-group
+                                    :id="`scaleLabel-${configKey}-${i}-${j}-${c}-${levelIndex}-${scaleIndex}`"
+                                  >
+                                    <b-form-input
+                                      type="text"
+                                      :placeholder="$t('label')"
+                                      v-model="
+                                        levelScale.scales[scaleIndex]
+                                          .scaleLabel[$i18n.locale]
+                                      "
+                                      disabled
+                                    ></b-form-input>
+                                    <b-input-group-append is-text>
+                                      <Translations
+                                        :transText.sync="
+                                          levelScale.scales[scaleIndex]
+                                            .scaleLabel
+                                        "
+                                      />
+                                    </b-input-group-append>
+                                  </b-input-group>
+                                </b-col>
+                                <b-col
+                                  sm="2"
+                                  class="mb-3"
+                                  :class="{
+                                    hide: levelScale.isAutoRange,
+                                  }"
+                                >
                                   <b-form-input
-                                    :id="`scaleColor-${configKey}-${i}-${j}-${c}-${levelIndex}-${scaleIndex}`"
-                                    type="text"
+                                    :id="`lowScale-${configKey}-${i}-${j}-${c}-${levelIndex}-${scaleIndex}`"
+                                    type="number"
+                                    :placeholder="$t('placeholderLowRange')"
                                     v-model="
-                                      levelScale.scales[scaleIndex].scaleColor
+                                      levelScale.scales[scaleIndex].lowScale
+                                    "
+                                    :disabled="
+                                      scaleIndex === 0 &&
+                                      !levelScale.isAutoRange
+                                        ? false
+                                        : true
                                     "
                                   ></b-form-input>
-                                  <b-input-group-append>
+                                </b-col>
+                                <b-col
+                                  sm="2"
+                                  class="mb-3"
+                                  :class="{
+                                    hide: levelScale.isAutoRange,
+                                  }"
+                                >
+                                  <b-form-input
+                                    :id="`highScale-${configKey}-${i}-${j}-${c}-${levelIndex}-${scaleIndex}`"
+                                    type="number"
+                                    :placeholder="$t('placeholderHighRange')"
+                                    v-model="
+                                      levelScale.scales[scaleIndex].highScale
+                                    "
+                                    :disabled="levelScale.isAutoRange"
+                                    @change="
+                                      scaleIndex < levelScale.scales.length - 1
+                                        ? (levelScale.scales[
+                                            scaleIndex + 1
+                                          ].lowScale =
+                                            levelScale.scales[
+                                              scaleIndex
+                                            ].highScale)
+                                        : ''
+                                    "
+                                  ></b-form-input>
+                                </b-col>
+                                <b-col
+                                  sm="4"
+                                  class="mb-3"
+                                  :class="{
+                                    'col-sm-6': levelScale.isAutoRange,
+                                  }"
+                                >
+                                  <b-input-group>
                                     <b-form-input
-                                      type="color"
-                                      class="w-40px"
+                                      :id="`scaleColor-${configKey}-${i}-${j}-${c}-${levelIndex}-${scaleIndex}`"
+                                      type="text"
                                       v-model="
                                         levelScale.scales[scaleIndex].scaleColor
                                       "
                                     ></b-form-input>
-                                  </b-input-group-append>
-                                </b-input-group>
-                              </b-col>
-                            </b-row>
+                                    <b-input-group-append>
+                                      <b-form-input
+                                        type="color"
+                                        class="w-40px"
+                                        v-model="
+                                          levelScale.scales[scaleIndex]
+                                            .scaleColor
+                                        "
+                                      ></b-form-input>
+                                    </b-input-group-append>
+                                  </b-input-group>
+                                </b-col>
+                              </b-row>
+                            </div>
+
+                            <!-- </div>   -->
                           </b-tab>
                         </b-tabs>
                       </b-col>
                       <b-col sm="12" class="text-right">
                         <b-button
-                          class="black-btn btn-sm"
+                          class="btn-sm blue-btn"
                           @click.prevent.stop="
                             copyTo({
                               tInd: i,
@@ -1774,6 +1979,7 @@
                         <b-modal
                           :id="'copyToModal' + i + j + c"
                           hide-footer
+                          centered
                           :title="$t('copyTobtn')"
                           no-close-on-backdrop
                         >
@@ -1847,7 +2053,7 @@
                             </div>
                             <div class="text-right">
                               <b-button
-                                class="black-btn btn-sm"
+                                class="btn-sm blue-btn"
                                 @click.prevent.stop="
                                   copy({
                                     tInd: i,
@@ -1867,6 +2073,7 @@
               </div>
             </transition>
           </b-collapse>
+          <div class="bordertop-grey mt-3"></div>
         </div>
       </b-col>
     </b-row>
@@ -1875,7 +2082,7 @@
 <script>
 import Treeselect from "@riophae/vue-treeselect";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
-import { LOAD_ROOT_OPTIONS } from "@riophae/vue-treeselect";
+import DynamicImageMixin from "@/helpers/DynamicImageMixin";
 
 export default {
   props: [
@@ -1896,8 +2103,13 @@ export default {
     "deleteElement",
     "updateBenchmarks",
   ],
+  mixins: [DynamicImageMixin],
   components: {
     Treeselect,
+    Translations: () =>
+      import(
+        /*webpackChunkName: 'translations'*/ "@/components/config/Common/Translations"
+      ),
   },
   data() {
     return {
@@ -1905,6 +2117,7 @@ export default {
       showShades: false,
       allMappings: null,
       percentageLight: 40,
+      selectedLevel: null,
       paletteColor: "#00ff80",
       chartInfoMaxLength: 200,
       chartTitleMaxLength: 100,
@@ -1935,8 +2148,8 @@ export default {
             allMappings.forEach((m) => {
               if (dataMapping.includes(m.indicator.id)) {
                 arr.push({
-                  text: m.indicator.name,
-                  value: m.indicator.name,
+                  text: m.indicator.name[this.$i18n.locale],
+                  value: m.indicator.name[this.$i18n.locale],
                 });
               }
             });
@@ -1964,15 +2177,15 @@ export default {
           group.includes("EMU")
         ) {
           calc.push({
-            text: "EMU with National Benchmark",
+            text: this.$i18n.t("emuNatBench"),
             value: "EMU_NATIONAL",
           });
           calc.push({
-            text: "EMU Average",
+            text: this.$i18n.t("emuAvg"),
             value: "EMU_AVERAGE",
           });
           calc.push({
-            text: "Matrix table",
+            text: this.$i18n.t("matTable"),
             value: "MATRIX_TABLE",
           });
         } else {
@@ -1982,32 +2195,32 @@ export default {
             isSingleSource
           ) {
             calc.push({
-              text: "Multiply by CYP",
+              text: this.$i18n.t("mulCYP"),
               value: "CYP",
             });
             calc.push({
-              text: "Stock Out",
+              text: this.$i18n.t("stockOut"),
               value: "STOCK_OUT",
             });
             calc.push({
-              text: "Availability",
+              text: this.$i18n.t("access"),
               value: "AVAILABILITY",
             });
             if (group.includes("GEO") && category === "regional") {
               calc.push({
-                text: "Average (Multiply by CYP)",
+                text: this.$i18n.t("mulCYPAvg"),
                 value: "OTHER_AVERAGE_CYP",
               });
               calc.push({
-                text: "Average",
+                text: this.$i18n.t("avg"),
                 value: "OTHER_AVERAGE",
               });
               calc.push({
-                text: "Matrix table (Multiply by CYP)",
+                text: this.$i18n.t("matMulCYP"),
                 value: "OTHER_MATRIX_TABLE_CYP",
               });
               calc.push({
-                text: "Matrix table",
+                text: this.$i18n.t("matTable"),
                 value: "OTHER_MATRIX_TABLE",
               });
             }
@@ -2015,23 +2228,27 @@ export default {
 
           if (category === "regional" && isSingleSource) {
             calc.push({
-              text: "% Pt Change (prior month to current month)",
+              text: this.$i18n.t("ptChange"),
               value: "PERIOD_DIFF",
+            });
+            calc.push({
+              text: this.$i18n.t("ptChangeCYP"),
+              value: "PERIOD_DIFF_CYP",
             });
           }
           if (category === "regional" && !isSingleSource) {
             calc.push({
-              text: "Difference (Source 1 to Source 2)",
+              text: this.$i18n.t("diffSource"),
               value: "SOURCE_DIFF",
             });
             calc.push({
-              text: "Average (Source 2 per Source 1)",
+              text: this.$i18n.t("avgSource"),
               value: "SOURCE_AVG",
             });
           }
         }
         calc.push({
-          text: "Default",
+          text: this.$i18n.t("default"),
           value: "DEFAULT",
         });
         return calc;
@@ -2062,7 +2279,10 @@ export default {
             }
             if (addBenchmark) {
               arr.push({
-                label: b.displayName,
+                label:
+                  typeof b.displayName === "object"
+                    ? b.displayName[this.$i18n.locale]
+                    : b.displayName,
                 id: `${b.id}_${b.plotLineType}`,
               });
             }
@@ -2076,7 +2296,7 @@ export default {
         let option = [];
         option.push({
           value: null,
-          text: "Please select chart type",
+          text: this.$i18n.t("cType"),
           disabled: true,
         });
         if (type === "map") {
@@ -2095,7 +2315,7 @@ export default {
           });
           option.push({
             value: "cluster_bar",
-            text: `Cluster ${this.$i18n.t("bar")}`,
+            text: this.$i18n.t("clusterBar"),
           });
           option.push({
             value: "line",
@@ -2114,8 +2334,16 @@ export default {
             text: this.$i18n.t("stack"),
           });
           option.push({
+            value: "stack_percent",
+            text: `${this.$i18n.t("stack")} (%)`,
+          });
+          option.push({
             value: "stack_bar",
-            text: this.$i18n.t("stack") + " " + this.$i18n.t("bar"),
+            text: `${this.$i18n.t("stack")} ${this.$i18n.t("bar")}`,
+          });
+          option.push({
+            value: "stack_bar_percent",
+            text: `${this.$i18n.t("stack")} ${this.$i18n.t("bar")} (%)`,
           });
           if (category === "regional" && chartCalculation === "DEFAULT") {
             option.push({
@@ -2138,22 +2366,22 @@ export default {
       };
     },
     chartCategories: function () {
-      return function (group, isSingleSource) {
+      return function (group, isSingleSource, isSavedData) {
         let category = [];
         //Maintain the below conditions for sequence
         if (isSingleSource) {
           category.push({
-            text: "Trend",
+            text: this.$i18n.t("trend"),
             value: "trend",
           });
         }
         category.push({
-          text: "Regional",
+          text: this.$i18n.t("regional"),
           value: "regional",
         });
-        if (isSingleSource) {
+        if (!isSavedData && group !== "EMU" && isSingleSource) {
           category.push({
-            text: "Seasonal Trend",
+            text: this.$i18n.t("seasonalTrend"),
             value: "seasonal",
           });
         }
@@ -2164,7 +2392,7 @@ export default {
           isSingleSource
         ) {
           category.push({
-            text: "Regional Trend",
+            text: this.$i18n.t("regionalTrend"),
             value: "regionalTrend",
           });
         }
@@ -2218,60 +2446,6 @@ export default {
           )
       );
     },
-    //Kept for reference, to be deleted later
-    // loadOptions1({ action, callback }) {
-    // 	if (action === LOAD_ROOT_OPTIONS) {
-    // 		let mapping = [];
-    // 		let tabs = JSON.parse(JSON.stringify(this.tabs));
-    // 		let isTab = tabs.find((tab) => tab.id === this.tabId);
-    // 		if (isTab) {
-    // 			let isSubTab = isTab.subTabs.find(
-    // 				(subTab) => subTab.id === this.subTabId
-    // 			);
-    // 			if (isSubTab) {
-    // 				isSubTab.mapping.forEach((m) => {
-    // 					let isMapping = m.indicator.subIndicator.find(
-    // 						(s) => s.selectedDE.length
-    // 					);
-    // 					if (isMapping) {
-    // 						mapping.push({
-    // 							label: m.indicator.name,
-    // 							id: m.indicator.static_name,
-    // 						});
-    // 					}
-    // 				});
-    // 			}
-    // 		}
-    // 		this.allMappings = mapping;
-    // 		callback();
-    // 	}
-    // },
-    //Get the mappings on demand
-    // loadOptions({ action, callback }) {
-    // 	if (action === LOAD_ROOT_OPTIONS) {
-    // 		let mapping = [];
-    // 		let gSetting = this.$store.getters.getGlobalFactors();
-    // 		if (
-    // 			gSetting.globalMapping &&
-    // 			gSetting.globalMapping.mappings &&
-    // 			gSetting.globalMapping.mappings.length
-    // 		) {
-    // 			gSetting.globalMapping.mappings.forEach((m) => {
-    // 				let isMapping = m.indicator.subIndicator.find(
-    // 					(s) => s.selectedDE.length
-    // 				);
-    // 				if (isMapping) {
-    // 					mapping.push({
-    // 						label: m.indicator.name,
-    // 						id: m.indicator.static_name,
-    // 					});
-    // 				}
-    // 			});
-    // 		}
-    // 		this.allMappings = mapping;
-    // 		callback();
-    // 	}
-    // },
     getMappings() {
       let allMappings = [];
       let gSetting = this.$store.getters.getGlobalFactors();
@@ -2283,7 +2457,7 @@ export default {
         gSetting.globalMappings.mappings.forEach((ms) => {
           let obj = {
             id: ms.id,
-            label: ms.tabName,
+            label: ms.tabName[this.$i18n.locale],
             children: [],
           };
           if (ms.mapping && ms.mapping.length) {
@@ -2300,7 +2474,7 @@ export default {
                       alias: "I",
                       color: "#5c9fef",
                       type: "indicator",
-                      text: this.$i18n.t("Indicator"),
+                      text: this.$i18n.t("indicator"),
                     });
                   }
                   if (sm.type === "data_element") {
@@ -2323,7 +2497,7 @@ export default {
               });
               if (isMapping) {
                 obj.children.push({
-                  label: m.indicator.name,
+                  label: m.indicator.name[this.$i18n.locale],
                   id: m.indicator.static_name,
                   type,
                 });

@@ -1,79 +1,126 @@
 <template>
-  <b-tabs class="md_tabs">
-    <b-tab
-      title="EMU Settings"
-      active
-      @click="updateActiveSubTab('emu_settings')"
-    >
+  <b-tabs class="md_tabs mt-xl-n3 default-tab">
+    <b-tab active @click="updateActiveSubTab('emu_settings')">
       <div no-body class="p-1">
-        <div class="d-flex justify-content-between">
-          <h4>Data Mapping</h4>
-          <div>
-            <b-button class="btn btn-primary black-btn mr-2" @click="openLoc()"
-              >Select Location for Scheduler</b-button
-            >
-            <b-button
-              class="btn btn-primary black-btn"
-              id="startEMUButton"
-              @click="startAutoEMU()"
-              >Start EMU</b-button
-            >
-          </div>
-          <singlePage
-            v-if="
-              EMULocation &&
-              defaultType &&
-              dqrConfig &&
-              dqrConfig.emu.Background_Data.locArr.length > 0 &&
-              startP
-            "
-            :startP="startP"
-            :dqrConfig="dqrConfig"
-            :globeData="bgDataConfig"
-            :defaultType="defaultType"
-            :deList="dataElementList"
-            :loc="EMULocation"
-            :categoryOptionID="categoryOptionID"
-            :methodCatId="methodCatId"
-            @getLocs="getLocs"
-            @sendStart="sendStart"
-            @saveJson="saveJson"
-          />
-          <!--  :deNameInc="deNameInc"
-            :deNameEx="deNameEx"
-            :deName="deName" -->
-        </div>
         <b-form>
-          <div class="d-flex justify-content-between align-items-center my-3">
-            <div class="w-50">Family Planning Women Population :</div>
-            <b-form-select
-              class="w-50"
-              v-model="dqrConfig.emu.Background_Data.FPWomenPopulation"
-              :options="fpWomenPopulation"
-            ></b-form-select>
-          </div>
+          <div class="accordion" role="tablist">
+            <b-card no-body class="mb-1">
+              <b-card-header header-tag="header" class="p-1" role="tab">
+                <b-button block v-b-toggle.accordion-emu1 variant="info">{{
+                  $t("emuSettings")
+                }}</b-button>
+              </b-card-header>
+              <b-collapse
+                id="accordion-emu1"
+                visible
+                accordion="my-accordion"
+                role="tabpanel"
+              >
+                <b-card-body>
+                  <b-card-text>
+                    <div class="d-flex justify-content-end">
+                      <!-- <h5 class="color-text">{{ $t("dataMapping") }}</h5> -->
+                      <div>
+                        <b-button
+                          class="btn btn-primary black-btn mr-2"
+                          @click="openLoc()"
+                          >{{ $t("selectLocationScheduler") }}</b-button
+                        >
+                        <b-button
+                          class="btn btn-primary black-btn"
+                          id="startEMUButton"
+                          @click="startAutoEMU()"
+                          >{{ $t("startEMU") }}</b-button
+                        >
+                      </div>
+                      <singlePage
+                        v-if="
+                          EMULocation &&
+                          defaultType &&
+                          dqrConfig &&
+                          dqrConfig.emu.Background_Data.locArr.length > 0 &&
+                          startP
+                        "
+                        :startP="startP"
+                        :dqrConfig="dqrConfig"
+                        :globeData="bgDataConfig"
+                        :defaultType="defaultType"
+                        :deList="dataElementList"
+                        :loc="EMULocation"
+                        :finalCount="finalCount"
+                        :categoryOptionID="categoryOptionID"
+                        :methodCatId="methodCatId"
+                        @getLocs="getLocs"
+                        @sendStart="sendStart"
+                        @saveJson="saveJson"
+                      />
+                      <!--  :deNameInc="deNameInc"
+                          :deNameEx="deNameEx"
+                          :deName="deName" -->
+                    </div>
+                    <div
+                      class="d-flex justify-content-between align-items-center my-3"
+                    >
+                      <div class="w-50">
+                        {{ $t("family_Planning_Women_Population") }}
+                      </div>
+                      <b-form-select
+                        class="w-50"
+                        v-model="
+                          dqrConfig.emu.Background_Data.FPWomenPopulation
+                        "
+                        :options="fpWomenPopulation"
+                      ></b-form-select>
+                    </div>
 
-          <div class="d-flex justify-content-between align-items-center my-3">
-            <div class="w-50">
-              Most recent year which have complete service statistics data
-            </div>
-            <b-form-input
-              class="w-50"
-              v-model="dqrConfig.emu.Background_Data.SSDataRecentYear"
-              required
-            ></b-form-input>
-          </div>
-
-          <div class="d-flex justify-content-between align-items-center my-3">
-            <div class="w-50">Default data type :</div>
-            <b-form-select
-              v-if="defaultDataTypeOptions.length > 0"
-              class="w-50"
-              v-model="dqrConfig.emu.Background_Data.defaultDataType"
-              :options="defaultDataTypeOptions"
-              :select-size="4"
-              multiple
-            ></b-form-select>
+                    <div
+                      class="d-flex justify-content-between align-items-center my-3"
+                    >
+                      <div class="w-50">
+                        {{ $t("completeService") }}
+                      </div>
+                      <b-form-input
+                        class="w-50"
+                        v-model="dqrConfig.emu.Background_Data.SSDataRecentYear"
+                        required
+                      ></b-form-input>
+                    </div>
+                    <div
+                      class="d-flex justify-content-between align-items-center my-3"
+                    >
+                      <div class="w-50">
+                        {{ $t("adjustmentFactor") }}
+                      </div>
+                      <select
+                        class="w-50 form-control custom-select"
+                        id="adjustmentFactor"
+                        v-model="dqrConfig.emu.Background_Data.adjustmentFactor"
+                      >
+                        <option value="Yes">
+                          {{ $t("yes") }}
+                        </option>
+                        <option value="No">
+                          {{ $t("no") }}
+                        </option>
+                      </select>
+                    </div>
+                    <div
+                      class="d-flex justify-content-between align-items-center my-3"
+                    >
+                      <div class="w-50">Default data type :</div>
+                      <b-form-select
+                        v-if="defaultDataTypeOptions.length > 0"
+                        class="w-50"
+                        v-model="dqrConfig.emu.Background_Data.defaultDataType"
+                        :options="defaultDataTypeOptions"
+                        :select-size="4"
+                        multiple
+                      ></b-form-select>
+                    </div>
+                  </b-card-text>
+                </b-card-body>
+              </b-collapse>
+            </b-card>
           </div>
 
           <div
@@ -82,7 +129,7 @@
               .defaultDataType"
           >
             <span class="hide">{{ getDataElementNames }}</span>
-            <div class="accordion w-100" role="tablist">
+            <div class="accordion w-100 mt-2" role="tablist">
               <b-form no-body class="mb-1">
                 <b-card-header header-tag="header" class="p-1" role="tab">
                   <b-button block v-b-toggle.accordion-1 variant="info"
@@ -97,7 +144,6 @@
                 </b-card-header>
                 <b-collapse
                   id="accordion-1"
-                  visible
                   accordion="my-accordion"
                   role="tabpanel"
                 >
@@ -105,7 +151,7 @@
                     <b-form
                       class="d-flex justify-content-between align-items-center my-3"
                     >
-                      <div class="w-50">Annual EMU (Include Condom) :</div>
+                      <div class="w-50">{{ $t("AnnualEMUInc") }}</div>
                       <b-form-input
                         class="w-50"
                         v-model="dqrConfig.emu[dtType]['incCondomEMU']"
@@ -115,7 +161,7 @@
                     <b-form
                       class="d-flex justify-content-between align-items-center my-3"
                     >
-                      <div class="w-50">Annual EMU (Exclude Condom) :</div>
+                      <div class="w-50">{{ $t("AnnualEMUExc") }}</div>
                       <b-form-input
                         class="w-50"
                         v-model="dqrConfig.emu[dtType]['excCondomEMU']"
@@ -125,7 +171,7 @@
                     <b-form
                       class="d-flex justify-content-between align-items-center my-3"
                     >
-                      <div class="w-50">Monthly EMU :</div>
+                      <div class="w-50">{{ $t("monthlyEmu") }}</div>
                       <b-form-input
                         class="w-50"
                         v-model="dqrConfig.emu[dtType]['monthlyEMU']"
@@ -138,15 +184,20 @@
             </div>
           </div>
           <b-button
-            class="float-right btn btn-primary black-btn mr-2"
+            class="float-right btn btn-primary black-btn save-btn mr-2 mt-5"
             @click="saveJson"
-            >Save</b-button
+            >{{ $t("savebtn") }}</b-button
           >
         </b-form>
       </div>
-      <b-modal ref="location-modal" hide-footer :title="`Select Location`">
-        <div class="d-block text-left">
-          <h5>Select Location</h5>
+      <b-modal
+        ref="location-modal"
+        hide-footer
+        centered
+        :title="$t('selectLocation')"
+      >
+        <div class="d-block text-left default-btn">
+          <h5>{{ $t("selectLocation") }}</h5>
           <treeselect
             :multiple="true"
             class=""
@@ -158,25 +209,32 @@
             :default-expand-level="1"
           />
         </div>
-        <b-button
-          class="btn btn-primary black-btn mt-2"
-          variant="outline-danger"
-          block
-          @click="hideModal"
-          >Close</b-button
-        >
-        <b-button
-          class="btn btn-primary black-btn mt-2"
-          variant="outline-warning"
-          block
-          @click="closeLoc"
-          >Save Changes</b-button
-        >
+        <b-row>
+          <b-col class="mx-5">
+            <b-button
+              class="btn btn-primary black-btn greycolor-btn mt-2 w-75"
+              variant="outline-danger"
+              block
+              @click="hideModal"
+              >{{ $t("close") }}</b-button
+            >
+          </b-col>
+          <b-col>
+            <b-button
+              class="btn btn-primary black-btn mt-2 blue-btn w-75"
+              variant="outline-warning"
+              block
+              @click="closeLoc"
+              >{{ $t("saveChanges") }}</b-button
+            >
+          </b-col>
+        </b-row>
       </b-modal>
     </b-tab>
   </b-tabs>
 </template>
 <script>
+import service from "@/service";
 import Treeselect from "@riophae/vue-treeselect";
 import singlePage from "./singlePage";
 export default {
@@ -192,6 +250,7 @@ export default {
   components: { Treeselect, singlePage },
   data() {
     return {
+      finalCount: {},
       defaultTypeIndex: -1,
       defaultType: "",
       locIndex: -1,
@@ -210,6 +269,35 @@ export default {
     };
   },
   methods: {
+    updateDataOnContraceptive() {
+      let arr = [
+        "Visits",
+        "Commodities_Client",
+        "Commodities_Facilities",
+        "User",
+      ];
+      this.dqrConfig.emu.Background_Data.defaultDataType = [];
+
+      arr.map((item) => {
+        if (
+          this.dqrConfig.emu[item]["dataOnContraceptive"] === "Yes" &&
+          !this.dqrConfig.emu.Background_Data.defaultDataType?.find(
+            (compare) => compare === item
+          )
+        ) {
+          this.dqrConfig.emu.Background_Data.defaultDataType.push(item);
+        } else if (
+          this.dqrConfig.emu[item]["dataOnContraceptive"] === "No" &&
+          this.dqrConfig.emu.Background_Data.defaultDataType?.find(
+            (compare) => compare === item
+          )
+        ) {
+          this.dqrConfig.emu.Background_Data.defaultDataType.filter(
+            (remove) => remove === item
+          );
+        }
+      });
+    },
     sendStart(val) {
       console.log("calling sendstart", val);
       this.startP = val;
@@ -268,10 +356,9 @@ export default {
         let dtIndex = this.defaultTypeIndex * 1 + 1;
         this.defaultTypeIndex = dtIndex;
       } else {
-        this.$swal({
+        this.sweetAlert({
           title: "Locations are not saved for EMU generation",
-          icon: "error",
-        }).then(() => {});
+        });
       }
     },
     hideModal() {
@@ -311,7 +398,8 @@ export default {
       this.$refs["location-modal"].show();
     },
     saveJson() {
-      this.$emit("saveJson", this.dqrConfig, "dqrModule_en");
+      let key = this.generateKey("dqrModule");
+      this.$emit("saveJson", this.dqrConfig, key);
     },
   },
   watch: {
@@ -357,10 +445,9 @@ export default {
         }
         console.log(locNames);
         this.startP = false;
-        this.$swal({
+        this.sweetAlert({
           title: "Annual and Monthly EMU process successfully. ",
           html: locNames,
-          icon: "success",
         });
         this.defaultTypeIndex = -1;
         this.errLoc = [];
@@ -469,208 +556,6 @@ export default {
       });
       return oResponse;
     },
-    saveFinalEMU() {
-      let saveEmuMcprComp = {},
-        saveAnnualAvgComp = {},
-        saveCompareMethods = {},
-        saveuserTrendsByMethods = {};
-      let defaultEMUSource = this.dqrConfig.emu["Background_Data"]["defaultEMU"]
-        ? this.dqrConfig.emu["Background_Data"]["defaultEMU"]
-        : "Commodities_Client";
-      //storing emu o/p charts through IC
-      saveEmuMcprComp = this.createCompEMUmCPR();
-      saveEmuMcprComp.source = defaultEMUSource;
-      saveAnnualAvgComp.source = defaultEMUSource;
-      saveCompareMethods.source = defaultEMUSource;
-      // this.userTrendsDataByMethods.source = this.category
-      //console.log(this.$store.state.methodTable)
-      let dataStore = {};
-      let locale = this.$i18n.locale,
-        key = `annualEMU_${locale}`;
-      if (!settings.country) {
-        let appId = this.$store.state.appId ? this.$store.state.appId : "",
-          appUserId = this.$store.state.appUserId
-            ? this.$store.state.appUserId
-            : "";
-        if (appId && appUserId) {
-          key = `${appUserId}_${appId}_annualEMU_${locale}`;
-        } else {
-          this.showLocalStorageError();
-          return;
-        }
-      }
-      let allKeys = service.getAllKeys();
-      allKeys.then((keys) => {
-        if (keys.data.includes(key)) {
-          let oConfig = service.getSavedConfig(key, false, "fp-dashboard");
-          oConfig.then((response) => {
-            let oResponse = response.data;
-            if (oResponse["compEMU"]) {
-              oResponse["compEMU"] = JSON.parse(oResponse["compEMU"]);
-              if (oResponse["compEMU"][this.location.split("/")[1]]) {
-                oResponse["compEMU"][this.location.split("/")[1]] =
-                  saveEmuMcprComp;
-              } else {
-                oResponse["compEMU"] = {
-                  ...oResponse["compEMU"],
-                  [this.location.split("/")[1]]: saveEmuMcprComp,
-                };
-              }
-            } else {
-              oResponse["compEMU"] = {
-                [this.location.split("/")[1]]: saveEmuMcprComp,
-              };
-            }
-
-            if (oResponse["compAvgAnuual"]) {
-              oResponse["compAvgAnuual"] = JSON.parse(
-                oResponse["compAvgAnuual"]
-              );
-              if (oResponse["compAvgAnuual"][this.location.split("/")[1]]) {
-                oResponse["compAvgAnuual"][this.location.split("/")[1]] =
-                  this.saveAnnualAvgComp;
-              } else {
-                oResponse["compAvgAnuual"] = {
-                  ...oResponse["compAvgAnuual"],
-                  [this.location.split("/")[1]]: this.saveAnnualAvgComp,
-                };
-              }
-            } else {
-              oResponse["compAvgAnuual"] = {
-                [this.location.split("/")[1]]: this.saveAnnualAvgComp,
-              };
-            }
-
-            if (oResponse["compUsers"]) {
-              oResponse["compUsers"] = JSON.parse(oResponse["compUsers"]);
-              if (oResponse["compUsers"][this.location.split("/")[1]]) {
-                oResponse["compUsers"][this.location.split("/")[1]] =
-                  this.saveCompareMethods;
-              } else {
-                oResponse["compUsers"] = {
-                  ...oResponse["compUsers"],
-                  [this.location.split("/")[1]]: this.saveCompareMethods,
-                };
-              }
-            } else {
-              oResponse["compUsers"] = {
-                [this.location.split("/")[1]]: this.saveCompareMethods,
-              };
-            }
-
-            if (oResponse["usersTrend"]) {
-              oResponse["usersTrend"] = JSON.parse(oResponse["usersTrend"]);
-              if (oResponse["usersTrend"][this.location.split("/")[1]]) {
-                oResponse["usersTrend"][this.location.split("/")[1]] =
-                  this.saveuserTrendsByMethods;
-              } else {
-                oResponse["usersTrend"] = {
-                  ...oResponse["usersTrend"],
-                  [this.location.split("/")[1]]: this.saveuserTrendsByMethods,
-                };
-              }
-            } else {
-              oResponse["usersTrend"] = {
-                [this.location.split("/")[1]]: this.saveuserTrendsByMethods,
-              };
-            }
-            if (oResponse["methodTable"]) {
-              oResponse["methodTable"] = JSON.parse(oResponse["methodTable"]);
-              //console.log(this.$store.state.methodTable)
-              if (oResponse["methodTable"][this.location.split("/")[1]]) {
-                oResponse["methodTable"][this.location.split("/")[1]] = this
-                  .$store.state.methodTable
-                  ? this.$store.state.methodTable[this.location.split("/")[1]]
-                  : null;
-              } else {
-                oResponse["methodTable"] = {
-                  ...oResponse["methodTable"],
-                  [this.location.split("/")[1]]: this.$store.state.methodTable
-                    ? this.$store.state.methodTable[this.location.split("/")[1]]
-                    : null,
-                };
-              }
-            } else {
-              oResponse["methodTable"] = {
-                [this.location.split("/")[1]]: this.$store.state.methodTable
-                  ? this.$store.state.methodTable[this.location.split("/")[1]]
-                  : null,
-              };
-            }
-            //if(oResponse['methodTable']){
-            //    oResponse['methodTable'] = this.$store.state.methodTable
-            //}
-            oResponse["emuColors"] = JSON.parse(
-              localStorage.getItem("emuColors")
-            );
-            oResponse["compEMU"] = JSON.stringify(oResponse["compEMU"]);
-            oResponse["compAvgAnuual"] = JSON.stringify(
-              oResponse["compAvgAnuual"]
-            );
-            oResponse["compUsers"] = JSON.stringify(oResponse["compUsers"]);
-            oResponse["usersTrend"] = JSON.stringify(oResponse["usersTrend"]);
-            oResponse["methodTable"] = JSON.stringify(oResponse["methodTable"]);
-            // console.log(oResponse)
-            service.updateConfig(oResponse, key).then(() => {
-              this.$store.state.loading = false;
-              this.$store.commit("setEMUMethodTable", null);
-              this.$store.commit("setEMUColors", null);
-              this.$emit("saveEMUFinal", this.location);
-              this.$swal({
-                title: this.$i18n.t("data_saved_successfully"),
-              });
-            });
-
-            // this.saveLocalStorage(key, this.emuMcprComparisionChart, 'compEMU')
-            // this.saveLocalStorage(key, this.annualAvgComparisionChart, 'compAvgAnuual')
-            // this.saveLocalStorage(key, this.annualComparisionOfMethods, 'compUsers')
-            // this.saveLocalStorage(key, this.userTrendsDataByMethods, 'usersTrend')
-          });
-        } else {
-          let compEMUObj = {
-              [this.location.split("/")[1]]: this.saveEmuMcprComp,
-            },
-            compAvgAnuualObj = {
-              [this.location.split("/")[1]]: this.saveAnnualAvgComp,
-            },
-            compUsersObj = {
-              [this.location.split("/")[1]]: this.saveCompareMethods,
-            },
-            usersTrendObj = {
-              [this.location.split("/")[1]]: this.saveuserTrendsByMethods,
-            },
-            methodTable = {
-              [this.location.split("/")[1]]: this.$store.state.methodTable
-                ? this.$store.state.methodTable[this.location.split("/")[1]]
-                : null,
-            };
-
-          dataStore = {
-            compEMU: JSON.stringify(compEMUObj),
-            compAvgAnuual: JSON.stringify(compAvgAnuualObj),
-            compUsers: JSON.stringify(compUsersObj),
-            usersTrend: JSON.stringify(usersTrendObj),
-            methodTable: JSON.stringify(methodTable),
-            emuColors: JSON.parse(localStorage.getItem("emuColors")),
-          };
-          service.saveConfig(dataStore, key).then(() => {
-            this.$store.state.loading = false;
-            this.$store.commit("setEMUMethodTable", null);
-            this.$store.commit("setEMUColors", null);
-            this.$emit("saveEMUFinal", this.location);
-            this.$swal({
-              title: this.$i18n.t("data_saved_successfully"),
-            });
-          });
-
-          //    this.saveLocalStorage(key, this.emuMcprComparisionChart, 'compEMU')
-          //    this.saveLocalStorage(key, this.annualAvgComparisionChart, 'compAvgAnuual')
-          //    this.saveLocalStorage(key, this.annualComparisionOfMethods, 'compUsers')
-          //    this.saveLocalStorage(key, this.userTrendsDataByMethods, 'usersTrend')
-        }
-      });
-      //END OF STORING CHARTS
-    },
     locIndex(newIndex) {
       console.log("Calling locIndex watch");
       if (
@@ -684,6 +569,8 @@ export default {
         console.log(loc, "location");
         this.startP = true;
         this.EMULocation = loc;
+        this.finalCount[this.EMULocation] = this.defaultTypeIndex + 1;
+
         //console.log("in useeffect");
       } else if (
         this.dqrConfig.emu.Background_Data.locArr &&
@@ -694,6 +581,7 @@ export default {
         this.locIndex = -1;
         let dtIndex = this.defaultTypeIndex * 1 + 1;
         this.defaultTypeIndex = dtIndex;
+        this.finalCount[this.EMULocation] = dtIndex + 1;
       }
     },
   },
@@ -707,28 +595,22 @@ export default {
         {
           value: "Visits",
           text: "Visits",
-          disabled:
-            this.dqrConfig.emu["Visits"]["dataOnContraceptive"] === "No",
+          disabled: true,
         },
         {
           value: "Commodities_Client",
           text: "Commodities Clients",
-          disabled:
-            this.dqrConfig.emu["Commodities_Client"]["dataOnContraceptive"] ===
-            "No",
+          disabled: true,
         },
         {
           value: "Commodities_Facilities",
           text: "Commodities Facilities",
-          disabled:
-            this.dqrConfig.emu["Commodities_Facilities"][
-              "dataOnContraceptive"
-            ] === "No",
+          disabled: true,
         },
         {
           value: "User",
           text: "User",
-          disabled: this.dqrConfig.emu["User"]["dataOnContraceptive"] === "No",
+          disabled: true,
         },
       ];
       return arr;
@@ -772,6 +654,7 @@ export default {
     },
   },
   created() {
+    this.updateDataOnContraceptive();
     console.log(this.dqrConfig.emu.Background_Data.locArr, "locArr in created");
     // if (this.dqrConfig.emu.Background_Data.locArr) {
     this.selectedNode = this.dqrConfig.emu.Background_Data.locArr.map((obj) => {

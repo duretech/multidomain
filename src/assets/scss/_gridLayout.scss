@@ -1,13 +1,15 @@
 .grid-layout-section {
+
+	
 	// vue-grid-layout
 	.vue-grid-layout {
-		background: #12122A;
+		background: var(--chart-container-color);
 	}
 
 	.vue-grid-item:not(.vue-grid-placeholder) {
 		// background: #ccc;
-		background-color: #2E2E48 !important;
-	    color: #fff !important;
+		background-color: var(--new-header-color) !important;
+	    color: var(--text-color) !important;
 		// border: 1px solid black;
 		touch-action: none;
 	}
@@ -15,7 +17,7 @@
 		opacity: 0.9;
 	}
 	.vue-grid-item .static {
-		background: #cce;
+		background: var(--subinner-bg-color);
 	}
 	.vue-grid-item .text {
 		font-size: 24px;

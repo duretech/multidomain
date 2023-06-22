@@ -3,27 +3,28 @@
 	font-family: var(--body-font-family);
 }
 
+/*  TO REMOVE OUTLINE */
+*:focus {
+    outline   : none;
+    box-shadow: none !important;
+}
+/*  TO REMOVE OUTLINE END*/
+
+
 body,
 html {
 	font-size: 16px;
 	font-family: var(--body-font-family);
 }
 
+body{
+	overflow: hidden;
+	overflow-x            : hidden;
+    font-family           : 'Roboto', sans-serif;
+}
+
 p {
 	font-size: 1rem;
-}
-
-/*button css*/
-.btn-white-grey {
-	background-color: var(--light-white-btn-color) !important;
-	border-color: var(--light-white-btn-color) !important;
-	//color           : var(--text-black-color) !important;
-}
-
-.btn-white-grey:hover {
-	background-color: var(--light-white-btn-color) !important;
-	border-color: var(--light-white-btn-color) !important;
-	//color           : var(--text-black-color) !important;
 }
 
 /*common css ends*/
@@ -34,23 +35,39 @@ p {
 
 *::-webkit-scrollbar {
 	width: 0.4em !important;
+	height: 7px;
+
 }
 
-*::-webkit-scrollbar-track {
-	box-shadow: none;
-	background-color: var(--primary-bg-color) !important;
+*::-webkit-scrollbar-track{
+    background-color: var(--bg-main-color) !important;
 }
 
 *::-webkit-scrollbar-thumb {
-	background-color: #343348 !important;
+	background-color: var(--scroll-color) !important;
 	outline: 1px solid transparent;
 	border-radius: 15px;
+	-webkit-box-shadow: none;
 }
 
-.ancdashboard-page .totalicons,
-.summarydashboard-page .totalicons {
-	top: -17px;
+.integratedFamilyWrap::-webkit-scrollbar-track{
+	background-color: var(--primary-bg-color) !important;
 }
+
+.integratedFamilyWrap::-webkit-scrollbar-thumb {
+	background-color: var(--text-color) !important;
+	outline: 1px solid transparent;
+	border-radius: 15px;
+	-webkit-box-shadow: none;
+}
+
+
+/* scrollbar for firefox */
+* {
+    scrollbar-color: rgba(0, 0, 0, .5) 0 0 1px rgba(255, 255, 255, .5);
+    scrollbar-width: thin;
+}
+/* scrollbar for firefox end */
 
 .font-size {
 	.dec-btn {
@@ -61,12 +78,12 @@ p {
 
 	.active-btn,
 	.active-btn:hover {
-		background: #b7b6bf;
+		background: var(--fontsize-button-color);
 		border: 0;
 		color: var(--home-btn-color);
-		height: 20px;
+		height: 20px !important;
 		text-align: center;
-		padding-top: 2px;
+		padding-top: 2px !important;
 		font-weight: bold;
 	}
 
@@ -76,196 +93,12 @@ p {
 	}
 }
 
-// .modal-header {
-// 	background-color: var(--modal-header-bg) !important;
-// }
-
-.modal-header .close {
-	color: var(--main-font-color) !important;
-}
-
-.footer-dropdown {
-	.btn {
-		background-color: var(--new-footer-component-color);
-		border-color: var(--new-footer-component-color);
-		border-bottom-left-radius: 0;
-		border-bottom-right-radius: 0;
-		border-top-left-radius: 10px;
-		border-top-right-radius: 10px;
-		width: 180px;
-		color: var(--innertext-font-color);
-
-		&:hover,
-		&:active,
-		&:focus,
-		&.focus,
-		&:checked {
-			color: var(--color-white);
-			box-shadow: none !important;
-		}
-	}
-
-	.dropdown-menu {
-		z-index: 1009;
-		background-color: var(--dropdown-bg-color);
-		border: 1px solid var(--dropdown-border-color);
-		width: 100%;
-		border-radius: 10px;
-		margin: 0;
-		margin-top: 1px;
-
-		.dropdown-item {
-			font-size: var(--font-size-p-small-text);
-			z-index: 1000;
-			color: var(--fonts-white-shade) !important;
-			background-color: var(--dropdown-item-bg);
-			width: 80%;
-			margin: 0 auto;
-			border: 1px solid var(--dropdown-border-color);
-			
-		}
-	}
-}
-
-.card-body .table-responsive.groupCreationtable .table {
-	background-color: transparent !important;
-	border: 1px solid #343361 !important;
-}
-.table .thead-dark th {
-	background-color: var(--primary-bg-color);
-}
-.card-body .table-responsive .table {
-	background-color: transparent !important;
-}
-.userMappingTable .table .thead-dark th {
-	background-color: var(--primary-bg-color) !important;
-}
-.home-main .select_dashboard_btn li button {
-	background-color: #64648d !important;
-	// padding: 10px 30px;
-	display: flex;
-	align-items: center;
-}
-.dropDownBorderBottomColor button,
-.dropDownBorderBottomColor .dropdown-item:hover {
-	border-bottom: 1px solid #e5e5e5;
-}
-.datamappingtopcar .md_nested_tabs .md_tabs {
-	background: #181736;
-}
-
-rect.highcharts-point {
-	stroke: transparent;
-}
-.modal {
-	background: rgb(18 18 33 / 75%);
-}
-#modal-anc___BV_modal_outer_ {
-	z-index: 9999 !important;
-}
-@media only screen and (min-width: 1366px) {
-}
-
-@media only screen and (min-width: 1366px) {
-}
-
-.btn-dark {
-	background-color: var(--export-btn-color) !important;
-	border-color: var(--export-btn-color) !important;
-}
-
-.question-answer {
-	.form-control:disabled {
-		background-color: var(--signoff-card-bg);
-		border-color: var(--signoff-card-bg);
-	}
-}
-
-// .valueRow{
-//   background-color: #1e1e42;
-// }
-
 .hidden {
 	visibility: hidden !important;
 }
 
 
-::-webkit-scrollbar-track{
-	background-color: var(--primary-bg-color) !important;
-}
-
-body{
-	overflow: hidden;
-}
-
-.sumContainer.main{
-	padding-top: 60px;
-}
-
-.sumContainer, .dqrContainer{
-	overflow-y: auto;
-    height: calc(100vh - 60px);
-	
-}
-
-#dashboardchartholder.sumContainer{
-	// margin-top: 100px !important;
-	padding-top: 65px;
-}
-
-#progtabwrapper{
-	padding-top: 60px;
-	// border: 2px solid red;
-}
-
-#progtabwrapper,.analytic-page .analytic,.dqr-page .dqr{
-	height: calc(100vh - 120px) !important;
-    overflow-y: auto;
-	overflow-x: hidden;
-}
-
-.dqr-page .dqr,.dynamic-modules-section{
-	height: calc(100vh - 100px) !important;
-    overflow-y: auto;
-	overflow-x: hidden;
-}
 
 
-#progchartcontainer{
-	overflow: hidden !important;
-}
 
-.dqrContainer{
-	padding-top: 60px;
-}
 
-.dynamic-modules-section{
-	padding-top: 60px;
-}
-
-.globalconfigcontainer{
-	height: calc(100vh - 60px);
-	overflow-y: scroll;
-	overflow-x: hidden;
-	padding-top: 60px;
-}
-
- @media (min-width: 576px){
-	.modal-dialog-scrollable .modal-content {
-		max-height: calc(100vh - 1rem);
-		overflow-y: scroll;
-	}
-
-}
-
-.modal-dialog-scrollable .modal-body {
-    overflow-y: hidden;
-}
-
-.dqrContainer {
-    background-color: var(--chart-container-color) !important;
-}
-
-.dqrContainer .modal-dialog-scrollable .modal-body {
-    overflow-y: auto !important;
-}

@@ -7,7 +7,7 @@ export default {
    * @param 'p_data, p_global' p_data is data of indivisual tab, p_global is global config.
    * @return {Object} oData
    */
-  getFormatedData: (p_data, p_global, cyp, continuation) => {
+  getFormatedData: (p_data, p_global, startingYear, cyp, continuation) => {
     let finalMethodArr = [];
     let oData = {
         // type:p_data.chartOptions.chart.type.toLowerCase(),
@@ -20,7 +20,7 @@ export default {
 
         // xTitle:"",
         // yTitle:"",
-        startingYear: p_global.startingYear,
+        startingYear: startingYear,
         locationId: p_global.defaultLocationID[0],
         chartArr: [],
       },
@@ -33,33 +33,45 @@ export default {
       tableMethodSeq = [];
 
     loop1: for (i = 0; i < nLen; i++) {
-      if (
-        aChart[i].indicator.static_name === "Total CYP" ||
-        !aChart[i].indicator.subIndicator
-      ) {
+      let statName =
+        typeof aChart[i].indicator.static_name == "object"
+          ? aChart[i].indicator.static_name[i18n.locale]
+          : aChart[i].indicator.static_name;
+      let indName =
+        typeof aChart[i].indicator.name == "object"
+          ? aChart[i].indicator.name[i18n.locale]
+          : aChart[i].indicator.name;
+      if (statName === "Total CYP" || !aChart[i].indicator.subIndicator) {
         oTotalCyp = aChart[i].indicator;
 
         continue loop1;
       }
 
-      emuColors[aChart[i].indicator.name.split("/")[0]] =
-        aChart[i].indicator.chartOptions.color;
+      emuColors[indName.split("/")[0]] = aChart[i].indicator.chartOptions.color;
       //console.log(aChart[i].indicator)
       let oOptions = {
           // color:aChart[i].indicator.color,
           title: aChart[i].indicator.chartOptions.title.title,
           color: aChart[i].indicator.chartOptions.color,
-          name:
-            aChart[i].indicator.name + "/" + aChart[i].indicator.static_name,
-          trans_name: aChart[i].indicator.name,
-          static_name: aChart[i].indicator.static_name,
-          xTitle: aChart[i].indicator.chartOptions.xAxis.title.text,
-          yTitle: aChart[i].indicator.chartOptions.yAxis.title.text,
+          name: indName + "/" + statName,
+          trans_name: indName,
+          static_name: statName,
+          xTitle:
+            typeof aChart[i].indicator.chartOptions.xAxis.title.text == "object"
+              ? aChart[i].indicator.chartOptions.xAxis.title.text[i18n.locale]
+              : aChart[i].indicator.chartOptions.xAxis.title.text,
+          yTitle:
+            typeof aChart[i].indicator.chartOptions.yAxis.title.text == "object"
+              ? aChart[i].indicator.chartOptions.yAxis.title.text[i18n.locale]
+              : aChart[i].indicator.chartOptions.yAxis.title.text,
           // visible:aChart[i].indicator.visible,
           methodType: aChart[i].indicator.methodType,
           disable: aChart[i].indicator.disableChart,
           visible: true,
-          chartInfo: aChart[i].indicator.chartInfo,
+          chartInfo:
+            typeof aChart[i].indicator.chartInfo == "object"
+              ? aChart[i].indicator.chartInfo[i18n.locale]
+              : aChart[i].indicator.chartInfo,
           cID: aChart[i].indicator.cid,
           // source:aChart[i].indicator.source
           source: aChart[i].indicator.chartOptions.chartDataSource.text,
@@ -69,28 +81,33 @@ export default {
         aSubInd = aChart[i].indicator.subIndicator,
         njLen = aSubInd.length,
         oCyp = {};
-
       for (j = 0; j < njLen; j++) {
-        //console.log(continuation[aSubInd[j].static_name[0]].type)
-        emuColors[aSubInd[j].name] = aSubInd[j].color;
-        if (aChart[i].indicator.static_name === "Sterilization") {
-          methodSeq.push(aSubInd[j].name);
-          finalMethodArr.push(
-            Array.isArray(aSubInd[j].name)
-              ? aSubInd[j].name[0]
-              : aSubInd[j].name
-          );
+        let subIndNameAct =
+          typeof aSubInd[j].name == "object"
+            ? aSubInd[j].name[i18n.locale]
+            : aSubInd[j].name;
+        // console.log(subIndNameAct, aSubInd[j].name, "subIndNameAct");
+        emuColors[subIndNameAct] = aSubInd[j].color;
+        let statName =
+          typeof aChart[i].indicator.static_name == "object"
+            ? aChart[i].indicator.static_name[i18n.locale]
+            : aChart[i].indicator.static_name;
+
+        if (statName === "Sterilization") {
+          methodSeq.push(subIndNameAct);
+          finalMethodArr.push(subIndNameAct);
         }
         //submethodtype from global settings ....added by ashvini for sub methods
         let subIndName = Array.isArray(aSubInd[j].static_name)
-          ? aSubInd[j].static_name[0]
+          ? aSubInd[j].static_name[i18n.locale]
           : aSubInd[j].static_name;
         let oDe = {
-          name: aSubInd[j].name + "/" + subIndName,
-          trans_name: aSubInd[j].name,
+          name: subIndNameAct + "/" + subIndName,
+          trans_name: subIndNameAct,
           static_name: subIndName,
           displayName: [],
           de: [],
+          selectedDE: [],
           color: aSubInd[j].color,
           scaling: aSubInd[j].scalingFactor,
           subMethodType: continuation[subIndName].type,
@@ -102,30 +119,25 @@ export default {
                     continue loop1;
                 } */
         // /
-        oCyp[aSubInd[j].name + "/" + subIndName] = cyp[subIndName];
+        oCyp[subIndNameAct + "/" + subIndName] = cyp[subIndName];
         oDe.de = aSubInd[j].de;
+        oDe.selectedDE = aSubInd[j].selectedDE;
         // commented for modified api calls /
         /*
                 for(let k in oSelectedDE){
                     oDe.displayName.push(oSelectedDE[k].displayName);
                     oDe.de.push(oSelectedDE[k].id);
                 } */
-        if (oDe.de.length) {
+        if (oDe.selectedDE.length) {
           aDataElems.push(oDe);
         }
         tableMethodSeq.push(
-          aChart[i].indicator.name +
-            "/" +
-            aChart[i].indicator.static_name +
-            "__" +
-            aSubInd[j].name +
-            "/" +
-            subIndName
+          indName + "/" + statName + "__" + subIndNameAct + "/" + subIndName
         );
       }
-      if (aChart[i].indicator.static_name != "Sterilization") {
-        methodSeq.push(aChart[i].indicator.name);
-        finalMethodArr.push(aChart[i].indicator.name);
+      if (statName != "Sterilization") {
+        methodSeq.push(indName);
+        finalMethodArr.push(indName);
       }
 
       if (!aDataElems.length) {
@@ -208,7 +220,6 @@ export default {
     }
     for (let i in aCharts) {
       //aCats.push(i);
-      let nTemp = 0;
       for (let j in aCharts[i]) {
         if (!keyValueData[j]) keyValueData[j] = {};
         keyValueData[j][i] = aCharts[i][j];
@@ -306,7 +317,12 @@ export default {
    * @return {Object} formated data to be used in HighCharts
    */
   getFinalTotalCYP: (p_data, p_config, oConfig) => {
-    let newName = oConfig != null ? oConfig.name : "Total CYP";
+    let newName =
+      oConfig != null
+        ? typeof oConfig.name == "object"
+          ? oConfig.name[i18n.locale]
+          : oConfig.name
+        : "Total CYP";
     let newColor = oConfig != null ? oConfig.chartOptions.color : "";
     let aCats = [],
       aSeries = [{ name: newName, data: [], color: newColor }],
@@ -345,10 +361,10 @@ export default {
     };
   },
   /**
-   *
+   * Short term method calculation
    *
    */
-  calculateSTMNotAdjusted: (p_arr, p_repo, p_adjF) => {
+  calculateSTMNotAdjusted: (p_arr, p_repo, p_adjF, byPassRepoRate) => {
     //console.log(p_arr, p_repo,p_adjF)
     let i,
       nLen = p_arr.length,
@@ -373,7 +389,11 @@ export default {
           for (let k in oChart[j]) {
             oNotAdjusted[sName][j][k] = oChart[j][k];
             oAdjusted[sName][j][k] = oChart[j][k];
-            if (p_repo != null && p_repo[j] > 60) {
+            console.log("byPassRepoRate", byPassRepoRate);
+            if (
+              byPassRepoRate == true ||
+              (byPassRepoRate == false && p_repo != null && p_repo[j] > 60)
+            ) {
               // oChart[j][k] = oChart[j][k] * otempCyp[k]
               oNotAdjusted[sName][j][k] = oChart[j][k] * otempCyp[k];
               oNotAdjusted[sName][j][k] =
@@ -410,7 +430,7 @@ export default {
    * @return {object} return object of {adjusted, nonAdjusted} gives adjusted and not adjusted user for long term methods
    *
    */
-  calculateNewBU: (p_arr, p_cont, p_repo, p_adjF, prevCont) => {
+  calculateNewBU: (p_arr, p_cont, p_repo, p_adjF, prevCont, byPassRepoRate) => {
     let i,
       nLen = p_arr.length,
       oBU = {},
@@ -418,6 +438,7 @@ export default {
       oPArr = {},
       aYears = [];
     for (i = 0; i < nLen; i++) {
+      // console.log(p_arr[i].name, "name---------------");
       let oChart = p_arr[i].charts,
         sName = p_arr[i].name,
         bIsLongTerm = p_arr[i].methodType;
@@ -435,6 +456,7 @@ export default {
               if (!oBU[sName][j]) oBU[sName][j] = {};
               //scalling[sName][j] ={}
               for (let k in oChart[j]) {
+                // console.log(s.name, k, "name---------------");
                 if (s.name == k) {
                   if (!scalling[k]) scalling[k] = {};
                   let nCont = p_cont[k.split("/")[1]][m]
@@ -509,7 +531,7 @@ export default {
             //oNonAdjusted[method][j][sSubM] = Math.round(oNonAdjusted[method][j][sSubM]);
             oNonAdjusted[method][j][sSubM] =
               oNonAdjusted[method][j][sSubM].toFixed(3) * 1;
-            if (p_repo && p_repo[j] < 60) {
+            if (byPassRepoRate == false && p_repo && p_repo[j] < 60) {
               oNonAdjusted[method][j][sSubM] = 0;
             }
             let adjustmentFact = p_adjF[sSubM.split("/")[1]]
@@ -528,7 +550,7 @@ export default {
         nCounter++;
       }
     }
-    console.log("Baseline users ", JSON.parse(JSON.stringify(oBU)));
+    // console.log("Baseline users ", JSON.parse(JSON.stringify(oBU)));
     return {
       scalling: scalling,
       baseline: oBU,
@@ -553,47 +575,7 @@ export default {
     }
     return finalAdjusted;
   },
-  // calculateTotalAdjustedVals:(p_AdjtVal) => {
-  //     //console.log(p_AdjtVal)
-  //     let oAdjusted = {}, nonAdjusted = {}
-  //     Object.keys(p_AdjtVal).forEach(type=>{
-  //         if(type == 'adjusted'){
-  //             Object.keys(p_AdjtVal[type]).forEach(method=>{
-  //                 Object.keys(p_AdjtVal[type][method]).forEach(year=>{
-  //                     let nsum = 0
-  //                     Object.keys(p_AdjtVal[type][method][year]).forEach(subM=>{
-  //                         nsum += p_AdjtVal[type][method][year][subM]
-  //                     })
-  //                     //nYearSum += nsum
-  //                     if(oAdjusted[year] == undefined){
-  //                         oAdjusted[year] = 0
-  //                     }
-  //                     oAdjusted[year] += nsum
-  //                     oAdjusted[year] = Math.round(oAdjusted[year])
-  //                 })
-  //             })
-  //         }else{
-  //             Object.keys(p_AdjtVal[type]).forEach(method=>{
-  //                 Object.keys(p_AdjtVal[type][method]).forEach(year=>{
-  //                     let nsum = 0
-  //                     Object.keys(p_AdjtVal[type][method][year]).forEach(subM=>{
-  //                         nsum += p_AdjtVal[type][method][year][subM]
-  //                     })
-  //                     if(nonAdjusted[year] == undefined){
-  //                         nonAdjusted[year] = 0
-  //                     }
-  //                     nonAdjusted[year] += nsum
-  //                     nonAdjusted[year] = Math.round(nonAdjusted[year])
-  //                 })
-  //             })
-  //         }
-  //     })
-  //     //console.log(oAdjusted, nonAdjusted)
-  //     return {
-  //         adjusted:oAdjusted,
-  //         nonAdjusted:nonAdjusted
-  //     }
-  // },
+
   getSumOfCont: (p_obj) => {
     //console.log(p_obj)
     let oFinal = {};
@@ -658,90 +640,7 @@ export default {
     }
     return mainObject;
   },
-  getFinalOutPutChart: (p_tab, adjustedObject) => {
-    let oSSTOEMUCOLORS = localStorage.getItem("SSTOEMUCOLORS"),
-      oTabColors = {};
-    if (oSSTOEMUCOLORS) {
-      oSSTOEMUCOLORS = JSON.parse(oSSTOEMUCOLORS);
-      oTabColors = oSSTOEMUCOLORS[p_tab] ? oSSTOEMUCOLORS[p_tab] : {};
-    }
-    let dataSeries = [],
-      categories = [],
-      tableD = [],
-      TableRow = {},
-      fields = [];
-    Object.keys(adjustedObject).forEach((method) => {
-      if (method.split("/")[1].toLocaleLowerCase() === "sterilization") {
-        let separtedData = {};
-        Object.keys(adjustedObject[method]).forEach((year) => {
-          if (categories.indexOf(year) == -1) {
-            categories.push(year);
-          }
-          let subObject = adjustedObject[method][year];
-          Object.keys(subObject).forEach((submethod) => {
-            if (!separtedData[submethod]) {
-              separtedData[submethod] = {};
-            }
-            TableRow[submethod.split("/")[0]] = {};
-            separtedData[submethod][year] = subObject[submethod];
-          });
-        });
-        Object.keys(separtedData).forEach((submethod) => {
-          let oTemp = {
-            name: submethod.split("/")[0],
-            data: [],
-            color: oTabColors[submethod.split("/")[0]],
-            static_name: submethod.split("/")[1],
-          };
-          for (let yr in separtedData[submethod]) {
-            oTemp.data.push(separtedData[submethod][yr].toFixed(0) * 1);
-            TableRow[submethod.split("/")[0]][yr] =
-              separtedData[submethod][yr].toFixed(0) * 1;
-          }
-          dataSeries.push(oTemp);
-        });
-      } else {
-        let color = "";
-        let oTemp = {
-          name: method.split("/")[0],
-          data: [],
-          //color:oTabColors[method.split('/')[0]],
-          static_name: method.split("/")[1],
-        };
-        TableRow[method.split("/")[0]] = {};
-        Object.keys(adjustedObject[method]).forEach((year) => {
-          if (categories.indexOf(year) == -1) {
-            categories.push(year);
-          }
-          let subObject = adjustedObject[method][year];
-          let sum = 0;
-          for (let val in subObject) {
-            color = oTabColors[val.split("/")[0]];
-            sum = sum + subObject[val];
-          }
-          TableRow[method.split("/")[0]][year] = sum.toFixed(0) * 1;
 
-          oTemp.data.push(sum.toFixed(0) * 1);
-          oTemp.color = color;
-        });
-        dataSeries.push(oTemp);
-      }
-    });
-    for (let yr = 0; yr < categories.length; yr++) {
-      let newORow = {};
-      newORow[i18n.t("period")] = categories[yr];
-      for (let methodName in TableRow) {
-        newORow[methodName] = TableRow[methodName][categories[yr]];
-      }
-      tableD.push(newORow);
-    }
-    return {
-      categories: categories,
-      data: dataSeries,
-      tableData: tableD,
-      methodValObject: TableRow,
-    };
-  },
   getFinaladjNonAdjData: (p_tab, allMethodsAdjusted) => {
     let oSSTOEMUCOLORS = localStorage.getItem("SSTOEMUCOLORS"),
       oTabColors = {};
@@ -792,7 +691,8 @@ export default {
     sYearArray,
     finalMethodArr,
     adjNonAdjData,
-    surveyData
+    surveyData,
+    staticColors = []
   ) => {
     let allData = {
       nonAdjusted: adjNonAdjData.nonAdjusted,
@@ -809,8 +709,14 @@ export default {
       adjusted: i18n.t("user_by_methods_service_adjusted"),
       surveyData: i18n.t("user_by_methods_survey"),
     };
+    let ind = 0;
     for (let type in allData) {
-      let tempObj = { name: categories[type], data: [], color: "" };
+      let tempObj = {
+        name: categories[type],
+        data: [],
+        color: staticColors[categories[type]],
+      };
+      ind++;
       for (let yrInd in sYearArray) {
         let year = sYearArray[yrInd];
         let sum = 0;
@@ -930,7 +836,8 @@ export default {
     let mainObj = {};
     mainObj.data = [];
     mainObj.tableData = [];
-    finalMethodArr = finalMethodArr.reverse(); //need to do as for stack as it shows reversed order of methods
+    let methodArr = finalMethodArr;
+    finalMethodArr = methodArr.reverse(); //need to do as for stack as it shows reversed order of methods
     let emuColors = JSON.parse(localStorage.getItem("emuColors"));
     for (let yrInd in sYearArray) {
       let year = sYearArray[yrInd];
@@ -978,7 +885,8 @@ export default {
     finalMethodArr,
     sYearArray,
     methodWiseObject,
-    surveyData
+    surveyData,
+    staticColors = []
   ) => {
     let mainObj = {};
     mainObj.data = [];
@@ -994,7 +902,7 @@ export default {
       let year = sYearArray[yrInd];
       if (year == endYear) {
         atypes.forEach((val, ind) => {
-          let tObj = { name: val, data: [] };
+          let tObj = { name: val, data: [], color: staticColors[val] };
           let tablerow = {};
           tablerow[i18n.t("type")] = val;
           let dataObject = ind == 0 ? methodWiseObject : surveyData;
@@ -1121,6 +1029,7 @@ export default {
     };
 
     for (let type in allData) {
+      let ind = 0;
       let surveyType = type.toLowerCase();
       let tempObj = {
         name: testArray[surveyType],
@@ -1128,25 +1037,40 @@ export default {
         keyVal: {},
         color: bgColor[type.toUpperCase()],
       };
-
+      ind++;
+      let checkIfEmpty = null;
       let sData = allData[surveyType];
       for (let yearInd in sYearArray) {
         let year = sYearArray[yearInd];
         // tRow[testArray[type]]=sData[year]
         //tempObj.data.push({name:year,y:sData[year]})
+        console.log(sData[year], testArray[surveyType], year);
         tempObj.data.push(sData[year] ? sData[year] : null);
+        if (checkIfEmpty == null)
+          checkIfEmpty = sData[year] && sData[year] != 0 ? sData[year] : null;
         tempObj.keyVal[year] = sData[year] ? sData[year] : null;
       }
-      mainObject.data.push(tempObj);
+      if (checkIfEmpty != null) mainObject.data.push(tempObj);
     }
     return mainObject;
   },
-  getemuComparisonData: (bgSureyData, outputData, filter) => {
+  getemuComparisonData: (
+    bgSureyData,
+    outputData,
+    filter,
+    staticColors = []
+  ) => {
     let oProps = {
       commoditiesToClients: i18n.t("emu_output_5"),
       commoditiesToFacilities: i18n.t("emu_output_6"),
       fp_users: i18n.t("emu_output_8"),
       fp_visits: i18n.t("emu_output_7"),
+    };
+    let actTypes = {
+      commoditiesToClients: i18n.t("commodities_to_clients"),
+      commoditiesToFacilities: i18n.t("commodities_to_facility"),
+      fp_users: i18n.t("fp_users"),
+      fp_visits: i18n.t("fp_visits"),
     };
     let mainObject = {
       data: [],
@@ -1154,11 +1078,10 @@ export default {
       tableData: [],
     };
     mainObject.data = bgSureyData.data ? bgSureyData.data : [];
+
     for (let type in oProps) {
       let emuData = outputData[type];
-
       let emuFilter = filter[type];
-
       if (emuData) {
         mainObject.categories =
           emuData && emuData.categories ? emuData.categories : [];
@@ -1166,7 +1089,13 @@ export default {
           emuData && emuData.data
             ? emuData.data.filter((obj) => obj.name.includes(i18n.t("EMU")))
             : [];
-        let tempObj = { name: oProps[type], data: [], keyVal: {} };
+        let actType = actTypes[type];
+        let tempObj = {
+          name: oProps[type],
+          data: [],
+          keyVal: {},
+          color: staticColors[actType][emuFilter],
+        };
         if (reqEmuData.length == 2) {
           tempObj.data =
             emuFilter == "inc" ? reqEmuData[0].data : reqEmuData[1].data;
@@ -1176,7 +1105,7 @@ export default {
         mainObject.data.push(tempObj);
       }
     }
-    console.log(outputData, mainObject, "this.outputData for emuoutput");
+    // console.log(outputData, mainObject, "this.outputData for emuoutput");
 
     return mainObject;
   },
@@ -1185,7 +1114,8 @@ export default {
     methodWiseAdjObject,
     oPopulation,
     finalObj,
-    contName
+    contName,
+    staticColors = []
   ) => {
     if (finalObj && finalObj.data) {
       finalObj.categories = sYearArray;
@@ -1223,13 +1153,13 @@ export default {
       name: i18n.t("EMU") + ": " + contName + " " + i18n.t("includeCondoms"),
       data: [],
       keyVal: {},
-      color: "",
+      color: staticColors[contName]["inc"],
     };
     let tempObjEx = {
       name: i18n.t("EMU") + ": " + contName + " " + i18n.t("excludeCondoms"),
       data: [],
       keyVal: {},
-      color: "",
+      color: staticColors[contName]["exc"],
     };
     for (let yearInd in sYearArray) {
       let year = sYearArray[yearInd];
@@ -1421,7 +1351,9 @@ export default {
     sYearArray,
     userTrendsData,
     finalMethodArr,
-    defaultEMU
+    defaultEMU,
+    filter,
+    staticColors = []
   ) => {
     let mainObject = {};
     let oProps = {
@@ -1430,6 +1362,7 @@ export default {
       fp_users: i18n.t("fp_users"),
       fp_visits: i18n.t("fp_visits"),
     };
+    // console.log(oProps, "==============oProps=====================");
     let finalEmu = "";
     for (let tp in oProps) {
       if (oProps[tp] == defaultEMU) {
@@ -1445,9 +1378,14 @@ export default {
         tableData: [],
       };
       for (let type in oProps) {
-        let tempObj = { name: oProps[type], data: [] };
         let methodData = userTrendsData[type];
         if (methodData) {
+          let fil = filter[type] ? filter[type] : "inc";
+          let tempObj = {
+            name: oProps[type],
+            data: [],
+            color: staticColors[oProps[type]][fil],
+          };
           for (let yearInd in sYearArray) {
             let year = sYearArray[yearInd];
             let val =
@@ -1456,8 +1394,8 @@ export default {
                 : null;
             tempObj.data.push(val);
           }
+          mainObject[method].data.push(tempObj);
         }
-        mainObject[method].data.push(tempObj);
       }
       for (let yearInd in sYearArray) {
         let year = sYearArray[yearInd];
@@ -1530,6 +1468,15 @@ export default {
           //for other methods like popumlation,fpet
           finalBG[methodName] = {};
           let dataRows = p_data.rows;
+          let statName, dispName;
+          console.log(methodDE, "methodDE");
+          if (methodDE.length > 0)
+            if (methodDE[0].split("/").length == 2) {
+              (statName = methodDE[0].split("/")[0]),
+                (dispName = methodDE[0].split("/")[1]);
+            } else {
+              (statName = methodDE), (dispName = methodDE);
+            }
           for (let index = 0; index < p_year.length; index++) {
             let eachYear = p_year[index];
             let iFound = false;

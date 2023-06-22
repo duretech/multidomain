@@ -1,175 +1,227 @@
 <template>
-	<b-row id="modal-anc">
-		<!-- tablemap-col1 -->
-		<b-col class="pr-4 modal-content" sm="12" lg="6">
-			<b-row class="pt-1 pb-1 pl-3">
-				<b-col cols="4"></b-col>
-				<b-col class="table-heading pr-0" cols="2"
-					><p>
-						{{ summaryObj.summaryDetails[0].prevForDate }}
-					</p></b-col
-				>
-				<b-col class="table-heading pr-0" cols="2"
-					><p>
-						{{ summaryObj.summaryDetails[0].currForDate }}
-					</p>
-				</b-col>
-				<b-col class="table-heading pr-0" cols="2"
-					><p>{{ $t("change%") }}</p></b-col
-				>
-				<b-col class="table-heading pr-0" cols="2"
-					><p>{{ $t("2014dhs") }}</p></b-col
-				>
-			</b-row>
-			<b-row
-				class="pt-1 pb-2 mx-0 valueRow"
-				v-for="(sDetails, i) in summaryObj.summaryDetails"
-				:key="'details' + i"
-			>
-				<b-col class="table-heading pt-2" cols="4"
-					><p>{{ sDetails.indicatorName }}</p></b-col
-				>
-				<b-col cols="2"
-					><div class="summary-dot">
-						{{ sDetails.prevValue === null ? "NA" : sDetails.prevValue }}
-					</div></b-col
-				>
-				<b-col cols="2"
-					><div class="summary-dot">
-						{{ sDetails.currValue === null ? "NA" : sDetails.currValue }}
-					</div></b-col
-				>
-				<b-col cols="2">
-					<div class="summary-dot" :class="sDetails.colorLastYr">
-						{{ sDetails.change === null ? "NA" : sDetails.change }}
-					</div></b-col
-				>
-				<b-col cols="2"><div class="summary-dot">61.5%</div></b-col>
-			</b-row>
-			<b-row>
-				<b-col sm="12">
-					<p>
-						{{ $t("performance_against_benchmark") }}
-						{{
-							summaryObj.summaryDetails[0].benchmarkValue
-								? `(${summaryObj.summaryDetails[0].benchmarkValue})`
-								: ""
-						}}
-						<span class="ml-3">
-							<template
-								v-if="
-									summaryObj.summaryDetails[0].performanceBenchmarking === 'N/A'
-								"
-							>
-								{{ summaryObj.summaryDetails[0].performanceBenchmarking }}
-							</template>
-							<img
-								v-else
-								alt="s_icon"
-								class="equalTosign w-20px"
-								:src="
-									require(`@/assets/img/ministerialSummaryIcon/${getIcon(
-										summaryObj.summaryDetails[0].performanceBenchmarking
-									)}`)
-								"
-							/>
-						</span>
-					</p>
-				</b-col>
-			</b-row>
-			<b-row>
-				<b-col sm="12">
-					<p class="">
-						<span
-							v-html="getSummaryText(summaryObj.summaryDetails[0].summaryText)"
-						></span>
-					</p>
-				</b-col>
-			</b-row>
-		</b-col>
-		<b-col class="anc-map" sm="12" lg="6">
-			<div class="map-header mb-3" v-show="isJsonFetched">
-				<div v-if="locationPeriod">
-					<h6 class="map-title pt-1">
-						{{ locationPeriod.locationName }}
-					</h6>
-				</div>
-				<div class="ml-2" v-if="indList.length > 0">
-					<b-form-select
-						class="mapDropdown"
-						v-model="selectedInd"
-						:options="indList"
-					></b-form-select>
-				</div>
-			</div>
-			<MapComponent
-				@getGeoJson="getGeoJson"
-				:allGeoJson="allGeoJson"
-				:selectedInd="selectedInd"
-				:chartData="summaryObj.trend"
-				:locationPeriod="locationPeriod"
-				@isJsonFetched="isJsonFetched = true"
-			/>
-		</b-col>
-		<!-- tablemap-col2 -->
-		<b-col class="anc-charts" sm="12" lg="6">
-			<HighChartComponentDynamic
-				:chartData="summaryObj.trend"
-				class="border-bottom"
-				:dataFetched="true"
-				:chartType="'period'"
-				:isHideOption="true"
-				:chartConfigData="summaryObj.chartConfigData"
-				/>
-			</b-col>
-			<b-col class="anc-charts" sm="12" lg="6">
-				<HighChartComponentDynamic
-				:chartData="summaryObj.regional"
-				class="border-bottom"
-				:dataFetched="true"
-				:chartType="'regional'"
-				:isHideOption="true"
-			/>
-		</b-col>
-	</b-row>
+  <b-row id="modal-newanc">
+    <b-col class="pr-3" sm="12" lg="6">
+      <div class="border-modal">
+        <b-row class="pt-1 pb-1 pl-3">
+          <b-col cols="4"></b-col>
+          <b-col class="table-heading text-center" cols="2"
+            ><p class="mr-2">
+              {{ summaryObj.summaryDetails[0].prevForDate }}
+            </p></b-col
+          >
+          <b-col class="table-heading text-center" cols="2"
+            ><p class="mr-2">
+              {{ summaryObj.summaryDetails[0].currForDate }}
+            </p>
+          </b-col>
+          <b-col class="table-heading text-center" cols="2"
+            ><p class="mr-2">{{ $t("per_change") }}</p></b-col
+          >
+          <b-col class="table-heading text-center" cols="2"
+            ><p class="mr-3">{{ extYear }} {{ extName }}</p></b-col
+          >
+        </b-row>
+        <b-row
+          class="pt-1 pb-2 mx-0 valueRow"
+          v-for="(sDetails, i) in summaryObj.summaryDetails"
+          :key="'details' + i"
+        >
+          <b-col class="table-heading pt-2" cols="4"
+            ><p>{{ sDetails.indicatorName }}</p></b-col
+          >
+          <b-col cols="2"
+            ><div class="summary-dot">
+              {{ sDetails.prevValue === null ? $t("NA") : sDetails.prevValue }}
+            </div></b-col
+          >
+          <b-col cols="2"
+            ><div class="summary-dot">
+              {{ sDetails.currValue === null ? $t("NA") : sDetails.currValue }}
+            </div></b-col
+          >
+          <b-col cols="2">
+            <div class="summary-dot" :class="sDetails.colorLastMn">
+              {{ sDetails.change === null ? $t("NA") : sDetails.change }}
+            </div></b-col
+          >
+          <b-col cols="2">
+            <div class="summary-dot">
+              {{ extValue }}{{ extValue === $t("NA") ? "" : "%" }}
+            </div></b-col
+          >
+        </b-row>
+        <b-row>
+          <b-col sm="12">
+            <p>
+              {{ $t("performance_against_benchmark") }}
+              {{
+                summaryObj.summaryDetails[0].benchmarkValue
+                  ? `(${summaryObj.summaryDetails[0].benchmarkValue})`
+                  : ""
+              }}
+              <span class="ml-3">
+                <template
+                  v-if="
+                    summaryObj.summaryDetails[0].performanceBenchmarking ===
+                    $t('NA')
+                  "
+                >
+                  {{ summaryObj.summaryDetails[0].performanceBenchmarking }}
+                </template>
+                <img
+                  v-else
+                  alt="s_icon"
+                  class="equalTosign w-20px"
+                  :src="
+                    require(`@/assets/images/ministerialSummaryIcon/${getIcon(
+                      summaryObj.summaryDetails[0].performanceBenchmarking
+                    )}`)
+                  "
+                />
+              </span>
+            </p>
+          </b-col>
+        </b-row>
+        <b-row>
+          <b-col sm="12">
+            <p class="">
+              <span
+                v-html="
+                  getSummaryText(summaryObj.summaryDetails[0].summaryText)
+                "
+              ></span>
+            </p>
+          </b-col>
+        </b-row>
+      </div>
+    </b-col>
+    <b-col class="anc-map" sm="12" lg="6">
+      <div class="border-map">
+        <div class="map-header mb-3" v-show="isJsonFetched">
+          <div class="row map-section">
+            <div class="col-3">
+              <div v-if="locationPeriod">
+                <h6 class="map-title pt-1">
+                  {{ locationPeriod.locationName }}
+                </h6>
+              </div>
+            </div>
+            <div class="col-9">
+              <div class="ml-2" v-if="indList.length > 0">
+                <b-form-select
+                  class="mapDropdown"
+                  v-model="selectedInd"
+                  :options="indList"
+                ></b-form-select>
+              </div>
+            </div>
+          </div>
+        </div>
+        <MapComponent
+          :allGeoJson="allGeoJson"
+          :selectedInd="selectedInd"
+          :chartData="summaryObj.trend"
+          :locationPeriod="locationPeriod"
+          @isJsonFetched="isJsonFetched = true"
+        />
+      </div>
+    </b-col>
+    <div class="html2pdf__page-break"></div>
+    <b-col class="anc-charts mt-3" sm="12" lg="6">
+      <HighChartComponent
+        :chartData="summaryObj.trend"
+        class="border-bottom border-greyright border-none"
+        :dataFetched="true"
+        :chartType="'period'"
+        :isHideOption="true"
+        :chartConfigData="summaryObj.chartConfigData"
+      />
+    </b-col>
+    <b-col class="anc-charts mt-3" sm="12" lg="6">
+      <HighChartComponent
+        :chartData="summaryObj.regional"
+        class="border-bottom border-greyright border-none"
+        :dataFetched="true"
+        :chartType="'regional'"
+        :isHideOption="true"
+      />
+    </b-col>
+  </b-row>
 </template>
 <script>
+import { decompress } from "compress-json";
 import SummaryViewMixin from "@/helpers/SummaryViewMixin";
-import HighChartComponentDynamic from "@/components/Highcharts/HighChartComponentDynamic";
+import DynamicImageMixin from "@/helpers/DynamicImageMixin";
+
 export default {
-	props: ["summaryObj", "allGeoJson", "locationPeriod"],
-	mixins: [SummaryViewMixin],
-	components: {
-		HighChartComponentDynamic,
-		MapComponent: () =>
-			import(
-				/*webpackChunkName: "MapComponent"*/ "@/components/Maps/MapComponent"
-			),
-	},
-	data() {
-		return {
-			indList: [],
-			selectedInd: "",
-			isJsonFetched: false,
-		};
-	},
-	methods: {
-		getGeoJson(loc, obj) {
-			this.$emit("getGeoJson", loc, obj);
-		},
-	},
-	created() {
-		this.indList =
-			this.summaryObj &&
-			this.summaryObj.summaryDetails &&
-			this.summaryObj.summaryDetails.length
-				? this.summaryObj.summaryDetails.map((s) => ({
-						value: s.indicatorName,
-						text: s.indicatorName,
-				  }))
-				: [];
-		this.selectedInd = this.indList.length ? this.indList[0].value : "";
-	},
+  props: ["summaryObj", "allGeoJson", "allExtData", "locationPeriod"],
+  mixins: [SummaryViewMixin, DynamicImageMixin],
+  components: {
+    HighChartComponent: () =>
+      import(
+        /* webpackChunkName: "HighChartComponentDynamic"*/ "@/components/Highcharts/HighChartComponentDynamic"
+      ),
+    MapComponent: () =>
+      import(
+        /*webpackChunkName: "MapComponent"*/ "@/components/Maps/MapComponent"
+      ),
+  },
+  data() {
+    return {
+      isJsonFetched: false,
+    };
+  },
+  computed: {
+    extYear() {
+      return this.sortedData?.[0]?.[1] || null;
+    },
+    extName() {
+      let gSetting = this.$store.getters.getGlobalFactors();
+      let name = this.$i18n.t("DHS");
+      if (gSetting?.allExtData?.extData?.length) {
+        let isFound = gSetting.allExtData.extData.find(
+          (m) => m.id === this.summaryObj.extData
+        );
+        if (isFound) {
+          name = isFound.displayName[this.$i18n.locale];
+        }
+      }
+      return name;
+    },
+    extValue() {
+      return this.sortedData?.[0]?.[3] || this.$i18n.t("NA");
+    },
+    sortedData() {
+      let level = this.locationPeriod.location.split("/")[0],
+        sortedData = [];
+      if (this.allExtData?.[level]?.rows) {
+        let r =
+          typeof this.allExtData[level].rows == "string"
+            ? decompress(JSON.parse(this.allExtData[level].rows))
+            : this.allExtData[level].rows;
+        if (r.length) {
+          let isData = r.filter((r) => r[0].includes(this.summaryObj.extData));
+          if (isData.length) {
+            sortedData = isData.sort((a, b) => b[1] * 1 - a[1] * 1);
+          }
+        }
+      }
+      return sortedData;
+    },
+    indList() {
+      let l = [];
+      if (this.summaryObj?.summaryDetails?.length) {
+        l = this.summaryObj.summaryDetails.map((s) => ({
+          value: s.indicatorName,
+          text: s.indicatorName,
+        }));
+      }
+      return l;
+    },
+    selectedInd() {
+      return this.indList.length ? this.indList[0].value : "";
+    },
+  },
 };
 </script>
 

@@ -8,13 +8,16 @@
           :title="$t('showSteps')"
           @click="showSteps"
         >
-          <img :src="require('@/assets/img/stepsd.png')" style="width: 30px" />
+          <img
+            :src="require('@/assets/images/icons/stepsd.svg')"
+            :style="{ filter: filterColor }"
+          />
         </a>
-        <span class="btn pointer-events-none color-white">
+        <span class="btn pointer-events-none color-white me-15 pointer-none">
           {{ sourceStartYear }} - {{ sourceEndYear }}
         </span>
       </div>
-      <ul class="nav nav-pills mb-3" role="tablist">
+      <ul class="nav nav-pills mb-3 mx-3" role="tablist">
         <li class="nav-item">
           <a
             v-if="
@@ -92,11 +95,20 @@
           :aria-labelledby="'input_tab_link_' + tabName"
         >
           <TabSummary
-            v-if="data['tabCategoryInfo'] && data['tabCategoryInfo'][0]"
-            :content="data['tabCategoryInfo'][0]"
+            v-if="
+              data['tabCategoryInfo'] &&
+              (typeof data['tabCategoryInfo'][0] == 'object'
+                ? data['tabCategoryInfo'][0][$i18n.locale]
+                : data['tabCategoryInfo'][0])
+            "
+            :content="
+              typeof data['tabCategoryInfo'][0] == 'object'
+                ? data['tabCategoryInfo'][0][$i18n.locale]
+                : data['tabCategoryInfo'][0]
+            "
             :contKey="'input' + contName"
           />
-          <div class="row dashboardchart-container">
+          <div class="row dashboardchart-container emu-dqr m-1">
             <div class="col-lg-12 col-xl-12">
               <b-alert v-if="!aFinalInputData" show variant="danger">{{
                 $t("no_data_to_display")
@@ -108,6 +120,7 @@
                     (obj) => obj.disableChart != true
                   )"
                   :key="chart.title"
+                  class="border-right"
                 >
                   <card-component
                     :chartdata="chart"
@@ -138,8 +151,17 @@
           :aria-labelledby="'output_tab_link_' + tabName"
         >
           <TabSummary
-            v-if="data['tabCategoryInfo'] && data['tabCategoryInfo'][1]"
-            :content="data['tabCategoryInfo'][1]"
+            v-if="
+              data['tabCategoryInfo'] &&
+              typeof data['tabCategoryInfo'][1] == 'object'
+                ? data['tabCategoryInfo'][1][$i18n.locale]
+                : data['tabCategoryInfo'][1]
+            "
+            :content="
+              typeof data['tabCategoryInfo'][0] == 'object'
+                ? data['tabCategoryInfo'][0][$i18n.locale]
+                : data['tabCategoryInfo'][0]
+            "
             :contKey="'output' + contName"
           />
 
@@ -157,7 +179,7 @@
                   </div>
                 </div> -->
                 <div class="col-12">
-                  <div class="card mb-4">
+                  <div class="mb-25px">
                     <div class="card-header">
                       {{ $t("outputsChartTitle1") }}
                     </div>
@@ -166,13 +188,14 @@
                       style="border-radius: 0 0 10px 10px"
                     >
                       <p>{{ $t("outputsChartBody1") }}</p>
-                      <div class="row">
+                      <div class="row emu-dqr">
                         <div
                           v-bind:class="getClass()"
                           v-if="
                             lineAdNonAdChartData &&
                             lineAdNonAdChartData.disable == false
                           "
+                          class=""
                         >
                           <card-component
                             :chartdata="lineAdNonAdChartData"
@@ -212,7 +235,7 @@
                   </div>
                 </div> -->
                 <div class="col-12">
-                  <div class="card mb-4">
+                  <div class="mb-25px">
                     <div class="card-header">
                       {{ $t("outputsChartTitle2") }}
                     </div>
@@ -221,13 +244,14 @@
                       style="border-radius: 0 0 10px 10px"
                     >
                       <p>{{ $t("outputsChartBody2") }}</p>
-                      <div class="row">
+                      <div class="row emu-dqr">
                         <div
                           v-bind:class="getClass()"
                           v-if="
                             outPutTrendsChart &&
                             outPutTrendsChart.disable == false
                           "
+                          class="border-right"
                         >
                           <card-component
                             :chartdata="outPutTrendsChart"
@@ -300,7 +324,7 @@
                           />
                         </div>
                         <div
-                          class="col-lg-8 col-xl-8 mb-4 pieChart-col"
+                          class="col-lg-8 col-xl-8 mb-4 pieChart-col border-left"
                           v-else-if="
                             MixComparisionData &&
                             MixComparisionData.disable == false
@@ -325,6 +349,7 @@
                             userTrendsByMethod &&
                             userTrendsByMethod.disable == false
                           "
+                          class="border-right"
                         >
                           <card-component
                             :chartdata="userTrendsByMethod"
@@ -357,7 +382,7 @@
 
                 <div class="col-lg-12">
                   <div class="row dashboardchart-container">
-                    <div class="col-lg-12 col-xl-12 mb-4">
+                    <div class="col-lg-12 col-xl-12 mb-4 p-4">
                       <dataTable
                         v-if="userTrendsByMethod"
                         :chartdata="userTrendsByMethod"
@@ -413,7 +438,7 @@
           :aria-labelledby="'reporting_tab_link_' + tabName"
         >
           <div class="row dashboardchart-container">
-            <div class="col-lg-12 col-xl-12 mb-4" v-if="reportinRateChart">
+            <div class="col-lg-12 col-xl-12 mb-4 p-4" v-if="reportinRateChart">
               <TabSummary
                 :content="reportinRateChart['categoryInfo']"
                 :contKey="contName"
@@ -426,6 +451,20 @@
                 defaultSort="JAN-DEC"
                 sorting="type3"
               />
+            </div>
+            <div class="col-lg-12 col-xl-12 mb-4 p-4" v-else>
+              <b-alert
+                v-if="!reportinRateChart && byPassRepoRate == false"
+                show
+                variant="danger"
+                >{{ $t("no_data_to_display") }}</b-alert
+              >
+              <b-alert
+                v-if="!reportinRateChart && byPassRepoRate == true"
+                show
+                variant="danger"
+                >{{ $t("rrByPass") }}</b-alert
+              >
             </div>
           </div>
         </div>
@@ -482,7 +521,10 @@ import service from "@/service";
 import dataM from "./dataMassaging.js";
 import bechMarkingOutputTable from "./bechMarkingOutputTable";
 import { decompress } from "compress-json";
+import DynamicImageMixin from "@/helpers/DynamicImageMixin";
+import StaticColorMixin from "@/helpers/StaticColorMixin";
 export default {
+  mixins: [DynamicImageMixin, StaticColorMixin],
   data() {
     //console.log(this.inputActive)
     return {
@@ -533,13 +575,31 @@ export default {
         User: this.$i18n.t("fp_users"),
       },
       firstTableName:
-        this.data["derivedCharts"][6]["chartOptions"]["chartName"],
+        typeof this.data["derivedCharts"][6]["chartOptions"]["chartName"] ==
+        "object"
+          ? this.data["derivedCharts"][6]["chartOptions"]["chartName"][
+              this.$i18n.locale
+            ]
+          : this.data["derivedCharts"][6]["chartOptions"]["chartName"],
       secondTableName:
-        this.data["derivedCharts"][7]["chartOptions"]["chartName"],
+        typeof this.data["derivedCharts"][7]["chartOptions"]["chartName"] ==
+        "object"
+          ? this.data["derivedCharts"][7]["chartOptions"]["chartName"][
+              this.$i18n.locale
+            ]
+          : this.data["derivedCharts"][7]["chartOptions"]["chartName"],
       firstTableInfo:
-        this.data["derivedCharts"][6]["chartOptions"]["chartInfo"],
+        this.data["derivedCharts"][6]["chartOptions"]["chartInfo"] == "object"
+          ? this.data["derivedCharts"][6]["chartOptions"]["chartInfo"][
+              this.$i18n.locale
+            ]
+          : this.data["derivedCharts"][6]["chartOptions"]["chartInfo"],
       secondTableInfo:
-        this.data["derivedCharts"][7]["chartOptions"]["chartInfo"],
+        this.data["derivedCharts"][7]["chartOptions"]["chartInfo"] == "object"
+          ? this.data["derivedCharts"][7]["chartOptions"]["chartInfo"][
+              this.$i18n.locale
+            ]
+          : this.data["derivedCharts"][7]["chartOptions"]["chartInfo"],
       filter: "inc",
       userTData: null,
       canComment: false,
@@ -558,6 +618,7 @@ export default {
     };
   },
   props: [
+    "byPassRepoRate",
     "emuSaveType",
     "data",
     "bgData",
@@ -593,7 +654,10 @@ export default {
   },
   methods: {
     goToAdmin() {
-      this.$store.commit("setNamespace", `${settings.tableName}`);
+      this.$store.commit(
+        "setNamespace",
+        `${this.$store.getters.getAppSettings.tableName}`
+      );
       this.$router.push("/admin");
     },
     async getSavedDataElemenet(type) {
@@ -601,13 +665,13 @@ export default {
       let allCatOpt = [],
         sLocId = this.location.split("/")[1],
         sYear = dataM.getYearFormated(this.sourceStartYear, this.sourceEndYear);
-      console.log(
-        this.sourceStartYear,
-        this.sourceEndYear,
-        "getsaveddataelement",
-        this.emuSaveType,
-        type
-      );
+      // console.log(
+      //   this.sourceStartYear,
+      //   this.sourceEndYear,
+      //   "getsaveddataelement",
+      //   this.emuSaveType,
+      //   type
+      // );
       this.sYearArray = sYear.split(";");
       let finalDHIS2Obj = {
         adjusted: {},
@@ -623,27 +687,39 @@ export default {
       let obj = {};
       let finalDES = [];
       this.data.chartData.forEach((indObj) => {
-        if (!obj[indObj.indicator.name + "/" + indObj.indicator.static_name])
-          obj[indObj.indicator.name + "/" + indObj.indicator.static_name] = {};
+        let indNm =
+          typeof indObj.indicator.name == "object"
+            ? indObj.indicator.name[this.$i18n.locale]
+            : indObj.indicator.name;
+        let stNm =
+          typeof indObj.indicator.static_name == "object"
+            ? indObj.indicator.static_name[this.$i18n.locale]
+            : indObj.indicator.static_name;
+        if (!obj[indNm + "/" + stNm]) obj[indNm + "/" + stNm] = {};
         sYearArray.forEach((year) => {
           indObj.indicator.subIndicator.forEach((subIndObj) => {
+            // console.log(
+            //   allCatOpt,
+            //   subIndObj.static_name,
+            //   typeof subIndObj.static_name
+            // );
+            let subIndNm =
+              typeof subIndObj.name == "object"
+                ? subIndObj.name[this.$i18n.locale]
+                : subIndObj.name;
+            let staticName =
+              typeof subIndObj.static_name == "object"
+                ? subIndObj.static_name[this.$i18n.locale]
+                : subIndObj.static_name;
             let catFound = allCatOpt.find(
-              (obj) => obj.displayName === subIndObj.static_name
+              (obj) => obj.displayName === staticName
             );
             if (catFound && catFound.id && !finalDES.includes(catFound))
               finalDES.push(catFound);
 
-            if (
-              !obj[indObj.indicator.name + "/" + indObj.indicator.static_name][
-                year
-              ]
-            )
-              obj[indObj.indicator.name + "/" + indObj.indicator.static_name][
-                year
-              ] = {};
-            obj[indObj.indicator.name + "/" + indObj.indicator.static_name][
-              year
-            ][subIndObj.name + "/" + subIndObj.static_name] = 0;
+            if (!obj[indNm + "/" + stNm][year])
+              obj[indNm + "/" + stNm][year] = {};
+            obj[indNm + "/" + stNm][year][subIndNm + "/" + staticName] = 0;
           });
         });
       });
@@ -653,105 +729,116 @@ export default {
       if (this.data["annualDE"]) {
         // await this.data["annualDE"].forEach(async (obj) => {
         for (let obj of this.data["annualDE"]) {
-          // console.log(obj.DEID, finalDES);
-          let concatedDES = finalDES.map(function (e) {
-            return obj.DEID + "." + e.id;
-          });
-          console.log(concatedDES, "concatedDES");
-          if (
-            obj.type === "Adjusted Data Element" ||
-            obj.type === "Unadjusted Data Element"
-          ) {
-            await service
-              .getAnalyticalIndicatorData(concatedDES.join(";"), sLocId, sYear)
-              .then((response) => {
-                console.log(
-                  response,
-                  this.contName,
-                  "saved dhis2 data element",
-                  "location",
-                  type,
+          // console.log(obj.DEID, finalDES, this.contName, obj.type);
+          if (obj.DEID) {
+            let concatedDES = finalDES.map(function (e) {
+              return obj.DEID + "." + e.id; //Axui7Bg8eGP
+            });
+            // console.log(concatedDES, "concatedDES");
+            if (
+              obj.type === "Adjusted Data Element" ||
+              obj.type === "Unadjusted Data Element"
+            ) {
+              await service
+                .getAnalyticalIndicatorData(
+                  concatedDES.join(";"),
                   sLocId,
                   sYear
-                );
-                if (
-                  response != undefined &&
-                  response.data &&
-                  response.data.rows.length
-                ) {
-                  isDhisDataExist.push(true);
-                  if (obj.type === "Adjusted Data Element") {
-                    response.data.rows.forEach((obj) => {
-                      let method = finalDES.find((innerDE) => {
-                        return innerDE.id === obj[0].split(".")[1];
-                      });
-                      if (method) {
-                        Object.keys(finalDHIS2Obj.adjusted).forEach((meth) => {
-                          Object.keys(finalDHIS2Obj.adjusted[meth]).forEach(
-                            (year) => {
-                              let subMethodArr = Object.keys(
-                                finalDHIS2Obj.adjusted[meth][year]
+                )
+                .then((response) => {
+                  // console.log(
+                  //   this.contName,
+                  //   obj.type,
+                  //   response.data.rows.length,
+                  //   concatedDES
+                  // );
+                  if (
+                    response != undefined &&
+                    response.data &&
+                    response.data.rows.length
+                  ) {
+                    isDhisDataExist.push(true);
+                    if (obj.type === "Adjusted Data Element") {
+                      response.data.rows.forEach((obj) => {
+                        let method = finalDES.find((innerDE) => {
+                          return innerDE.id === obj[0].split(".")[1];
+                        });
+                        if (method) {
+                          Object.keys(finalDHIS2Obj.adjusted).forEach(
+                            (meth) => {
+                              Object.keys(finalDHIS2Obj.adjusted[meth]).forEach(
+                                (year) => {
+                                  let subMethodArr = Object.keys(
+                                    finalDHIS2Obj.adjusted[meth][year]
+                                  );
+                                  let keyFound = subMethodArr.find((key) => {
+                                    return (
+                                      key.split("/")[1] === method.displayName
+                                    );
+                                  });
+                                  if (keyFound) {
+                                    finalDHIS2Obj.adjusted[meth][obj[1]][
+                                      keyFound
+                                    ] = obj[3] * 1;
+                                  }
+                                }
                               );
-                              let keyFound = subMethodArr.find((key) => {
-                                return key.split("/")[1] === method.displayName;
-                              });
-                              if (keyFound) {
-                                finalDHIS2Obj.adjusted[meth][obj[1]][keyFound] =
-                                  obj[3] * 1;
-                              }
                             }
                           );
-                        });
-                      }
-                    });
-                  }
-                  if (obj.type === "Unadjusted Data Element") {
-                    response.data.rows.forEach((obj) => {
-                      let method = finalDES.find((innerDE) => {
-                        return innerDE.id === obj[0].split(".")[1];
+                        }
                       });
-                      if (method) {
-                        Object.keys(finalDHIS2Obj.nonAdjusted).forEach(
-                          (meth) => {
-                            Object.keys(
-                              finalDHIS2Obj.nonAdjusted[meth]
-                            ).forEach((year) => {
-                              let subMethodArr = Object.keys(
-                                finalDHIS2Obj.nonAdjusted[meth][year]
-                              );
-                              let keyFound = subMethodArr.find((key) => {
-                                return key.split("/")[1] === method.displayName;
+                    }
+                    if (obj.type === "Unadjusted Data Element") {
+                      response.data.rows.forEach((obj) => {
+                        let method = finalDES.find((innerDE) => {
+                          return innerDE.id === obj[0].split(".")[1];
+                        });
+                        if (method) {
+                          Object.keys(finalDHIS2Obj.nonAdjusted).forEach(
+                            (meth) => {
+                              Object.keys(
+                                finalDHIS2Obj.nonAdjusted[meth]
+                              ).forEach((year) => {
+                                let subMethodArr = Object.keys(
+                                  finalDHIS2Obj.nonAdjusted[meth][year]
+                                );
+                                let keyFound = subMethodArr.find((key) => {
+                                  return (
+                                    key.split("/")[1] === method.displayName
+                                  );
+                                });
+                                if (keyFound) {
+                                  finalDHIS2Obj.nonAdjusted[meth][obj[1]][
+                                    keyFound
+                                  ] = obj[3] * 1;
+                                }
                               });
-                              if (keyFound) {
-                                finalDHIS2Obj.nonAdjusted[meth][obj[1]][
-                                  keyFound
-                                ] = obj[3] * 1;
-                              }
-                            });
-                          }
-                        );
-                      }
-                    });
-                  }
-                } else {
-                  isDhisDataExist.push(false);
+                            }
+                          );
+                        }
+                      });
+                    }
+                  } else {
+                    isDhisDataExist.push(false);
 
-                  // console.log(
-                  //   "EMU is not saved for selected location through Indicator Calculator"
-                  // );
-                }
-              });
+                    // console.log(
+                    //   "EMU is not saved for selected location through Indicator Calculator"
+                    // );
+                  }
+                });
+            }
           }
         }
         // });
-        console.log(finalDHIS2Obj, "finalDhis2Obj", this.contName);
+        // console.log(finalDHIS2Obj, "finalDhis2Obj", this.contName);
         if (isDhisDataExist.includes(true)) {
           this.isEMUSaved = true;
           this.dhisDataFetched = true;
+          this.bshowLoader = false;
         } else {
           this.isEMUSaved = false;
           this.dhisDataFetched = false;
-          // this.$swal({
+          // this.sweetAlert({
           //   text: " EMU is not saved through Indicator Calculator",
           // });
         }
@@ -767,7 +854,7 @@ export default {
           this.contName
         );
 
-        // this.$swal({
+        // this.sweetAlert({
         //   text: this.$i18n.t("somethingwentwrong"),
         // });
       }
@@ -830,7 +917,10 @@ export default {
       this.defaultLevelID = levelID;
       let oRet = dataM.getFormatedData(
         this.data,
-        this.$store.getters.getApplicationModule(),
+        this.$store.getters.getApplicationModule(
+          this.$store.getters.getIsMultiProgram
+        ),
+        this.startYear,
         this.bgData.cyp[this.contName],
         this.$store.getters.getGlobalFactors().continuation[this.contName]
       );
@@ -841,8 +931,9 @@ export default {
       this.tableMethodSeq = oRet.tableMethodSeq;
       this.emuColors = oRet.emuColors;
       if (this.globalConfig.chartArr.length) {
-        this.getReportingRate(this.emuSaveType === "Indicator_Calculator");
-
+        if (this.byPassRepoRate == false) {
+          this.getReportingRate(this.emuSaveType === "Indicator_Calculator");
+        }
         if (this.emuSaveType !== "Indicator_Calculator") {
           this.getAllDataelemsData();
         }
@@ -858,7 +949,7 @@ export default {
      * Usage: `getAllDataelemsData()`
      */
     async getAllDataelemsData() {
-      console.log("getAllDataelemsData method caled==========================");
+      // console.log("getAllDataelemsData method caled==========================");
       let i,
         aChart = this.globalConfig.chartArr,
         ncLen = aChart.length,
@@ -871,7 +962,6 @@ export default {
       this.sYearArray = sYear.split(";");
       let showAlert = false;
       let alertSt = "";
-      // this.getReportingRate(sLocId, sYear);
       for (i = 0; i < ncLen; i++) {
         let dataEle = aChart[i].dataElems;
         let j;
@@ -945,39 +1035,6 @@ export default {
         }
         methodMapping.push(obj);
       }
-      // console.log(methodMapping, "methodMapping");
-      // await Promise.allSettled(promises).then(async (results) => {
-      //   nFlag2 = results.length;
-      //   for (let i = 0; i < results.length; i++) {
-      //     if (results[i].status === "fulfilled") {
-      //       // console.log(
-      //       //   dataElementsArr[i].name,
-      //       //   // finalSdes[i],
-      //       //   results[i].value.data.rows
-      //       // );
-      //       let findParentMethod = methodMapping.find((obj) =>
-      //         obj.child.includes(dataElementsArr[i].name)
-      //       );
-      //       if (findParentMethod) {
-      //         let findChartArrIndex = reqChartArr.findIndex(
-      //           (obj) => obj.static_name === findParentMethod.parent
-      //         );
-
-      //         // console.log(findParentMethod, findChartArrIndex);
-      //         if (findChartArrIndex >= 0)
-      //           reqChartArr[findChartArrIndex].charts =
-      //             dataM.getChartFormatedData(
-      //               results[i].value.data.rows,
-      //               dataElementsArr[i],
-      //               reqChartArr[findChartArrIndex].charts,
-      //               sYear
-      //             );
-      //       }
-      //     }
-      //   }
-      // });
-      // this.globalConfig.chartArr = reqChartArr;
-      // console.log(reqChartArr, "reqChartArr", this.globalConfig.chartArr);
 
       if (nFlag1 === nFlag2) {
         console.log("Input data fetched");
@@ -1035,40 +1092,54 @@ export default {
             this.showAlert();
           });
       } else {
-        service.getSavedConfig("annualCharts_en").then((resp) => {
-          if (resp && resp.data) {
-            let annualCharts = resp.data;
-            let aFinalCharts = annualCharts[this.location.split("/")[1]]
-              ? annualCharts[this.location.split("/")[1]][this.contName]
-                ? annualCharts[this.location.split("/")[1]][this.contName][
-                    "repoCharts"
-                  ]
+        let key = this.generateKey(`annualCharts_${this.$i18n.locale}`);
+        service
+          .getSavedConfig(key)
+          .then((resp) => {
+            if (resp && resp.data) {
+              let annualCharts = resp.data;
+              let aFinalCharts = annualCharts[this.location.split("/")[1]]
+                ? annualCharts[this.location.split("/")[1]][this.contName]
                   ? annualCharts[this.location.split("/")[1]][this.contName][
                       "repoCharts"
                     ]
+                    ? annualCharts[this.location.split("/")[1]][this.contName][
+                        "repoCharts"
+                      ]
+                    : []
                   : []
-                : []
-              : [];
-            console.log(typeof aFinalCharts, "typeof aFinalCharts");
-            aFinalCharts =
-              typeof aFinalCharts == "string"
-                ? decompress(JSON.parse(aFinalCharts))
-                : aFinalCharts;
-            console.log(
-              typeof aFinalCharts,
-              "typeof aFinalCharts",
-              aFinalCharts
-            );
-            this.repoRate = aFinalCharts;
-            this.reportingRateChart(aFinalCharts);
-          }
-        });
+                : [];
+              // console.log(typeof aFinalCharts, "typeof aFinalCharts");
+              aFinalCharts =
+                typeof aFinalCharts == "string"
+                  ? decompress(JSON.parse(aFinalCharts))
+                  : aFinalCharts;
+              // console.log(
+              //   typeof aFinalCharts,
+              //   "typeof aFinalCharts",
+              //   aFinalCharts
+              // );
+              this.repoRate = aFinalCharts;
+              this.reportingRateChart(aFinalCharts);
+            }
+          })
+          .catch((err) => {
+            console.log("err");
+            console.log("reporting rate data not found");
+            this.repoRate = null;
+            this.reportinRateChart = null;
+            this.bshowLoader = false;
+            if (this.getData) {
+              this.getData(this.tabName, null, "whole_data_empty", this.filter);
+            }
+          });
       }
     },
     /**
      * This fnc is to compute reporting chart data.
      */
     reportingRateChart(data) {
+      // console.log("calling reportingratechart", data);
       //console.log(this.data['reportingRate'][0]['indicator']['chartOptions']['title']['text'], 'jvhnvhgvng')
       let categories = [];
       let seriesData = [];
@@ -1092,20 +1163,48 @@ export default {
           },
         ],
       };
-      repoData.title = this.data["reportingRate"][0]["indicator"]["chartName"];
+      repoData.title =
+        typeof this.data["reportingRate"][0]["indicator"]["chartName"] ==
+        "object"
+          ? this.data["reportingRate"][0]["indicator"]["chartName"][
+              this.$i18n.locale
+            ]
+          : this.data["reportingRate"][0]["indicator"]["chartName"];
       repoData.chartInfo =
-        this.data["reportingRate"][0]["indicator"]["chartInfo"];
+        typeof this.data["reportingRate"][0]["indicator"]["chartInfo"] ==
+        "object"
+          ? this.data["reportingRate"][0]["indicator"]["chartInfo"][
+              this.$i18n.locale
+            ]
+          : this.data["reportingRate"][0]["indicator"]["chartInfo"];
       repoData.categoryInfo =
-        this.data["reportingRate"][0]["indicator"]["categoryInfo"];
+        typeof this.data["reportingRate"][0]["indicator"]["categoryInfo"] ==
+        "object"
+          ? this.data["reportingRate"][0]["indicator"]["categoryInfo"][
+              this.$i18n.locale
+            ]
+          : this.data["reportingRate"][0]["indicator"]["categoryInfo"];
       repoData.source = "";
       repoData.xTitle =
-        this.data["reportingRate"][0]["indicator"]["chartOptions"]["xAxis"][
-          "text"
-        ];
+        typeof this.data["reportingRate"][0]["indicator"]["chartOptions"][
+          "xAxis"
+        ]["text"] == "object"
+          ? this.data["reportingRate"][0]["indicator"]["chartOptions"]["xAxis"][
+              "text"
+            ][this.$i18n.locale]
+          : this.data["reportingRate"][0]["indicator"]["chartOptions"]["xAxis"][
+              "text"
+            ];
       repoData.yTitle =
-        this.data["reportingRate"][0]["indicator"]["chartOptions"]["yAxis"][
-          "text"
-        ];
+        typeof this.data["reportingRate"][0]["indicator"]["chartOptions"][
+          "yAxis"
+        ]["text"] == "object"
+          ? this.data["reportingRate"][0]["indicator"]["chartOptions"]["yAxis"][
+              "text"
+            ][this.$i18n.locale]
+          : this.data["reportingRate"][0]["indicator"]["chartOptions"]["yAxis"][
+              "text"
+            ];
       repoData.type = "column";
       repoData.tableData = catData;
       repoData.cid = this.data["reportingRate"][0]["indicator"]["cid"];
@@ -1119,7 +1218,7 @@ export default {
      * @return {Array} 'aFinalInputData'
      */
     async getFinalChartsdata(customCal) {
-      console.log("Calling getfinalchartsdata", customCal);
+      // console.log("Calling getfinalchartsdata", customCal);
       let aFinalCharts = [];
 
       if (customCal) {
@@ -1149,30 +1248,43 @@ export default {
         this.aFinalInputData = aFinalCharts;
         dataM.saveChartColors(aFinalCharts, this.tabName);
       } else {
-        await service.getSavedConfig("annualCharts_en").then((resp) => {
-          if (resp && resp.data) {
-            let annualCharts = resp.data;
-            aFinalCharts = annualCharts[this.location.split("/")[1]]
-              ? annualCharts[this.location.split("/")[1]][this.contName]
-                ? annualCharts[this.location.split("/")[1]][this.contName][
-                    "inputCharts"
-                  ]
+        let key = this.generateKey(`annualCharts_${this.$i18n.locale}`);
+        await service
+          .getSavedConfig(key)
+          .then((resp) => {
+            if (resp && resp.data) {
+              let annualCharts = resp.data;
+              aFinalCharts = annualCharts[this.location.split("/")[1]]
+                ? annualCharts[this.location.split("/")[1]][this.contName]
                   ? annualCharts[this.location.split("/")[1]][this.contName][
                       "inputCharts"
                     ]
+                    ? annualCharts[this.location.split("/")[1]][this.contName][
+                        "inputCharts"
+                      ]
+                    : []
                   : []
-                : []
-              : [];
-            aFinalCharts =
-              typeof aFinalCharts == "string"
-                ? decompress(JSON.parse(aFinalCharts))
-                : aFinalCharts;
-            this.aFinalInputData = aFinalCharts;
-            dataM.saveChartColors(aFinalCharts, this.tabName);
-          }
-        });
+                : [];
+              // console.log(aFinalCharts);
+              aFinalCharts =
+                typeof aFinalCharts == "string"
+                  ? decompress(JSON.parse(aFinalCharts))
+                  : aFinalCharts;
+              this.aFinalInputData = aFinalCharts;
+              // console.log(this.aFinalInputData, "final inputcharts");
+
+              dataM.saveChartColors(aFinalCharts, this.tabName);
+            }
+          })
+          .catch((err) => {
+            this.aFinalInputData = null;
+            this.bshowLoader = false;
+            if (this.getData) {
+              this.getData(this.tabName, null, "whole_data_empty", this.filter);
+            }
+          });
       }
-      console.log(this.aFinalInputData, "fnal inutcharts");
+      // console.log(this.aFinalInputData, "fnal inutcharts");
     },
     /**
      * This function is to calculate commodities adjustment for output
@@ -1187,22 +1299,23 @@ export default {
         let oSTMAdjusment = dataM.calculateSTMNotAdjusted(
           this.globalConfig.chartArr,
           this.repoRate,
-          oAdjustmentFactors
+          oAdjustmentFactors,
+          this.byPassRepoRate
         );
-        console.log(
-          this.contName,
-          "Short term methods calculation",
-          oSTMAdjusment
-        );
-        console.log(
-          "Continuation factor ",
-          this.bgData.continuation[this.contName]
-        );
+        // console.log(
+        //   this.contName,
+        //   "Short term methods calculation",
+        //   oSTMAdjusment
+        // );
+        // console.log(
+        //   "Continuation factor ",
+        //   this.bgData.continuation[this.contName]
+        // );
         let aSumOfCont = dataM.getSumOfCont(
           this.bgData.continuation[this.contName]
         );
         // bIsUser = this.tabName === "fp_users";
-        console.log(this.contName, "aSumOfContinuation", aSumOfCont);
+        // console.log(this.contName, "aSumOfContinuation", aSumOfCont);
         let continuation = {};
         Object.keys(this.bgData.continuation[this.contName]).forEach((cont) => {
           continuation[cont] = [];
@@ -1221,7 +1334,8 @@ export default {
           aSumOfCont,
           this.repoRate,
           oAdjustmentFactors,
-          continuation
+          continuation,
+          this.byPassRepoRate
         );
 
         allMethodsAdjusted.adjusted = Object.assign(
@@ -1237,16 +1351,11 @@ export default {
           this.newBaseLineUsers.baseline,
           this.newBaseLineUsers.scalling
         );
-        console.log(allMethodsAdjusted, "by custom");
+        // console.log(allMethodsAdjusted, "by custom");
       }
       if (!customCal) {
         allMethodsAdjusted = JSON.parse(JSON.stringify(this.finalDHIS2Obj));
       }
-      // let oUserTrends = dataM.getFinalOutPutChart(
-      //   this.tabName,
-      //   allMethodsAdjusted.adjusted
-      // );
-      //
       console.log(
         JSON.parse(JSON.stringify(this.finalDHIS2Obj)),
         "bydhis 2",
@@ -1260,14 +1369,14 @@ export default {
       this.NonAdjudtedValues = dataM.calculateNewAdjustedVals(
         allMethodsAdjusted.nonAdjusted
       );
-      console.log(this.AdjudtedValues, this.NonAdjudtedValues);
+      // console.log(this.AdjudtedValues, this.NonAdjudtedValues);
 
       let adjNonAdjData = dataM.getFinaladjNonAdjData(
         this.tabName,
         allMethodsAdjusted
       );
-      console.log("adjNonAdjData", adjNonAdjData);
-      console.log("this.newBaseLineUsers", this.newBaseLineUsers);
+      // console.log("adjNonAdjData", adjNonAdjData);
+      // console.log("this.newBaseLineUsers", this.newBaseLineUsers);
 
       this.generateAdjNonadjTable("adjusted", allMethodsAdjusted);
       let methodWiseAdjObject = adjNonAdjData.adjusted;
@@ -1279,7 +1388,11 @@ export default {
       );
       //console.log("oUserTrendsNew",oUserTrendsNew);
       // console.log("oUserTrends",oUserTrends);
-      this.outPutTrendsChart = this.getOtherChartDeatils(oUserTrends, 0, "");
+      this.outPutTrendsChart = this.getOtherChartDeatils(
+        oUserTrends,
+        0,
+        "line"
+      );
 
       let newData = [];
       oUserTrends.data.forEach((m) => {
@@ -1294,6 +1407,10 @@ export default {
         return el != null && el != "";
       });
       this.outPutTrendsChart = oUserTrends;
+      console.log(
+        JSON.parse(JSON.stringify(this.outPutTrendsChart)),
+        "-----------this.outPutTrendsChart ----------"
+      );
       if (this.getData) {
         this.getData(
           this.tabName,
@@ -1337,7 +1454,7 @@ export default {
       //comparison estimate chart calculation
       let combinedComparisonEstimate = dataM.combinedComparisonEstimate(
         this.currentYear,
-        [...this.finalMethodArr],
+        this.finalMethodArr,
         this.sYearArray,
         methodWiseAdjObject,
         surveyData
@@ -1353,7 +1470,8 @@ export default {
         this.finalMethodArr,
         this.sYearArray,
         methodWiseAdjObject,
-        surveyData
+        surveyData,
+        this.staticColors
       );
       this.MordernUsersByMethodsData = this.getOtherChartDeatils(
         MordernUsersByMethodsData,
@@ -1365,7 +1483,8 @@ export default {
         this.sYearArray,
         this.finalMethodArr,
         adjNonAdjData,
-        surveyData
+        surveyData,
+        this.staticColors
       );
       this.lineAdNonAdChartData = this.getOtherChartDeatils(
         adjNonAdjLineChart,
@@ -1376,7 +1495,7 @@ export default {
       let adjNonAdjBarChart = dataM.getadjNonAdjBarChart(
         this.currentYear,
         this.sYearArray,
-        [...this.finalMethodArr],
+        this.finalMethodArr,
         adjNonAdjData,
         surveyData
       );
@@ -1411,7 +1530,8 @@ export default {
         methodWiseAdjObject,
         oPopulation,
         userTrendsByMethodSurvey,
-        this.aSource[this.contName]
+        this.aSource[this.contName],
+        this.staticColors
       );
       this.userTrendsByMethod = this.getOtherChartDeatils(
         userTrendsbyEmu,
@@ -1543,28 +1663,40 @@ export default {
       let oResponse = {
         data: [
           {
-            size: 200,
-            center: [200, 180],
+            size: 130,
+            center: [150, 130],
             name: this.$i18n.t("methods"),
             colorByPoint: true,
             data: pieDataObject["estiMethod"].data,
           },
           {
-            size: 200,
-            center: [600, 180],
+            size: 130,
+            center: [450, 250],
             name: this.$i18n.t("methods"),
             colorByPoint: true,
             data: pieDataObject["methodMix"].data,
           },
         ],
-        title: this.data["derivedCharts"][3]["chartOptions"]["chartName"],
+        title:
+          typeof this.data["derivedCharts"][3]["chartOptions"]["chartName"] ==
+          "object"
+            ? this.data["derivedCharts"][3]["chartOptions"]["chartName"][
+                this.$i18n.locale
+              ]
+            : this.data["derivedCharts"][3]["chartOptions"]["chartName"],
         source: this.sources[this.contName],
         xTitle: "",
         yTitle: "",
         type: "pie",
         disable: this.data["derivedCharts"][3]["chartOptions"]["disableChart"],
         dataLable: true,
-        chartInfo: this.data["derivedCharts"][3]["chartOptions"]["chartInfo"],
+        chartInfo:
+          typeof this.data["derivedCharts"][3]["chartOptions"]["chartInfo"] ==
+          "object"
+            ? this.data["derivedCharts"][3]["chartOptions"]["chartInfo"][
+                this.$i18n.locale
+              ]
+            : this.data["derivedCharts"][3]["chartOptions"]["chartInfo"],
         cid: this.data["derivedCharts"][3]["chartOptions"]["cid"],
         tableData: pieDataObject.tableData,
         fields: pieDataObject.aFields,
@@ -1572,24 +1704,41 @@ export default {
           items: [
             {
               // html: 'Estimated Modern Method Mix',
-              html: this.data["derivedCharts"][3]["chartOptions"]["subTitle"][
-                "text"
-              ],
+              html:
+                "<span class='pie-title'>" +
+                  (typeof this.data["derivedCharts"][3]["chartOptions"][
+                    "subTitle"
+                  ]["text"] == "object"
+                    ? this.data["derivedCharts"][3]["chartOptions"]["subTitle"][
+                        "text"
+                      ][this.$i18n.locale]
+                    : this.data["derivedCharts"][3]["chartOptions"]["subTitle"][
+                        "text"
+                      ]) || this.$i18n.t("estimated_modern") + "</span>",
               style: {
-                left: "150px",
+                left: "100px",
                 top: "0px",
-                color: "black",
+                color: "#FFFFFF",
               },
             },
             {
               // html: 'Modern Contraceptive Method Mix',
-              html: this.data["derivedCharts"][3]["chartOptions"]["subTitle1"][
-                "text"
-              ],
+              html:
+                "<span class='pie-title'>" +
+                  (typeof this.data["derivedCharts"][3]["chartOptions"][
+                    "subTitle1"
+                  ]["text"] == "object"
+                    ? this.data["derivedCharts"][3]["chartOptions"][
+                        "subTitle1"
+                      ]["text"][this.$i18n.locale]
+                    : this.data["derivedCharts"][3]["chartOptions"][
+                        "subTitle1"
+                      ]["text"]) ||
+                this.$i18n.t("contraceptive_modern") + "</span>",
               style: {
-                left: "450px",
+                left: "400px",
                 top: "0px",
-                color: "black",
+                color: "#FFFFFF",
               },
             },
           ],
@@ -1600,17 +1749,39 @@ export default {
     },
     getOtherChartDeatils(obj, index, type) {
       obj.title =
-        this.data["derivedCharts"][index]["chartOptions"]["chartName"];
+        typeof this.data["derivedCharts"][index]["chartOptions"]["chartName"] ==
+        "object"
+          ? this.data["derivedCharts"][index]["chartOptions"]["chartName"][
+              this.$i18n.locale
+            ]
+          : this.data["derivedCharts"][index]["chartOptions"]["chartName"];
       obj.source = "";
       obj.xTitle =
-        this.data["derivedCharts"][index]["chartOptions"]["xAxis"]["text"];
+        typeof this.data["derivedCharts"][index]["chartOptions"]["xAxis"][
+          "text"
+        ] == "object"
+          ? this.data["derivedCharts"][index]["chartOptions"]["xAxis"]["text"][
+              this.$i18n.locale
+            ]
+          : this.data["derivedCharts"][index]["chartOptions"]["xAxis"]["text"];
       obj.yTitle =
-        this.data["derivedCharts"][index]["chartOptions"]["yAxis"]["text"];
+        typeof this.data["derivedCharts"][index]["chartOptions"]["yAxis"][
+          "text"
+        ] == "object"
+          ? this.data["derivedCharts"][index]["chartOptions"]["yAxis"]["text"][
+              this.$i18n.locale
+            ]
+          : this.data["derivedCharts"][index]["chartOptions"]["yAxis"]["text"];
       obj.disable =
         this.data["derivedCharts"][index]["chartOptions"]["disableChart"];
       obj.cid = this.data["derivedCharts"][index]["chartOptions"]["cid"];
       obj.chartInfo =
-        this.data["derivedCharts"][index]["chartOptions"]["chartInfo"];
+        typeof this.data["derivedCharts"][index]["chartOptions"]["chartInfo"] ==
+        "object"
+          ? this.data["derivedCharts"][index]["chartOptions"]["chartInfo"][
+              this.$i18n.locale
+            ]
+          : this.data["derivedCharts"][index]["chartOptions"]["chartInfo"];
       obj.type = type;
       return obj;
     },
@@ -1628,7 +1799,7 @@ export default {
      */
     showAlert() {
       // console.trace();
-      this.$swal({
+      this.sweetAlert({
         text: this.$i18n.t("somethingwentwrong"),
       });
       this.bshowLoader = false;
@@ -1660,7 +1831,7 @@ export default {
     },
   },
   created() {
-    console.log(this.contName);
+    // console.log(this.contName);
     if (this.emuSaveType === "Indicator_Calculator")
       this.getSavedDataElemenet("fromcreated");
     this.getGlobalConfig();
@@ -1677,7 +1848,7 @@ export default {
     //   deep: true,
     // },
     dhisDataFetched(val) {
-      console.log(val, "watch called this.dhisDataFetched");
+      // console.log(val, "watch called this.dhisDataFetched", this.contName);
       if (val) {
         this.bRequestFlag = true;
         // showAlert = false;
@@ -1690,7 +1861,10 @@ export default {
       if (this.bRequestFlag) this.allDataFetched();
     },
     bRequestFlag(newVal) {
-      if (newVal && this.repoRate) {
+      if (
+        (newVal && this.repoRate && this.byPassRepoRate == false) ||
+        (newVal && this.byPassRepoRate == true)
+      ) {
         console.log("we received all data ", this.globalConfig.chartArr);
         this.allDataFetched();
       }
@@ -1748,47 +1922,14 @@ export default {
   right: 15px;
 
   span {
-    background-color: #2e2e48;
-    border-color: #2e2e48;
+    background-color: var(--new-footer-component-color);
+    border-color: var(--new-footer-component-color);
     font-size: 0.875rem;
     padding: 12px 12px;
   }
   span:hover {
-    background-color: #2e2e48;
-    border-color: #2e2e48;
-  }
-}
-.newGreen-theme .top-date-page-div {
-  position: absolute;
-  top: 0;
-  right: 15px;
-
-  span {
-    background-color: #0c5327;
-    border-color: #0c5327;
-    font-size: 0.875rem;
-    padding: 12px 12px;
-  }
-  span:hover {
-    background-color: #0c5327;
-    border-color: #0c5327;
-  }
-}
-
-.newBlack-theme .top-date-page-div {
-  position: absolute;
-  top: 0px;
-  right: 15px;
-
-  span {
-    background-color: #0b0c10;
-    border-color: #0b0c10;
-    font-size: 0.75rem;
-    padding: 12px;
-  }
-  span:hover {
-    background-color: #0b0c10;
-    border-color: #0b0c10;
+    background-color: var(--new-footer-component-color);
+    border-color: var(--new-footer-component-color);
   }
 }
 </style>

@@ -14,15 +14,15 @@
               <b-card no-body>
                 <b-tabs
                   card
-                  class="border"
-                  nav-class="p-0 m-0"
-                  nav-wrapper-class="adminConfigInner p-0"
+                  class=""
+                  nav-class="p-0 m-0 mb-3"
+                  nav-wrapper-class="adminConfigInner p-0 mb-3 mt-3 mx-3 main-border"
                 >
                   <b-tab
                     :title="$t('applicationPeriod')"
                     active
                     @click="updateActiveSubTab('app_period')"
-                    class="p-0"
+                    class="p-0 application-border"
                   >
                     <b-card-text v-if="activeSubTab === 'app_period'">
                       <period
@@ -39,152 +39,9 @@
         </b-tab>
         <b-tab
           v-if="
-            $store.getters.getNamespace === `${tableName}_fp-dashboard` &&
-            $store.getters.getNamespace !== tableName
+            $store.getters.getNamespace !==
+            $store.getters.getAppSettings.tableName
           "
-          :title="$t('cyp')"
-          :active="activeTab === 'cyp'"
-          @click="updateActiveTab('cyp')"
-          class="pl-2 pb-0 pt-0 pr-0"
-        >
-          <b-card-text v-if="activeTab === 'cyp'">
-            <div class="md_nested_tabs">
-              <b-card no-body>
-                <b-tabs
-                  card
-                  class="border"
-                  nav-class="p-0 m-0"
-                  nav-wrapper-class="adminConfigInner p-0"
-                >
-                  <b-tab
-                    :title="$t('visits')"
-                    active
-                    @click="updateActiveSubTab('visits')"
-                    class="p-0"
-                  >
-                    <b-card-text v-if="activeSubTab === 'visits'">
-                      <cyp module="globalFactors" type="cyp" subType="Visits" />
-                    </b-card-text>
-                  </b-tab>
-                  <b-tab
-                    :title="$t('Commodities_Client')"
-                    @click="updateActiveSubTab('c_client')"
-                    class="p-0"
-                  >
-                    <b-card-text v-if="activeSubTab === 'c_client'">
-                      <cyp
-                        module="globalFactors"
-                        type="cyp"
-                        subType="Commodities_Client"
-                      />
-                    </b-card-text>
-                  </b-tab>
-                  <b-tab
-                    :title="$t('Commodities_Facilities')"
-                    @click="updateActiveSubTab('c_facilities')"
-                    class="p-0"
-                  >
-                    <b-card-text v-if="activeSubTab === 'c_facilities'">
-                      <cyp
-                        module="globalFactors"
-                        type="cyp"
-                        subType="Commodities_Facilities"
-                      />
-                    </b-card-text>
-                  </b-tab>
-                  <b-tab
-                    :title="$t('users')"
-                    @click="updateActiveSubTab('users')"
-                    class="p-0"
-                  >
-                    <b-card-text v-if="activeSubTab === 'users'">
-                      <cyp module="globalFactors" type="cyp" subType="User" />
-                    </b-card-text>
-                  </b-tab>
-                </b-tabs>
-              </b-card>
-            </div>
-          </b-card-text>
-        </b-tab>
-        <b-tab
-          v-if="
-            $store.getters.getNamespace === `${tableName}_fp-dashboard` &&
-            $store.getters.getNamespace !== tableName
-          "
-          :title="$t('continuationFactor')"
-          :active="activeTab === 'continuation'"
-          @click="updateActiveTab('continuation')"
-          class="pl-2 pb-0 pt-0 pr-0"
-        >
-          <b-card-text v-if="activeTab === 'continuation'">
-            <div class="md_nested_tabs">
-              <b-card no-body>
-                <b-tabs
-                  card
-                  class="border"
-                  nav-class="p-0 m-0"
-                  nav-wrapper-class="adminConfigInner p-0"
-                >
-                  <b-tab
-                    :title="$t('visits')"
-                    active
-                    @click="updateActiveSubTab('visits')"
-                    class="p-0"
-                  >
-                    <b-card-text v-if="activeSubTab === 'visits'">
-                      <continuation
-                        module="globalFactors"
-                        type="continuation"
-                        subType="Visits"
-                      />
-                    </b-card-text>
-                  </b-tab>
-                  <b-tab
-                    :title="$t('Commodities_Client')"
-                    @click="updateActiveSubTab('c_client')"
-                    class="p-0"
-                  >
-                    <b-card-text v-if="activeSubTab === 'c_client'">
-                      <continuation
-                        module="globalFactors"
-                        type="continuation"
-                        subType="Commodities_Client"
-                      />
-                    </b-card-text>
-                  </b-tab>
-                  <b-tab
-                    :title="$t('Commodities_Facilities')"
-                    @click="updateActiveSubTab('c_facilities')"
-                    class="p-0"
-                  >
-                    <b-card-text v-if="activeSubTab === 'c_facilities'">
-                      <continuation
-                        module="globalFactors"
-                        type="continuation"
-                        subType="Commodities_Facilities"
-                      />
-                    </b-card-text>
-                  </b-tab>
-                  <b-tab
-                    :title="$t('users')"
-                    @click="updateActiveSubTab('users')"
-                    class="p-0"
-                  >
-                    <b-card-text v-if="activeSubTab === 'users'">
-                      <continuation
-                        module="globalFactors"
-                        type="continuation"
-                        subType="User"
-                      />
-                    </b-card-text>
-                  </b-tab>
-                </b-tabs>
-              </b-card>
-            </div>
-          </b-card-text>
-        </b-tab>
-        <b-tab
-          v-if="$store.getters.getNamespace !== tableName"
           :title="$t('globalMapping')"
           :active="activeTab === 'globalMapping'"
           @click="updateActiveTab('globalMapping')"
@@ -207,31 +64,77 @@
           </b-card-text>
         </b-tab>
         <b-tab
-          v-if="$store.getters.getNamespace !== tableName"
+          v-if="
+            $store.getters.getNamespace !==
+            $store.getters.getAppSettings.tableName
+          "
           :title="$t('benchmark')"
           :active="activeTab === 'allBenchmarks'"
           @click="updateActiveTab('allBenchmarks')"
           class="pl-2 pb-0 pt-0 pr-0"
         >
           <b-card-text v-if="activeTab === 'allBenchmarks'">
-            <div class="md_nested_tabs">
+            <div class="md_nested_tabs module-spacing">
               <b-card no-body>
                 <b-tabs
                   card
-                  class="border"
-                  nav-class="p-0 m-0"
-                  nav-wrapper-class="adminConfigInner p-0"
+                  class=""
+                  nav-class="p-0 m-0 mb-3"
+                  nav-wrapper-class="adminConfigInner p-0 mb-3 mt-11px main-border"
                 >
                   <b-tab
                     :title="$t('benchmark')"
                     @click="updateActiveSubTab('benchmarks')"
                     class="p-0"
                   >
-                    <b-card-text v-if="activeSubTab === 'benchmarks'">
+                    <b-card-text
+                      v-if="activeSubTab === 'benchmarks'"
+                      class="border"
+                    >
                       <Benchmark
                         module="globalFactors"
                         type="allBenchmarks"
                         subType="benchmarks"
+                      />
+                    </b-card-text>
+                  </b-tab>
+                </b-tabs>
+              </b-card>
+            </div>
+          </b-card-text>
+        </b-tab>
+        <b-tab
+          v-if="
+            $store.getters.getNamespace !==
+            $store.getters.getAppSettings.tableName
+          "
+          :title="$t('extData')"
+          :active="activeTab === 'allExtData'"
+          @click="updateActiveTab('allExtData')"
+          class="pl-2 pb-0 pt-0 pr-0"
+        >
+          <b-card-text v-if="activeTab === 'allExtData'">
+            <div class="md_nested_tabs module-spacing">
+              <b-card no-body>
+                <b-tabs
+                  card
+                  class=""
+                  nav-class="p-0 m-0 mb-3"
+                  nav-wrapper-class="adminConfigInner p-0 mb-3 mt-11px main-border"
+                >
+                  <b-tab
+                    :title="$t('extData')"
+                    @click="updateActiveSubTab('extData')"
+                    class="p-0"
+                  >
+                    <b-card-text
+                      v-if="activeSubTab === 'extData'"
+                      class="border"
+                    >
+                      <ExternalData
+                        module="globalFactors"
+                        type="allExtData"
+                        subType="extData"
                       />
                     </b-card-text>
                   </b-tab>
@@ -245,12 +148,10 @@
   </div>
 </template>
 <script>
-/*global settings*/
-import cyp from "./cyp";
 import period from "./period";
 import MappingWrapper from "./MappingWrapper";
 import Benchmark from "./Benchmark";
-import continuation from "./continuation";
+import ExternalData from "./ExternalData";
 
 export default {
   props: [
@@ -261,17 +162,15 @@ export default {
     "metrixList",
   ],
   components: {
-    cyp,
     period,
     Benchmark,
-    continuation,
+    ExternalData,
     MappingWrapper,
   },
   data() {
     return {
       activeTab: "period",
       activeSubTab: "app_period",
-      tableName: settings.tableName,
     };
   },
   methods: {
@@ -285,9 +184,12 @@ export default {
         this.activeSubTab = "app_report";
       } else if (tab_name === "allBenchmarks") {
         this.activeSubTab = "benchmarks";
+      } else if (tab_name === "allExtData") {
+        this.activeSubTab = "extData";
       } else if (
         tab_name === "globalMapping" &&
-        this.$store.getters.getNamespace === `${this.tableName}_mnch-dashboard`
+        this.$store.getters.getNamespace ===
+          `${this.$store.getters.getAppSettings.tableName}_mnch-dashboard`
       ) {
         this.activeSubTab = "mappings";
       } else {

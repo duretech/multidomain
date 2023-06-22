@@ -1,698 +1,587 @@
 <template>
-  <b-card class="interactive-card mx-4">
-    <b-card-header
-      class="interactive-card-title pb-0 pt-0 d-flex justify-content-between align-items-center"
-    >
-      <h6 class="mb-0 fs-18-1920">
-        {{ $t("configureChart") }}
-      </h6>
-      <div>
-        <div class="row no-gutters" v-if="chartOptions.series.length > 0">
-          <template
-            v-if="
-              chartOptions.chart.type !== 'pie' &&
-              chartOptions.chart.type !== 'table'
-            "
-          >
-            <advancedOptions
-              :key="'advancedOptions'"
-              :chartOptions="chartOptions"
-              :selectedDrilldownData="selectedDrilldownData"
-              :source="source"
-              @updateOptions="updateOptions"
-              :orgOptions="orgOptions"
-              :defaultOrg="selectedLocation"
-              :autoUpdate="autoUpdate"
-              :canAddDrilldown="canAddDrilldown"
-            />
-          </template>
-          <chartOptions
-            :chartOptions="chartOptions"
-            @exportChart="exportChart"
-            @sortData="dataSort"
-            @bookmark="bookmark"
-            :table="table"
-            :chartType="chartType"
-          />
-        </div>
-      </div>
-      <b-button
-	  v-if="this.$store.getters.getIsAdmin"
-        class="update-btn border-0 px-4 fs-17-1920"
-        @click="configireBtn = !configireBtn"
-        >Configure</b-button
-      >
-      <b-modal v-model="configireBtn" hide-footer style="background" size="lg">
-        <b-card-body class="pt-1 pb-1">
-          <b-dropdown
-            id="'dropdown-indi' + 'key1'"
-            :text="dataSourceText"
-            class="indi mt-2 mb-2 w-100 text-left fs-17-1920"
-            lazy
-            menu-class="data-source-group-list fs-17-1920"
-          >
-            <b-dropdown-item
-              v-for="dataSourceOpt in dataOptions"
-              :key="dataSourceOpt.id"
-              :value="dataSourceOpt.text"
-              @click="dataSource = dataSourceOpt.value"
-              ><div class="fs-17-1920">
-                {{ dataSourceOpt.text }}
-              </div></b-dropdown-item
-            >
-          </b-dropdown>
-          <div class="pb-1 fs-17-1920">
-            <b-form-input
-              class="search-input border-0 rounded-pill fs-17-1920"
-              :placeholder="$t('search')"
-              v-model="dataSearchText"
-            ></b-form-input>
-          </div>
-          <div class="mt-2">
-            <b-container fluid>
-              <b-row>
-                <b-col sm="6" class="pl-0">
-                  <div class="small">{{ $t("available") }}</div>
-                  <div
-                    class="left-data p-3 dataConfig"
-                    @scroll="onScroll"
-                    style=""
-                  >
-                    <ul class="med-list list-unstyled" ref="data_left">
-                      <li
-                        class="med-list-item pt-1 pb-1 fs-17-1920"
-                        v-on:click="moveData({ type: '+', data: item })"
-                        v-for="item in dataList"
-                        :key="item.id"
-                      >
-                        {{ item.name }}
-                        <span class="move-txt fs-17-1920"
-                          >{{ $t("move") }}
-                          <i
-                            class="fa fa-angle-double-right fs-17-1920"
-                            aria-hidden="true"
-                          ></i>
-                        </span>
-                      </li>
-                    </ul>
-                  </div>
-                </b-col>
-                <b-col sm="6" class="pr-0">
-                  <div class="small text-right">{{ $t("selected") }}</div>
-                  <div class="right-data p-3 dataConfig">
-                    <ul
-                      class="med-list list-unstyled fs-17-1920"
-                      ref="data_right"
+  <section class="interactive-section">
+    <div class="interactive-main">
+      <b-card class="interactive-maincard">
+        <div class="">
+          <b-row>
+            <b-col sm="12" lg="4" class="border-right">
+              <div class="interactive-left position-relative">
+                <div class="accordion" role="tablist">
+                  <b-card no-body class="mb-1">
+                    <b-card-header header-tag="header" class="p-1" role="tab">
+                      <b-button block v-b-toggle.accordion-1 variant="info">{{
+                        $t("chartType")
+                      }}</b-button>
+                    </b-card-header>
+                    <b-collapse
+                      id="accordion-1"
+                      visible
+                      accordion="my-accordion"
+                      role="tabpanel"
                     >
-                      <li
-                        class="med-list-item pt-1 pb-1 fs-17-1920"
-                        v-on:click="moveData({ type: '-', data: item })"
-                        v-for="item in selectedData"
-                        :key="item.id"
+                      <div class="p-2 pb-4">
+                        <img
+                          v-for="(type, index) in chartTypeOptions"
+                          :key="type.value + index"
+                          :src="
+                            require(`@/assets/images/icons/${type.icon}Active.svg`)
+                          "
+                          :style="{
+                            opacity:
+                              chartType === type.value &&
+                              isPercentageChart === type.percentageChart
+                                ? 1
+                                : 0.3,
+                            filter: filterColor,
+                          }"
+                          v-b-tooltip.hover
+                          :title="type.text"
+                          class="chrtlogo-img px-4 py-3 cursor-pointer"
+                          @click="changeType(type.value, type.percentageChart)"
+                        />
+                      </div>
+                    </b-collapse>
+                  </b-card>
+                </div>
+                <div class="border-bottom mt-3 mb-3"></div>
+                <div class="accordion" role="tablist">
+                  <b-card no-body class="mb-1">
+                    <b-card-header header-tag="header" class="p-1" role="tab">
+                      <b-button block v-b-toggle.accordion-2 variant="info">
+                        {{ $t("data") }}</b-button
                       >
-                        {{ item.name }}
-                        <span class="move-txt fs-17-1920"
-                          >{{ $t("move") }}
-                          <i
-                            class="fa fa-angle-double-left"
-                            aria-hidden="true"
-                          ></i>
-                        </span>
-                      </li>
-                    </ul>
-                  </div>
-                </b-col>
-              </b-row>
-              <b-row class="mt-3">
-                <b-col cols="6" class="text-center"
-                  ><b-button
-                    class="move-btn-left rounded-pill fs-17-1920"
-                    v-on:click="moveData({ type: '+' })"
-                    >{{ $t("moveAll") }}</b-button
-                  ></b-col
-                >
-                <b-col cols="6" class="text-center"
-                  ><b-button
-                    class="move-btn-right rounded-pill fs-17-1920"
-                    v-on:click="moveData({ type: '-' })"
-                    >{{ $t("moveAll") }}</b-button
-                  ></b-col
-                >
-              </b-row>
-              <b-row>
-                <b-col
-                  ><b-button
-                    class="move-btn-right rounded-pill fs-17-1920 float-right"
-                    v-on:click="UpdateSelectedList()"
-                    >Updates</b-button
-                  ></b-col
-                >
-              </b-row>
-            </b-container>
-          </div>
-        </b-card-body>
-      </b-modal>
-    </b-card-header>
-    <b-card-body class="pr-0 pt-2">
-      <b-row>
-        <b-col sm="12" lg="4" className="position-relative border-0">
-          <div class="accordian-col">
-            <div class="accordion" id="conf-data" role="tablist">
-              <b-card no-body class="bg-transparent border-0">
-                <b-card-header
-                  header-tag="header"
-                  class="title p-1 border-right-0"
-                  role="tab"
-                >
-                  <b-button
-                    class="main-title text-left bg-transparent border-left-0 border-right-0 border-bottom-0 rounded-0 text-uppercase fs-18-1920"
-                    block
-                    v-b-toggle.accordion-1
-                  >
-                    <img
-                      :src="require('@/assets/images/icons/data.png')"
-                      class="datalogo-img pl-2 pr-4"
-                    />
-                    {{ $t("data") }}</b-button
-                  >
-                </b-card-header>
-                <b-collapse
-                  id="accordion-1"
-                  class="data-acc fs-17-1920 border-right-0"
-                  visible
-                  accordion="my-accordion"
-                  role="tabpanel"
-                >
-                  <DataComponent
-                    key="'MainMapping'"
-                    :reusableKey="'key1'"
-                    @getDataSource="getDataSource"
-                    @getDataSourceGroup="getDataSourceGroup"
-                    @getSelectedData="getSelectedData"
-                  />
-                </b-collapse>
-              </b-card>
-              <b-card no-body class="bg-transparent border-0">
-                <b-card-header header-tag="header" class="p-1" role="tab">
-                  <b-button
-                    class="main-title text-left bg-transparent border-left-0 border-right-0 rounded-0 text-uppercase fs-18-1920"
-                    block
-                    v-b-toggle.accordion-2
-                  >
-                    <img
-                      :src="require('@/assets/images/icons/period.png')"
-                      class="periodlogo-img pl-2 pr-4"
-                    />
-                    {{ $t("period") }}</b-button
-                  >
-                </b-card-header>
-                <b-collapse
-                  id="accordion-2"
-                  class="period-acc fs-17-1920"
-                  accordion="my-accordion"
-                  role="tabpanel"
-                >
-                  <b-card-body>
-                    <b-dropdown
-                      id="dropdown-1"
-                      :text="periodTypeText"
-                      class="period mt-2 mb-2 w-100 text-left fs-17-1920"
+                    </b-card-header>
+                    <b-collapse
+                      id="accordion-2"
+                      accordion="my-accordion"
+                      role="tabpanel"
+                      visible
                     >
-                      <b-dropdown-item-button
-                        class="fs-17-1920"
-                        v-for="(pType, index) in periodTypeList"
-                        :key="pType.value + index"
-                        :value="pType.value"
-                        @click="changePeriodType(pType)"
-                        ><div class="fs-17-1920">
-                          {{ pType.text }}
-                        </div></b-dropdown-item-button
+                      <b-card-body>
+                        <ConfigureOptions
+                          :reusableKey="'key2'"
+                          :allowedOptions="allowedOptions"
+                          @getUpdatedOpt="getUpdatedOpt"
+                        />
+                        <DataComponent
+                          key="'MainMapping'"
+                          :reusableKey="'key1'"
+                          @getDataSource="getDataSource"
+                          :allowedOptions="allowedOptions"
+                          @getDataSourceGroup="getDataSourceGroup"
+                          @getSelectedData="getSelectedData"
+                        />
+                      </b-card-body>
+                    </b-collapse>
+                  </b-card>
+                </div>
+                <div class="border-bottom mt-3 mb-3"></div>
+                <div class="accordion" role="tablist">
+                  <b-card no-body class="mb-1">
+                    <b-card-header header-tag="header" class="p-1" role="tab">
+                      <b-button block v-b-toggle.accordion-3 variant="info">
+                        {{ $t("period") }}</b-button
                       >
-                    </b-dropdown>
-                    <b-container>
-                      <b-row class="mt-3">
-                        <b-col cols="6" class="text-center"
-                          ><b-button
-                            class="year-btn-left rounded-pill fs-17-1920"
-                            @click="currentYear = currentYear - 1"
-                            >{{ $t("prevYear") }}</b-button
-                          ></b-col
+                    </b-card-header>
+                    <b-collapse
+                      id="accordion-3"
+                      accordion="my-accordion"
+                      role="tabpanel"
+                    >
+                      <b-card-body>
+                        <b-dropdown
+                          id="dropdown-1"
+                          :text="periodTypeText"
+                          class="period mt-2 mb-2 w-100 text-left fs-17-1920"
                         >
-                        <b-col cols="6" class="text-center"
-                          ><b-button
-                            class="year-btn-right rounded-pill fs-17-1920"
-                            @click="currentYear = currentYear + 1"
-                            >{{ $t("nextYear") }}</b-button
-                          ></b-col
-                        >
-                      </b-row>
-                    </b-container>
-                    <b-container fluid>
-                      <b-row class="mt-3">
-                        <b-col sm="6" class="pl-0">
-                          <div class="small">{{ $t("available") }}</div>
-                          <div class="left-year-data">
-                            <ul class="year-list list-unstyled p-3 fs-17-1920">
-                              <li
-                                class="year-list-item pt-1 pb-1 fs-17-1920"
-                                v-on:click="
-                                  movePeriod({ type: '+', period: item })
-                                "
-                                v-for="item in periodList"
-                                :key="item.text"
-                              >
-                                {{ item.text }}
-                                <span class="move-txt"
-                                  >{{ $t("move") }}
-                                  <i
-                                    class="fa fa-angle-double-right"
-                                    aria-hidden="true"
-                                  ></i>
-                                </span>
-                              </li>
-                            </ul>
-                          </div>
-                        </b-col>
-                        <b-col sm="6" class="pr-0">
-                          <div class="small text-right">
-                            {{ $t("selected") }}
-                          </div>
-                          <div class="right-year-data">
-                            <ul class="year-list list-unstyled p-3">
-                              <li
-                                class="year-list-item pt-1 pb-1 fs-17-1920"
-                                v-on:click="
-                                  movePeriod({ type: '-', period: item })
-                                "
-                                v-for="item in selectedPeriod"
-                                :key="item.text"
-                              >
-                                {{ item.text }}
-                                <span class="move-txt fs-17-1920"
-                                  >{{ $t("move") }}
-                                  <i
-                                    class="fa fa-angle-double-left"
-                                    aria-hidden="true"
-                                  ></i>
-                                </span>
-                              </li>
-                            </ul>
-                          </div>
-                        </b-col>
-                      </b-row>
-                      <b-row class="mt-3">
-                        <b-col cols="6" class="text-center"
-                          ><b-button
-                            class="move-btn-left rounded-pill fs-17-1920"
-                            v-on:click="movePeriod({ type: '+' })"
-                            >{{ $t("moveAll") }}</b-button
-                          ></b-col
-                        >
-                        <b-col cols="6" class="text-center"
-                          ><b-button
-                            class="move-btn-right rounded-pill fs-17-1920"
-                            v-on:click="movePeriod({ type: '-' })"
-                            >{{ $t("moveAll") }}</b-button
-                          ></b-col
-                        >
-                      </b-row>
-                    </b-container>
-                  </b-card-body>
-                </b-collapse>
-              </b-card>
-              <b-card no-body class="bg-transparent border-0">
-                <b-card-header header-tag="header" class="p-1" role="tab">
-                  <b-button
-                    class="main-title text-left bg-transparent border-left-0 border-right-0 border-top-0 rounded-0 text-uppercase fs-18-1920"
-                    block
-                    v-b-toggle.accordion-3
-                  >
-                    <img
-                      :src="
-                        require('@/assets/images/icons/organaisation-unit.png')
-                      "
-                      class="unitlogo-img pl-2 pr-4"
-                    />
-                    {{ $t("organizationUnit") }}</b-button
-                  >
-                </b-card-header>
-                <b-collapse
-                  id="accordion-3"
-                  accordion="my-accordion"
-                  role="tabpanel"
-                >
-                  <b-card-body>
-                    <div>
-                      <treeselect
-                        class="search-unit fs-17-1920"
-                        :placeholder="$t('search')"
-                        :multiple="true"
-                        :show-count="true"
-                        :default-expand-level="1"
-                        :limit="3"
-                        :flat="true"
-                        :load-options="loadOptionsWrapper"
-                        v-model="selectedLocation"
-                        :options="orgOptions"
-                      />
-                    </div>
-                  </b-card-body>
-                </b-collapse>
-              </b-card>
-              <b-card
-                no-body
-                class="bg-transparent"
-                v-if="facilityListOriginal.length"
-              >
-                <b-card-header header-tag="header" class="p-1" role="tab">
-                  <b-button
-                    class="main-title text-left bg-transparent border-left-0 border-right-0 border-top-0 rounded-0 text-uppercase fs-18-1920"
-                    block
-                    v-b-toggle.accordion-4
-                  >
-                    <img
-                      :src="
-                        require('@/assets/images/icons/organaisation-unit.png')
-                      "
-                      class="unitlogo-img pl-2 pr-4"
-                    />
-                    {{ $t("facilityType") }}</b-button
-                  >
-                </b-card-header>
-                <b-collapse
-                  id="accordion-4"
-                  accordion="my-accordion"
-                  role="tabpanel"
-                >
-                  <b-card-body>
-                    <div>
-                      <b-container fluid>
-                        <b-row>
-                          <b-col sm="6" class="pl-0">
-                            <div class="small">{{ $t("available") }}</div>
-                            <div class="left-data p-3">
-                              <ul
-                                class="med-list list-unstyled"
-                                ref="data_left"
-                              >
-                                <li
-                                  class="med-list-item pt-1 pb-1 fs-17-1920"
-                                  v-on:click="
-                                    moveFacility({ type: '+', facility: item })
-                                  "
-                                  v-for="item in facilityList"
-                                  :key="item.id"
-                                >
-                                  {{ item.name }}
-                                  <span class="move-txt fs-17-1920"
-                                    >{{ $t("move") }}
-                                    <i
-                                      class="fa fa-angle-double-right fs-17-1920"
-                                      aria-hidden="true"
-                                    ></i>
-                                  </span>
-                                </li>
-                              </ul>
-                            </div>
-                          </b-col>
-                          <b-col sm="6" class="pr-0">
-                            <div class="small text-right">
-                              {{ $t("selected") }}
-                            </div>
-                            <div class="right-data p-3">
-                              <ul
-                                class="med-list list-unstyled fs-17-1920"
-                                ref="data_right"
-                              >
-                                <li
-                                  class="med-list-item pt-1 pb-1 fs-17-1920"
-                                  v-on:click="
-                                    moveFacility({ type: '-', facility: item })
-                                  "
-                                  v-for="item in selectedFacility"
-                                  :key="item.id"
-                                >
-                                  {{ item.name }}
-                                  <span class="move-txt fs-17-1920"
-                                    >{{ $t("move") }}
-                                    <i
-                                      class="fa fa-angle-double-left"
-                                      aria-hidden="true"
-                                    ></i>
-                                  </span>
-                                </li>
-                              </ul>
-                            </div>
-                          </b-col>
-                        </b-row>
-                        <b-row class="mt-3">
-                          <b-col cols="6" class="text-center"
-                            ><b-button
-                              class="move-btn-left rounded-pill fs-17-1920"
-                              v-on:click="moveFacility({ type: '+' })"
-                              >{{ $t("moveAll") }}</b-button
-                            ></b-col
+                          <b-dropdown-item-button
+                            class="fs-17-1920"
+                            v-for="(pType, index) in periodTypeList"
+                            :key="pType.value + index"
+                            :value="pType.value"
+                            @click="changePeriodType(pType)"
+                            ><div class="fs-17-1920">
+                              {{ pType.text }}
+                            </div></b-dropdown-item-button
                           >
-                          <b-col cols="6" class="text-center"
-                            ><b-button
-                              class="move-btn-right rounded-pill fs-17-1920"
-                              v-on:click="moveFacility({ type: '-' })"
-                              >{{ $t("moveAll") }}</b-button
-                            ></b-col
-                          >
-                        </b-row>
-                      </b-container>
-                    </div>
-                  </b-card-body>
-                </b-collapse>
-              </b-card>
-            </div>
-          </div>
-          <div class="text-right mt-5 updateButton position-absolute">
-            <b-button
-              class="update-btn border-0 rounded-pill px-4 fs-17-1920"
-              v-on:click="generateChart"
-              >{{ $t("update") }}</b-button
-            >
-          </div>
-        </b-col>
-        <b-col sm="12" lg="8" class="pr-0 mt-sm-4 mt-lg-0">
-          <b-card class="chart rounded-0">
-            <template #header class="chart-title bg-transparent d-flex ml-3">
-              <p class="mb-0 chart-type ml-4">{{ $t("chartType") }}:</p>
-              <div class="pl-5 pl-sm-3">
-                <img
-                  v-for="(type, index) in chartTypeOptions"
-                  :key="type.value + index"
-                  :src="
-                    require(`@/assets/images/icons/${type.icon}${
-                      chartType === type.value &&
-                      isPercentageChart === type.percentageChart
-                        ? 'Active'
-                        : ''
-                    }.png`)
-                  "
-                  v-b-tooltip.hover
-                  :title="type.text"
-                  class="chrtlogo-img pl-4 pr-5 pr-sm-3 pl-sm-3 cursor-pointer"
-                  @click="changeType(type.value, type.percentageChart)"
-                />
+                        </b-dropdown>
+                        <b-container>
+                          <b-row class="mt-3 move-btn">
+                            <b-col cols="6" class="text-center"
+                              ><b-button
+                                class="year-btn-left rounded-pill fs-17-1920"
+                                @click="currentYear = currentYear - 1"
+                                >{{ $t("prev_year") }}</b-button
+                              ></b-col
+                            >
+                            <b-col cols="6" class="text-center"
+                              ><b-button
+                                class="year-btn-right rounded-pill fs-17-1920"
+                                @click="currentYear = currentYear + 1"
+                                >{{ $t("next_year") }}</b-button
+                              ></b-col
+                            >
+                          </b-row>
+                        </b-container>
+                        <b-container fluid>
+                          <b-row class="mt-3">
+                            <b-col sm="6" class="pl-0">
+                              <div class="small">{{ $t("available") }}</div>
+                              <div class="left-year-data">
+                                <ul
+                                  class="year-list list-unstyled p-3 fs-17-1920"
+                                >
+                                  <li
+                                    class="year-list-item pt-1 pb-1 fs-17-1920"
+                                    v-on:click="
+                                      movePeriod({ type: '+', period: item })
+                                    "
+                                    v-for="item in periodList"
+                                    :key="item.text"
+                                  >
+                                    {{ item.text }}
+                                    <span class="move-txt"
+                                      >{{ $t("move") }}
+                                      <i
+                                        class="fa fa-angle-double-right"
+                                        aria-hidden="true"
+                                      ></i>
+                                    </span>
+                                  </li>
+                                </ul>
+                              </div>
+                            </b-col>
+                            <b-col sm="6" class="pr-0">
+                              <div class="small">
+                                {{ $t("selected") }}
+                              </div>
+                              <div class="right-year-data">
+                                <ul class="year-list list-unstyled p-3">
+                                  <li
+                                    class="year-list-item pt-1 pb-1 fs-17-1920"
+                                    v-on:click="
+                                      movePeriod({ type: '-', period: item })
+                                    "
+                                    v-for="item in selectedPeriod"
+                                    :key="item.text"
+                                  >
+                                    {{ item.text }}
+                                    <span class="move-txt fs-17-1920"
+                                      >{{ $t("move") }}
+                                      <i
+                                        class="fa fa-angle-double-left"
+                                        aria-hidden="true"
+                                      ></i>
+                                    </span>
+                                  </li>
+                                </ul>
+                              </div>
+                            </b-col>
+                          </b-row>
+                          <b-row class="mt-3 move-btn">
+                            <b-col cols="6" class="text-center"
+                              ><b-button
+                                class="move-btn-left rounded-pill fs-17-1920"
+                                v-on:click="movePeriod({ type: '+' })"
+                                >{{ $t("moveAll") }}</b-button
+                              ></b-col
+                            >
+                            <b-col cols="6" class="text-center"
+                              ><b-button
+                                class="move-btn-right rounded-pill fs-17-1920"
+                                v-on:click="movePeriod({ type: '-' })"
+                                >{{ $t("moveAll") }}</b-button
+                              ></b-col
+                            >
+                          </b-row>
+                        </b-container>
+                      </b-card-body>
+                    </b-collapse>
+                  </b-card>
+                </div>
+                <div class="border-bottom mt-3 mb-3"></div>
+                <div class="accordion" role="tablist">
+                  <b-card no-body class="mb-1">
+                    <b-card-header header-tag="header" class="p-1" role="tab">
+                      <b-button block v-b-toggle.accordion-4 variant="info">
+                        {{ $t("orgUnits") }}</b-button
+                      >
+                    </b-card-header>
+                    <b-collapse
+                      id="accordion-4"
+                      accordion="my-accordion"
+                      role="tabpanel"
+                    >
+                      <b-card-body>
+                        <div>
+                          <treeselect
+                            class="search-unit fs-17-1920"
+                            :placeholder="$t('search')"
+                            :multiple="true"
+                            :show-count="true"
+                            :default-expand-level="1"
+                            :limit="3"
+                            :flat="true"
+                            :open-direction="'bottom'"
+                            :load-options="loadOptionsWrapper"
+                            v-model="selectedLocation"
+                            :options="orgOptions"
+                          />
+                        </div>
+                      </b-card-body>
+                    </b-collapse>
+                  </b-card>
+                </div>
+                <div class="border-bottom mt-3 mb-3"></div>
+                <div
+                  class="accordion"
+                  role="tablist"
+                  v-if="facilityListOriginal.length"
+                >
+                  <b-card no-body class="mb-1">
+                    <b-card-header header-tag="header" class="p-1" role="tab">
+                      <b-button block v-b-toggle.accordion-5 variant="info">
+                        {{ $t("facilityType") }}
+                      </b-button>
+                    </b-card-header>
+                    <b-collapse
+                      id="accordion-5"
+                      accordion="my-accordion"
+                      role="tabpanel"
+                    >
+                      <b-card-body>
+                        <div>
+                          <b-container fluid>
+                            <b-row>
+                              <b-col sm="6" class="pl-0">
+                                <div class="small">{{ $t("available") }}</div>
+                                <div class="left-data p-3">
+                                  <ul
+                                    class="med-list list-unstyled"
+                                    ref="data_left"
+                                  >
+                                    <li
+                                      class="med-list-item pt-1 pb-1 fs-17-1920"
+                                      v-on:click="
+                                        moveFacility({
+                                          type: '+',
+                                          facility: item,
+                                        })
+                                      "
+                                      v-for="item in facilityList"
+                                      :key="item.id"
+                                    >
+                                      {{ item.name }}
+                                      <span class="move-txt fs-17-1920"
+                                        >{{ $t("move") }}
+                                        <i
+                                          class="fa fa-angle-double-right fs-17-1920"
+                                          aria-hidden="true"
+                                        ></i>
+                                      </span>
+                                    </li>
+                                  </ul>
+                                </div>
+                              </b-col>
+                              <b-col sm="6" class="pr-0">
+                                <div class="small">
+                                  {{ $t("selected") }}
+                                </div>
+                                <div class="right-data p-3">
+                                  <ul
+                                    class="med-list list-unstyled fs-17-1920"
+                                    ref="data_right"
+                                  >
+                                    <li
+                                      class="med-list-item pt-1 pb-1 fs-17-1920"
+                                      v-on:click="
+                                        moveFacility({
+                                          type: '-',
+                                          facility: item,
+                                        })
+                                      "
+                                      v-for="item in selectedFacility"
+                                      :key="item.id"
+                                    >
+                                      {{ item.name }}
+                                      <span class="move-txt fs-17-1920"
+                                        >{{ $t("move") }}
+                                        <i
+                                          class="fa fa-angle-double-left"
+                                          aria-hidden="true"
+                                        ></i>
+                                      </span>
+                                    </li>
+                                  </ul>
+                                </div>
+                              </b-col>
+                            </b-row>
+                            <b-row class="mt-3 move-btn">
+                              <b-col cols="6" class="text-center move-btn"
+                                ><b-button
+                                  class="move-btn-left rounded-pill fs-17-1920"
+                                  v-on:click="moveFacility({ type: '+' })"
+                                  >{{ $t("moveAll") }}</b-button
+                                ></b-col
+                              >
+                              <b-col cols="6" class="text-center"
+                                ><b-button
+                                  class="move-btn-right rounded-pill fs-17-1920"
+                                  v-on:click="moveFacility({ type: '-' })"
+                                  >{{ $t("moveAll") }}</b-button
+                                ></b-col
+                              >
+                            </b-row>
+                          </b-container>
+                        </div>
+                      </b-card-body>
+                    </b-collapse>
+                  </b-card>
+                </div>
               </div>
-            </template>
-            <b-card-body class="configure pt-0">
-              <div class="configure-chart fs-17-1920">
-                <template v-if="dataFetched">
-                  <template v-if="chartType !== 'table'">
-                    <highcharts
-                      id="container"
-                      v-if="chartOptions.series.length"
-                      class="chartHeight"
-                      :options="chartOptions"
-                      ref="interactiveChart"
-                    ></highcharts>
-                    <div
-                      class="chartHeight align-items-center justify-content-center d-flex"
-                      v-else
+              <div class="text-right mt-5 updateButton position-absolute">
+                <b-button
+                  class="blue-btn border-0 px-4 fs-17-1920"
+                  v-on:click="generateChart"
+                  >{{ $t("update") }}</b-button
+                >
+              </div>
+            </b-col>
+
+            <b-col sm="12" lg="8">
+              <b-card class="chart-footer bg-transparent layout-info">
+                <b-row class="">
+                  <b-col
+                    class="layout d-flex justify-content-between align-items-center pl-4 fs-17-1920"
+                    sm="2"
+                    >{{ $t("layout") }}:</b-col
+                  >
+                  <b-col sm="10">
+                    <b-row>
+                      <b-col
+                        class="series"
+                        sm="6"
+                        :class="{
+                          'border-danger': seriesLayout.length === 0,
+                          'col-sm-12': chartType === 'pie',
+                        }"
+                      >
+                        <div
+                          class="p-2 d-flex"
+                          id="series"
+                          @drop.stop.prevent="drop('seriesLayout')"
+                          @dragover.prevent
+                        >
+                          <div class="series-title mb-n2 pt-2 mt-n2 fs-17-1920">
+                            {{ $t("series") }}
+                          </div>
+                          <b-badge
+                            class="layout-item rounded-pill p-1 pl-2 pr-2 ml-3 fs-16-1920"
+                            draggable="true"
+                            :id="series.id"
+                            @dragstart="drag(series.id, 'seriesLayout')"
+                            v-for="(series, i) in seriesLayout"
+                            :key="i"
+                          >
+                            {{ series.text }}</b-badge
+                          >
+                        </div>
+                      </b-col>
+                      <b-col
+                        class="category"
+                        sm="6"
+                        :class="{
+                          'border-danger': categoryLayout.length === 0,
+                          'd-none': chartType === 'pie',
+                        }"
+                        ><div
+                          class="p-2 d-flex"
+                          id="category fs-17-1920"
+                          @drop.stop.prevent="drop('categoryLayout')"
+                          @dragover.prevent
+                        >
+                          <div
+                            class="category-title mb-n2 pt-2 mt-n2 fs-17-1920"
+                          >
+                            {{ $t("category") }}
+                          </div>
+                          <b-badge
+                            class="layout-item rounded-pill p-1 pl-2 pr-2 ml-3 fs-16-1920"
+                            draggable="true"
+                            :id="category.id"
+                            @dragstart="drag(category.id, 'categoryLayout')"
+                            v-for="(category, i) in categoryLayout"
+                            :key="i"
+                            >{{ category.text }}</b-badge
+                          >
+                        </div></b-col
+                      >
+                      <b-col class="filter" sm="12"
+                        ><div
+                          class="p-2 d-flex fs-17-1920"
+                          id="filter"
+                          @drop.stop.prevent="drop('filterLayout')"
+                          @dragover.prevent
+                        >
+                          <div class="filter-title mb-n2 pt-2 mt-n2 fs-17-1920">
+                            {{ $t("filter") }}
+                          </div>
+                          <b-badge
+                            class="layout-item rounded-pill p-1 pl-2 pr-2 ml-3 fs-16-1920"
+                            draggable="true"
+                            :id="filter.id"
+                            @dragstart="drag(filter.id, 'filterLayout')"
+                            v-for="(filter, i) in filterLayout"
+                            :key="i"
+                          >
+                            {{ filter.text }}
+                          </b-badge>
+                        </div></b-col
+                      >
+                      <b-col
+                        class="dimension"
+                        sm="12"
+                        v-if="
+                          dataSource === 'dataElements' && chartType !== 'pie'
+                        "
+                        ><div
+                          class="p-2 d-flex fs-17-1920"
+                          id="assignedCatLayout"
+                          @drop.stop.prevent="drop('assignedCatLayout')"
+                          @dragover.prevent
+                        >
+                          <div class="filter-title mb-n2 pt-2 mt-n2 fs-17-1920">
+                            {{ $t("otherDimension") }}
+                          </div>
+                          <b-badge
+                            class="layout-item rounded-pill p-1 pl-2 pr-2 ml-3 fs-16-1920"
+                            draggable="true"
+                            :id="assignedCat.id"
+                            @dragstart="
+                              drag(assignedCat.id, 'assignedCatLayout')
+                            "
+                            v-for="(assignedCat, i) in assignedCatLayout"
+                            :key="i"
+                            >{{ assignedCat.text }}</b-badge
+                          >
+                        </div></b-col
+                      >
+                    </b-row>
+                  </b-col>
+                </b-row>
+              </b-card>
+              <b-card-body class="configure mt-4">
+                <div class="d-flex justify-content-end">
+                  <div class="d-flex" v-if="chartOptions.series.length > 0">
+                    <template
+                      v-if="
+                        chartOptions.chart.type !== 'pie' &&
+                        chartOptions.chart.type !== 'table'
+                      "
                     >
-                      {{ $t("no_data_to_display") }}
-                    </div>
-                  </template>
-                  <template v-else>
-                    <div
-                      class="chartHeight text-center m-t-20px"
-                      style="overflow: scroll"
-                    >
-                      <b-table
-                        class="mb-0"
+                      <advancedOptions
+                        :key="'advancedOptions'"
+                        :chartOptions="chartOptions"
+                        :selectedDrilldownData="selectedDrilldownData"
+                        :source="source"
+                        @updateOptions="updateOptions"
+                        :orgOptions="orgOptions"
+                        :defaultOrg="selectedLocation"
+                        :autoUpdate="autoUpdate"
+                        :canAddDrilldown="canAddDrilldown"
+                      />
+                    </template>
+                    <chartOptions
+                      :chartOptions="chartOptions"
+                      @exportChart="exportChart"
+                      @sortData="dataSort"
+                      @bookmark="bookmark"
+                      :table="table"
+                      :chartType="chartType"
+                    />
+                  </div>
+                </div>
+                <div class="configure-chart fs-17-1920">
+                  <template v-if="dataFetched">
+                    <template v-if="chartType !== 'table'">
+                      <highcharts
+                        id="container"
                         v-if="chartOptions.series.length"
-                        :bordered="true"
-                        striped
-                        hover
-                        :items="table.items"
-                        :fields="table.fields"
+                        class="chartHeight"
+                        :options="chartOptions"
                         ref="interactiveChart"
-                      ></b-table>
+                      ></highcharts>
                       <div
                         class="chartHeight align-items-center justify-content-center d-flex"
                         v-else
                       >
                         {{ $t("no_data_to_display") }}
                       </div>
+                    </template>
+                    <template v-else>
+                      <div
+                        class="chartHeight text-center m-t-20px"
+                        style="overflow: scroll"
+                      >
+                        <b-table
+                          class="mb-0"
+                          v-if="chartOptions.series.length"
+                          :bordered="true"
+                          striped
+                          hover
+                          :items="table.items"
+                          :fields="table.fields"
+                          ref="interactiveChart"
+                        ></b-table>
+                        <div
+                          class="chartHeight align-items-center justify-content-center d-flex"
+                          v-else
+                        >
+                          {{ $t("no_data_to_display") }}
+                        </div>
+                      </div>
+                    </template>
+                    <div class="text-right f-08rem">
+                      {{ $t("source") }}: <b>{{ source }}</b>
                     </div>
                   </template>
-                  <div class="text-right mt-2">
-                    {{ $t("source") }}: <b>{{ source }}</b>
-                  </div>
-                </template>
-                <template v-else>
-                  <div
-                    class="chartHeight align-items-center justify-content-center d-flex"
-                  >
-                    <h3 class="configChart">
-                      <i class="fa fa-arrow-left mr-2"></i
-                      >{{ $t("configYourChart") }}
-                    </h3>
-                  </div>
-                </template>
-              </div>
-            </b-card-body>
-            <b-card-footer class="chart-footer bg-transparent">
-              <b-row>
-                <b-col
-                  class="layout d-flex justify-content-between align-items-center pl-4 fs-17-1920"
-                  sm="2"
-                  >{{ $t("layout") }}:</b-col
-                >
-                <b-col sm="10">
-                  <b-row class="layout-info">
-                    <b-col
-                      class="series"
-                      sm="6"
-                      :class="{
-                        'border-danger': seriesLayout.length === 0,
-                        'col-sm-12': chartType === 'pie',
-                      }"
+                  <template v-else>
+                    <div
+                      class="chartHeight align-items-center justify-content-center d-flex"
                     >
-                      <div
-                        class="p-2 d-flex"
-                        id="series"
-                        @drop.stop.prevent="drop('seriesLayout')"
-                        @dragover.prevent
-                      >
-                        <div class="series-title mb-n2 pt-2 mt-n2 fs-17-1920">
-                          {{ $t("series") }}
-                        </div>
-                        <b-badge
-                          class="layout-item rounded-pill p-1 pl-2 pr-2 ml-3 fs-16-1920"
-                          draggable="true"
-                          :id="series.id"
-                          @dragstart="drag(series.id, 'seriesLayout')"
-                          v-for="(series, i) in seriesLayout"
-                          :key="i"
-                        >
-                          {{ series.text }}</b-badge
-                        >
-                      </div>
-                    </b-col>
-                    <b-col
-                      class="category"
-                      sm="6"
-                      :class="{
-                        'border-danger': categoryLayout.length === 0,
-                        'd-none': chartType === 'pie',
-                      }"
-                      ><div
-                        class="p-2 d-flex"
-                        id="category fs-17-1920"
-                        @drop.stop.prevent="drop('categoryLayout')"
-                        @dragover.prevent
-                      >
-                        <div class="category-title mb-n2 pt-2 mt-n2 fs-17-1920">
-                          {{ $t("category") }}
-                        </div>
-                        <b-badge
-                          class="layout-item rounded-pill p-1 pl-2 pr-2 ml-3 fs-16-1920"
-                          draggable="true"
-                          :id="category.id"
-                          @dragstart="drag(category.id, 'categoryLayout')"
-                          v-for="(category, i) in categoryLayout"
-                          :key="i"
-                          >{{ category.text }}</b-badge
-                        >
-                      </div></b-col
-                    >
-                    <b-col class="filter" sm="12"
-                      ><div
-                        class="p-2 d-flex fs-17-1920"
-                        id="filter"
-                        @drop.stop.prevent="drop('filterLayout')"
-                        @dragover.prevent
-                      >
-                        <div class="filter-title mb-n2 pt-2 mt-n2 fs-17-1920">
-                          {{ $t("filter") }}
-                        </div>
-                        <b-badge
-                          class="layout-item rounded-pill p-1 pl-2 pr-2 ml-3 fs-16-1920"
-                          draggable="true"
-                          :id="filter.id"
-                          @dragstart="drag(filter.id, 'filterLayout')"
-                          v-for="(filter, i) in filterLayout"
-                          :key="i"
-                        >
-                          {{ filter.text }}
-                        </b-badge>
-                      </div></b-col
-                    >
-                    <b-col
-                      class="dimension"
-                      sm="12"
-                      v-if="
-                        dataSource === 'dataElements' && chartType !== 'pie'
-                      "
-                      ><div
-                        class="p-2 d-flex fs-17-1920"
-                        id="assignedCatLayout"
-                        @drop.stop.prevent="drop('assignedCatLayout')"
-                        @dragover.prevent
-                      >
-                        <div class="filter-title mb-n2 pt-2 mt-n2 fs-17-1920">
-                          {{ $t("otherDimension") }}
-                        </div>
-                        <b-badge
-                          class="layout-item rounded-pill p-1 pl-2 pr-2 ml-3 fs-16-1920"
-                          draggable="true"
-                          :id="assignedCat.id"
-                          @dragstart="drag(assignedCat.id, 'assignedCatLayout')"
-                          v-for="(assignedCat, i) in assignedCatLayout"
-                          :key="i"
-                          >{{ assignedCat.text }}</b-badge
-                        >
-                      </div></b-col
-                    >
-                  </b-row>
-                </b-col>
-              </b-row>
-            </b-card-footer>
-          </b-card>
-        </b-col>
-      </b-row>
-    </b-card-body>
-  </b-card>
+                      <h3 class="configChart">
+                        <i class="fa fa-arrow-left mr-2"></i
+                        >{{ $t("configYourChart") }}
+                      </h3>
+                    </div>
+                  </template>
+                </div>
+              </b-card-body>
+            </b-col>
+          </b-row>
+        </div>
+      </b-card>
+    </div>
+  </section>
 </template>
+
 <script>
-/*global settings, Highcharts*/
-import service from "@/service";
-import Treeselect from "@riophae/vue-treeselect";
-import "@riophae/vue-treeselect/dist/vue-treeselect.css";
-import loadLocChildMixin from "@/helpers/LoadLocationChildMixin";
+/*global Highcharts*/
 import IA from "./interactive";
-import basicChartConfig from "@/config/basicChartConfig_IA.js";
+import service from "@/service";
 import chartOptions from "./chartOptions";
+import Treeselect from "@riophae/vue-treeselect";
+import ConfigureOptions from "./ConfigureOptions";
+import { basicChartConfig } from "@/config/basicChartConfig";
+import "@riophae/vue-treeselect/dist/vue-treeselect.css";
+import DynamicImageMixin from "@/helpers/DynamicImageMixin";
+import ReFetchConfigMixin from "@/helpers/ReFetchConfigMixin";
+import loadLocChildMixin from "@/helpers/LoadLocationChildMixin";
 import { chartExport, randomString } from "@/components/Common/commonFunctions";
-import audit from "../config/audit.js";
 export default {
   components: {
     chartOptions,
+    ConfigureOptions,
     advancedOptions: () =>
       import(
         /*webpackChunkName: 'interactive-advancedOptions'*/ "./advancedOptions"
@@ -703,14 +592,12 @@ export default {
         /*webpackChunkName: 'interactive-DataComponent'*/ "./DataComponent"
       ),
   },
-  mixins: [loadLocChildMixin],
+  mixins: [loadLocChildMixin, DynamicImageMixin, ReFetchConfigMixin],
   data() {
     return {
       dataMappingKey: "mainMapping",
       chartType: "column",
-      chartTypeOptions: [],
       isPercentageChart: false,
-      periodTypeList: [],
       periodType: null,
       selectedPeriod: [],
       currentYear: new Date().getFullYear(),
@@ -735,7 +622,7 @@ export default {
       dataFetched: false,
       count: 3,
       dataSearchText: "",
-      source: "N/A",
+      source: this.$i18n.t("NA"),
       autoUpdate: false,
       loggedInUser: "",
       table: {
@@ -751,8 +638,7 @@ export default {
       facilityDimension: "",
       indicatorsColors: [],
       facilityListOriginal: [],
-      configireBtn: false,
-      dataOptions: [],
+      allowedOptions: {},
     };
   },
   watch: {
@@ -763,46 +649,13 @@ export default {
         }
       }
     },
-    dataSource(newValue) {
-      let text = "";
-      if (newValue === "indicators") {
-        text = "Indicator Group";
-      }
-      if (newValue === "dataElements") {
-        text = "Data Element Group";
-      }
-      if (newValue === "dataSets") {
-        text = "Data Set Group";
-      }
-      if (newValue === "eventDataItems" || newValue === "programIndicators") {
-        text = "Program";
-      }
-      this.dataSourceText = text;
-      if (this.allData[this.dataSource]["selectedSourceGroup"]) {
-        let isFound = this.allData[this.dataSource]["dataSourceGroup"].find(
-          (d) => d.id === this.allData[this.dataSource]["selectedSourceGroup"]
-        );
-        if (isFound) {
-          this.dataSourceGroup = isFound.id;
-        }
-      }
-      this.selectedData = [];
-      if (this.$route.query.bookmarkChart && !this.isDrillDown) {
-        let data = JSON.parse(localStorage.getItem("bookmarkChart"));
-        if (data.dataSource === newValue) {
-          this.getDataSourceGroup();
-        }
-      }
-      this.getDataSource(newValue);
-      this.getDataSourceGroup();
-    },
   },
   computed: {
     periodList() {
       let pList = [];
       if (this.periodType === "yearly") {
         for (let i = this.currentYear; i > this.currentYear - 10; i--) {
-          pList.push({ id: `${i}`, text: `${i}` });
+          pList.push({ id: `${i}`, text: `${i}`, periodType: this.periodType });
         }
       } else if (
         this.periodType === "financialYear" ||
@@ -819,7 +672,6 @@ export default {
               ? ["mars", "avril"]
               : ["juin", "juil."];
         }
-        // console.log("curYear",curYear)
         for (let i = 1; i <= 10; i++) {
           pList.push({
             id:
@@ -828,6 +680,7 @@ export default {
                 : `${curYear}July`,
             text:
               years[1] + " " + curYear + " - " + years[0] + " " + (curYear + 1),
+            periodType: this.periodType,
           });
           curYear -= 1;
         }
@@ -855,6 +708,7 @@ export default {
               years[`Q${i}`][1] +
               " " +
               this.currentYear,
+            periodType: this.periodType,
           });
         }
         pList.reverse();
@@ -893,6 +747,7 @@ export default {
           pList.push({
             id: i < 10 ? `${this.currentYear}0${i}` : `${this.currentYear}${i}`,
             text: years[i - 1] + " " + this.currentYear,
+            periodType: this.periodType,
           });
         }
         pList.reverse();
@@ -916,30 +771,101 @@ export default {
     periodTypeText() {
       return this.periodTypeList.find((p) => p.value === this.periodType).text;
     },
-    dataList() {
-      let list = this.allData[this.dataSource]["data"]["list"];
-      if (list) {
-        list = list.filter((l) => {
-          let isFound = this.selectedData.find((sd) => sd.id === l.id);
-          let isFiltered = this.dataSearchText
-            ? l.name.toLowerCase().includes(this.dataSearchText.toLowerCase())
-            : true;
-          if (!isFound && isFiltered) {
-            return l;
-          }
+    chartTypeOptions() {
+      return [
+        {
+          value: "column",
+          text: this.$i18n.t("column"),
+          percentageChart: false,
+          icon: "column",
+        },
+        {
+          value: "column_stacked",
+          text: this.$i18n.t("columnStacked"),
+          percentageChart: false,
+          icon: "column_stacked",
+        },
+        {
+          value: "column_stacked",
+          text: this.$i18n.t("columnStackedPercentage"),
+          percentageChart: true,
+          icon: "column_percentage",
+        },
+        {
+          value: "bar",
+          text: this.$i18n.t("bar"),
+          percentageChart: false,
+          icon: "bar",
+        },
+        {
+          value: "bar_stacked",
+          text: this.$i18n.t("barStacked"),
+          percentageChart: false,
+          icon: "bar_stacked",
+        },
+        {
+          value: "bar_stacked",
+          text: this.$i18n.t("barStackedPercentage"),
+          percentageChart: true,
+          icon: "bar_percentage",
+        },
+        {
+          value: "line",
+          text: this.$i18n.t("line"),
+          percentageChart: false,
+          icon: "line",
+        },
+        {
+          value: "area",
+          text: this.$i18n.t("area"),
+          percentageChart: false,
+          icon: "area",
+        },
+        {
+          value: "pie",
+          text: this.$i18n.t("pie"),
+          percentageChart: false,
+          icon: "pie",
+        },
+        {
+          value: "table",
+          text: this.$i18n.t("table"),
+          percentageChart: false,
+          icon: "tableIA",
+        },
+      ];
+    },
+    periodTypeList() {
+      let periodTypeList = [
+        { value: "monthly", text: this.$i18n.t("monthly") },
+        { value: "quarterly", text: this.$i18n.t("quarterly") },
+        { value: "yearly", text: this.$i18n.t("yearly") },
+      ];
+      if (this.$store.state.financialYear.includes("April")) {
+        periodTypeList.push({
+          value: "financialYear",
+          text: this.$i18n.t("financialYear"),
         });
-        return list;
       }
+      if (this.$store.state.financialYear.includes("July")) {
+        periodTypeList.push({
+          value: "financialYearJuly",
+          text: this.$i18n.t("financialYearJuly"),
+        });
+      }
+      return periodTypeList;
     },
   },
   methods: {
+    getUpdatedOpt(obj) {
+      this.allowedOptions = obj;
+    },
     changeType(type, isPercentageChart) {
       this.chartType = type;
       this.isPercentageChart = isPercentageChart;
 
       if (type === "pie") {
         this.filterLayout = this.filterLayout.filter((f) => f.id !== "co");
-        console.log("2");
         this.seriesLayout = this.seriesLayout.filter((f) => f.id !== "co");
         this.categoryLayout.forEach((c) => {
           if (c.id !== "co") {
@@ -949,7 +875,6 @@ export default {
         this.assignedCatLayout = [
           { id: "co", text: this.$i18n.t("assignedCategory") },
         ];
-        // console.log(this.filterLayout)
         this.$nextTick(() => (this.categoryLayout = []));
       } else {
         if (!this.dataFetched) {
@@ -957,14 +882,10 @@ export default {
             let savedBookmarkData = JSON.parse(
               localStorage.getItem("bookmarkChart")
             );
-            console.log("3");
-
             this.seriesLayout = savedBookmarkData.seriesLayout;
             this.categoryLayout = savedBookmarkData.categoryLayout;
             this.filterLayout = savedBookmarkData.filterLayout;
           } else {
-            console.log("4");
-
             this.seriesLayout = [{ id: "dx", text: this.$i18n.t("data") }];
             this.categoryLayout = [{ id: "pe", text: this.$i18n.t("period") }];
             if (this.selectedFacility.length) {
@@ -988,11 +909,9 @@ export default {
       }
     },
     getDataSource(value) {
-      console.log("getDataSource", value);
       this.dataSource = value;
       // if (this.dataSource !== "dataElements") {
       if (!(this.$route.query.bookmarkChart && !this.isDrillDown)) {
-        console.log("5");
         this.seriesLayout = [{ id: "dx", text: this.$i18n.t("data") }];
         if (this.selectedFacility.length) {
           this.filterLayout = [
@@ -1025,10 +944,7 @@ export default {
       this.selectedData = value;
     },
     dataSort(sort) {
-      // console.log(this.chartData);
-      //debugger
       let sortedData = IA.sortData(sort, this.chartOptions);
-
       this.chartOptions.xAxis.categories = sortedData.aCategories;
       this.chartOptions.series.forEach((key, i) => {
         this.chartOptions.series[i].data = sortedData.aSeriesData[i];
@@ -1039,120 +955,130 @@ export default {
       chartExport(type, chart);
     },
     bookmark() {
+      this.$store.state.loading = true;
       let key = this.generateKey("interactive");
       let allKeys = service.getAllKeys();
-      allKeys.then((keys) => {
-        // console.log(keys);
-        // console.log(key);
-        if (keys.data.includes(key)) {
-          let saveConfig = service.getSavedConfig(key);
-          saveConfig.then(async (res) => {
-            // console.log(res.data);
-            if (this.$route.query.bookmarkChart) {
-              const { value: yesNo } = await this.$swal({
-                title: this.$i18n.t("bookmarkName", {
-                  name: JSON.parse(localStorage.getItem("bookmarkChart")).name,
-                }),
-                input: "select",
-                inputOptions: {
-                  no: this.$i18n.t("no"),
-                  yes: this.$i18n.t("yes"),
-                },
-                type: "question",
-                inputPlaceholder: this.$i18n.t("changeName"),
-                showCancelButton: true,
-                confirmButtonText: this.$i18n.t("submitbtn"),
-                inputValidator: (value) => {
-                  return new Promise((resolve) => {
-                    if (value) {
-                      resolve();
-                    } else {
-                      resolve(this.$i18n.t("warnMessage"));
+      allKeys
+        .then((keys) => {
+          if (keys.data.includes(key)) {
+            let saveConfig = service.getSavedConfig(key);
+            saveConfig.then(async (res) => {
+              this.$store.state.loading = false;
+              if (this.$route.query.bookmarkChart) {
+                const { value: yesNo } = await this.$swal({
+                  title: this.$i18n.t("bookmarkName", {
+                    name: JSON.parse(localStorage.getItem("bookmarkChart"))
+                      .name,
+                  }),
+                  inputLabel: this.$i18n.t("changeName"),
+                  input: "select",
+                  inputOptions: {
+                    no: this.$i18n.t("no"),
+                    yes: this.$i18n.t("yes"),
+                  },
+                  type: "question",
+                  //inputPlaceholder: this.$i18n.t("changeName"),
+                  showCancelButton: true,
+                  reverseButtons: true,
+                  confirmButtonText: this.$i18n.t("submitbtn"),
+                  cancelButtonText: this.$i18n.t("cancelbtn"),
+                  inputValidator: (value) => {
+                    return new Promise((resolve) => {
+                      if (value) {
+                        resolve();
+                      } else {
+                        resolve(this.$i18n.t("warnMessage"));
+                      }
+                    });
+                  },
+                });
+
+                if (yesNo === "yes") {
+                  this.$swal({
+                    title: this.$i18n.t("nameYourBookmark"),
+                    input: "text",
+                    showCancelButton: true,
+                    reverseButtons: true,
+                    confirmButtonText: this.$i18n.t("submitbtn"),
+                    cancelButtonText: this.$i18n.t("cancelbtn"),
+                  }).then((result) => {
+                    if (result.value) {
+                      this.$store.state.loading = true;
+                      let allBookmarks = res.data;
+                      let b = allBookmarks.find(
+                        (b) =>
+                          b.name ===
+                          JSON.parse(localStorage.getItem("bookmarkChart")).name
+                      );
+                      allBookmarks = allBookmarks.filter(
+                        (b) =>
+                          b.name !==
+                          JSON.parse(localStorage.getItem("bookmarkChart")).name
+                      );
+                      let bookmark = this.getBookmarkObj(b, result.value);
+
+                      allBookmarks.push(bookmark);
+                      let response = service.updateConfig(allBookmarks, key);
+                      response.then((response) => {
+                        this.showAlert(response);
+                      });
                     }
                   });
-                },
-              });
+                }
+                if (yesNo === "no") {
+                  this.$store.state.loading = true;
+                  let allBookmarks = res.data;
+                  let b = allBookmarks.find(
+                    (b) =>
+                      b.name ===
+                      JSON.parse(localStorage.getItem("bookmarkChart")).name
+                  );
+                  allBookmarks = allBookmarks.filter(
+                    (b) =>
+                      b.name !==
+                      JSON.parse(localStorage.getItem("bookmarkChart")).name
+                  );
+                  let bookmark = this.getBookmarkObj(
+                    b,
+                    JSON.parse(localStorage.getItem("bookmarkChart")).name
+                  );
 
-              if (yesNo === "yes") {
-                this.$swal({
-                  title: this.$i18n.t("nameYourBookmark"),
-                  input: "text",
-                  showCancelButton: true,
-                  confirmButtonText: this.$i18n.t("submitbtn"),
-                }).then((result) => {
-                  // console.log(result)
-                  if (result.value) {
-                    this.$store.state.loading = true;
-                    let allBookmarks = res.data;
-                    let b = allBookmarks.find(
-                      (b) =>
-                        b.name ===
-                        JSON.parse(localStorage.getItem("bookmarkChart")).name
-                    );
-                    allBookmarks = allBookmarks.filter(
-                      (b) =>
-                        b.name !==
-                        JSON.parse(localStorage.getItem("bookmarkChart")).name
-                    );
-                    let bookmark = this.getBookmarkObj(b, result.value);
-
-                    allBookmarks.push(bookmark);
-                    let response = service.updateConfig(allBookmarks, key);
-                    response.then((response) => {
-                      this.showAlert(response);
-                    });
-                  }
-                });
+                  allBookmarks.push(bookmark);
+                  let response = service.updateConfig(allBookmarks, key);
+                  response.then((response) => {
+                    this.showAlert(response);
+                  });
+                }
+              } else {
+                this.saveBookmark(res);
               }
-              if (yesNo === "no") {
+            });
+          } else {
+            this.$store.state.loading = false;
+            this.$swal({
+              title: this.$i18n.t("nameYourBookmark"),
+              input: "text",
+              showCancelButton: true,
+              reverseButtons: true,
+              confirmButtonText: this.$i18n.t("submitbtn"),
+              cancelButtonText: this.$i18n.t("cancelbtn"),
+            }).then((result) => {
+              if (result.value) {
                 this.$store.state.loading = true;
-                let allBookmarks = res.data;
-                let b = allBookmarks.find(
-                  (b) =>
-                    b.name ===
-                    JSON.parse(localStorage.getItem("bookmarkChart")).name
-                );
-                allBookmarks = allBookmarks.filter(
-                  (b) =>
-                    b.name !==
-                    JSON.parse(localStorage.getItem("bookmarkChart")).name
-                );
-                let bookmark = this.getBookmarkObj(
-                  b,
-                  JSON.parse(localStorage.getItem("bookmarkChart")).name
-                );
-
-                allBookmarks.push(bookmark);
-                let response = service.updateConfig(allBookmarks, key);
+                let interactiveBookmarks = [
+                  this.getFirstBookmarkObj(result.value),
+                ];
+                let response = service.saveConfig(interactiveBookmarks, key);
                 response.then((response) => {
                   this.showAlert(response);
                 });
               }
-            } else {
-              this.saveBookmark(res);
-            }
-          });
-        } else {
-          this.$swal({
-            title: this.$i18n.t("nameYourBookmark"),
-            input: "text",
-            showCancelButton: true,
-            confirmButtonText: this.$i18n.t("submitbtn"),
-          }).then((result) => {
-            // console.log(result)
-            if (result.value) {
-              this.$store.state.loading = true;
-              let interactiveBookmarks = [
-                this.getFirstBookmarkObj(result.value),
-              ];
-              let response = service.saveConfig(interactiveBookmarks, key);
-              response.then((response) => {
-                this.showAlert(response);
-              });
-            }
-          });
-        }
-      });
+            });
+          }
+        })
+        .catch(() => {
+          this.$store.state.loading = false;
+        });
     },
     getBookmarkObj(b, name) {
       return {
@@ -1179,12 +1105,6 @@ export default {
       };
     },
     getFirstBookmarkObj(name) {
-      let role = "";
-      this.loggedInUser.userCredentials.userRoles.forEach((u) => {
-        if (settings.userRole.includes(u.name)) {
-          role = u.name;
-        }
-      });
       let randomStr = randomString(16);
       return {
         id: randomStr,
@@ -1192,8 +1112,8 @@ export default {
         name: name,
         user: this.loggedInUser.userCredentials.id,
         userName: this.loggedInUser.firstName + " " + this.loggedInUser.surname,
-        isAdmin: role ? true : false,
-        isNotAdmin: role ? false : true,
+        isAdmin: this.$store.getters.getIsAdmin,
+        isNotAdmin: !this.$store.getters.getIsAdmin,
         chartData: this.chartOptions,
         source: this.source,
         selectedData: this.selectedData,
@@ -1214,6 +1134,7 @@ export default {
         filterLayout: this.filterLayout,
         chartType: this.chartType,
         isPercentageChart: this.isPercentageChart,
+        locale: this.$i18n.locale,
       };
     },
     saveBookmark(res) {
@@ -1223,22 +1144,20 @@ export default {
         title: this.$i18n.t("nameYourBookmark"),
         input: "text",
         showCancelButton: true,
+        reverseButtons: true,
         confirmButtonText: this.$i18n.t("submitbtn"),
+        cancelButtonText: this.$i18n.t("cancelbtn"),
       }).then((result) => {
-        // console.log(result)
-        // console.log(res)
         if (result.value) {
           this.$store.state.loading = true;
           let isName = null;
-          // console.log(typeof res.data)
-
           isName =
             res.data &&
             Array.isArray(res.data) &&
             res.data.find((d) => d.name === result.value);
 
           if (isName) {
-            this.$swal({
+            this.sweetAlert({
               title: this.$i18n.t("error"),
               text: this.$i18n.t("duplicateName"),
             });
@@ -1269,7 +1188,7 @@ export default {
         });
         this.$store.state.loading = false;
       } else {
-        this.$swal({
+        this.sweetAlert({
           title: this.$i18n.t("error"),
           text: `${response.data.message}`,
         });
@@ -1322,7 +1241,6 @@ export default {
         this.$store.getters.getLocationList[0],
         false
       );
-      console.log("renamedObj from service", renamedObj);
       this.orgOptions = JSON.parse(JSON.stringify([renamedObj]));
       if (this.$route.query.bookmarkChart) {
         this.selectedLocation = JSON.parse(
@@ -1334,15 +1252,12 @@ export default {
       }
     },
     drag(id, layout) {
-      // console.log("drag id",id)
       this.dragDropDetails = `${id}_${layout}`;
       // event.dataTransfer.setData("transferData", );
     },
     drop(layout) {
-      // console.log("drop id",event.target.id)
       // let data = event.dataTransfer.getData("transferData");
       let data = this.dragDropDetails;
-      // console.log("data", data)
       let transferID = data.split("_")[0],
         sourceLayout = data.split("_")[1];
       if (layout === "seriesLayout") {
@@ -1372,17 +1287,14 @@ export default {
       this.loadOptions({ action, parentNode, callback }, false);
     },
     generateChart() {
-      console.log("seriesLayout", this.seriesLayout);
-      console.log("categoryLayout", this.categoryLayout);
-      console.log("filterLayout", this.filterLayout);
       if (this.seriesLayout.length === 0) {
-        this.$swal({
+        this.sweetAlert({
           title: this.$i18n.t("error"),
           text: this.$i18n.t("seriesError"),
         });
       } else {
         if (this.categoryLayout.length === 0 && this.chartType !== "pie") {
-          this.$swal({
+          this.sweetAlert({
             title: this.$i18n.t("error"),
             text: this.$i18n.t("categoryError"),
           });
@@ -1417,11 +1329,6 @@ export default {
           if (this.selectedData.length) {
             if (this.selectedPeriod.length) {
               if (this.selectedLocation.length) {
-                // console.log("this.dataSource", this.dataSource);
-                console.log("this.selectedData", this.selectedData);
-                console.log("this.selectedPeriod", this.selectedPeriod);
-                console.log("this.selectedLocation", this.selectedLocation);
-                // console.log("this.selectedFacility", this.selectedFacility);
                 this.$store.commit("setLoading", true);
                 this.chartOptions.chart.type =
                   this.chartType !== "table"
@@ -1444,7 +1351,6 @@ export default {
                 let facilities = this.selectedFacility.length
                   ? this.selectedFacility.map((f) => f.id).join(";")
                   : "";
-                // console.log("facilities", facilities);
                 // if (facilities) {
                 //   facilities = this.facilityDimension.id + ":" + facilities;
                 // }
@@ -1460,8 +1366,6 @@ export default {
                       : "",
                   isDualAxes = this.categoryLayout.length > 1 ? true : false,
                   dualAxesCategory = "";
-                // console.log(this.categoryLayout)
-                // console.log(isDualAxes)
                 this.canAddDrilldown = series === "dx" ? true : false;
                 if (isDualAxes) {
                   dualAxesCategory = this.categoryLayout[1].id;
@@ -1508,7 +1412,7 @@ export default {
                     }`
                   );
                 });
-                this.categoryLayout.forEach((c, i) => {
+                this.categoryLayout.forEach((c) => {
                   let tableHeader =
                     c.id === "dx"
                       ? this.$i18n.t("data")
@@ -1559,17 +1463,13 @@ export default {
                     );
                   });
                 }
-                // console.log("dimensions",dimensions)
-                // console.log("filters",filters)
                 this.table = {
                   items,
                   fields,
                 };
-                // console.log("fields",this.table)
                 let drillDownObj = {};
                 let drillDownDX = [];
                 if (this.isDrilldownAdded) {
-                  // console.log("this.selectedDrilldownData",this.selectedDrilldownData)
                   let isDrilldown = this.selectedDrilldownData.filter(
                     (s) => typeof s.drilldownDetails !== "undefined"
                   );
@@ -1581,8 +1481,6 @@ export default {
                       drillDownDX.push(s.id)
                     );
                   });
-                  // console.log("drillDownObj",drillDownObj)
-                  // console.log("drillDownDX",drillDownDX)
                   dimensions = dimensions.map((d) => {
                     if (d.split(":")[0] === "dx") {
                       let allDX = d
@@ -1610,14 +1508,9 @@ export default {
                     }
                   });
                 }
-                // console.log("dimensions", dimensions);
-                // console.log("filters", filters);
                 let data = service.getInteractiveData(dimensions, filters);
-                // console.log(data)
                 data
                   .then((response) => {
-                    // console.log("res",response.data);
-
                     let { items, fields, chartOptions } = IA.generateChart(
                       response,
                       this.chartOptions,
@@ -1632,14 +1525,12 @@ export default {
                       drillDownObj,
                       drillDownDX,
                       this.isDrilldownAdded,
-                      this.facilityDimension
+                      this.facilityDimension,
+                      this.periodType,
+                      this.selectedPeriod
                     );
-                    // console.log("items",items)
-                    // console.log("fields",fields)
-                    // console.log("chartOptions",chartOptions)
                     // return
                     let finalData = chartOptions;
-                    // console.log("this.indicatorsColors",this.indicatorsColors)
                     if (this.$route.query.bookmarkChart) {
                       finalData = {
                         ...chartOptions,
@@ -1659,7 +1550,6 @@ export default {
                         }),
                       };
                     }
-                    // console.log("finalData",finalData)
                     this.chartOptions = finalData;
                     if (this.isPercentageChart) {
                       this.chartOptions.plotOptions.series.stacking = "percent";
@@ -1671,12 +1561,12 @@ export default {
                     this.chartOptions.tooltip.pointFormat = `<tr><td>${
                       isDualAxes ? "{series.userOptions.stack}:" : ""
                     } </td></tr>
-                <tr><td style="color:{series.color};padding:0">{series.name}: </td>
-                <td style="padding:0"><b>${
-                  this.isPercentageChart
-                    ? "{point.y} ({point.percentage:.0f}%)"
-                    : "{point.y}"
-                }</b></td></tr>`;
+                  <tr><td style="color:{series.color};padding:0">{series.name}: </td>
+                  <td style="padding:0"><b>${
+                    this.isPercentageChart
+                      ? "{point.y} ({point.percentage:.0f}%)"
+                      : "{point.y}"
+                  }</b></td></tr><br/>`;
 
                     this.table = {
                       items,
@@ -1688,25 +1578,35 @@ export default {
                   .catch((res) => {
                     console.log("res", res);
                     this.$store.commit("setLoading", false);
-                    this.$swal({
-                      title: this.$i18n.t("error"),
-                      text: res.response.data.message,
+                    this.sweetAlert({
+                      title: this.$i18n.t("somethingwentwrong"),
+                      html: `<div>${this.$i18n.t(
+                        "posReasons"
+                      )}<ul class="text-left"><li>${this.$i18n.t(
+                        "errorInData"
+                      )}</li><li>${this.$i18n.t("res1", {
+                        data: this.$i18n.t("data"),
+                        period: this.$i18n.t("period"),
+                        orgUnits: this.$i18n.t("orgUnits"),
+                      })}</li><li>${this.$i18n.t("res2", {
+                        layout: this.$i18n.t("layout"),
+                      })}</li></ul></div>`,
                     });
                   });
               } else {
-                this.$swal({
+                this.sweetAlert({
                   title: this.$i18n.t("error"),
                   text: this.$i18n.t("orgError"),
                 });
               }
             } else {
-              this.$swal({
+              this.sweetAlert({
                 title: this.$i18n.t("error"),
                 text: this.$i18n.t("periodError"),
               });
             }
           } else {
-            this.$swal({
+            this.sweetAlert({
               title: this.$i18n.t("error"),
               text: this.$i18n.t("dataElementError"),
             });
@@ -1715,7 +1615,6 @@ export default {
       }
     },
     updateOptions(updated) {
-      console.log("updated", updated);
       this.chartOptions.series = [];
       this.chartOptions.series = JSON.parse(JSON.stringify(updated.seriesData));
       this.chartOptions.plotOptions.series.dataLabels.enabled =
@@ -1735,7 +1634,6 @@ export default {
       }
       let yMax = this.$refs.interactiveChart?.chart?.yAxis[0]?.max || null;
       let plotlines = updated.plotline.map((p) => {
-        // console.log("p",p)
         let benchmarkValue = p.percValue;
         if (p.valueType === "percentage") {
           benchmarkValue = (yMax * (p.percValue * 1)) / 100;
@@ -1764,17 +1662,14 @@ export default {
       }
     },
     getDimensions() {
-      // console.log("called");
       let facilities = service.getDimensions();
       facilities
         .then((response) => {
-          // console.log(response)
           this.facilityDimension = response.data.dimensions.find(
             (r) =>
               r.name === "Facility Ownership" ||
               r.name.includes("OrgUnit Ownership") //OrgUnit Ownership
           );
-          // console.log(this.facilityDimension)
           if (this.facilityDimension) {
             this.getFacilities();
           }
@@ -1784,10 +1679,8 @@ export default {
         });
     },
     getFacilities() {
-      // console.log("called");
       let facilities = service.getFacilityTypes(this.facilityDimension.id);
       facilities.then((response) => {
-        // console.log("facilities",response);
         this.facilityListOriginal = JSON.parse(
           JSON.stringify(response.data.items)
         );
@@ -1796,9 +1689,7 @@ export default {
     setData() {
       this.dataFetched = true;
       let savedBookmarkData = JSON.parse(localStorage.getItem("bookmarkChart"));
-      // console.log("savedBookmarkData",savedBookmarkData)
       this.selectedDrilldownData = savedBookmarkData.selectedDrilldownData;
-      console.log("6");
 
       this.seriesLayout = savedBookmarkData.seriesLayout;
       this.categoryLayout = savedBookmarkData.categoryLayout;
@@ -1832,7 +1723,6 @@ export default {
         static_name: s.static_name,
         name: s.name,
       }));
-      // console.log("savedBookmarkData",this.selectedDrilldownData)
       this.chartType =
         typeof savedBookmarkData.chartType !== "undefined"
           ? savedBookmarkData.chartType
@@ -1841,7 +1731,6 @@ export default {
         typeof savedBookmarkData.isPercentageChart !== "undefined"
           ? savedBookmarkData.isPercentageChart
           : false;
-      this.periodType = savedBookmarkData.periodType;
       this.chartOptions = JSON.parse(
         JSON.stringify(savedBookmarkData.chartData)
       );
@@ -1862,7 +1751,6 @@ export default {
       this.getDimensions();
       this.chartOptions.series = [];
       this.getOrganizationUnits();
-      console.log(this.$route.query.bookmarkChart);
       if (this.$route.query.bookmarkChart) {
         if (localStorage.getItem("bookmarkChart")) {
           this.setData();
@@ -1871,7 +1759,6 @@ export default {
 
           let saveConfig = service.getSavedConfig(key);
           saveConfig.then((res) => {
-            // console.log(res.data);
             let bookmarkData = res.data.find(
               (d) => d.id === this.$route.query.bookmarkChart
             );
@@ -1882,7 +1769,7 @@ export default {
               );
               this.$nextTick(() => this.setData());
             } else {
-              this.$swal({
+              this.sweetAlert({
                 title: this.$i18n.t("oops"),
                 text: this.$i18n.t("no_data_to_display"),
               });
@@ -1890,455 +1777,31 @@ export default {
           });
         }
       } else {
-        console.log("1");
         this.seriesLayout = [{ id: "dx", text: this.$i18n.t("data") }];
         this.categoryLayout = [{ id: "pe", text: this.$i18n.t("period") }];
-        this.filterLayout = [
-          { id: "ou", text: this.$i18n.t("organizationUnit") },
-        ];
+        this.filterLayout = [{ id: "ou", text: this.$i18n.t("orgUnits") }];
         this.assignedCatLayout = [
           { id: "co", text: this.$i18n.t("assignedCategories") },
         ];
       }
     },
-    onScroll(e) {
-      const { scrollTop, offsetHeight, scrollHeight } = e.target;
-      if (scrollTop + offsetHeight >= scrollHeight - 5) {
-        if (
-          !this.loadMore &&
-          this.allData[this.dataSource]["data"]["pager"]["page"] <
-            this.allData[this.dataSource]["data"]["pager"]["pageCount"]
-        ) {
-          this.loadMore = true;
-          this.$store.commit("setLoading", true);
-          this.getNextPage(
-            this.allData[this.dataSource]["data"]["pager"]["page"] * 1 + 1,
-            true
-          );
-        }
-      }
-    },
-    setDataSource(dataSourceGroup) {
-      this.dataSourceGroup = dataSourceGroup.id;
-      this.dataSourceText = dataSourceGroup.name;
-      this.allData[this.dataSource]["data"]["pager"]["page"] = 0;
-      this.allData[this.dataSource]["data"]["pager"]["pageCount"] = 0;
-      this.getData();
-    },
-    getDataSourceGroup() {
-      console.log("this.allData", this.allData);
-      this.$store.commit("setLoading", true);
-      this.dataSourceGroupList = [];
-      if (this.allData[this.dataSource]["dataSourceGroup"].length) {
-        this.dataSourceGroupList =
-          this.allData[this.dataSource]["dataSourceGroup"];
-        this.dataSourceGroup =
-          this.allData[this.dataSource]["selectedSourceGroup"];
-        this.$store.commit("setLoading", false);
-        if (this.$route.query.bookmarkChart && !this.isDrillDown) {
-          this.dataSourceGroup = JSON.parse(
-            localStorage.getItem("bookmarkChart")
-          ).dataSourceGroup;
-          this.getData();
-        } else if (this.isDrillDown && this.editDrillDownData) {
-          this.dataSourceGroup = this.editDrillDownData.dataSourceGroup;
-        }
-      } else {
-        let page =
-          this.dataSource === "dataSets"
-            ? this.allData[this.dataSource]["data"]["pager"]["page"] * 1 + 1
-            : 1;
-        console.log("page", page);
-        let indicatorGroups = service.getDataSourceGroupsNew(
-          this.dataSource,
-          page
-        );
-        indicatorGroups.then((response) => {
-          console.log(this.dataSource, response);
-          if (this.dataSource === "indicators") {
-            // let allowedList = ["HMIS- Maternal Health", "RMNCH Scorecard"]
-            // this.dataSourceGroupList = response.data.indicatorGroups.filter(l => allowedList.includes(l.name))
-            this.allData[this.dataSource]["dataSourceGroup"] =
-              response.data.indicatorGroups;
-            this.dataSourceGroupList = response.data.indicatorGroups;
-            this.dataSourceGroupList.unshift({
-              id: "All",
-              name: "[All Indicators]",
-            });
-          }
-          if (this.dataSource === "dataElements") {
-            // let allowedList = ["HMIS-MAAR- All data elements of Family Planning", "HMIS-MAAR- All data elements of Maternal Health", "HMIS-MIAR- All data elements of Maternal & Neonatal Care"]
-            // this.dataSourceGroupList = response.data.dataElementGroups.filter(l => allowedList.includes(l.name))
-            this.allData[this.dataSource]["dataSourceGroup"] =
-              response.data.dataElementGroups;
-            this.dataSourceGroupList = response.data.dataElementGroups;
-            this.dataSourceGroupList.unshift({
-              id: "All",
-              name: "[All Data Elements]",
-            });
-          }
-          if (this.dataSource === "dataSets") {
-            this.dataSourceGroupList = this.dSourceGroupList;
-            this.allData[this.dataSource]["dataSourceGroup"] =
-              this.dSourceGroupList;
-            let originalDSets = [];
-            response.data.dataSets.forEach((d) => {
-              this.dSourceGroupList.forEach((ds) => {
-                if (ds.alias !== "ALL") {
-                  originalDSets.push({
-                    ...d,
-                    id: d.id + "." + ds.alias,
-                    name: d.name + " (" + ds.name + ")",
-                    dataSourceGroup: ds.name,
-                  });
-                }
-              });
-            });
-            if (response.data.pager) {
-              this.allData[this.dataSource]["data"]["pager"]["page"] = page;
-              this.allData[this.dataSource]["data"]["pager"]["pageCount"] =
-                response.data.pager.pageCount;
-            }
-            this.originalDataSets = originalDSets;
-          }
-          if (this.dataSource === "eventDataItems") {
-            this.allData[this.dataSource]["dataSourceGroup"] =
-              response.data.programs;
-            this.allData["programIndicators"]["dataSourceGroup"] =
-              response.data.programs;
-            this.dataSourceGroupList = response.data.programs;
-          }
-          if (this.dataSource === "programIndicators") {
-            this.allData["eventDataItems"]["dataSourceGroup"] =
-              response.data.programs;
-            this.allData[this.dataSource]["dataSourceGroup"] =
-              response.data.programs;
-            this.dataSourceGroupList = response.data.programs;
-          }
-
+    getConfigData() {
+      let key = this.generateKey("interactiveConfig");
+      service
+        .getSavedConfig(key)
+        .then((res) => {
+          this.allowedOptions = res.data;
+        })
+        .catch((err) => {
           this.$store.commit("setLoading", false);
-          if (this.$route.query.bookmarkChart && !this.isDrillDown) {
-            this.dataSourceGroup = JSON.parse(
-              localStorage.getItem("bookmarkChart")
-            ).dataSourceGroup;
-          } else if (this.isDrillDown && this.editDrillDownData) {
-            this.dataSourceGroup = this.editDrillDownData.dataSourceGroup;
-          }
-          //this.getData();
+          this.reFetchConfig(err);
         });
-      }
-      this.dataSourceGroup = "All";
-      this.allData[this.dataSource]["data"]["pager"]["page"] = 0;
-      this.allData[this.dataSource]["data"]["pager"]["pageCount"] = 0;
-      this.getData();
     },
-    moveData({ type, data = "all" }) {
-      if (type === "+") {
-        if (data === "all") {
-          this.selectedData = [...this.selectedData, ...this.dataList];
-        } else {
-          this.selectedData.push(data);
-        }
-      } else {
-        if (data === "all") {
-          this.selectedData = [];
-        } else {
-          this.selectedData = this.selectedData.filter((p) => p.id !== data.id);
-        }
-      }
-    },
-    getData() {
-      this.allData[this.dataSource]["selectedSourceGroup"] =
-        this.dataSourceGroup;
-      this.$store.commit("setLoading", true);
-      if (this.dataSource === "dataSets") {
-        if (this.dataSourceGroup === "[All metrics]") {
-          this.allData[this.dataSource]["data"]["list"] = this.originalDataSets;
-        } else {
-          this.allData[this.dataSource]["data"]["list"] =
-            this.originalDataSets.filter(
-              (d) => d.dataSourceGroup === this.dataSourceGroup
-            );
-        }
-        if (this.$route.query.bookmarkChart && !this.isDrillDown) {
-          this.selectedData = JSON.parse(
-            localStorage.getItem("bookmarkChart")
-          ).selectedData;
-        } else if (this.isDrillDown && this.editDrillDownData) {
-          this.selectedData = this.editDrillDownData.selectedData;
-        }
-        this.$store.commit("setLoading", false);
-      } else {
-        let page =
-          this.allData[this.dataSource]["data"]["pager"]["page"] * 1 + 1 || 1;
-        console.log("page", page);
-        this.getNextPage(page);
-      }
-    },
-    getNextPage(page, isAppend = false) {
-      let indicators = service.getFilteredDataNew(
-        this.dataSource,
-        this.dataSourceGroup,
-        page
-      );
-      indicators.then((response) => {
-        if (this.dataSource === "indicators") {
-          this.allData[this.dataSource]["data"]["list"] = isAppend
-            ? this.allData[this.dataSource]["data"]["list"].concat(
-                response.data.indicators
-              )
-            : response.data.indicators;
-        }
-        if (this.dataSource === "dataElements") {
-          this.allData[this.dataSource]["data"]["list"] = isAppend
-            ? this.allData[this.dataSource]["data"]["list"].concat(
-                response.data.dataElements
-              )
-            : response.data.dataElements;
-        }
-        if (this.dataSource === "eventDataItems") {
-          this.allData[this.dataSource]["data"]["list"] = isAppend
-            ? this.allData[this.dataSource]["data"]["list"].concat(
-                response.data.programDataElements
-              )
-            : response.data.programDataElements;
-        }
-        if (this.dataSource === "programIndicators") {
-          this.allData[this.dataSource]["data"]["list"] = isAppend
-            ? this.allData[this.dataSource]["data"]["list"].concat(
-                response.data.programIndicators
-              )
-            : response.data.programIndicators;
-        }
-        if (response.data.pager) {
-          this.allData[this.dataSource]["data"]["pager"]["page"] = page;
-          this.allData[this.dataSource]["data"]["pager"]["pageCount"] =
-            response.data.pager.pageCount;
-        }
-        this.loadMore = false;
-        if (this.$route.query.bookmarkChart && !this.isDrillDown) {
-          this.selectedData = JSON.parse(
-            localStorage.getItem("bookmarkChart")
-          ).selectedData;
-        } else if (this.isDrillDown && this.editDrillDownData) {
-          this.selectedData = this.editDrillDownData.selectedData;
-        }
-        this.$store.commit("setLoading", false);
-      });
-    },
-	UpdateSelectedList(){
-		let key = this.generateKey("selectedInd");
-        let allKeys = service.getAllKeys();
-        allKeys
-          .then((keys) => {
-			console.log(keys);
-            if (keys.data.includes(key)) {
-              let saveConfig = service.getSavedConfig(key);
-              saveConfig.then((res) => {
-                let configData = res.data;
-                console.log("configData",configData);
-                  configData[this.dataSource] = this.selectedData;
-                let configChanges = audit.configAudit(
-                  this.originalData,
-                  configData[this.dataSource]
-                );
-                console.log("configChanges", configChanges)
-                let response = service.updateConfig(configData, key);
-                response
-                  .then((response) => {
-					console.log(response)
-                    if (response.data.status === "OK") {
-                      // console.log("response update ", response.data)
-                      this.$swal({
-                        title: this.$i18n.t("data_saved_successfully"),
-                      }).then(() => {
-                        if (Object.keys(configChanges).length) {
-                          audit.processAudit(
-                            "process2",
-                            key,
-                            configChanges,
-                          );
-                        }
-                      });
-                    //   this.getConfigData();
-                      this.$store.state.loading = false;
-                    } else {
-                      this.$swal({
-                        title: this.$i18n.t("error"),
-                        text: `${response.data.message}`,
-                      });
-                      this.$store.state.loading = false;
-                      return;
-                    }
-                  })
-                  .catch((error) => {
-                    this.$swal({
-                      title: this.$i18n.t("error"),
-                    });
-                    this.$store.state.loading = false;
-                    return;
-                  });
-              });
-            } else {
-              let ministrial = {
-                [this.dataSource]: this.selectedData,
-              };
-			  console.log(ministrial)
-              let response = service.saveConfig(ministrial, key);
-              response.then((response) => {
-                if (response.data.status === "OK") {
-                  // console.log("response save ", response.data)
-                  this.$swal({
-                    title: this.$i18n.t("data_saved_successfully"),
-                  });
-                //   this.getConfigData();
-                  this.$store.state.loading = false;
-                } else {
-                  this.$swal({
-                    title: this.$i18n.t("error"),
-                    text: `${response.data.message}`,
-                  });
-                  this.$store.state.loading = false;
-                  return;
-                }
-              });
-            }
-          })
-          .catch(() => {
-            this.$store.state.loading = false;
-          });
-	}
   },
   created() {
-	console.log(audit)
-    console.log("isDrillDown", this.isDrillDown);
-    console.log("editDrillDownData", this.editDrillDownData);
-    if (this.$route.query.bookmarkChart && !this.isDrillDown) {
-      let data = JSON.parse(localStorage.getItem("bookmarkChart"));
-      this.dataSource = data.dataSource;
-      this.getDataSourceGroup();
-    } else if (this.isDrillDown && this.editDrillDownData) {
-      console.log("editDrillDownData", this.editDrillDownData);
-      this.dataSource = this.editDrillDownData.dataSource;
-      this.getDataSourceGroup();
-    } else {
-      this.dataSource = "indicators";
-    }
-    this.dataOptions = [
-      {
-        id: 1,
-        value: "indicators",
-        text: this.$i18n.t("indicators"),
-      },
-      {
-        id: 2,
-        value: "dataElements",
-        text: this.$i18n.t("dataElements"),
-      },
-      {
-        id: 3,
-        value: "dataSets",
-        text: this.$i18n.t("dataSets"),
-      },
-      {
-        id: 4,
-        value: "eventDataItems",
-        text: this.$i18n.t("eventDataItems"),
-      },
-      {
-        id: 5,
-        value: "programIndicators",
-        text: this.$i18n.t("programIndicators"),
-      },
-    ];
-    this.chartTypeOptions = [
-      {
-        value: "column",
-        text: this.$i18n.t("column"),
-        percentageChart: false,
-        icon: "column",
-      },
-      {
-        value: "column_stacked",
-        text: this.$i18n.t("columnStacked"),
-        percentageChart: false,
-        icon: "column_stacked",
-      },
-      {
-        value: "column_stacked",
-        text: this.$i18n.t("columnStackedPercentage"),
-        percentageChart: true,
-        icon: "column_stacked",
-      },
-      {
-        value: "bar",
-        text: this.$i18n.t("bar"),
-        percentageChart: false,
-        icon: "bar",
-      },
-      {
-        value: "bar_stacked",
-        text: this.$i18n.t("barStacked"),
-        percentageChart: false,
-        icon: "bar_stacked",
-      },
-      {
-        value: "bar_stacked",
-        text: this.$i18n.t("barStackedPercentage"),
-        percentageChart: true,
-        icon: "bar_stacked",
-      },
-      {
-        value: "line",
-        text: this.$i18n.t("line"),
-        percentageChart: false,
-        icon: "line",
-      },
-      {
-        value: "area",
-        text: this.$i18n.t("area"),
-        percentageChart: false,
-        icon: "area",
-      },
-      {
-        value: "pie",
-        text: this.$i18n.t("pie"),
-        percentageChart: false,
-        icon: "pie",
-      },
-      {
-        value: "table",
-        text: this.$i18n.t("table"),
-        percentageChart: false,
-        icon: "tableIA",
-      },
-    ];
-
-    this.periodTypeList = [
-      { value: "monthly", text: this.$i18n.t("monthly") },
-      { value: "quarterly", text: this.$i18n.t("quarterly") },
-      { value: "yearly", text: this.$i18n.t("yearly") },
-    ];
-    if (this.$store.state.financialYear.includes("April")) {
-      this.periodTypeList.push({
-        value: "financialYear",
-        text: this.$i18n.t("financialYear"),
-      });
-    }
-    if (this.$store.state.financialYear.includes("July")) {
-      this.periodTypeList.push({
-        value: "financialYearJuly",
-        text: this.$i18n.t("financialYearJuly"),
-      });
-    }
+    this.getConfigData();
     this.periodType = "monthly";
     this.dataCalls();
   },
 };
 </script>
-<style lang="scss">
-.data-source-group-list {
-  height: 200px;
-  overflow: auto;
-}
-</style>

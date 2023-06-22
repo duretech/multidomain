@@ -6,35 +6,68 @@
         background-color: transparent !important;
         border-color    : transparent !important;
     }
+
+    .header-body h6{
+        padding-left: 0% !important;
+        margin-top: 0% !important;
+    }
+
+    .fp-map {
+        background-color: transparent !important;
+        height: auto !important;
+        border: 0px !important;
+      }
+    
 }
 
+
 .integratedFamilyWrap {
-    height             : calc(100vh - 100px);
-    background         : linear-gradient(135deg, rgb(46 46 72 / 19%) 0, #18173585 100%), url(../images/bg2.png);
-    background-position: center;
+    height             : calc(100vh - 100px) !important;
+    background         : url(../images/grey-theme/bg-inimg.png);
+    background-position: inherit;
     background-repeat  : no-repeat;
     background-size    : cover;
     overflow           : auto;
-    // opacity: 0.5;
+
+    &:before{
+        background-color: var(--primary-bg-color) !important;
+        content: '';
+        height: 100vh;
+        display: block;
+        position: absolute;
+        opacity: 0.80;
+        width: 100%;
+    }
 
     .integratedPlanningText {
-        color    : #E5E5E5;
+        color    : var(--main-font-color);
         font-size: 14px;
     }
 
+
+    #myDivToPrintLeft{
+        border-top-right-radius: 0px !important;
+        border-bottom-right-radius: 0px !important;
+    }
+
+    #myDivToPrintRight{
+        border-top-left-radius: 0px !important;
+        border-bottom-left-radius: 0px !important;
+    }
     .transparentDiv {
         // background          : transparent linear-gradient(90deg, rgb(16 14 42 / 62%) 0%, rgb(101 100 122 / 32%) 100%) 0% 0% no-repeat padding-box;
-        background-color    : rgb(16 14 42 / 70%);
+        background-color    : var(--subpage-gradient-bgcolor);
         border-radius       : 5px;
         // opacity       : 0.62;
         // padding-bottom   : 100px;
 
         .purple-btn {
-            background-color: #5E57B3;
-            border-color    : #5E57B3;
-            color           : #E5E5E5;
-            border-radius   : 20px;
+            background-color: var(--black-btn-color) !important;
+            border-color    : var(--black-btn-color) !important;
+            color           : var(--main-font-color);
+            border-radius   : 5px !important;
             font-size       : 0.75rem;
+           
         }
     }
 
@@ -51,19 +84,19 @@
             justify-content: center;
 
             .courseName {
-                color    : #651D1D;
+                color    : var(--course-color);
                 font-size: 0.875rem;
                 margin   : 0;
             }
 
             .courseCount {
-                color      : #651D1D;
+                color      : var(--course-color);
                 font-weight: bold;
                 font-size  : 1.5rem;
             }
 
             .courseText {
-                color    : #651D1D;
+                color    : var(--course-color);
                 font-size: 0.75rem;
             }
         }
@@ -72,43 +105,43 @@
             position : absolute;
             top      : -16px;
             font-size: 0.75rem;
-            color    : #E5E5E5;
+            color    : var(--main-font-color);
         }
         .programNameDownload {
             position : absolute;
             top      : 1px;
             font-size: 0.75rem;
-            color    : #E5E5E5;
+            color    : var(--main-font-color);
         }
     }
 
     .purpleBox {
-        background-color: #B83C6D;
+        background-color: var(--purple-box-color);
         border-radius   : 6px 0px 0px 0px;
     }
 
     .pinkBox {
-        background-color: #DC536D;
+        background-color: var(--pink-box-color);
     }
 
     .orangeBox {
-        background-color: #FE8A67;
+        background-color: var(--orange-box-color);
     }
 
     .lightOrangeBox {
-        background-color: #FFAF79;
+        background-color: var(--lightorange-box-color);
     }
 
     .mapContainer {
         background-color: transparent;
-        border          : 1px solid #64648D;
+        border          : 1px solid var(--border-grey-color);
 
         .card-header {
             border-bottom: 0;
 
             h6 {
                 font-size  : 0.875rem;
-                color      : #E5E5E5;
+                color      : var(--main-font-color);
                 font-weight: normal;
             }
         }
@@ -117,13 +150,13 @@
     .rightSidetext {
         text-align : center;
         font-size  : 0.875rem;
-        color      : #E5E5E5;
+        color      : var(--main-font-color);
         font-weight: normal;
     }
 
     .scorboardWrap {
         .program-name {
-            color          : #E5E5E5;
+            color          : var(--main-font-color);
             font-size      : 0.625rem;
             margin         : 0;
             height         : 100%;
@@ -134,7 +167,7 @@
         }
 
         .locationName {
-            color          : #E5E5E5;
+            color          : var(--main-font-color);
             font-size      : 0.625rem;
             margin         : 0;
             height         : 100%;
@@ -149,10 +182,10 @@
 
         .scorboardLabel {
             font-size    : 0.875rem;
-            color        : #E5E5E5;
+            color        : var(--main-font-color);
             font-weight  : normal;
             position     : absolute;
-            background   : #64648D;
+            background   : var(--grey-color-button);
             padding      : 5px 20px;
             left         : 40%;
             top          : -14px;
@@ -162,14 +195,14 @@
 
     .VueCarousel-slide {
         .iganchorMap {
-            border       : 1px solid #707070;
+            border       : 1px solid var(--border-grey-color);
             border-radius: 4px;
             padding      : 5px;
             margin       : 10px;
             cursor       : pointer;
 
             &:hover {
-                background: rgb(100 100 141 / 24%);
+                background: var(--bg-box-color);
             }
         }
 
@@ -179,7 +212,7 @@
 
         .igmapslidertext {
             margin     : 10px 15px;
-            color      : #E5E5E5;
+            color      : var(--main-font-color);
             font-size  : 12px;
             font-weight: 300;
         }
@@ -191,7 +224,7 @@
     }
 
     .VueCarousel-navigation-button {
-        color: #fff !important;
+        color: var(--text-color) !important;
         top  : 33% !important;
     }
 
@@ -210,7 +243,7 @@
     }
 
     .scorboardWrap.borderBottomId{
-        border-bottom: 1px solid #64648D;
+        border-bottom: 1px solid var(--border-grey-color);
     }
 
     .overlay {
@@ -223,7 +256,7 @@
         width           : 100%;
         opacity         : 0;
         transition      : .5s ease;
-        background-color: rgb(18 18 42 / 90%);
+        background-color: var(--bg-overlay-color);
     }
     .integratedBoxWrap:hover .overlay{
         opacity: 1;
@@ -241,17 +274,17 @@
         left            : 0;
         right           : 0;
         bottom          : 0;
-        background-color: #2A2A41;
+        background-color: var(--overlay-bg-color);
         opacity         : 0.94;
 
         .purple-btn {
-            background-color: #64648D;
-            border-color    : #64648D;
+            background-color: var(--main-header-color);
+            border-color    : var( --main-header-color);
         }
     }
 
     .text {
-        color            : white;
+        color            : var(--text-color);
         font-size        : 20px;
         position         : absolute;
         top              : 50%;
@@ -287,7 +320,7 @@
     }
 
     .arrow-content{
-        color: #E5E5E5;
+        color: var(--main-font-color);
         font-size: 14px;
         letter-spacing: 0.6px;
         opacity: 0.65;
@@ -295,6 +328,7 @@
     }
     
 }
+
 .mapContainer .carosalWrap{
     position: absolute;
     bottom: 0;
@@ -308,8 +342,12 @@
    
         .programName{
             font-size: .75rem;
-            color: #e5e5e5;
+            color: var(--main-font-color);
             padding-bottom: 5%;
         }
    
+}
+
+.transparentDiv .mapContainer .card-body{
+    padding-top: 0px !important;
 }

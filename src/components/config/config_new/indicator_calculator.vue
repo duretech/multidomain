@@ -1,12 +1,14 @@
 <template>
   <!-- <b-overlay :show="showLoader" rounded="sm" :opacity="0.3"> -->
   <div class="m-t-20px datamappingtopcar">
-    <b-tabs nav-class="appCongigtabSub">
+    <b-tabs nav-class="appCongigtabSub mb-4">
       <b-tab
-        :title= bgDataConfig.showingTabs.ssToEmu.name
+        :title="bgDataConfig.showingTabs.ssToEmu.name"
         :active="tab === 'nav-tab1-tab'"
         @click="updateActiveTab('nav-tab1-tab')"
-        v-if="bgDataConfig.showingTabs.ssToEmu.value"
+        v-if="
+          bgDataConfig.showingTabs && bgDataConfig.showingTabs.ssToEmu.value
+        "
       >
         <b-card-text v-if="tab === 'nav-tab1-tab'">
           <div class="md_nested_tabs">
@@ -31,14 +33,18 @@
               :sectorRepo="sectorRepo"
               @saveJson="saveJson"
             />
+            <div v-else>Fetching required data</div>
           </div>
         </b-card-text>
       </b-tab>
       <b-tab
-        :title = bgDataConfig.showingTabs.facilityOfferingFp.name
+        :title="bgDataConfig.showingTabs.facilityOfferingFp.name"
         :active="tab === 'nav-tab2-tab'"
         @click="updateActiveTab('nav-tab2-tab')"
-        v-if="bgDataConfig.showingTabs.facilityOfferingFp.value"
+        v-if="
+          bgDataConfig.showingTabs &&
+          bgDataConfig.showingTabs.facilityOfferingFp.value
+        "
       >
         <b-card-text v-if="tab === 'nav-tab2-tab'">
           <div class="md_nested_tabs">
@@ -57,10 +63,13 @@
         </b-card-text>
       </b-tab>
       <b-tab
-        :title = bgDataConfig.showingTabs.daysOfStockout.name
+        :title="bgDataConfig.showingTabs.daysOfStockout.name"
         :active="tab === 'nav-tab3-tab'"
         @click="updateActiveTab('nav-tab3-tab')"
-        v-if="bgDataConfig.showingTabs.daysOfStockout.value"
+        v-if="
+          bgDataConfig.showingTabs &&
+          bgDataConfig.showingTabs.daysOfStockout.value
+        "
       >
         <b-card-text v-if="tab === 'nav-tab3-tab'">
           <div class="md_nested_tabs">
@@ -79,10 +88,13 @@
         </b-card-text>
       </b-tab>
       <b-tab
-        :title = bgDataConfig.showingTabs.newAcceptorsLessThan20.name
+        :title="bgDataConfig.showingTabs.newAcceptorsLessThan20.name"
         :active="tab === 'nav-tab4-tab'"
         @click="updateActiveTab('nav-tab4-tab')"
-        v-if="bgDataConfig.showingTabs.newAcceptorsLessThan20.value"
+        v-if="
+          bgDataConfig.showingTabs &&
+          bgDataConfig.showingTabs.newAcceptorsLessThan20.value
+        "
       >
         <b-card-text v-if="tab === 'nav-tab4-tab'">
           <div class="md_nested_tabs">
@@ -101,10 +113,13 @@
         </b-card-text>
       </b-tab>
       <b-tab
-        :title = bgDataConfig.showingTabs.HealthAreaOfferingCD.name
+        :title="bgDataConfig.showingTabs.HealthAreaOfferingCD.name"
         :active="tab === 'nav-tab5-tab'"
         @click="updateActiveTab('nav-tab5-tab')"
-        v-if="bgDataConfig.showingTabs.HealthAreaOfferingCD.value"
+        v-if="
+          bgDataConfig.showingTabs &&
+          bgDataConfig.showingTabs.HealthAreaOfferingCD.value
+        "
       >
         <b-card-text v-if="tab === 'nav-tab5-tab'">
           <div class="md_nested_tabs">
@@ -194,7 +209,7 @@ export default {
         return root;
       });
     },
-    saveJson(val, configKey ,noalert = true) {
+    saveJson(val, configKey, noalert = true) {
       // console.log(this.dqrConfig);
       this.$store.commit("setLoading", true);
       service
@@ -203,10 +218,9 @@ export default {
           if (resp.data.status === "OK") {
             this.$store.commit("setLoading", false);
             if (noalert)
-              this.$swal({
-                title: "Data updated successfully.",
-                type: "success",
-              }).then(() => {});
+              this.sweetAlert({
+                title: this.$i18n.t("updateSuccessful"),
+              });
           }
         })
         .catch((err) => {
@@ -216,19 +230,17 @@ export default {
               if (resp.data.status === "OK") {
                 this.$store.commit("setLoading", false);
                 if (noalert)
-                  this.$swal({
-                    title: "Data saved successfully.",
-                    type: "success",
-                  }).then(() => {});
+                  this.sweetAlert({
+                    title: this.$i18n.t("updateSuccessful"),
+                  });
               }
             })
             .catch((er) => {
               this.$store.commit("setLoading", false);
               if (noalert)
-                this.$swal({
-                  title: "Something went wrong. Please try again later.",
-                  type: "error",
-                }).then(() => {});
+                this.sweetAlert({
+                  title: this.$i18n.t("error2"),
+                });
             });
         });
     },
@@ -302,35 +314,32 @@ export default {
       this.orgList = finalOrgList;
       // this.showLoader = false;
     });
-    service
-      .getSavedConfig("annualSectorReporting_en", false, "fp-dashboard")
-      .then((resp) => {
-        if (resp && resp.data){
-          this.sectorRepo = resp.data.sectorReporting;
-        }
-        console.log(this.sectorRepo)
-      });
-    service
-      .getSavedConfig("dqrModule_en", false, "fp-dashboard")
-      .then((resp) => {
-        // this.showLoader = true;
-        if (resp && resp.data) {
-          this.dqrConfig = resp.data;
-          this.$set(this.dqrConfig, "emu", resp.data.emu);
-        } else {
-          this.dqrConfig = {
-            ...annualConfig.dqrModule,
-            ...monthlyConfig.dqrModule,
-          };
-        }
-        // this.showLoader = false;
-      });
-
-    service
-      .getSavedConfig("stockOut_en", false, "fp-dashboard")
-      .then((resp) => {
-        if (resp && resp.data) this.config = resp.data;
-      });
+    let key = this.generateKey("annualSectorReporting");
+    service.getSavedConfig(key, false, "fp-dashboard").then((resp) => {
+      if (resp && resp.data) {
+        this.sectorRepo = resp.data.sectorReporting;
+      }
+      console.log(this.sectorRepo);
+    });
+    let key1 = this.generateKey("dqrModule");
+    service.getSavedConfig(key1, false, "fp-dashboard").then((resp) => {
+      // this.showLoader = true;
+      if (resp && resp.data) {
+        this.dqrConfig = resp.data;
+        this.$set(this.dqrConfig, "emu", resp.data.emu);
+        this.$set(this.dqrConfig, "emu_monthly", resp.data.emu_monthly);
+      } else {
+        this.dqrConfig = {
+          ...annualConfig.dqrModule,
+          ...monthlyConfig.dqrModule,
+        };
+      }
+      // this.showLoader = false;
+    });
+    let key2 = this.generateKey("stockOut");
+    service.getSavedConfig(key2, false, "fp-dashboard").then((resp) => {
+      if (resp && resp.data) this.config = resp.data;
+    });
     service.getDataElements().then((resp) => {
       if (resp && resp.data) this.dataElementList = resp.data.dataElements;
     });
@@ -364,6 +373,8 @@ export default {
         if (catIdArr.length) {
           let catId = catIdArr[0]["id"];
           this.categoryOptionID = catId;
+        } else {
+          this.categoryOptionID = null;
         }
       }
       // this.showLoader = false;

@@ -16,64 +16,247 @@
     //height     : calc(94vh - 6px);
     color           : var(--main-font-color);
 
-    .interactive-card {
-      background-color: var(--chart-container-color);
-      height          : calc(92vh - 25px);
-      overflow        : hidden;
+    #accordion-3 {
+      // height: 200px;
 
-      .chart {
-        .card-header {
-          margin-top      : 4px;
-          background-color: transparent;
-        }
-      }
-
-      .interactive-card-title {
-        font-size: var(--font-size-p-normal-text);
-
-        .fav-btn {
+      .search-unit {
+        .vue-treeselect__control {
           background-color: var(--footer-components-color) !important;
           font-size       : var(--font-size-p-normal-text);
+          color           : var(--main-font-color);
+          border          : 0 !important;
+
+          .vue-treeselect__multi-value-item {
+            border-radius   : 3px !important;
+            background-color: var(--chart-container-color) !important;
+            color           : var(--fonts-white-shade);
+
+            .vue-treeselect__value-remove {
+              border-left: none;
+              color      : var(--fonts-white-shade);
+            }
+          }
+
+          .vue-treeselect__input {
+            color: var(--color-white)
+          }
+        }
+
+        .vue-treeselect__menu {
+          background-color: var(--dropdown-item-bg) !important;
+          border          : 0;
+          width           : 100%;
+        }
+
+        .vue-treeselect__option--highlight {
+          background-color: var(--dropdown-bg-color);
+          //width: 90%;
+          margin          : auto;
+        }
+      }
+    }
+  }
+  .vue-treeselect--has-value .vue-treeselect__multi-value{
+    margin-bottom: -2px !important;
+  }
+}
+
+.med-list-item {
+  position: relative;
+  color   : var(--text-color);
+
+  .move-txt {
+    display: none;
+  }
+
+  &:hover {
+    cursor          : pointer;
+    //opacity: 0.5;
+    display         : flex;
+    align-items     : center;
+    //padding: 6px;
+    color           : var(--border-color);
+    background-color: var(--chart-container-color);
+    font-family     : var(--body-font-family);
+    overflow-wrap: anywhere;
+    .move-txt {
+      display         : block;
+      color           : var(--color-white) !important;
+      position        : absolute;
+      right           : 1rem;
+      // padding-left: 10px;
+      // padding-right: 10px;
+      transition      : all 0.5s;
+    }
+  }
+}
+
+//config popup css
+.dataConfig{
+  background-color: var(--chat-user-receiver-bg-color);
+  min-height: 180px;
+  max-height: 180px;
+  overflow: auto;
+  font-size: var(--font-small);
+  border-radius: 8px;
+}
+
+//  < !--:always-open="treeselect.alwaysOpen"-->
+
+// new interactive page
+
+.interactive-section{
+
+
+      .interactive-maincard{
+        height: calc(100vh - 128px);
+      }
+      .interactive-main{
+        .card{
+          background-color: var(--chart-container-color);
+        
+        }
+
+        .card-header{
+          background-color: var(--grey-color-button) !important;
+          border: var(--grey-color-button) !important;
         }
       }
 
-      .accordian-col {
-        max-height: calc(92vh - 158px);
+      .collapse{
+        border: 1px solid var(--border-grey-color);
+        border-bottom-left-radius: 5px !important;
+        border-bottom-right-radius: 5px !important;
+    }
+
+      
+    
+      .border-bottom{
+        border-bottom: 1px solid var(--border-grey-color)!important;
+        margin-right: 3%;
+      }
+
+      .border-right{
+        border-right: 1px solid var(--border-grey-color) !important;
+        
+      }
+
+      .card-footer{
+        border-top: transparent !important;
+      }
+      .interactive-left{
+        height: calc(100vh - 224px);
         overflow-y: auto;
-        margin-left: -9%;
-      }
+        overscroll-behavior: contain;
 
-      .main-title {
-        font-size    : var(--font-size-p-normal-text);
-        border-top   : 2px solid var(--border-color);
-        border-bottom: 2px solid var(--border-color);
-
-        &:focus,
-        &.focus {
-          background-color  : transparent !important;
-          //border-color    : transparent !important;
-          box-shadow        : none !important;
+        .accordion{
+          margin-right: 3%;
         }
       }
 
-      .main-title:after {
-        content    : "\f0da";
-        font-family: "FontAwesome";
-        position   : absolute;
-        right      : 36px;
+      .configure {
+        height: calc(92vh - 240px);
+        overflow: auto;
+        background-color: var(--bg-main-color) !important;
+
+        .configure-chart {
+          height: 90%;
+
+          .chartHeight{
+            height: 100%;
+          }
+
+          .summary-highchart-body {
+            background-color: var(--map-elements-bg-color) !important;
+
+            .chart-body {
+              margin-left: 7px;
+
+              .maincharts {
+                padding-left: 5px;
+              }
+            }
+
+            .card-header {
+              display       : none;
+              padding-bottom: 0px;
+            }
+
+            .card-body {
+              padding-top : 0 !important;
+              padding-left: 0;
+            }
+          }
+
+          .charticon-overlay {
+            background-color: transparent;
+          }
+        }
+
+        .conf-item {
+          background-color: var(--dropdown-item-bg);
+        }
       }
 
-      .main-title.not-collapsed:after {
-        content    : "\f0d7";
-        font-family: "FontAwesome";
+      .layout-info {
+        background-color: var(--bg-main-color) !important;
+        font-size       : var(--font-size-p-normal-text);
+        max-height: 100px;
+        overflow-y: auto;
+
+        .layout-item {
+          background-color: var(--map-elements-bg-color);
+          color           : var(--fonts-white-shade);
+        }
+
+        .series {
+          border-right : 1px solid var(--border-grey-color);
+          border-bottom: 1px solid var(--border-grey-color);
+          font-size    : var(--font-size-p-small-text);
+
+          .series-title {
+            min-width   : 106px;
+            border-right: 1px solid var(--border-grey-color);
+          }
+
+          .data {
+            border-left: 1px solid var(--border-grey-color);
+          }
+        }
+
+        .category,
+        .filter,
+        .dimension {
+
+          .category-title,
+          .filter-title {
+            min-width   : 106px;
+            border-right: 1px solid var(--border-grey-color);
+          }
+
+          font-size: var(--font-size-p-small-text);
+
+          .data {
+            border-left: 1px solid var(--border-grey-color);
+          }
+        }
+
+        .category,
+        .filter {
+          border-bottom: 1px solid var(--border-grey-color);
+        }
       }
 
-      .data-acc {
-        border-top: 1px solid var(--border-color);
+      .layout {
+        font-size  : var(--font-size-p-normal-text);
+        font-weight: 500;
+        color      : var(--fonts-white-shade);
       }
 
-      .period-acc {
-        border-bottom: 1px solid var(--border-color);
+      .vue-treeselect__list-item.vue-treeselect__indent-level-0{
+        height: 130px;
+        overflow: auto;
+        padding-bottom: 20px;
       }
 
       .indi {
@@ -85,6 +268,7 @@
           text-align      : left;
           font-size       : var(--font-size-p-small-text);
           position        : relative;
+          white-space: pre-line;
         }
 
         .dropdown-toggle::after {
@@ -96,20 +280,23 @@
         .dropdown-menu {
           z-index         : 1009;
           background-color: var(--dropdown-bg-color);
-          border          : 1px solid var(--dropdown-border-color);
+          border          : 1px solid var(--border-grey-color);
           width           : 100%;
-          border-radius   : 10px;
+          // border-radius   : 10px;
           margin          : 0;
           margin-top      : 1px;
+          height: 200px;
+          overflow-y: auto;
+          overscroll-behavior: contain;
 
           .dropdown-item {
             font-size       : var(--font-size-p-small-text);
             z-index         : 1000;
             color           : var(--fonts-white-shade) !important;
             background-color: var(--dropdown-item-bg);
-            width           : 90%;
+            width           : 100%;
             margin          : 0 auto;
-            border          : 1px solid var(--dropdown-border-color);
+            border          : 1px solid var(--border-grey-color);
             overflow: hidden;
             white-space: pre-wrap;
             text-overflow: ellipsis;
@@ -139,7 +326,7 @@
           background-color: var(--dropdown-bg-color);
           border          : 1px solid var(--dropdown-border-color);
           width           : 100%;
-          border-radius   : 10px;
+          // border-radius   : 10px;
           margin          : 0;
           margin-top      : 1px;
 
@@ -148,9 +335,9 @@
             z-index         : 1000;
             color           : var(--fonts-white-shade) !important;
             background-color: var(--dropdown-item-bg);
-            width           : 90%;
+            width           : 100%;
             margin          : 0 auto;
-            border          : 1px solid var(--dropdown-border-color);
+            border          : 1px solid var(--border-grey-color);
           }
         }
       }
@@ -204,10 +391,15 @@
         background-color: var(--chat-user-receiver-bg-color);
         font-size       : var(--font-size-p-small-text);
         color           : var(--fonts-white-shade);
+        border-radius: 4px !important;
 
         &:focus {
           box-shadow: none;
         }
+      }
+
+      .search-input.rounded-pill{
+        border-radius: 4px !important;
       }
 
       .left-data,
@@ -249,7 +441,7 @@
             overflow-wrap: anywhere;
             .move-txt {
               display         : block;
-              color           : var(--color-white) !important;
+              color           : var(--text-color) !important;
               position        : absolute;
               right           : 1rem;
               // padding-left: 10px;
@@ -323,9 +515,10 @@
       }
 
       .update-btn {
-        background-color: var(--footer-components-color) !important;
+        background-color: var(--sidebar-border-left) !important;
+        border: var(--sidebar-border-left) !important;
         font-size       : var(--font-size-p-normal-text);
-
+        border-radius: 0.25rem !important;
         &:hover,
         &:active,
         &:focus,
@@ -338,7 +531,7 @@
 
       .chart {
         background-color: var(--map-elements-bg-color);
-        height          : calc(92vh - 120px);
+        height          : calc(92vh - 104px);
 
         .card-body {
           padding-top: 5px;
@@ -400,7 +593,7 @@
         .layout-info {
           background-color: var(--chart-container-color);
           font-size       : var(--font-size-p-normal-text);
-          max-height: 80px;
+          max-height: 100px;
           overflow-y: auto;
 
           .layout-item {
@@ -409,17 +602,17 @@
           }
 
           .series {
-            border-right : 1px solid var(--border-color);
-            border-bottom: 1px solid var(--border-color);
+            border-right : 1px solid var(--border-grey-color);
+            border-bottom: 1px solid var(--border-grey-color);
             font-size    : var(--font-size-p-small-text);
 
             .series-title {
               min-width   : 106px;
-              border-right: 1px solid var(--border-color);
+              border-right: 1px solid var(--border-grey-color);
             }
 
             .data {
-              border-left: 1px solid var(--border-color);
+              border-left: 1px solid var(--border-grey-color);
             }
           }
 
@@ -430,19 +623,19 @@
             .category-title,
             .filter-title {
               min-width   : 106px;
-              border-right: 1px solid var(--border-color);
+              border-right: 1px solid var(--border-grey-color);
             }
 
             font-size: var(--font-size-p-small-text);
 
             .data {
-              border-left: 1px solid var(--border-color);
+              border-left: 1px solid var(--border-grey-color);
             }
           }
 
           .category,
           .filter {
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-grey-color);
           }
         }
 
@@ -452,16 +645,16 @@
           color      : var(--fonts-white-shade);
         }
       }
-    }
+    
 
-    #accordion-3 {
-      height: 200px;
+    #accordion-4 {
+      height: 211px;
 
       .search-unit {
         .vue-treeselect__control {
           background-color: var(--footer-components-color) !important;
           font-size       : var(--font-size-p-normal-text);
-          color           : var(--main-font-color);
+          color           : var(--text-color);
           border          : 0 !important;
 
           .vue-treeselect__multi-value-item {
@@ -493,71 +686,38 @@
         }
       }
     }
-  }
-  .vue-treeselect--has-value .vue-treeselect__multi-value{
-    margin-bottom: -10px !important;
-  }
-}
 
-.dataConfig{
-  background-color: var(--chat-user-receiver-bg-color);
-  min-height: 180px;
-  max-height: 180px;
-  overflow: auto;
-  font-size: var(--font-small);
-  border-radius: 8px;
-}
-.med-list-item {
-  position: relative;
-  color   : var(--color-white);
-
-  .move-txt {
-    display: none;
-  }
-
-  &:hover {
-    cursor          : pointer;
-    //opacity: 0.5;
-    display         : flex;
-    align-items     : center;
-    //padding: 6px;
-    color           : var(--border-color);
-    background-color: var(--chart-container-color);
-    font-family     : var(--body-font-family);
-    overflow-wrap: anywhere;
-    .move-txt {
-      display         : block;
-      color           : var(--color-white) !important;
-      position        : absolute;
-      right           : 1rem;
-      // padding-left: 10px;
-      // padding-right: 10px;
-      transition      : all 0.5s;
+    .btn-info, .btn-info:hover{
+      color: var(--text-color) !important;
+    background: transparent !important;
+    border-color: transparent;
     }
-  }
+
+    .med-list .med-list-item:hover .move-txt
+ {
+   
+    width: 100%;
+    /* margin-left: 38px !important; */
+    display: flex !important;
+    position: absolute !important;
+    top: 0px;
+    left: 0px;
+    height: 100%;
+    justify-content: center !important;
+    align-items: center !important;
+} 
+
+
+}
+ 
+.vue-treeselect--has-value .vue-treeselect__multi-value{
+    margin-bottom: -2px !important;
 }
 
-@media (min-width:1366px) {
 
-  // .maincharts{
-  //   height: 280px;
-  // }
-  .configure-chart-text {
-    padding-top : 10rem;
-    padding-left: 19rem;
-  }
-}
 
-@media (min-width:1600px) {
+// responsive css
 
-  // .maincharts{
-  //   height: 386px;
-  // }
-  .configure-chart-text {
-    padding-top : 13rem;
-    padding-left: 25rem;
-  }
-}
 
 @media only screen and (min-device-width: 768px) and (max-device-width: 1024px) and (orientation: portrait) and (-webkit-min-device-pixel-ratio: 1) {
 
@@ -565,69 +725,7 @@
     height: 100%;
   }
 
-  .interactive-page .interactive .interactive-card {
-
-    height: auto;
-
-  }
-
-  .interactive-page .interactive .interactive-card .chart {
-
-    height: auto;
-  }
-
-  .interactive-page .interactive .interactive-card .chart .configure {
-    height: calc(92vh - 479px);
-
-  }
+ 
 }
 
 
-.periodtype {
-  .form-control#periodType {
-    color           : #fff;
-    background-color: #343361;
-    border          : 1px solid #343361;
-  }
-}
-
-.searchable {
-  color           : #fff;
-  background-color: #343361;
-  border          : 1px solid #343361 !important;
-
-  &:focus {
-    background-color: #343361;
-    border          : 1px solid #343361 !important;
-  }
-}
-
-
-#collapseThree.countrynew {
-  .vue-treeselect {
-    color           : #fff;
-    background-color: #343361;
-    border          : 1px solid #343361 !important;
-  }
-
-  .vue-treeselect__control {
-    color           : #fff;
-    background-color: #343361;
-    border          : 1px solid #343361 !important;
-  }
-}
-
-
-//  < !--:always-open="treeselect.alwaysOpen"-->
-
-.countrynew {
-  .vue-treeselect--open-below .vue-treeselect__menu {
-    color           : #fff;
-    background-color: #343361 !important;
-  }
-
-  .vue-treeselect__menu {
-    color           : #fff;
-    background-color: #343361 !important;
-  }
-}

@@ -1,17 +1,16 @@
 .summary-dqr-page{
-    background-color: var(--chart-container-color);
-    // height: 90vh;
-    // overflow-y: auto;
-    // overflow-x: hidden;
+    background-color: var(--bg-main-color);
+   
 
     .dqr-title {
         color: var(--innertext-font-color) !important;
         font-size: var(--font-size-chart-sidebar-heading);
         font-weight: 500;
+        text-transform: uppercase;
     }
 
     .overview-card{
-        background-color: var(--chart-container-color) !important;
+        background-color: var(--bg-main-color) !important;
         color: var(--fonts-white-shade);
         font-size: var(--font-size-chart-sidebar-heading);
         border-radius: 7px;
@@ -20,38 +19,44 @@
         border: transparent;
         .card-header{
             border-bottom: transparent;
+            background-color: transparent !important;
+            border-top-left-radius: 7px !important;
+            border-top-right-radius: 7px !important;
         }
         .dqr-card-body{
-            background-color: var(--primary-bg-color) !important;
+            // background-color: var(--primary-bg-color) !important;
             background: transparent;
             font-family: var(--heading-font-family);
             color: var(--innertext-font-color) !important;
             font-size: var(--font-size-p-normal-text);
             border-radius: 7px !important;
-           .generate-btn{
-               background-color: var(--chart-container-color);
-                //font-size: var(--font-small);
-                color: var(--innertext-font-color) !important;
-           }
+            border: 1px solid var(--footer-components-color) !important;
+            opacity: 1;
+          
            .quality-text{
             font-size: var(--font-size-p-normal-text);
             color: var(--innertext-font-color) !important;
            }
 
             .inner-card{
-                background-color: var(--chart-container-color) !important;
+                background-color:  var(--grey-color-button)!important;
                 border-radius: 7px !important;
+                align-items: stretch;
                 font-size: var(--font-size-p-normal-text);
-                height: 154px;
+                // height: auto;
                 .card-body{
                     padding: 0;
+                   
                 }
                 .inner-card-body{
-                    background-color: var(--signoff-card-bg) !important;
+                    background-color: var(--primary-bg-color) !important;
                     //background-color: var(--primary-bg-color) !important;
                     background: transparent;
                     border-radius: 7px !important;
-                    height: 110px;
+                    border-top-left-radius: 0px !important;
+                    border-top-right-radius: 0px !important;
+                    height: auto;
+                    // overflow-y: auto;
                     .complete-list,.internal-list,.consistency-list{
                         list-style: none;
 
@@ -100,7 +105,7 @@
     }
 
     .sign-off-card{
-        background-color: var(--chart-container-color) !important;
+        background-color: transparent !important;
         color: var(--innertext-font-color) !important;
         border-radius: 10px !important;
         border-top-left-radius: 0px !important;
@@ -108,6 +113,7 @@
         border: transparent;
         .card-header{
             border-bottom: transparent;
+            background-color: transparent !important;
         }
         .question_sect_wrap_pt1{
             height: auto;
@@ -134,7 +140,7 @@
         }
 
         .sign-off-card-body{
-            background-color: var(--chart-container-color);
+            background-color: transparent !important;
             color: var(--innertext-font-color) !important;
             border-radius: 10px !important;
             
@@ -159,6 +165,7 @@
          
               .sign-questions{
                 background-color: var(--primary-bg-color) !important;
+                border-color: var(--primary-bg-color);
                 color: var(--innertext-font-color) !important;
                 font-size: var(--font-size-p-normal-text);
                 height: 643px;
@@ -234,8 +241,12 @@
 
     .level-card{
         background-color: var(--primary-bg-color);
+        border-color: var(--primary-bg-color);
         height: 643px;
         border-radius: 7px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        margin-bottom: 30px;
         .dsl {
             background: transparent !important;
             //border-bottom: 2px solid var(--color-white) !important;
@@ -370,10 +381,25 @@
         .card-active{
             background-color: var(--chart-container-color) !important;
         }
+
+
+    }
+
+    .dqr-main{
+        height: 200px !important;
+    }
+
+    .dqr-table tbody th{
+        border-right: 1px solid var(--border-grey-color) !important;
+    }
+
+    .dqr-table .thead-light th{
+        border-color: var(--border-grey-color) !important;
     }
 }
 
 
+// responsive css
 
 @media only screen 
   and (min-device-width: 768px) 

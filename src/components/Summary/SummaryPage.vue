@@ -1,21 +1,38 @@
 <template>
-  <div class="summary-page-container" id="scrollTop">
+  <div class="summary-page-container" id="scrollTop" ref="printPDF">
     <div
-      class="mt-4 mr-0 p-4 summary-page"
+      class="mr-0 p-4 summary-page"
+      id="summary"
       v-show="$store.getters.getActiveTab === 'sd-summary'"
     >
-      <div class="pb-4 summary-title fs-17-1920">
-        This section is designed to highlight priority indicators that show how
-        the MCH program is performing. Indicators are compared to the prior
-        month to show whether there has been
-        <span class="green fs-17-1920"> positive growth (of +5% or more)</span>,
-        <span class="red fs-17-1920">declines (-5% or more)</span>, or
-        <span class="orange fs-17-1920">limited change (+/- 5%)</span>.
-        Understanding what indicators are changing can help point to areas of
-        strong performance as well as areas that need greater attention. Select
-        the indicators below to see more details on their performance at a
-        national and subnational level and over time
-      </div>
+      <b-row>
+        <b-col :sm="!isGenerating ? '10' : '11'"
+          ><div class="pb-4 summary-title fs-17-1920">
+            {{ $t("MNCHPerformance") }}
+            <span class="green fs-17-1920">{{ $t("positive5") }}</span>
+            <span class="red fs-17-1920">{{ $t("decline5") }}</span>
+            <span class="orange fs-17-1920">{{ $t("limited5") }}</span>
+            {{ $t("understandingInd") }}
+          </div></b-col
+        >
+        <b-col sm="2" v-if="!isGenerating"
+          ><div class="text-right mb-3">
+            <button
+              type="button"
+              class="btn btn-primary black-btn blue-btn f-08rem"
+              @click.prevent.stop="downloadReport()"
+            >
+              <span class="">
+                <img
+                  :src="require('@/assets/images/icons/generateReport.svg')"
+                  class="img-fluid mt-xl-n1"
+                />
+              </span>
+              <span class="mx-1"> {{ $t("exportbtn") }} </span>
+            </button>
+          </div></b-col
+        >
+      </b-row>
       <div class="mb-4">
         <b-row>
           <b-col
@@ -31,18 +48,29 @@
                 <b-row>
                   <b-col sm="2">
                     <div
+                      v-b-tooltip:hover
+                      :title="summary.summaryDetails[0].currValue"
                       class="summary-dot"
                       :class="summary.summaryDetails[0].colorLastMn"
                     >
-                      <p class="mb-0 fs-25-1920">
+                      <p
+                        class="mb-0 fs-25-1920"
+                        :class="getClass(summary.summaryDetails[0].currValue)"
+                      >
                         {{ summary.summaryDetails[0].currValue }}
                       </p>
                     </div></b-col
                   >
-                  <b-col sm="10" class="pl-5 pt-2">
+                  <b-col sm="10" class="pl-3 pt-2">
                     <b-row>
                       <b-col sm="8">
-                        <div class="fs-17-1920">{{ summary.tabName }}</div>
+                        <div
+                          v-b-tooltip:hover
+                          :title="summary.tabName[$i18n.locale]"
+                          class="fs-17-1920 indicator-name"
+                        >
+                          {{ summary.tabName[$i18n.locale] }}
+                        </div>
                       </b-col>
                       <b-col sm="4" class="view-more-btn">
                         <b-button
@@ -53,7 +81,7 @@
                       </b-col>
                       <b-col sm="12" class="pt-2">
                         <div class="from-last-year fs-14-1920">
-                          % change from
+                          {{ $t("per_change_from") }}
                           {{ summary.summaryDetails[0].prevForDate }}
                           <span class="float-right">{{
                             summary.summaryDetails[0].change === null
@@ -68,12 +96,15 @@
               </div>
               <div
                 class="fs-17-1920 emu-read"
-                :class="{ 'emu-status ': showMore !== summary.id }"
+                :class="{
+                  'emu-status ': showMore !== summary.id && !isGenerating,
+                }"
                 style="min-height: 36px"
                 v-html="getSummaryText(summary.summaryDetails[0].summaryText)"
               ></div>
+              <!-- data-html2canvas-ignore="true" -->
               <div
-                data-html2canvas-ignore="true"
+                v-if="!isGenerating"
                 class="text-right"
                 :style="{
                   visibility:
@@ -93,7 +124,7 @@
               </div>
               <div class="p-2 mt-3 performance-in-card fs-17-1920">
                 <span>
-                  Performance against benchmark
+                  {{ $t("performance_against_benchmark") }}
                   {{
                     summary.summaryDetails[0].benchmarkValue
                       ? `(${summary.summaryDetails[0].benchmarkValue})`
@@ -111,10 +142,11 @@
                   </template>
                   <img
                     v-else
+                    crossorigin="*"
                     alt="s_icon"
-                    class="equalTosign"
+                    class="equalTosign w-20px"
                     :src="
-                      require(`@/assets/img/ministerialSummaryIcon/${getIcon(
+                      require(`@/assets/images/ministerialSummaryIcon/${getIcon(
                         summary.summaryDetails[0].performanceBenchmarking
                       )}`)
                     "
@@ -126,6 +158,9 @@
               <b-overlay
                 :show="summary.errorMsg && summary.errorMsg !== ''"
                 :rounded="true"
+                :variant="
+                  $store.getters.getTheme === 'white' ? 'light' : 'dark'
+                "
               >
                 <template #overlay>
                   <div class="text-center">
@@ -140,32 +175,42 @@
       </div>
     </div>
     <ViewMorePopup
-      v-if="visible"
-      @getGeoJson="getGeoJson"
+      v-if="visible && !isGenerating"
       :allGeoJson="allGeoJson"
+      :allExtData="allExtData"
       :summaryObj="summaryObj"
       :locationPeriod="locationPeriod"
       @visibleChange="visibleChange"
     />
-    <div v-for="tab in configData" :key="'tabSummary' + tab.id">
-      <div v-for="subTab in tab.subTabs" :key="'tabSummary' + subTab.id">
-        <div v-show="$store.getters.getActiveTab.includes(subTab.id)">
-          <TabSummary
-            :content="subTab.categoryInfo"
-            :contKey="tab.id + subTab.id"
-          />
+    <template v-if="!isGenerating">
+      <div v-for="tab in configData" :key="'tabSummary' + tab.id">
+        <div v-for="subTab in tab.subTabs" :key="'tabSummary' + subTab.id">
+          <div v-show="$store.getters.getActiveTab.includes(subTab.id)">
+            <TabSummary
+              :content="subTab.categoryInfo[$i18n.locale]"
+              :contKey="tab.id + subTab.id"
+            />
+          </div>
         </div>
       </div>
-    </div>
+    </template>
     <div class="summary-section">
-      <div v-show="showTrend" id="trendCharts">
-        <b-card-group deck class="indicatorSectionWrap mt-3">
+      <div v-show="showTrend" id="trendCharts" class="pt-5">
+        <b-card-group
+          deck
+          class="indicatorSectionWrap"
+          v-show="checkCharts(configData, 'trend', true)"
+        >
           <b-card>
-            <b-card-header class="mainHeader">
-              <h6>Trends in key indicators</h6>
+            <b-card-header class="mainHeader before">
+              <h6>{{ $t("trendsKeyInd") }}</h6>
             </b-card-header>
-            <b-card-body class="indicatorCardBody p-0">
-              <div v-for="tab in configData" :key="'trend' + tab.id">
+            <b-card-body class="indicatorCardBody summary-bordercharts p-0">
+              <div
+                v-for="tab in configData"
+                :key="'trend' + tab.id"
+                class="after"
+              >
                 <div v-for="subTab in tab.subTabs" :key="'trend' + subTab.id">
                   <div
                     v-show="
@@ -177,11 +222,7 @@
                       <div
                         v-if="
                           chartData.chartOptions.chartCategory === 'trend' &&
-                          (!reportChartData ||
-                            (reportChartData &&
-                              reportChartData.selectedSource === subTab.id &&
-                              reportChartData.cid.split('/')[1] ===
-                                chartData.chartOptions.cid))
+                          !chartData.chartOptions.disable
                         "
                         :key="
                           'trend-' +
@@ -194,47 +235,42 @@
                           :subTab="subTab"
                           :emuData="emuData"
                           :chartData="chartData"
+                          :isShowChart="showTrend"
+                          @setExtData="setExtData"
+                          :allExtData="allExtData"
                           :summaryList="summaryList"
+                          :preFetchData="preFetchData"
                           @setReportChart="setReportChart"
                           :locationPeriod="locationPeriod"
                           :reportChartData="reportChartData"
                           @summaryChartData="summaryChartData"
+                          :backgroundData="subTab.backgroundData"
                         />
                       </div>
                     </template>
-                    <div
-                      class="text-center"
-                      v-if="
-                        !checkCharts(subTab.chartSetting, 'trend') &&
-                        $store.getters.getActiveTab !== 'sd-summary'
-                      "
-                    >
-                      No mapping available
-                    </div>
                   </div>
                 </div>
-              </div>
-              <div
-                class="text-center"
-                v-if="
-                  !checkCharts(configData, 'trend', true) &&
-                  $store.getters.getActiveTab === 'sd-summary'
-                "
-              >
-                No mapping available
               </div>
             </b-card-body>
           </b-card>
         </b-card-group>
       </div>
       <div v-show="showSeasonal" id="seasonalCharts">
-        <b-card-group deck class="indicatorSectionWrap mt-3">
+        <b-card-group
+          deck
+          class="indicatorSectionWrap"
+          v-show="checkCharts(configData, 'seasonal', true)"
+        >
           <b-card>
-            <b-card-header class="mainHeader">
-              <h6>Seasonal trends in key indicators</h6>
+            <b-card-header class="mainHeader before">
+              <h6>{{ $t("SeasonTrends") }}</h6>
             </b-card-header>
             <b-card-body class="indicatorCardBody p-0">
-              <div v-for="tab in configData" :key="'seasonal' + tab.id">
+              <div
+                v-for="tab in configData"
+                :key="'seasonal' + tab.id"
+                class="after"
+              >
                 <div
                   v-for="subTab in tab.subTabs"
                   :key="'seasonal' + subTab.id"
@@ -249,11 +285,7 @@
                       <div
                         v-if="
                           chartData.chartOptions.chartCategory === 'seasonal' &&
-                          (!reportChartData ||
-                            (reportChartData &&
-                              reportChartData.selectedSource === subTab.id &&
-                              reportChartData.cid.split('/')[1] ===
-                                chartData.chartOptions.cid))
+                          !chartData.chartOptions.disable
                         "
                         :key="
                           'seasonal-' +
@@ -266,46 +298,41 @@
                           :subTab="subTab"
                           :emuData="emuData"
                           :chartData="chartData"
+                          @setExtData="setExtData"
+                          :allExtData="allExtData"
+                          :isShowChart="showSeasonal"
+                          :preFetchData="preFetchData"
                           @setReportChart="setReportChart"
                           :locationPeriod="locationPeriod"
                           :reportChartData="reportChartData"
                           @summaryChartData="summaryChartData"
+                          :backgroundData="subTab.backgroundData"
                         />
                       </div>
                     </template>
-                    <div
-                      class="text-center"
-                      v-if="
-                        !checkCharts(subTab.chartSetting, 'seasonal') &&
-                        $store.getters.getActiveTab !== 'sd-summary'
-                      "
-                    >
-                      No mapping available
-                    </div>
                   </div>
                 </div>
-              </div>
-              <div
-                class="text-center"
-                v-if="
-                  !checkCharts(configData, 'seasonal', true) &&
-                  $store.getters.getActiveTab === 'sd-summary'
-                "
-              >
-                No mapping available
               </div>
             </b-card-body>
           </b-card>
         </b-card-group>
       </div>
       <div v-show="showRegional" id="regionalCharts">
-        <b-card-group deck class="indicatorSectionWrap mt-3">
+        <b-card-group
+          deck
+          class="indicatorSectionWrap"
+          v-show="checkCharts(configData, 'regional', true)"
+        >
           <b-card>
-            <b-card-header class="mainHeader">
-              <h6>Regional variation in key indicators</h6>
+            <b-card-header class="mainHeader before">
+              <h6>{{ $t("RegionalVariation") }}</h6>
             </b-card-header>
             <b-card-body class="indicatorCardBody p-0">
-              <div v-for="tab in configData" :key="'regional' + tab.id">
+              <div
+                v-for="tab in configData"
+                :key="'regional' + tab.id"
+                class="after"
+              >
                 <div
                   v-for="subTab in tab.subTabs"
                   :key="'regional' + subTab.id"
@@ -320,11 +347,7 @@
                       <div
                         v-if="
                           chartData.chartOptions.chartCategory === 'regional' &&
-                          (!reportChartData ||
-                            (reportChartData &&
-                              reportChartData.selectedSource === subTab.id &&
-                              reportChartData.cid.split('/')[1] ===
-                                chartData.chartOptions.cid))
+                          !chartData.chartOptions.disable
                         "
                         :key="
                           'regional-' +
@@ -337,33 +360,20 @@
                           :subTab="subTab"
                           :emuData="emuData"
                           :chartData="chartData"
+                          @setExtData="setExtData"
+                          :allExtData="allExtData"
+                          :isShowChart="showRegional"
+                          :preFetchData="preFetchData"
                           @setReportChart="setReportChart"
                           :locationPeriod="locationPeriod"
                           :reportChartData="reportChartData"
                           @summaryChartData="summaryChartData"
+                          :backgroundData="subTab.backgroundData"
                         />
                       </div>
                     </template>
-                    <div
-                      class="text-center"
-                      v-if="
-                        !checkCharts(subTab.chartSetting, 'regional') &&
-                        $store.getters.getActiveTab !== 'sd-summary'
-                      "
-                    >
-                      No mapping available
-                    </div>
                   </div>
                 </div>
-              </div>
-              <div
-                class="text-center"
-                v-if="
-                  !checkCharts(configData, 'regional', true) &&
-                  $store.getters.getActiveTab === 'sd-summary'
-                "
-              >
-                No mapping available
               </div>
             </b-card-body>
           </b-card>
@@ -374,21 +384,32 @@
 </template>
 <script>
 import service from "@/service";
+import GeoJsonMixin from "@/helpers/GeoJsonMixin";
+import ExtDataMixin from "@/helpers/ExtDataMixin";
 import ScrollPageMixin from "@/helpers/ScrollPageMixin";
 import SummaryViewMixin from "@/helpers/SummaryViewMixin";
+import DynamicImageMixin from "@/helpers/DynamicImageMixin";
+import GenerateReportMixin from "@/helpers/GenerateReportMixin";
 import ViewMorePopup from "@/components/Summary/ViewMorePopup.vue";
-
 export default {
   props: [
     "showTrend",
+    "configData",
+    "showSummary",
+    "preFetchData",
     "showSeasonal",
     "showRegional",
-    "configData",
     "locationPeriod",
-    "showSummary",
     "reportChartData",
   ],
-  mixins: [ScrollPageMixin, SummaryViewMixin],
+  mixins: [
+    GeoJsonMixin,
+    ExtDataMixin,
+    ScrollPageMixin,
+    SummaryViewMixin,
+    DynamicImageMixin,
+    GenerateReportMixin,
+  ],
   components: {
     ViewMorePopup,
     Placeholder: () =>
@@ -407,8 +428,8 @@ export default {
   data() {
     return {
       emuData: {},
+      allExtData: {},
       visible: false,
-      allGeoJson: {},
       summaryList: [],
       summaryObj: null,
       globalResponse: null,
@@ -431,31 +452,64 @@ export default {
       }
     },
     locationPeriod: {
-      handler() {
-        this.summaryList = [];
-        this.mapList = [];
-        this.$nextTick(() => {
-          this.getSummaryList();
-        });
+      handler(newValue, oldValue) {
+        if (
+          oldValue &&
+          (newValue.location !== oldValue.location ||
+            newValue.periodType !== oldValue.periodType ||
+            newValue.period !== oldValue.period)
+        ) {
+          this.summaryList = [];
+          this.mapList = [];
+          this.$nextTick(() => {
+            this.getSummaryList();
+          });
+        }
       },
       deep: true,
     },
   },
   methods: {
+    setExtData(level, obj) {
+      this.allExtData[level] = obj;
+    },
+    getClass(value) {
+      return value && value.toString().length > 5
+        ? "big-number"
+        : value && value.toString().length > 7
+        ? "biggest-number"
+        : "";
+    },
     checkCharts(charts, type, isOuter = false) {
       let isCharts = false;
       if (isOuter) {
-        charts.forEach((t) => {
-          t.subTabs.forEach((st) => {
-            if (!isCharts) {
-              isCharts = this.checkCharts(st.chartSetting, type);
-            }
+        if (this.$store.getters.getActiveTab === "sd-summary") {
+          charts.forEach((t) => {
+            t.subTabs.forEach((st) => {
+              if (!isCharts) {
+                isCharts = this.checkCharts(st.chartSetting, type);
+              }
+            });
           });
-        });
+        } else {
+          let arr = charts.find((c) =>
+            this.$store.getters.getActiveTab.includes(c.id)
+          );
+          if (arr) {
+            let isSub = arr.subTabs.find((s) =>
+              this.$store.getters.getActiveTab.includes(s.id)
+            );
+            if (isSub) {
+              if (!isCharts) {
+                isCharts = this.checkCharts(isSub.chartSetting, type);
+              }
+            }
+          }
+        }
       } else {
-        isCharts = charts.find(
-          (chartData) => chartData.chartOptions.chartCategory === type
-        );
+        isCharts = charts
+          .filter((c) => !c.chartOptions.disable)
+          .find((chartData) => chartData.chartOptions.chartCategory === type);
         isCharts = isCharts ? true : false;
       }
       return isCharts;
@@ -469,9 +523,6 @@ export default {
         });
       }
     },
-    getGeoJson(loc, obj) {
-      this.allGeoJson[loc] = obj;
-    },
     visibleChange() {
       this.visible = false;
     },
@@ -479,29 +530,74 @@ export default {
       this.summaryObj = summary;
       this.$nextTick(() => {
         this.visible = true;
+        this.getGeoJson(this.locationPeriod.location);
+        this.getExtData(this.locationPeriod.location.split("/")[0]);
       });
     },
     getEMUData() {
       if (
-        !this.emuData[this.locationPeriod.periodType] &&
+        this.preFetchData &&
+        this.preFetchData[
+          `${this.locationPeriod.periodType}_${this.$i18n.locale}`
+        ]
+      ) {
+        this.$set(
+          this.emuData,
+          `${this.locationPeriod.periodType}_${this.$i18n.locale}`,
+          this.preFetchData[
+            `${this.locationPeriod.periodType}_${this.$i18n.locale}`
+          ]
+        );
+      }
+      if (
+        !this.emuData[
+          `${this.locationPeriod.periodType}_${this.$i18n.locale}`
+        ] &&
         ["monthly", "yearly"].includes(this.locationPeriod.periodType)
       ) {
         let configKey = null;
         if (this.locationPeriod.periodType === "monthly") {
-          configKey = "monthlyEMU";
+          configKey = `monthlyEMU_${this.$i18n.locale}`;
         }
         if (this.locationPeriod.periodType === "yearly") {
-          configKey = "annualEMU";
+          configKey = `annualEMU_${this.$i18n.locale}`;
         }
         let key = this.generateKey(configKey);
 
-        service.getSavedConfig(key).then((resp) => {
-          this.$set(this.emuData, this.locationPeriod.periodType, resp.data);
-        });
+        service
+          .getSavedConfig(key)
+          .then((resp) => {
+            this.$set(
+              this.emuData,
+              `${this.locationPeriod.periodType}_${this.$i18n.locale}`,
+              resp.data
+            );
+          })
+          .catch(() => {
+            this.$set(
+              this.emuData,
+              `${this.locationPeriod.periodType}_${this.$i18n.locale}`,
+              "Error"
+            );
+          });
+      } else {
+        if (
+          !this.emuData[
+            `${this.locationPeriod.periodType}_${this.$i18n.locale}`
+          ] &&
+          !["monthly", "yearly"].includes(this.locationPeriod.periodType)
+        ) {
+          this.$set(
+            this.emuData,
+            `${this.locationPeriod.periodType}_${this.$i18n.locale}`,
+            "Error"
+          );
+        }
       }
     },
     getSummaryList() {
       let isEMUCharts = false;
+      let index = 0;
       this.configData.forEach((c) => {
         c.subTabs.forEach((s) => {
           let isMapping = false;
@@ -510,7 +606,8 @@ export default {
               ((c.chartOptions.dataMapping &&
                 c.chartOptions.dataMapping.length) ||
                 c.chartOptions.isSavedData) &&
-              c.chartOptions.generateSummary
+              c.chartOptions.generateSummary &&
+              !c.chartOptions.disable
             ) {
               isMapping = true;
             }
@@ -519,7 +616,7 @@ export default {
             }
           });
           if (isMapping && s.summary && !s.summary.disable) {
-            this.summaryList.push({
+            let obj = {
               id: s.id,
               trend: null,
               regional: null,
@@ -529,8 +626,11 @@ export default {
               tabName: s.tabName,
               summaryDetails: null,
               chartConfigData: null,
+              extData: s.summary.extData,
               isCompare: s.summary.compareWith,
-            });
+            };
+            this.$set(this.summaryList, index, obj);
+            index++;
           }
         });
       });
@@ -539,6 +639,9 @@ export default {
       }
     },
     summaryChartData(data) {
+      if (this.summaryList.length === 0) {
+        this.getSummaryList();
+      }
       let isFound = this.summaryList.findIndex((s) => s.id === data.id);
       if (isFound >= 0) {
         let obj = {
@@ -560,7 +663,10 @@ export default {
         this.$set(this.summaryList, isFound, obj);
       }
       let isCompareFound = this.summaryList.findIndex(
-        (s) => s.isCompare === data.chartConfigData.id && !s.compareDone
+        (s) =>
+          data.chartConfigData &&
+          s.isCompare === data.chartConfigData.id &&
+          !s.compareDone
       );
       if (isCompareFound >= 0) {
         let obj = {
@@ -577,3 +683,15 @@ export default {
   },
 };
 </script>
+<style>
+.before {
+  page-break-before: always !important;
+}
+.after {
+  page-break-after: always !important;
+  page-break-inside: avoid !important;
+}
+.avoid {
+  page-break-inside: avoid !important;
+}
+</style>

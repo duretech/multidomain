@@ -1,53 +1,60 @@
 <!DOCTYPE html>
 <html lang="" id="mainHTML">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="description" content="Multi Program Dashboard" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <link
+      href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,500,500i,700,700i,900,900i&display=swap"
+      rel="preload"
+      as="style"
+      onload="this.rel = 'stylesheet'"
+      crossorigin="anonymous"
+    />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,500,500i,700,700i,900,900i&display=swaps"
+      />
+    </noscript>
+    <link
+      href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+      rel="preload"
+      as="style"
+      onload="this.rel = 'stylesheet'"
+      integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN"
+      crossorigin="anonymous"
+    />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+        integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN"
+        crossorigin="anonymous"
+      />
+    </noscript>
+    <link rel="icon" href="<%= BASE_URL %>favicon.png" />
+  </head>
 
-<head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="description" content="Multi Program Dashboard">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,500,500i,700,700i,900,900i&display=swap"
-    rel="preload" as="style" onload="this.rel = 'stylesheet'" crossorigin="anonymous">
-  <noscript>
-    <link rel="stylesheet"
-      href='https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,500,500i,700,700i,900,900i&display=swaps'>
-  </noscript>
-  <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="preload" as="style"
-    onload="this.rel = 'stylesheet'" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN"
-    crossorigin="anonymous">
-  <noscript>
-    <link rel="stylesheet" href='https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css'
-      integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
-  </noscript>
-  <link rel="icon" href="<%= BASE_URL %>favicon.png">
-</head>
-
-<body data-theme="dark">
-  <noscript>
-    <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled.
-        Please enable it to continue.</strong>
-  </noscript>
-  <div id="app"></div>
-  <script>
-    const settings = {
-      "tableName": "multi_program",
-      "baseURL": "https://avenirtraining.duredemos.com/multidomain_service",
-      // "baseURL": "https://test.hiskenya.org/dhiske",
-      "country": true,
-      "countryName": "",
-      "redirect": false,
-      "redirectionLink": "",
-      "languageSupport": true,
-      "defaultLocale": "en",
-      "financialYear": ["April"],
-      "commentSchema": "old",
-      "ga": "",
-      "apiURL": "api",
-      "userRole": ["Superuser", "AvenirAppAdmin", "CountryAdminUser", "Track20"]
-    }
-  </script>
-  <script src="https://account.snatchbot.me/script.js"></script><script>window.sntchChat.Init(305590)</script>
-  <!-- built files will be auto injected -->
-</body>
-
+  <body data-theme="dark">
+    <noscript>
+      <strong
+        >We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work
+        properly without JavaScript enabled. Please enable it to
+        continue.</strong
+      >
+    </noscript>
+    <div id="app"></div>
+    <script>
+      const settings = {
+        tableName: "multi_program"
+      };
+    </script>
+    <script src="https://account.snatchbot.me/script.js"></script>
+    <script>
+      window.sntchChat.Init(305590);
+    </script>
+    <!-- built files will be auto injected -->
+  </body>
 </html>

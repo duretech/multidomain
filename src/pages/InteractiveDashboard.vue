@@ -22,7 +22,6 @@
 	</div>
 </template>
 <script>
-/*global settings*/
 import DocumentTitleMixin from "@/helpers/DocumentTitleMixin";
 import LanguageChangeMixin from "@/helpers/LanguageChangeMixin";
 import EmitTourCallbackMixin from "@/helpers/EmitTourCallbackMixin";
@@ -37,13 +36,10 @@ export default {
 		return {};
 	},
 	created() {
-		this.$store.commit("setNamespace", `${settings.tableName}`);
+		this.$store.commit("setNamespace", `${this.$store.getters.getAppSettings.tableName}`);
 	},
 };
 </script>
 
 <style lang="scss" scoped>
-.mdgridviewpage-bg {
-	// padding: 0px 0 20px !important;
-}
 </style>

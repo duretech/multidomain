@@ -10,7 +10,7 @@
                         <div class="col-lg-4 col-md-4 text-center">
                             <b-dropdown toggle-class="text-decoration-none bg-transparent border-0 dropdown-toggle" no-caret menu-class="chart-dd-menu no-hover">
                                 <template v-slot:button-content>
-                                    <img :src="require('../../../assets/img/icons/narration.png')" class="img" />
+                                    <img :src="require('../../../assets/images/icons/narration.png')" class="img" />
                                 </template>
                                 <b-dropdown-item class="list-group-item bg-transparent px-0">
                                     <div class="card bg-dark-grey">
@@ -50,7 +50,7 @@
                         <div class="col-lg-4 col-md-4 text-center">
                             <b-dropdown toggle-class="text-decoration-none bg-transparent border-0 dropdown-toggle" no-caret menu-class="chart-dd-menu">
                                 <template v-slot:button-content>
-                                    <img :src="require('../../../assets/img/icons/sort.png')" class="img" />
+                                    <img :src="require('../../../assets/images/icons/sort.png')" class="img" />
                                 </template>
                                 <b-dropdown-group class="chart-dd-options">
                                     <b-dropdown-item v-for="option in dataOptions" 
@@ -75,7 +75,7 @@
                         <div class="col-lg-4 col-md-4 text-center">
                             <b-dropdown toggle-class="text-decoration-none bg-transparent border-0 dropdown-toggle" no-caret menu-class="chart-dd-menu">
                                 <template v-slot:button-content>
-                                    <img :src="require('../../../assets/img/icons/export.png')" class="img" />
+                                    <img :src="require('../../../assets/images/icons/export.png')" class="img" />
                                 </template>
                                 <b-dropdown-group class="chart-dd-options">
                                     <b-dropdown-item class="list-group-item bg-transparent px-0" @click="exportChart('png')">
@@ -133,10 +133,11 @@
 <script>
     import Highcharts from 'highcharts';
     import exportingInit from "highcharts/modules/exporting";
-
+    import DynamicImageMixin from "@/helpers/DynamicImageMixin";
     exportingInit(Highcharts);
     export default{
-        props:['chartdata'],
+    props: ['chartdata'],
+        mixins: [DynamicImageMixin],
          components: {
         },
         mounted(){

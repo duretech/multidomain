@@ -1,4 +1,3 @@
-/*global settings*/
 /*eslint no-undef: "error"*/
 import Vue from "vue";
 import VueI18n from "vue-i18n";
@@ -9,58 +8,77 @@ import merge from "lodash/merge";
 Vue.use(VueI18n);
 
 const i18n = new VueI18n({
-	locale: settings.defaultLocale, // by default set the locale from the 'index.html' file
-	fallbackLocale: settings.defaultLocale, // fallback locale
-	silentTranslationWarn: process.env.NODE_ENV === "production" ? true : false, // disable the warnings
+  locale: store.state.localLang || "en", // by default set the locale
+  fallbackLocale: store.state.localLang || "en", // fallback locale
+  silentTranslationWarn: process.env.NODE_ENV === "production" ? true : false, // disable the warnings
 });
 export default i18n;
 
 let loadedLanguages = []; //To hold which languages are loaded
 
 export function initI18n() {
-	//Get the default language from Datastore on first load, even before mounting the Vue main instance.
-	return loadLanguage(settings.defaultLocale).then(() => i18n);
+  //Get the default language from Datastore on first load, even before mounting the Vue main instance.
+  return loadLanguage(store.state.localLang).then(() => i18n);
 }
 
+/**
+ * @author Ravindra Bagul
+ * @description set the application language.
+ * @param lang - language
+ * @returns the set language
+ */
 function setI18nLanguage(lang) {
-	i18n.locale = lang; //Set the i18n locale
-	moment.locale(lang); //Set the moment locale
-	document.querySelector('html').setAttribute('lang', lang)
-	return lang;
+  i18n.locale = lang; //Set the i18n locale
+  moment.locale(lang); //Set the moment locale
+  document.querySelector("html").setAttribute("lang", lang);
+  return lang;
 }
 
-export function loadLanguage(lang) {
-	// If the language was already loaded
-	store.state.loading = true;
-	if (loadedLanguages.includes(lang)) {
-		store.state.loading = false;
-		return Promise.resolve(setI18nLanguage(lang));
-	}
-	// If the language hasn't been loaded yet
-	// Fetch the translations from the static file
-	return import(
-		/* webpackChunkName: "lang-[request]" */ `@/locale/${lang}.js`
-	).then(async (res) => {
-		// Check if translation file is present in the Datastore
-		return await service
-			.getSavedConfig(`translations_${lang}`)
-			.then((data) => {
-				// If translation file is present in Datastore, then merge the file with the static file
-				let mergedTranslations = merge(res.default, data.data);
-				i18n.setLocaleMessage(lang, mergedTranslations);
-				loadedLanguages.push(lang);
-				store.state.loading = false;
-				return setI18nLanguage(lang);
-			})
-			.catch(() => {
-				console.log(
-					"Translations not found in Datastore, loading from static file..."
-				);
-				// If the language translation is not present in the Datastore, set the translations from local static file
-				i18n.setLocaleMessage(lang, res.default);
-				loadedLanguages.push(lang);
-				store.state.loading = false;
-				return setI18nLanguage(lang);
-			});
-	});
+/**
+ * @author Ravindra Bagul
+ * @description Fetch translations.json datastore file 
+ * and merge with translations.js file store at `@/locale/translations.js` path.
+ * @param lang - language
+ * @returns the set language
+ */
+export function loadLanguage(lang = "en") {
+  // If the language was already loaded
+  store.state.loading = true;
+  if (lang && loadedLanguages.includes(lang)) {
+    store.state.loading = false;
+    return Promise.resolve(setI18nLanguage(lang));
+  }
+  // If the language hasn't been loaded yet
+  // Fetch the translations from the static file
+  return import(
+    /* webpackChunkName: "lang-translations" */ `@/locale/translations.js`
+  ).then(async (res) => {
+    // Check if translation file is present in the Datastore
+    return await service
+      .getSavedConfig(`translations`)
+      .then((data) => {
+        // If translation file is present in Datastore, then merge the file with the static file
+        let mergedTranslations = merge(res.default, data.data);
+        Object.keys(mergedTranslations).forEach((l) => {
+          i18n.setLocaleMessage(l, mergedTranslations[l]);
+          loadedLanguages.push(l);
+        });
+        store.state.loading = false;
+        return setI18nLanguage(lang);
+      })
+      .catch(() => {
+        console.log(
+          "Translations not found in Datastore, loading from static file..."
+        );
+        // If the language translation is not present in the Datastore, set the translations from local static file
+        //   i18n.setLocaleMessage(lang, res.default);
+        Object.keys(res.default).forEach((l) => {
+          i18n.setLocaleMessage(l, res.default[l]);
+          loadedLanguages.push(l);
+        });
+        // loadedLanguages.push(lang);
+        store.state.loading = false;
+        return setI18nLanguage(lang);
+      });
+  });
 }

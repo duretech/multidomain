@@ -4,7 +4,7 @@
     <div class="row mx-0">
       <div class="row col-lg-12 px-0">
         <div class="col-lg-8">
-          <ul class="nav nav-pills mb-3" role="tablist">
+          <ul class="nav nav-pills mb-3 mx-3" role="tablist">
             <li class="nav-item fs-19-1920" @click="changeFilter('input')">
               <a
                 class="nav-link active analytical-tab-links fs-19-1920"
@@ -45,15 +45,15 @@
             @click.prevent.stop="showSteps"
           >
             <img
-              :src="require('@/assets/img/stepsd.png')"
-              style="width: 20px; height: 20px"
+              :src="require('@/assets/images/icons/stepsd.svg')"
+              :style="{ filter: filterColor }"
             />
           </a>
         </div>
         <div class="saveEMUBtn">
           <a
             v-if="contName == autoSaveSource && activetab == 'total'"
-            class="btn black-btn pointer-events-none color-white mt-4 float-left mb-5"
+            class="btn blue-btn pointer-events-none color-white mt-4 float-left mb-5"
             @click="saveFinalEMU"
           >
             {{ $t("save-EMU") }}
@@ -67,19 +67,26 @@
             :aria-labelledby="'input_tab_link_' + tabName"
           >
             <TabSummary
-              v-if="tabCategoryInfo && tabCategoryInfo[0]"
-              :content="tabCategoryInfo[0]"
+              v-if="
+                tabCategoryInfo &&
+                tabCategoryInfo[0] &&
+                tabCategoryInfo[0][$i18n.locale] != null &&
+                tabCategoryInfo[0][$i18n.locale] != ''
+              "
+              :content="tabCategoryInfo[0][$i18n.locale]"
               :contKey="'input' + contName"
             />
 
-            <div class="row dashboardchart-container">
+            <div class="row dashboardchart-container emu-dqr">
               <div
                 v-bind:class="getClass()"
                 v-if="
-                  newUsersChartData &&
-                  backgroundData &&
-                  newUsersChartData.disable == false
+                  (newUsersChartData &&
+                    backgroundData &&
+                    newUsersChartData.disable == false) ||
+                  (emuSaveType == 'Indicator_Calculator' && newUsersChartData)
                 "
+                class="border-right"
               >
                 <card-component
                   :signOffActive="signOffActive"
@@ -96,7 +103,13 @@
               </div>
               <div
                 v-bind:class="getClass()"
-                v-if="chartData && backgroundData && chartData.disable == false"
+                v-if="
+                  (chartData &&
+                    backgroundData &&
+                    chartData.disable == false &&
+                    emuSaveType == 'Custom') ||
+                  (emuSaveType == 'Indicator_Calculator' && chartData)
+                "
               >
                 <card-component
                   :chartdata="chartData"
@@ -113,7 +126,7 @@
             <div class="col-xl-12 mt-4">
               <div class="row dashboardchart-container">
                 <div class="col-lg-12 col-xl-12 m-b-40px pl-0 pr-0">
-                  <div class="card">
+                  <div class="">
                     <div class="card-header p-10px text-decoration-none">
                       <div class="row no-gutters">
                         <div class="col-lg-6 col-md-7 p-t-4px">
@@ -127,16 +140,28 @@
                                   'chartInfo'
                                 ],
                               title:
-                                data['derivedCharts'][2]['chartOptions'][
+                                typeof data['derivedCharts'][2]['chartOptions'][
                                   'chartName'
-                                ],
+                                ] == 'object'
+                                  ? data['derivedCharts'][2]['chartOptions'][
+                                      'chartName'
+                                    ][$i18n.locale]
+                                  : data['derivedCharts'][2]['chartOptions'][
+                                      'chartName'
+                                    ],
                               html: true,
                             }"
                           ></i>
                           {{
-                            data["derivedCharts"][2]["chartOptions"][
+                            typeof data["derivedCharts"][2]["chartOptions"][
                               "chartName"
-                            ]
+                            ] == "object"
+                              ? data["derivedCharts"][2]["chartOptions"][
+                                  "chartName"
+                                ][$i18n.locale]
+                              : data["derivedCharts"][2]["chartOptions"][
+                                  "chartName"
+                                ]
                           }}
                         </div>
                         <div class="col-lg-6 col-md-5 text-right">
@@ -148,8 +173,9 @@
                                 style="display: inline-block; margin-left: 10px"
                                 ><img
                                   :src="
-                                    require('@/assets/img/icons/download_new.png')
+                                    require('@/assets/images/icons/downloadActive.svg')
                                   "
+                                  :style="{ filter: filterColor }"
                                   class="img cursor-pointer"
                                   v-b-tooltip.hover
                                   :title="$t('downloadIcon')"
@@ -187,18 +213,28 @@
             :aria-labelledby="'output_tab_link_' + tabName"
           >
             <TabSummary
-              v-if="tabCategoryInfo && tabCategoryInfo[1]"
-              :content="tabCategoryInfo[1]"
+              v-if="
+                tabCategoryInfo &&
+                tabCategoryInfo[1] &&
+                tabCategoryInfo[1][$i18n.locale] != '' &&
+                tabCategoryInfo[1][$i18n.locale] != null
+              "
+              :content="tabCategoryInfo[1][$i18n.locale]"
               :contKey="'total0' + contName"
             />
-            <div class="row dashboardchart-container">
+            <div class="row dashboardchart-container emu-dqr1">
+              <!--   ||
+                  emuSaveType != 'Custom' -->
+
               <div
                 v-bind:class="getClass()"
                 v-if="
-                  totalEMUChartData &&
-                  backgroundData &&
-                  totalEMUChartData.disable == false
+                  (totalEMUChartData &&
+                    backgroundData &&
+                    totalEMUChartData.disable == false) ||
+                  (emuSaveType == 'Indicator_Calculator' && totalEMUChartData)
                 "
+                class="border-right"
               >
                 <card-component
                   :chartdata="totalEMUChartData"
@@ -212,9 +248,10 @@
               <div
                 v-bind:class="getClass()"
                 v-if="
-                  trendsChartData &&
-                  backgroundData &&
-                  trendsChartData.disable == false
+                  (trendsChartData &&
+                    backgroundData &&
+                    trendsChartData.disable == false) ||
+                  (emuSaveType == 'Indicator_Calculator' && trendsChartData)
                 "
               >
                 <card-component
@@ -232,14 +269,17 @@
               </div>
             </div>
 
-            <div class="row dashboardchart-container m-t-20px">
+            <div class="row dashboardchart-container m-t-20px emu-dqr1">
               <div
                 v-bind:class="getClass()"
                 v-if="
-                  methodTrendsChartData &&
-                  backgroundData &&
-                  methodTrendsChartData.disable == false
+                  (methodTrendsChartData &&
+                    backgroundData &&
+                    methodTrendsChartData.disable == false) ||
+                  (emuSaveType == 'Indicator_Calculator' &&
+                    methodTrendsChartData)
                 "
+                class="border-right"
               >
                 <card-component
                   :chartdata="methodTrendsChartData"
@@ -256,9 +296,11 @@
               <div
                 v-bind:class="getClass()"
                 v-if="
-                  oneMonthEMUChartData &&
-                  backgroundData &&
-                  oneMonthEMUChartData.disable == false
+                  (oneMonthEMUChartData &&
+                    backgroundData &&
+                    oneMonthEMUChartData.disable == false) ||
+                  (emuSaveType == 'Indicator_Calculator' &&
+                    oneMonthEMUChartData)
                 "
               >
                 <card-component
@@ -311,7 +353,7 @@
           responsive
           class="methodsTable"
         />
-        <strong>{{ $t("totUsers") }}</strong>
+        <strong>{{ $t("Total Users") }}</strong>
         <b-table
           hover
           v-if="finalCalculatedTable && finalCalculatedTable.totalUsers"
@@ -331,8 +373,12 @@ import service from "@/service";
 import dataM from "./dataMassaging.js";
 import cardComponent from "./cardComponent";
 import { decompress } from "compress-json";
+import DynamicImageMixin from "@/helpers/DynamicImageMixin";
 export default {
   props: [
+    "dhsColor",
+    "totalEMUColor",
+    "emuSaveType",
     "data",
     "bAllWomen",
     "tabName",
@@ -354,6 +400,7 @@ export default {
     "globalResponse",
     "caltype",
   ],
+  mixins: [DynamicImageMixin],
   components: {
     cardComponent,
     TabSummary: () =>
@@ -362,12 +409,20 @@ export default {
       ),
   },
   created() {
-    this.getBackgroundData();
-    //  this.getGlobalConfig()
     this.loggedInUserId = this.userDetails.id;
     this.canComment =
       this.$store.getters.getIsAdmin ||
       this.$store.getters.getUserPermissions.canComment;
+    let customCal = this.emuSaveType == "Custom";
+    if (customCal) {
+      this.getBackgroundData();
+
+      // this.calculateFirstChartData(oMonthPopulation);
+      // this.calculateTotalEMU();
+    } else {
+      this.getChartsFromDataStore();
+    }
+    //  this.getGlobalConfig()
   },
   methods: {
     showSteps() {
@@ -508,7 +563,11 @@ export default {
         locationID = this.userDetails.dataViewOrganisationUnits[0].id;
       }
       this.appResponse.defaultLocationID = [locationID];
-      let oRet = dataM.getFormatedData(this.data, this.appResponse);
+      let oRet = dataM.getFormatedData(
+        this.data,
+        this.appResponse,
+        this.startYear
+      );
       this.methodSeq = oRet.methodSeq;
       this.mainmethodSeq = oRet.mainmethodSeq;
       this.globalConfig = oRet.data;
@@ -520,7 +579,6 @@ export default {
     },
 
     async getBackgroundData() {
-      console.log(this.contName);
       this.indDataSeq = [];
       this.autoSaveSource =
         this.dqrResponse.emu_monthly.Background_Data["autoSaveEMU"];
@@ -535,7 +593,7 @@ export default {
       let indData = this.dqrResponse.emu_monthly[this.contName]["chartData"];
       indData.forEach((ind) => {
         let paretnInd = Array.isArray(ind["indicator"]["static_name"])
-          ? ind["indicator"]["static_name"][0]
+          ? ind["indicator"]["static_name"][this.$i18n.locale]
           : ind["indicator"]["static_name"];
         let obj = {};
         obj["parent"] = paretnInd;
@@ -543,7 +601,7 @@ export default {
         obj["dataDiffer"] = false;
         ind["indicator"]["subIndicator"].forEach((subind) => {
           let subIndName = Array.isArray(subind["static_name"])
-            ? subind["static_name"][0]
+            ? subind["static_name"][this.$i18n.locale]
             : subind["static_name"];
           obj["subInd"].push(subIndName);
         });
@@ -572,18 +630,6 @@ export default {
           : "MWRA";
         popType = popType.toLowerCase();
         let key = `prevalence_${levelid}`;
-        if (!settings.country) {
-          let appId = this.$store.state.appId ? this.$store.state.appId : "",
-            appUserId = this.$store.state.appUserId
-              ? this.$store.state.appUserId
-              : "";
-          if (appId && appUserId) {
-            key = `prevalence_${levelid}`;
-          } else {
-            this.showLocalStorageError();
-            return;
-          }
-        }
         await service
           .getSavedConfig(key)
           .then(async (backResp) => {
@@ -594,11 +640,17 @@ export default {
                     rows: decompress(JSON.parse(backResp.data.rows)),
                   }
                 : backResp.data;
-            backData.forEach((key) => {
+            backData.forEach((obj) => {
               nNumber++;
 
-              key["subIndicators"].forEach((de) => {
-                let sKey = de.static_name;
+              obj["subIndicators"].forEach((de) => {
+                // console.log(de, "selectedDatastoreDE");
+                let sKey =
+                  typeof de.static_name == "object"
+                    ? de.static_name[this.$i18n.locale]
+                      ? de.static_name[this.$i18n.locale]
+                      : de.static_name[0]
+                    : de.static_name;
 
                 if (!oData[sKey]) {
                   oData[sKey] = {};
@@ -609,7 +661,13 @@ export default {
                 Object.keys(de["selectedDatastoreDE"]).forEach((sde) => {
                   ids.push(de["selectedDatastoreDE"][sde]["id"]);
                   dName[de["selectedDatastoreDE"][sde]["id"]] =
-                    de["selectedDatastoreDE"][sde]["static_displayName"];
+                    typeof de["selectedDatastoreDE"][sde][
+                      "static_displayName"
+                    ] == "object"
+                      ? de["selectedDatastoreDE"][sde]["static_displayName"][
+                          this.$i18n.locale
+                        ]
+                      : de["selectedDatastoreDE"][sde]["static_displayName"];
                 });
                 if (ids.length) {
                   Object.keys(dName).forEach((name) => {
@@ -624,7 +682,10 @@ export default {
                         if (year >= firstYear) {
                           firstYear = year;
                           oData[sKey][statName] = {
-                            name: key.static_name,
+                            // name:
+                            //   typeof key.static_name == "object"
+                            //     ? key.static_name[this.$i18n.locale]
+                            //     : key.static_name,
                             vals: {},
                           };
                           oData[sKey][statName]["vals"][obj[1]] =
@@ -649,7 +710,10 @@ export default {
           nNumber++;
 
           key["subIndicators"].forEach(async (de) => {
-            let sKey = de.static_name;
+            let sKey =
+              typeof de.static_name == "object"
+                ? de.static_name[this.$i18n.locale]
+                : de.static_name;
 
             if (!oData[sKey]) {
               oData[sKey] = {};
@@ -661,7 +725,7 @@ export default {
               ids.push(de["selectedDE"][sde]["id"]);
               dName.push({
                 [de["selectedDE"][sde]["id"]]:
-                  de["selectedDE"][sde]["updatedName"],
+                  de["selectedDE"][sde]["static_displayName"],
               });
             });
             let sdes = ids.join(";");
@@ -678,7 +742,7 @@ export default {
                       if (oRow) {
                         let sRowName = oRow;
                         oData[sKey][sRowName] = oData[sKey][sRowName] || {
-                          name: key.static_name,
+                          // name: key.static_name,
                           vals: {},
                         };
                         oData[sKey][sRowName]["vals"][row[1]] =
@@ -738,7 +802,11 @@ export default {
           nLen = aDe.length;
         let alertSt = "";
         for (j in aDe) {
-          this.scaling[aDe[j].trans_name] = aDe[j].scaling;
+          let transName =
+            typeof aDe[j].trans_name == "object"
+              ? aDe[j].trans_name[this.$i18n.locale]
+              : aDe[j].trans_name;
+          // this.scaling[transName] = aDe[j].scaling;
           let sdes = aDe[j].de.join(";"),
             nI = i,
             nJ = j;
@@ -748,7 +816,11 @@ export default {
           await service
             .getAnalyticalIndicatorData(sdes, sLocId, sYear)
             .then((response) => {
-              if (response.data && response.data.rows.length) {
+              if (
+                response != undefined &&
+                response.data &&
+                response.data.rows.length
+              ) {
                 if (!aChart[nI].charts) {
                   aChart[nI].charts = {};
                 }
@@ -784,8 +856,8 @@ export default {
 
       if (showAlert == true) {
         this.bshowLoader = false;
-        this.$swal({
-          html: "No data found for " + mainAlertSt,
+        this.sweetAlert({
+          html: this.$i18n.t("noData") + " - " + mainAlertSt,
         });
       }
     },
@@ -912,9 +984,8 @@ export default {
       contSum = dataM.getSumOfCont(continuation[this.contName]);
 
       console.log("Sum of continuation ", contSum);
-      console.log("this.scaling data", this.scaling);
-      let historicUsers = {},
-        scaling = 1;
+      // console.log("this.scaling data", this.scaling);
+      let historicUsers = {};
       Object.keys(oNewUsers).forEach((method, i) => {
         historicUsers[method] = {
           vals: {},
@@ -930,14 +1001,22 @@ export default {
 
         if (keys.length > 0) {
           Object.keys(oNewUsers[method]["vals"]).forEach((yearVal, i) => {
-            historicUsers[method]["contSum"][yearVal] =
-              contSum[method][i].toFixed(2) * 1;
+            historicUsers[method]["contSum"][yearVal] = contSum[method][i]
+              ? contSum[method][i].toFixed(2) * 1
+              : 0;
+            // historicUsers[method]["vals"][yearVal] =
+            //   (
+            //     oNewUsers[method]["vals"][keys[0]] *
+            //     (contSum[method][i] ? contSum[method][i].toFixed(2) * 1 : 0) *
+            //     (this.scaling[oNewUsers[method].trans_name]
+            //       ? this.scaling[oNewUsers[method].trans_name]
+            //       : 1)
+            //   ).toFixed(0) * 1;
+            //removing scaling factor as its not needed
             historicUsers[method]["vals"][yearVal] =
               (
                 oNewUsers[method]["vals"][keys[0]] *
-                contSum[method][i].toFixed(2) *
-                1 *
-                this.scaling[oNewUsers[method].trans_name]
+                (contSum[method][i] ? contSum[method][i].toFixed(2) * 1 : 0)
               ).toFixed(0) * 1;
           });
         }
@@ -994,7 +1073,6 @@ export default {
         });
       });
       this.totalUsers = oTemp;
-      console.log("Total users calculated are ", oTemp);
     },
     getCalculationSteps() {
       //console.log("getCalculationSteps",this.calculatedUsers,this.inputNewUsers,this.historicUsers,this.totalUsers);
@@ -1063,27 +1141,19 @@ export default {
       this.finalEmu = [];
       let tempObj = {
         data: [],
-        title: this.data["derivedCharts"][0]["chartOptions"]["chartName"],
-        source: this.source,
-        xTitle: this.data["derivedCharts"][0]["chartOptions"]["xAxis"]["text"],
-        yTitle: this.data["derivedCharts"][0]["chartOptions"]["yAxis"]["text"],
-        disable: this.data["derivedCharts"][0]["chartOptions"]["disableChart"],
-        type: "line",
         max: 11,
         categories: [],
         tableData: [],
         saveData: [],
         saveCategories: [],
         filter: [],
-        chartInfo: this.data["derivedCharts"][0]["chartOptions"]["chartInfo"],
-        cid: this.data["derivedCharts"][0]["chartOptions"]["cid"],
       };
+      tempObj = this.getOtherChartsDetails(tempObj, 0, "line");
       let series = [],
         categories = [],
         trendSeries = [],
         aTable = [],
         oEMUValues = {};
-      // oCYPValues = {};
       Object.keys(this.totalUsers).forEach((method) => {
         let oMethodTable = {
           name: "",
@@ -1123,15 +1193,6 @@ export default {
                 100
               ).toFixed(2) * 1;
 
-            // oCYPValues[this.totalUsers[method]["trans_name"]] =
-            //   oCYPValues[this.totalUsers[method]["trans_name"]] || {};
-            // oCYPValues[this.totalUsers[method]["trans_name"]][val] =
-            //   (
-            //     (this.totalCyp[method][val] /
-            //       (this.monthlyPopulation[val] / 12)) *
-            //     100
-            //   ).toFixed(2) * 1;
-
             if (this.backgroundData != null) {
               Object.keys(this.backgroundData[method]).forEach((back) => {
                 this.backgroundData[method][back]["vals"][val] =
@@ -1160,7 +1221,6 @@ export default {
           this.finalEmu.push(finalEMU);
         }
       });
-      // this.cypPopVal = oCYPValues;
 
       let methodCategories = [],
         pubSeries = [],
@@ -1209,21 +1269,18 @@ export default {
               name: oEMUValues[ele]["trans_name"] + " " + this.$i18n.t("EMU"),
               data: [],
               mName: oEMUValues[ele]["mTransname"],
-              color: oEMUValues[ele]["color"],
+              color: oEMUValues[ele]["color"]
+                ? oEMUValues[ele]["color"]
+                : this.totalEMUColor,
               trans_name: oEMUValues[ele]["trans_name"],
             },
-            // methodCYPObject = {
-            //   name:
-            //     oEMUValues[ele]["trans_name"] + " " + this.$i18n.t("cyp_pop"),
-            //   data: [],
-            //   mName: oEMUValues[ele]["mTransname"],
-            //   trans_name: oEMUValues[ele]["trans_name"],
-            // },
             saveMethodEMUObject = {
               name: ele + " " + this.$i18n.t("EMU"),
               data: [],
               mName: oEMUValues[ele]["mTransname"],
-              color: oEMUValues[ele]["color"],
+              color: oEMUValues[ele]["color"]
+                ? oEMUValues[ele]["color"]
+                : this.totalEMUColor,
               trans_name: oEMUValues[ele]["trans_name"],
             };
           if (
@@ -1241,21 +1298,18 @@ export default {
               );
 
               methodEMUObject.data = [];
-              // methodCYPObject.data = [];
               saveMethodEMUObject.data = [];
+              //DHS Series in emu by method chart
               let methodPublicObject = {
                 name: "",
                 data: [],
                 mName: oEMUValues[ele]["mTransname"],
                 trans_name: oEMUValues[ele]["trans_name"],
-                color: "#212529",
+                color: this.dhsColor, //DHS Color
               };
 
               categories.forEach((key) => {
                 methodEMUObject.data.push(oEMUValues[ele]["vals"][key] || 0);
-                // methodCYPObject.data.push(
-                //   oCYPValues[oEMUValues[ele]["trans_name"]][key] || 0
-                // );
                 methodPublicObject["name"] =
                   back + " " + oEMUValues[ele]["trans_name"];
                 methodPublicObject.data.push(peevVal);
@@ -1293,9 +1347,6 @@ export default {
           } else {
             categories.forEach((key) => {
               methodEMUObject.data.push(oEMUValues[ele]["vals"][key] || 0);
-              // methodCYPObject.data.push(
-              //   oCYPValues[oEMUValues[ele]["trans_name"]][key] || 0
-              // );
               if (
                 methodCategories.indexOf(
                   this.$moment(key, "YYYYMM").format("MMM YYYY")
@@ -1306,7 +1357,6 @@ export default {
                 );
               }
             });
-            // console.log(saveCategories, oEMUValues);
             saveCategories.forEach((key) => {
               saveMethodEMUObject.data.push(oEMUValues[ele]["vals"][key] || 0);
               if (
@@ -1391,7 +1441,6 @@ export default {
           newSaveSeries.push(saveVal[0]);
         }
       });
-      //console.log("newSaveSeries", JSON.parse(JSON.stringify(newSaveSeries)));
       this.emuTrendByMethod(
         newSeries,
         methodCategories,
@@ -1415,149 +1464,65 @@ export default {
       };
       this.setData(oEMUData);
       this.chartData = tempObj;
-      console.log("calculate firstchartdata", this.chartData);
       this.newUsersChart(methodCategories);
       let reversedCat = saveMethodCategories.reverse();
       this.methodTable(saveSeries, reversedCat);
-      //this.methodTable(saveSeries, saveMethodCategories)
     },
-    // calculateNewContUsers() {
-    //   let nUsers = {};
-    //   this.newUsers.forEach((method, i) => {
-    //     nUsers[this.newUsers[i]["name"]] = {};
-    //     var sum = 0;
-    //     Object.keys(this.newUsers[i]["charts"]).forEach((val) => {
-    //       sum = 0;
-    //       Object.keys(this.newUsers[i]["charts"][val]).forEach((m) => {
-    //         sum = sum + this.newUsers[i]["charts"][val][m];
-    //       });
-    //       nUsers[this.newUsers[i]["name"]][val] = sum;
-    //     });
-    //   });
-
-    //   let contUsers = {},
-    //     ratio = {};
-    //   Object.keys(nUsers).forEach((method) => {
-    //     contUsers[method] = {};
-    //     ratio[method] = {};
-    //     if (this.totalUsers[method] != undefined) {
-    //       Object.keys(this.totalUsers[method]).forEach((val) => {
-    //         contUsers[method][val] =
-    //           this.totalUsers[method][val] - nUsers[method][val];
-    //         ratio[method][val] =
-    //           (nUsers[method][val] / contUsers[method][val]) * 100;
-    //       });
-    //     }
-    //   });
-
-    //   let tempObj = {
-    //     data: [],
-    //     title: "New vs Continuing Users",
-    //     source: this.source,
-    //     xTitle: "",
-    //     yTitle: "",
-    //     type: "stacked",
-    //     max: 11,
-    //     categories: [],
-    //     tableData: [],
-    //   };
-    //   let series = [],
-    //     categories = [],
-    //     aTable = [],
-    //     oContValues = {},
-    //     oNewValues = {},
-    //     oRatioValues = {};
-    //   Object.keys(contUsers).forEach((method) => {
-    //     let oMethodTable = {
-    //       name: "",
-    //       data: [],
-    //     };
-    //     if (Object.keys(contUsers[method]).length > 0) {
-    //       Object.keys(contUsers[method]).forEach((val) => {
-    //         let oTable = {};
-    //         if (categories.indexOf(val) == -1) {
-    //           categories.push(val);
-    //         }
-    //         oTable[this.$i18n.t("period")] = this.$moment(val, "YYYYMM").format(
-    //           "MMM YYYY"
-    //         );
-
-    //         oContValues[method] = oContValues[method] || {};
-    //         oContValues[method][val] = contUsers[method][val].toFixed(2) * 1;
-
-    //         oNewValues[method] = oNewValues[method] || {};
-    //         oNewValues[method][val] = nUsers[method][val].toFixed(2) * 1;
-
-    //         oRatioValues[method] = oRatioValues[method] || {};
-    //         oRatioValues[method][val] = ratio[method][val].toFixed(2) * 1;
-
-    //         oTable["Continuing Users"] = contUsers[method][val].toFixed(2) * 1;
-    //         oTable["New Users"] = nUsers[method][val].toFixed(2) * 1;
-    //         oTable["Ratio"] = ratio[method][val].toFixed(2) * 1;
-
-    //         oMethodTable["name"] = method;
-    //         oMethodTable["data"].push(oTable);
-    //       });
-    //       categories.sort();
-    //       aTable.push(oMethodTable);
-    //       tempObj.tableData = aTable;
-    //     }
-    //   });
-
-    //   let methodCategories = [];
-    //   Object.keys(oContValues).forEach((ele) => {
-    //     let methodContObject = {
-    //         name: ele + " Continuing Users",
-    //         data: [],
-    //       },
-    //       methodNewObject = {
-    //         name: ele + " New Users",
-    //         data: [],
-    //       },
-    //       methodRatioObject = {
-    //         name: ele + " Ratio",
-    //         data: [],
-    //         type: "line",
-    //       };
-
-    //     categories.forEach((key) => {
-    //       methodContObject.data.push(oContValues[ele][key] || 0);
-    //       methodNewObject.data.push(oNewValues[ele][key] || 0);
-    //       methodRatioObject.data.push(oRatioValues[ele][key] || 0);
-    //       methodCategories.push(this.$moment(key, "YYYYMM").format("MMM YYYY"));
-    //     });
-    //     series.push(methodContObject);
-    //     series.push(methodNewObject);
-    //     series.push(methodRatioObject);
-    //   });
-    //   tempObj.data = series;
-    //   tempObj.categories = methodCategories;
-    //   this.newContChart = tempObj;
-    // },
+    getOtherChartsDetails(chartObj, index, chartType = "line") {
+      // chartObj = {
+      chartObj["data"] = [];
+      chartObj["title"] =
+        typeof this.data["derivedCharts"][index]["chartOptions"]["chartName"] ==
+        "object"
+          ? this.data["derivedCharts"][index]["chartOptions"]["chartName"][
+              this.$i18n.locale
+            ]
+          : this.data["derivedCharts"][index]["chartOptions"]["chartName"];
+      chartObj["source"] = this.source;
+      chartObj["xTitle"] =
+        typeof this.data["derivedCharts"][index]["chartOptions"]["xAxis"][
+          "text"
+        ] == "object"
+          ? this.data["derivedCharts"][index]["chartOptions"]["xAxis"]["text"][
+              this.$i18n.locale
+            ]
+          : this.data["derivedCharts"][index]["chartOptions"]["xAxis"]["text"];
+      chartObj["yTitle"] =
+        typeof this.data["derivedCharts"][index]["chartOptions"]["yAxis"][
+          "text"
+        ] == "object"
+          ? this.data["derivedCharts"][index]["chartOptions"]["yAxis"]["text"][
+              this.$i18n.locale
+            ]
+          : this.data["derivedCharts"][index]["chartOptions"]["yAxis"]["text"];
+      chartObj["disable"] =
+        this.data["derivedCharts"][index]["chartOptions"]["disableChart"];
+      chartObj["type"] = chartType;
+      chartObj["chartInfo"] =
+        typeof this.data["derivedCharts"][index]["chartOptions"]["chartInfo"] ==
+        "object"
+          ? this.data["derivedCharts"][index]["chartOptions"]["chartInfo"][
+              this.$i18n.locale
+            ]
+          : this.data["derivedCharts"][index]["chartOptions"]["chartInfo"];
+      chartObj["cid"] =
+        this.data["derivedCharts"][index]["chartOptions"]["cid"];
+      // };
+      return chartObj;
+    },
     newUsersChart(cats) {
       let tempObj = {
           data: [],
-          title: this.data["derivedCharts"][1]["chartOptions"]["chartName"],
-          source: this.source,
-          xTitle:
-            this.data["derivedCharts"][1]["chartOptions"]["xAxis"]["text"],
-          yTitle:
-            this.data["derivedCharts"][1]["chartOptions"]["yAxis"]["text"],
-          disable:
-            this.data["derivedCharts"][1]["chartOptions"]["disableChart"],
-          type: "column",
-          max: 11,
           categories: [],
           tableData: [],
           filter: [],
-          chartInfo: this.data["derivedCharts"][1]["chartOptions"]["chartInfo"],
-          cid: this.data["derivedCharts"][1]["chartOptions"]["cid"],
+          max: 11,
         },
         series = [],
         categories = [],
         tableData = [],
         fCategories = [];
-
+      tempObj = this.getOtherChartsDetails(tempObj, 1, "column");
       Object.keys(this.inputNewUsers).forEach((method) => {
         let oSeries = {
             name: this.inputNewUsers[method]["trans_name"],
@@ -1601,6 +1566,7 @@ export default {
         (tempObj.tableData = tableData);
       tempObj.filter = this.options;
       this.newUsersChartData = tempObj;
+      console.log(this.newUsersChartData, this.options);
     },
     methodTable(emu, cat) {
       let emuObj = {},
@@ -1611,20 +1577,20 @@ export default {
         emuObj[m.name] = m.data.reverse();
       });
 
-      cat.reverse();
+      // cat.reverse();
       cat.map((currentValue) => {
         let newVal = this.$moment(currentValue, "MMM YYYY").format("YYYYMM");
         catArr.push(newVal);
       });
-
       this.catArr = catArr;
       let oFilterData = {};
       Object.keys(this.totalUsers).forEach((key) => {
         let { name, vals } = this.totalUsers[key];
-        oFilterData[this.totalUsers[key]["trans_name"].trim()] = {
+        oFilterData[key.trim()] = {
           totalusers: vals,
           newusers: this.inputNewUsers[key]["vals"],
-          totalcyp: this.totalCyp[key],
+          trans_name: this.inputNewUsers[key]["trans_name"],
+          // totalcyp: this.totalCyp[key],
           totalEMU: emuObj[key],
         };
       });
@@ -1645,7 +1611,7 @@ export default {
       Object.keys(this.filterTableData).forEach((key) => {
         key = key.trim();
         this.selected = this.selected.trim();
-        if (this.selected == key) {
+        if (this.selected == this.filterTableData[key].trans_name) {
           this.catArr.forEach((val, i) => {
             let oTable = {},
               dataArr = [];
@@ -1660,11 +1626,11 @@ export default {
                   ).toLocaleString()
                 : 0;
               oTable[this.$i18n.t("Total Users")] = userVal;
-              oTable[this.$i18n.t("emu_value_per")] = isNaN(
-                this.filterTableData[key]["totalEMU"][i]
-              )
-                ? null
-                : this.filterTableData[key]["totalEMU"][i];
+              oTable[this.$i18n.t("emu_value_per")] =
+                !this.filterTableData[key]["totalEMU"] ||
+                isNaN(this.filterTableData[key]["totalEMU"][i])
+                  ? null
+                  : this.filterTableData[key]["totalEMU"][i];
               // let cypVal = this.cypPopVal[key]
               //   ? this.cypPopVal[key][val]
               //   : null;
@@ -1676,7 +1642,12 @@ export default {
               this.items.push(oTable);
               dataArr.push(this.$moment(val, "YYYYMM").format("MMM YYYY"));
               dataArr.push(userVal);
-              dataArr.push(this.filterTableData[key]["totalEMU"][i] || null);
+              dataArr.push(
+                !this.filterTableData[key]["totalEMU"] ||
+                  isNaN(this.filterTableData[key]["totalEMU"][i])
+                  ? null
+                  : this.filterTableData[key]["totalEMU"][i]
+              );
               // dataArr.push(cypVal == "NaN" ? null : cypVal);
               dataArr.push(
                 this.monthlyPopulation[val] ? this.monthlyPopulation[val] : "NA"
@@ -1748,6 +1719,100 @@ export default {
       this.calculateTotalEMU();
       this.getCalculationSteps();
     },
+    getChartsFromDataStore() {
+      console.log("getChartsFromDataStore this.contName", this.contName);
+      let key = this.generateKey(`monthlyCharts_${this.$i18n.locale}`);
+      service.getSavedConfig(key).then((resp) => {
+        if (resp && resp.data) {
+          let charts = resp.data;
+          let inputChartsData = charts[this.location.split("/")[1]]
+            ? charts[this.location.split("/")[1]][this.contName]
+              ? charts[this.location.split("/")[1]][this.contName][
+                  "outputCharts"
+                ]
+                ? charts[this.location.split("/")[1]][this.contName][
+                    "outputCharts"
+                  ]
+                : []
+              : []
+            : [];
+          inputChartsData =
+            typeof inputChartsData == "string"
+              ? decompress(JSON.parse(inputChartsData))
+              : inputChartsData;
+          //  if (Object.keys(inputChartsData).length) {
+          this.newUsersChartData = inputChartsData["inputChart"];
+          let options = this.newUsersChartData.filter
+            ? this.newUsersChartData.filter
+            : [];
+          if (options.length > 0) {
+            this.selected = options[0]["children"][0]["id"];
+            this.dHSIndDataSeq = options;
+            //removed settimeout as no use
+            //setTimeout(() => {
+            this.options = options;
+            this.$emit("methodFilter", {
+              name: this.contName,
+              value: options,
+            });
+            //}, 2000)
+          }
+          // console.log(charts["emuByMethod"], this.chartData, "secondchart");
+          this.chartData = inputChartsData["emuByMethod"];
+          this.selected = this.chartData.filter[0]["children"][0]["id"];
+          this.inputNewUsers = inputChartsData["inputNewUsers"];
+          this.totalUsers = inputChartsData["totalUsers"];
+          this.monthlyPopulation = inputChartsData["monthlyPopulation"];
+          console.log(
+            inputChartsData["emuByMethod"],
+            this.totalUsers,
+            inputChartsData,
+            "emuByMethod charts from dt",
+            this.contName
+          );
+          let reversedCat =
+            inputChartsData["emuByMethod"]["saveCategories"].reverse();
+          this.methodTable(
+            inputChartsData["emuByMethod"]["saveData"],
+            reversedCat
+          );
+          let outputChartsData = charts[this.location.split("/")[1]]
+            ? charts[this.location.split("/")[1]][this.contName]
+              ? charts[this.location.split("/")[1]][this.contName][
+                  "outputCharts"
+                ]
+                ? charts[this.location.split("/")[1]][this.contName][
+                    "outputCharts"
+                  ]
+                : []
+              : []
+            : [];
+          outputChartsData =
+            typeof outputChartsData == "string"
+              ? decompress(JSON.parse(outputChartsData))
+              : outputChartsData;
+
+          this.trendsChartData = outputChartsData["trendEmuByMethodChart"];
+          this.methodTrendsChartData =
+            outputChartsData["methodEmuByMethodChart"];
+          this.oneMonthEMUChartData = outputChartsData["oneMonthEMUChart"];
+          this.totalEMUChartData = outputChartsData["totalEMUChart"];
+          this.bshowLoader = false;
+
+          //   }
+          // let saveSeries = charts["emuByMethod"]["saveData"] || [];
+          // let saveCat = charts["emuByMethod"]["saveCategories"] || [];
+          // console.log("table from datastore", saveSeries, saveCat);
+
+          // this.methodTable(saveSeries, saveCat);
+        } else {
+          this.bshowLoader = false;
+          this.sweetAlert({
+            title: this.$i18n.t("icError"),
+          });
+        }
+      });
+    },
     emuTrendByMethod(
       series,
       categories,
@@ -1798,26 +1863,19 @@ export default {
           {
             data: [],
             name: this.$i18n.t("EMU") + " " + categories[catLen - 1],
+            color: this.totalEMUColor,
           },
         ],
         agreDhsSeries = {
           data: [],
-          name: this.$i18n.t("dhs"),
+          name: this.$i18n.t("DHS"),
+          color: this.dhsColor,
         },
         agreDHSExist = false;
       let tempObj = {
           data: [],
           agreData: [],
           methodData: [],
-          title: this.data["derivedCharts"][4]["chartOptions"]["chartName"],
-          source: this.source,
-          xTitle:
-            this.data["derivedCharts"][4]["chartOptions"]["xAxis"]["text"],
-          yTitle:
-            this.data["derivedCharts"][4]["chartOptions"]["yAxis"]["text"],
-          disable:
-            this.data["derivedCharts"][4]["chartOptions"]["disableChart"],
-          type: "stacked",
           max: 11,
           categories: [],
           tableData: [],
@@ -1826,22 +1884,11 @@ export default {
           saveData: saveSeries,
           saveCategories: saveCategories,
           saveAgreData: [],
-          chartInfo: this.data["derivedCharts"][4]["chartOptions"]["chartInfo"],
-          cid: this.data["derivedCharts"][4]["chartOptions"]["cid"],
         },
         oneMonthEMU = {
           data: [],
           agreData: [],
           methodData: [],
-          title: this.data["derivedCharts"][6]["chartOptions"]["chartName"],
-          source: this.source,
-          xTitle:
-            this.data["derivedCharts"][6]["chartOptions"]["xAxis"]["text"],
-          yTitle:
-            this.data["derivedCharts"][6]["chartOptions"]["yAxis"]["text"],
-          disable:
-            this.data["derivedCharts"][6]["chartOptions"]["disableChart"],
-          type: "column",
           max: 4,
           categories: [],
           methodCategories: [],
@@ -1851,10 +1898,9 @@ export default {
           methodTableData: [],
           saveData: saveSeries,
           saveCategories: saveCategories,
-          chartInfo: this.data["derivedCharts"][6]["chartOptions"]["chartInfo"],
-          cid: this.data["derivedCharts"][6]["chartOptions"]["cid"],
         };
-
+      tempObj = this.getOtherChartsDetails(tempObj, 4, "stacked");
+      oneMonthEMU = this.getOtherChartsDetails(oneMonthEMU, 6, "column");
       let emuColors = {};
       let oPeroid = {},
         agrePeriod = {},
@@ -1862,13 +1908,13 @@ export default {
           {
             data: [],
             name: this.$i18n.t("EMU") + " " + categories[catLen - 1],
-            color: "#71b5cd",
+            color: this.totalEMUColor,
           },
         ],
         dhsSeries = {
           data: [],
-          name: this.$i18n.t("dhs"),
-          color: "#212529",
+          name: this.$i18n.t("DHS"),
+          color: this.dhsColor,
         };
       let dhsExist = false;
       series.forEach((key, i) => {
@@ -2026,7 +2072,6 @@ export default {
         },
       ];
       this.trendsChartData = tempObj;
-      console.log("trendsChartData", JSON.parse(JSON.stringify(tempObj)));
       this.oneMonthEMUChartData = oneMonthEMU;
       this.saveTrendsChartData = {
         isPeriodChart: true,
@@ -2065,12 +2110,6 @@ export default {
         data: [],
         agreData: [],
         methodData: [],
-        title: this.data["derivedCharts"][5]["chartOptions"]["chartName"],
-        source: this.source,
-        xTitle: this.data["derivedCharts"][5]["chartOptions"]["xAxis"]["text"],
-        yTitle: this.data["derivedCharts"][5]["chartOptions"]["yAxis"]["text"],
-        disable: this.data["derivedCharts"][5]["chartOptions"]["disableChart"],
-        type: "line",
         max: 11,
         categories: [],
         tableData: [],
@@ -2079,9 +2118,8 @@ export default {
         saveData: saveSeries,
         saveCategories: saveMethodCategories,
         saveAgreData: [],
-        chartInfo: this.data["derivedCharts"][5]["chartOptions"]["chartInfo"],
-        cid: this.data["derivedCharts"][5]["chartOptions"]["cid"],
       };
+      tempObj = this.getOtherChartsDetails(tempObj, 5, "line");
 
       let oPeroid = {},
         agrePeriod = {};
@@ -2180,17 +2218,17 @@ export default {
       delete this.totalUsers["undefined"];
 
       let sumTotalUsers = {},
-        sumTotalCYP = {},
-        sumPublic = {},
-        sumPrivate = {},
-        sumBack = {},
-        sumDhs = {};
+        // sumTotalCYP = {},
+        // sumPublic = {},
+        // sumPrivate = {},
+        sumBack = {};
+      // sumDhs = {};
       Object.keys(this.totalUsers).forEach((key) => {
         Object.keys(this.totalUsers[key]["vals"]).forEach((year) => {
           sumTotalUsers[year] =
             (sumTotalUsers[year] || 0) + this.totalUsers[key]["vals"][year];
-          sumTotalCYP[year] =
-            (sumTotalCYP[year] || 0) + this.totalCyp[key][year];
+          //   sumTotalCYP[year] =
+          //     (sumTotalCYP[year] || 0) + this.totalCyp[key][year];
         });
       });
       console.log("this.backgroundData", this.backgroundData);
@@ -2309,21 +2347,22 @@ export default {
       let totalEMU = {
           data: [],
           name: this.$i18n.t("EMU"),
-          color: "#7cb5ec",
+          color: this.totalEMUColor,
         },
         saveTotalEMU = {
           data: [],
           name: this.$i18n.t("EMU"),
+          color: this.totalEMUColor,
         },
-        totalCYP = {
-          data: [],
-          name: this.$i18n.t("cyp_pop"),
-        },
+        // totalCYP = {
+        //   data: [],
+        //   name: this.$i18n.t("cyp_pop"),
+        // },
         series = [],
-        saveTotalCYP = {
-          data: [],
-          name: this.$i18n.t("cyp_pop"),
-        },
+        // saveTotalCYP = {
+        //   data: [],
+        //   name: this.$i18n.t("cyp_pop"),
+        // },
         categories = [],
         fCategories = [],
         saveCategories = [],
@@ -2337,22 +2376,23 @@ export default {
       if (Object.keys(sumBack).length > 0) {
         Object.keys(sumBack).forEach((sumVal) => {
           totalEMU["data"] = [];
-          totalCYP["data"] = [];
+          // totalCYP["data"] = [];
           fCategories = [];
           saveTotalEMU["data"] = [];
-          saveTotalCYP["data"] = [];
+          // saveTotalCYP["data"] = [];
           savefCategories = [];
 
           let totalBack = {
               data: [],
               name: "",
-              color: "#0b0c10",
+              color: this.dhsColor, //color for dhs series
             },
             preVal = 0,
             preValFlag = false,
             saveTotalBack = {
               data: [],
               name: "",
+              color: this.dhsColor, //color for dhs series
             },
             savePreVal = 0,
             savePreValFlag = false;
@@ -2372,12 +2412,12 @@ export default {
                 100
               ).toFixed(2) * 1
             );
-            totalCYP["data"].push(
-              (
-                (sumTotalCYP[period] / (this.monthlyPopulation[period] / 12)) *
-                100
-              ).toFixed(2) * 1
-            );
+            // totalCYP["data"].push(
+            //   (
+            //     (sumTotalCYP[period] / (this.monthlyPopulation[period] / 12)) *
+            //     100
+            //   ).toFixed(2) * 1
+            // );
             totalBack["data"].push(preVal ? preVal.toFixed(2) * 1 : null);
             fCategories.push(this.$moment(period, "YYYYMM").format("MMM YYYY"));
           });
@@ -2385,7 +2425,9 @@ export default {
           saveCategories.forEach((period) => {
             if (sumBack[sumVal][period] != 0) {
               if (savePreVal == 0 && savePreValFlag == false) {
-                savePreVal = sumBack[sumVal][period];
+                savePreVal = sumBack[sumVal][period]
+                  ? sumBack[sumVal][period]
+                  : 0;
                 savePreValFlag = true;
               }
             }
@@ -2395,13 +2437,15 @@ export default {
                 100
               ).toFixed(2) * 1
             );
-            saveTotalCYP["data"].push(
-              (
-                (sumTotalCYP[period] / (this.monthlyPopulation[period] / 12)) *
-                100
-              ).toFixed(2) * 1
+            // saveTotalCYP["data"].push(
+            //   (
+            //     (sumTotalCYP[period] / (this.monthlyPopulation[period] / 12)) *
+            //     100
+            //   ).toFixed(2) * 1
+            // );
+            saveTotalBack["data"].push(
+              savePreVal ? savePreVal.toFixed(2) * 1 : null
             );
-            saveTotalBack["data"].push(savePreVal.toFixed(2) * 1);
             savefCategories.push(
               this.$moment(period, "YYYYMM").format("MMM YYYY")
             );
@@ -2417,12 +2461,12 @@ export default {
               100
             ).toFixed(2) * 1
           );
-          totalCYP["data"].push(
-            (
-              (sumTotalCYP[period] / (this.monthlyPopulation[period] / 12)) *
-              100
-            ).toFixed(2) * 1
-          );
+          // totalCYP["data"].push(
+          //   (
+          //     (sumTotalCYP[period] / (this.monthlyPopulation[period] / 12)) *
+          //     100
+          //   ).toFixed(2) * 1
+          // );
           fCategories.push(this.$moment(period, "YYYYMM").format("MMM YYYY"));
         });
         saveCategories.forEach((period) => {
@@ -2432,12 +2476,12 @@ export default {
               100
             ).toFixed(2) * 1
           );
-          saveTotalCYP["data"].push(
-            (
-              (sumTotalCYP[period] / (this.monthlyPopulation[period] / 12)) *
-              100
-            ).toFixed(2) * 1
-          );
+          // saveTotalCYP["data"].push(
+          //   (
+          //     (sumTotalCYP[period] / (this.monthlyPopulation[period] / 12)) *
+          //     100
+          //   ).toFixed(2) * 1
+          // );
           savefCategories.push(
             this.$moment(period, "YYYYMM").format("MMM YYYY")
           );
@@ -2446,19 +2490,15 @@ export default {
 
       let tempObj = {
         data: [],
-        title: this.data["derivedCharts"][3]["chartOptions"]["chartName"],
-        source: this.source,
-        xTitle: this.data["derivedCharts"][3]["chartOptions"]["xAxis"]["text"],
-        yTitle: this.data["derivedCharts"][3]["chartOptions"]["yAxis"]["text"],
-        disable: this.data["derivedCharts"][3]["chartOptions"]["disableChart"],
-        type: "line",
+
         max: 11,
         categories: [],
         tableData: [],
         saveData: [],
         saveCategories: [],
-        cid: this.data["derivedCharts"][3]["chartOptions"]["cid"],
       };
+      tempObj = this.getOtherChartsDetails(tempObj, 3, "line");
+
       this.saveTotalEmuChartData = {
         isPeriodChart: true,
         reportChartType: tempObj.type,
@@ -2508,7 +2548,13 @@ export default {
       //   name: 'compEMU',
       //   data: aTable
       // }]
-      //console.log(this.saveTotalEmuChartData);
+      console.log(
+        this.totalEMUChartData,
+        this.oneMonthEMUChartData,
+        this.trendsChartData,
+        "final charts",
+        this.contName
+      );
     },
     allDataFetched() {
       this.getFinalChartsdata();
@@ -2711,20 +2757,7 @@ export default {
     saveFinalEMU() {
       this.bshowLoader = true;
       let dataStore = {};
-      let locale = this.$i18n.locale,
-        key = `monthlyEMU_${locale}`;
-      if (!settings.country) {
-        let appId = this.$store.state.appId ? this.$store.state.appId : "",
-          appUserId = this.$store.state.appUserId
-            ? this.$store.state.appUserId
-            : "";
-        if (appId && appUserId) {
-          key = `${appUserId}_${appId}_monthlyEMU_${locale}`;
-        } else {
-          this.showLocalStorageError();
-          return;
-        }
-      }
+      let key = this.generateKey(`monthlyEMU_${this.$i18n.locale}`);
       let allKeys = service.getAllKeys();
       allKeys.then((keys) => {
         if (keys.data.includes(key)) {
@@ -2818,7 +2851,7 @@ export default {
               if (res.data.status.toLowerCase() === "ok") {
                 this.bshowLoader = false;
                 this.$emit("saveEMUFinal", this.location);
-                this.$swal({
+                this.sweetAlert({
                   title: this.$i18n.t("data_saved_successfully"),
                 });
               }
@@ -2853,7 +2886,7 @@ export default {
             if (res.data.status.toLowerCase() === "ok") {
               this.bshowLoader = false;
               this.$emit("saveEMUFinal", this.location);
-              this.$swal({
+              this.sweetAlert({
                 title: this.$i18n.t("data_saved_successfully"),
               });
             }
@@ -2861,43 +2894,13 @@ export default {
         }
       });
     },
-    // saveLocalStorage(key, emuData, chart) {
-    //   let metaConfigData = localStorage.getItem("metaConfig");
-    //   if (metaConfigData) {
-    //     metaConfigData = JSON.parse(localStorage.getItem("metaConfig"));
-    //     if (metaConfigData[key]) {
-    //       if (metaConfigData[key][chart]) {
-    //         metaConfigData[key][chart][this.location.split("/")[1]] = emuData;
-    //       } else {
-    //         metaConfigData[key][chart] = {
-    //           [this.location.split("/")[1]]: emuData,
-    //         };
-    //       }
-    //     } else {
-    //       metaConfigData[key] = {
-    //         [chart]: {
-    //           [this.location.split("/")[1]]: emuData,
-    //         },
-    //       };
-    //     }
-    //   } else {
-    //     metaConfigData = {
-    //       [key]: {
-    //         [chart]: {
-    //           [this.location.split("/")[1]]: emuData,
-    //         },
-    //       },
-    //     };
-    //   }
-    //   localStorage.setItem("metaConfig", JSON.stringify(metaConfigData));
-    // },
     /**
      * This function is to alert when something goes wrong with API.
      * Usage: `showAlert()`
      */
     showAlert() {
       console.trace();
-      this.$swal({
+      this.sweetAlert({
         text: this.$i18n.t("somethingwentwrong"),
       });
       this.bshowLoader = false;
@@ -2925,7 +2928,7 @@ export default {
       saveMethodTrendsChartData: null,
       saveTrendsChartData: null,
       saveOneMonthEMUChartData: null,
-      scaling: {},
+      //scaling: {},
       globalConfig: null,
       bshowLoader: true,
       totalCyp: null,
@@ -3022,13 +3025,13 @@ export default {
 .vue-treeselect__placeholder,
 .vue-treeselect__single-value {
   line-height: 1.5;
-  color: #fff !important;
+  color: var(--text-color) !important;
 }
 
 .vue-treeselect--open-below:not(.vue-treeselect--append-to-body)
   .vue-treeselect__menu-container {
   top: 100%;
-  color: #000;
+  color: var(--color-black);
 }
 
 .saveEMUBtn {

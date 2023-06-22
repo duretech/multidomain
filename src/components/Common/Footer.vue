@@ -5,7 +5,7 @@
         class="floating-footer d-flex justify-content-center align-items-center"
         v-b-toggle.sidebar-backdrop
       >
-        <i class="fa fa-filter fa-3x" aria-hidden="true"></i>
+        <i class="fa fa-filter fa-2x" aria-hidden="true"></i>
       </div>
 
       <b-sidebar id="sidebar-backdrop" backdrop shadow>
@@ -21,6 +21,10 @@
                 v-model="value"
                 :flat="false"
                 :default-expand-level="defaultExpandLevel"
+                @open="
+                  openM1 = false;
+                  openY1 = false;
+                "
               />
             </div>
           </b-col>
@@ -29,7 +33,7 @@
               class="view-col mr-4 ml-2 text-center d-none"
               :class="{ invisible: $route.name !== 'SummaryDashboard' }"
             >
-              <p class="view-title fs-15-1920">{{ $t("view") }}</p>
+              <p class="view-title fs-15-1920">{{ $t("View") }}</p>
               <div class="grid-wide">
                 <b-button
                   class="grid-btn ml-2"
@@ -74,7 +78,27 @@
             <b-col cols="12" class="footer-col pt-1">
               <div>
                 <div class="loc-col mr-1">
-                  <p class="loc-title fs-15-1920">{{ $t("Period") }}</p>
+                  <p class="loc-title fs-15-1920">{{ $t("periodType") }}</p>
+                  <treeselect
+                    :options="pTypeOptions"
+                    :show-count="true"
+                    :load-options="loadOptions"
+                    :placeholder="$t('search')"
+                    v-model="pType"
+                    :flat="false"
+                    :default-expand-level="defaultExpandLevel"
+                    @open="
+                      openM1 = false;
+                      openY1 = false;
+                    "
+                  />
+                </div>
+              </div>
+            </b-col>
+            <b-col cols="12" class="footer-col pt-1">
+              <div>
+                <div class="loc-col mr-1">
+                  <p class="loc-title fs-15-1920">{{ $t("period") }}</p>
                   <date-picker
                     v-model="monthYear"
                     type="month"
@@ -82,6 +106,7 @@
                     format="YYYY-MM"
                     class="form-control"
                     :lang="lang"
+                    :open.sync="openM1"
                     v-if="pType === 'monthly'"
                     :disabled-date="disableDate"
                   ></date-picker>
@@ -92,6 +117,7 @@
                     format="YYYY"
                     class="form-control"
                     :lang="lang"
+                    :open.sync="openY1"
                     v-else-if="pType === 'yearly'"
                     :disabled-date="disableDate"
                   ></date-picker>
@@ -120,7 +146,7 @@
                 </div>
               </div>
             </b-col>
-            <b-col cols="12" class="footer-col pt-1">
+            <b-col cols="12" class="footer-col pt-1 d-none">
               <div class="mr-2 d-flex flex-column">
                 <b-button
                   v-if="$store.state.financialYear.includes('April')"
@@ -132,7 +158,7 @@
                   ><div v-if="pType === 'financialYear'">
                     {{ $t("financialYear") }}
                   </div>
-                  <div v-else>FY(Apr)</div></b-button
+                  <div v-else>{{ $t("FY_Apr") }}</div></b-button
                 >
                 <b-button
                   v-if="$store.state.financialYear.includes('July')"
@@ -146,7 +172,7 @@
                   ><div v-if="pType === 'financialYearJuly'">
                     {{ $t("financialYearJuly") }}
                   </div>
-                  <div v-else>FY(Jul)</div></b-button
+                  <div v-else>{{ $t("FY_Jul") }}</div></b-button
                 >
                 <b-button
                   class="views-btn-footer mx-2 fs-17-1920"
@@ -200,7 +226,7 @@
                   :value="true"
                   v-model="trendCharts"
                 >
-                  {{ $t("trends") }}
+                  {{ $t("trend") }}
                 </b-form-checkbox>
                 <b-form-checkbox
                   class="fs-15-1920"
@@ -229,13 +255,17 @@
             v-model="value"
             :flat="false"
             :default-expand-level="defaultExpandLevel"
+            @open="
+              openM = false;
+              openY = false;
+            "
           />
         </div>
         <div
           class="view-col mr-4 ml-2 text-center d-none"
           :class="{ invisible: $route.name !== 'SummaryDashboard' }"
         >
-          <p class="view-title fs-15-1920">{{ $t("view") }}</p>
+          <p class="view-title fs-15-1920">{{ $t("View") }}</p>
           <div class="grid-wide">
             <b-button
               class="grid-btn ml-2"
@@ -277,8 +307,26 @@
         </div>
         <template v-if="!hidePeriodFilter">
           <div>
-            <div class="loc-col mr-1">
-              <p class="loc-title fs-15-1920">{{ $t("Period") }}</p>
+            <div class="loc-col mr-3">
+              <p class="loc-title fs-15-1920">{{ $t("periodType") }}</p>
+              <treeselect
+                :options="pTypeOptions"
+                :show-count="true"
+                :load-options="loadOptions"
+                :placeholder="$t('search')"
+                v-model="pType"
+                :flat="false"
+                :default-expand-level="defaultExpandLevel"
+                @open="
+                  openM = false;
+                  openY = false;
+                "
+              />
+            </div>
+          </div>
+          <div>
+            <div class="loc-col mr-3">
+              <p class="loc-title fs-15-1920">{{ $t("period") }}</p>
               <date-picker
                 v-model="monthYear"
                 type="month"
@@ -286,6 +334,7 @@
                 format="YYYY-MM"
                 class="form-control"
                 :lang="lang"
+                :open.sync="openM"
                 v-if="pType === 'monthly'"
                 :disabled-date="disableDate"
               ></date-picker>
@@ -296,6 +345,7 @@
                 format="YYYY"
                 class="form-control"
                 :lang="lang"
+                :open.sync="openY"
                 v-else-if="pType === 'yearly'"
                 :disabled-date="disableDate"
               ></date-picker>
@@ -323,7 +373,7 @@
               </b-dropdown>
             </div>
           </div>
-          <div class="mr-2">
+          <div class="mr-2 d-none">
             <b-button
               v-if="$store.state.financialYear.includes('April')"
               class="views-btn-footer mx-2 fs-17-1920"
@@ -334,7 +384,7 @@
               ><div v-if="pType === 'financialYear'">
                 {{ $t("financialYear") }}
               </div>
-              <div v-else>FY(Apr)</div></b-button
+              <div v-else>{{ $t("FY_Apr") }}</div></b-button
             >
             <b-button
               v-if="$store.state.financialYear.includes('July')"
@@ -346,7 +396,7 @@
               ><div v-if="pType === 'financialYearJuly'">
                 {{ $t("financialYearJuly") }}
               </div>
-              <div v-else>FY(Jul)</div></b-button
+              <div v-else>{{ $t("FY_Jul") }}</div></b-button
             >
             <b-button
               class="views-btn-footer mx-2 fs-17-1920"
@@ -383,7 +433,10 @@
             >
           </div>
         </template>
-        <div class="key-indicators" v-if="$route.name === 'SummaryDashboard'">
+        <div
+          class="key-indicators mr-3"
+          v-if="$route.name === 'SummaryDashboard'"
+        >
           <p class="view-title fs-15-1920">
             {{ $t("view_key_indicators_variations") }}
           </p>
@@ -395,7 +448,7 @@
               :value="true"
               v-model="trendCharts"
             >
-              {{ $t("trends") }}
+              {{ $t("trend") }}
             </b-form-checkbox>
             <b-form-checkbox
               class="pr-3 fs-15-1920"
@@ -404,7 +457,7 @@
               :value="true"
               v-model="seasonalCharts"
             >
-              Seasonal {{ $t("trends") }}
+              {{ $t("seasonalTrend") }}
             </b-form-checkbox>
             <b-form-checkbox
               class="fs-15-1920"
@@ -417,22 +470,61 @@
             </b-form-checkbox>
           </div>
         </div>
+        <div
+          class="loc-col mr-3"
+          v-if="
+            $route.name === 'AnalyticalDashboard' &&
+            ['emuMonthlyTab'].includes($store.getters.getActiveTab)
+          "
+        >
+          <p class="loc-title fs-15-1920">{{ $t("methods") }}</p>
+          <treeselect
+            :options="mOptions"
+            :show-count="true"
+            :load-options="loadOptions"
+            :placeholder="$t('search')"
+            v-model="mType"
+            :flat="false"
+            :default-expand-level="defaultExpandLevel"
+          />
+        </div>
+        <b-button
+          class="applyBtn blue-btn btn btn-sm fs-15-1920"
+          style="
+            height: 38px;
+            margin-top: 21px;
+            background-color: var(--subinner-bg-color);
+            border: none;
+          "
+          @click.prevent.stop="sendDetails"
+          v-if="value && monthYear"
+          :disabled="!value || !monthYear"
+          >{{ $t("apply") }}</b-button
+        >
       </b-col>
     </b-row>
   </div>
 </template>
 <script>
 import service from "@/service";
-import Treeselect from "@riophae/vue-treeselect";
-import "@riophae/vue-treeselect/dist/vue-treeselect.css";
-import loadLocChildMixin from "@/helpers/LoadLocationChildMixin";
-import DatePicker from "vue2-datepicker";
 import "vue2-datepicker/index.css";
+import DatePicker from "vue2-datepicker";
+import Treeselect from "@riophae/vue-treeselect";
+import NavigationMixin from "@/helpers/NavigationMixin";
+import "@riophae/vue-treeselect/dist/vue-treeselect.css";
+import DynamicImageMixin from "@/helpers/DynamicImageMixin";
+import loadLocChildMixin from "@/helpers/LoadLocationChildMixin";
 import { getLocationName } from "@/components/Common/commonFunctions";
 export default {
-  props: ["globalPeriodData", "showTrend", "showRegional", "showSeasonal"],
+  props: [
+    "showTrend",
+    "showRegional",
+    "showSeasonal",
+    "globalPeriodData",
+    "IDLocationPeriod",
+  ],
   components: { Treeselect, DatePicker },
-  mixins: [loadLocChildMixin],
+  mixins: [NavigationMixin, DynamicImageMixin, loadLocChildMixin],
   data() {
     let period = this.globalPeriodData;
     let d = new Date();
@@ -454,6 +546,10 @@ export default {
       periodOptions: [],
       periodText: "",
       // alwaysOpen:"true",
+      openM: false,
+      openM1: false,
+      openY: false,
+      openY1: false,
       lang: {
         formatLocale: {
           monthsShort: [
@@ -483,6 +579,7 @@ export default {
       trendCharts: false,
       regionalCharts: false,
       seasonalCharts: false,
+      mType: "method",
     };
   },
   computed: {
@@ -498,6 +595,33 @@ export default {
         isHide = true;
       }
       return isHide;
+    },
+    pTypeOptions() {
+      let pType = [
+        { id: "monthly", label: this.$i18n.t("monthly") },
+        { id: "quarterly", label: this.$i18n.t("quarterly") },
+        { id: "yearly", label: this.$i18n.t("yearly") },
+      ];
+      if (this.$store.state.financialYear.includes("July")) {
+        pType.push({
+          id: "financialYearJuly",
+          label: this.$i18n.t("financialYearJuly"),
+        });
+      }
+      if (this.$store.state.financialYear.includes("April")) {
+        pType.push({
+          id: "financialYear",
+          label: this.$i18n.t("financialYear"),
+        });
+      }
+      return pType;
+    },
+    mOptions() {
+      let mType = [
+        { id: "aggregate", label: this.$i18n.t("method_aggregate") },
+        { id: "method", label: this.$i18n.t("method_detial") },
+      ];
+      return mType;
     },
   },
   watch: {
@@ -526,13 +650,19 @@ export default {
       let currentYear = this.$moment(currentDate, "YYYY").format("YYYY");
       let finalYear = this.$moment(currentFinalDate, "YYYY").format("YYYY");
       if (newVal === "monthly") {
-        this.monthYear = currentDate;
+        this.monthYear =
+          this.IDLocationPeriod && this.IDLocationPeriod.period
+            ? this.IDLocationPeriod.period
+            : currentDate;
         this.allowedStartDate = period ? currentDate : null;
         this.allowedFinalDate = period ? currentFinalDate : null;
       }
 
       if (newVal === "yearly") {
-        this.monthYear = currentYear;
+        this.monthYear =
+          this.IDLocationPeriod && this.IDLocationPeriod.period
+            ? this.IDLocationPeriod.period
+            : currentYear;
       }
 
       if (newVal === "financialYear" || newVal === "financialYearJuly") {
@@ -548,7 +678,9 @@ export default {
           });
         }
         this.monthYear =
-          newVal === "financialYear"
+          this.IDLocationPeriod && this.IDLocationPeriod.period
+            ? this.IDLocationPeriod.period
+            : newVal === "financialYear"
             ? `${currentYear - 1}`
             : `${currentYear - 1}July`;
         this.periodText = `${yearsText[1]} ${currentYear - 1} - ${
@@ -576,7 +708,10 @@ export default {
             });
           }
         }
-        this.monthYear = `${currentYear}Q${quarterLimit}`;
+        this.monthYear =
+          this.IDLocationPeriod && this.IDLocationPeriod.period
+            ? this.IDLocationPeriod.period
+            : `${currentYear}Q${quarterLimit}`;
         this.periodText =
           this.quartersText[`Q${quarterLimit}`][0] +
           " - " +
@@ -588,32 +723,36 @@ export default {
     },
     value(newValue) {
       if (newValue && this.monthYear && this.options && this.pType) {
-        let obj = {
-          period: this.monthYear,
-          location: newValue,
-          locationList: this.options,
-          periodType: this.pType,
-        };
+        let obj = this.IDLocationPeriod
+          ? this.IDLocationPeriod
+          : {
+              period: this.monthYear,
+              location: newValue,
+              locationList: this.options,
+              periodType: this.pType,
+            };
         const { locName } = getLocationName(obj);
         if (locName) {
           obj.locationName = locName;
         }
-        this.$emit("getLocationPeriod", obj);
+        // this.$emit("getLocationPeriod", obj);
       }
     },
     monthYear(newValue) {
       if (newValue && this.value && this.options && this.pType) {
-        let obj = {
-          period: newValue,
-          location: this.value,
-          locationList: this.options,
-          periodType: this.pType,
-        };
+        let obj = this.IDLocationPeriod
+          ? this.IDLocationPeriod
+          : {
+              period: newValue,
+              location: this.value,
+              locationList: this.options,
+              periodType: this.pType,
+            };
         const { locName } = getLocationName(obj);
         if (locName) {
           obj.locationName = locName;
         }
-        this.$emit("getLocationPeriod", obj);
+        // this.$emit("getLocationPeriod", obj);
         if (
           this.pType === "quarterly" ||
           this.pType === "financialYear" ||
@@ -634,6 +773,62 @@ export default {
     },
   },
   methods: {
+    sendDetails() {
+      let canSend = true;
+      if (this.IDLocationPeriod) {
+        if (["monthly", "yearly"].includes(this.pType)) {
+          let isDisable = this.disableDate(this.monthYear);
+          if (isDisable) {
+            canSend = false;
+          }
+        }
+        if (
+          ["quarterly", "financialYear", "financialYearJuly"].includes(
+            this.pType
+          )
+        ) {
+          let isFound = this.periodOptions.find(
+            (p) => p.value === this.monthYear
+          );
+          if (!isFound) {
+            canSend = false;
+          }
+        }
+      }
+      if (
+        canSend &&
+        this.value &&
+        this.monthYear &&
+        this.options &&
+        this.pType
+      ) {
+        let obj = {
+          period: this.monthYear,
+          location: this.value,
+          locationList: this.options,
+          periodType: this.pType,
+          mType: this.mType,
+        };
+        const { locName } = getLocationName(obj);
+        if (locName) {
+          obj.locationName = locName;
+        }
+        this.$emit("getLocationPeriod", obj);
+      } else {
+        this.$swal({
+          title: `${this.$i18n.t("periodRange")} <br/> [${
+            this.allowedFinalDate
+          } ${this.$i18n.t("toSmall")} ${this.allowedStartDate}]`,
+        }).then((result) => {
+          if (result) {
+            this.goTo({
+              setNamespace: true,
+              routeName: "integrated-dashboard",
+            });
+          }
+        });
+      }
+    },
     resetMap() {
       this.getConfigAccess();
     },
@@ -687,13 +882,13 @@ export default {
       this.options = JSON.parse(
         JSON.stringify(this.$store.getters.getLocationList)
       );
-      this.value = levelID + "/" + locationID;
+      this.value =
+        this.IDLocationPeriod && this.IDLocationPeriod.location
+          ? this.IDLocationPeriod.location
+          : levelID + "/" + locationID;
     },
   },
   created() {
-    this.pType = "monthly";
-    this.getConfigAccess();
-
     if (this.$i18n.locale === "fr") {
       this.lang = {
         formatLocale: {
@@ -724,6 +919,14 @@ export default {
         Q4: ["oct.", "déc."],
       };
     }
+    this.pType =
+      this.IDLocationPeriod && this.IDLocationPeriod.periodType
+        ? this.IDLocationPeriod.periodType
+        : "monthly";
+    this.getConfigAccess();
+    this.$nextTick(() => {
+      this.sendDetails();
+    });
   },
   mounted() {},
 };

@@ -1,0 +1,1803 @@
+          
+/*Grey theme*/
+
+body[data-theme~="grey"] {
+
+    //MainColor ThemeCSS
+
+    .menubox-appsbox::-webkit-scrollbar-thumb{
+         background-color: rgb(108 119 135) !important; 
+        outline: 1px solid var(--text-color);
+    }
+
+    .menubox-appsbox::-webkit-scrollbar-track{
+     box-shadow: inset 0 0 5px var(--text-color) !important;
+    }
+
+    .highcharts-scrollbar-thumb,
+    .highcharts-scrollbar-button{
+        fill: var(--maindropdown-bg-color) !important;
+    }
+
+    
+    .highcharts-legend-item-hidden text{
+        color: var(--legend-inactive-color) !important;
+        fill: var(--legend-inactive-color) !important;
+        font-weight: normal !important;
+
+    }
+
+    .border-none {
+        border: 1px solid transparent !important;
+    }
+
+    .border-right {
+        border-right: 1px solid transparent !important;
+     }
+
+    .border-left{
+        border-left: 1px solid transparent !important;
+    }
+
+    .border-left{
+        border-left: 3px solid transparent!important;
+    }
+
+    .border-greytheme{
+        border: 1px solid var(--border-grey-color) !important;
+    }
+
+       .commentDropDownBox ,
+       .dropdown-menu.chart-dd-menu{
+           background-color: var(--primary-bg-color) !important;
+   
+           .form-control{
+               background-color: var(--signoff-bg-color) !important;
+               border: var(--signoff-bg-color) !important;
+           }
+       }   
+       
+    .table-secondary{
+        color: var(--text-color) !important;
+    }
+
+       table thead th,
+       .userMappingTable .table .thead-dark th {
+           background-color: var(--maindropdown-bg-color) !important;
+           border: 1px solid var( --border-grey-color) !important;
+       }
+
+       .userMappingTable table tbody td{
+        background-color: var(--maincard-bg-color) !important;
+       }
+   
+       table tbody th ,
+       table tbody td{
+           background-color: var( --primary-bg-color) !important;
+           border: 1px solid var( --border-grey-color) !important;
+        //    border-right-color: transparent !important;
+       }
+   
+       .table .thead-light th{
+           border-color: transparent !important;
+       }
+
+    
+.table-danger {
+    background-color: var(--bg-light-red) !important;
+    color           : var(--color-black) !important;
+}
+
+.table-success {
+    background-color: var(--bg-light-green) !important;
+    color           : var(--color-black) !important;
+}
+
+.table-info {
+    background-color: var(--bg-light-blue) !important;
+    color           : var(--color-black) !important;
+}
+
+.table-warning {
+    background-color: var(--orange-bg-color) !important;
+    color           : var(--color-black) !important;
+}
+
+.table-primary {
+    background-color: var(--bg-default) !important;
+    color           : var(--color-black) !important;
+}
+
+.table-secondary {
+    // background-color: #d6d8db !important;
+    color           : var(--text-color) !important;
+}
+   
+       
+      
+    .modal-header,
+    .v-step__header
+    {
+        background-color: var(--main-header-color) !important;
+        border-bottom: var(--main-header-color) !important;
+    }
+
+    .modal-content,
+    .v-step
+    {
+        background-color: var(--footer-components-color ) !important;
+    }
+
+  
+    .modal-footer{
+        border: 1px solid var(--maindropdown-bg-color) !important;
+    }
+
+    .home-main{
+
+      .fa-cog{
+        background-color: transparent !important;
+        }
+      .header-body{
+
+        .greydhisheader{
+            margin-right: 1% !important;
+        }
+      
+      }
+   
+           .purple-btn{
+               background-color: var(--main-header-color) !important;
+               border: var(--main-header-color) !important;
+            
+              
+           }
+
+           .purple-btn:active,
+           .purple-btn:hover,
+           .purple-btn:focus {
+                background-color: var(--maindropdown-bg-color) !important;
+           }
+           
+        
+   
+           .select_dashboard_btn
+           
+               .btn {
+                   background-color: var(--main-header-color) !important;
+                   border: var(--main-header-color) !important;
+                }
+   
+               .dropdown-menu 
+               {
+                   background-color: var( --footer-components-color) !important;
+               }
+   
+               li button {
+                   background-color: var( --footer-components-color) !important;
+               }
+   
+               .footer-home-div .footer-img-div{
+                background-color: var(--bg-main-color) !important;
+               }
+               
+   
+          
+     }
+
+    .home-page {
+
+        background-color: var(--bg-main-color) !important;
+
+        .fa-cog{
+            background-color: transparent !important;
+        }
+        .explore-col{
+           
+
+            .greydhisheader{
+                margin-right: 1% !important;
+            }
+            
+        }
+            .greydhisheader{
+                margin-right: 1% !important;
+            }
+    }
+
+    .sidebar-newbody
+    {
+        #sidebar-2{
+            .subgroups.sidebar-item-active{
+                background: var(--sidebar-subgroup-color) !important;
+            }
+
+            .sidebar .subgroups:active{
+                background: var(--maindropdown-bg-color) !important;
+            } 
+
+            .sidebar .subgroups:hover{
+                background: var(--maindropdown-bg-color) !important;
+            }
+        }
+    }
+
+    .integratedFamilyWrap {
+
+
+        .scorboardWrap:hover .overlay-scorecard .purple-btn{
+            background-color: var(--view-box-color) !important;
+            border-color: var(--view-box-color) !important;
+        }
+        .scorboardcardHeader .scorboardLabel{
+            background-color: var(--maindropdown-bg-color) !important;
+            border-color: var(--maindropdown-bg-color) !important;
+
+        }         
+      
+        .mapContainer
+        {
+            
+        
+            .integratedFamilyWrap .VueCarousel-slide .iganchorMap,
+            .integratedFamilyWrap .scorboardWrap.borderBottomId{
+                border: 1px solid var(--maindropdown-bg-color) ;
+            }
+        }   
+        
+        .overlay,.scorboardWrap:hover .overlay-scorecard{
+            background-color:var(--bg-main-color) !important;
+        }
+
+    }  
+     
+    .explore-col{
+        
+
+        .greydhisheader{
+            margin-right: 1% !important;
+        }
+
+        .fa-cog{
+            background-color: transparent !important;
+        }
+    
+        
+    }
+   
+    
+    .onclick-btn-footer  {
+            background: var(--main-header-color) !important;
+     }    
+ 
+     .summary-dqr{
+        background-color: var(--bg-main-color) !important;
+
+        .dqr-summary-btn:focus.collapsed{
+            background-color: transparent !important;
+            border-color: transparent !important;
+          }
+     }
+   
+
+     
+     .summary,
+     .dqr-section2{
+         background-color: var(--bg-main-color) !important;
+     }
+ 
+     .summary-view-more-btn,
+     .performance-in-card{
+         background-color: var(--maindropdown-bg-color) !important;
+         border: 3px solid var(--maindropdown-bg-color) !important;
+        
+     }
+     .summary-view-more-btn:hover{
+        
+         background-color: var(--footer-components-color ) !important;
+         border: 3px solid var(--footer-components-color) !important;
+     }
+ 
+     .summary-highchart1-header {
+        background-color: transparent !important;
+    }
+   
+    .summary-dot {
+        background-color: var(--light-purple-color);
+    }
+
+     .summary-card-bg,
+     #setReport .modal-header ,
+     .chartIconsDivTextarea
+     {
+         background-color: var(--signoff-bottom-card) !important;
+     }
+
+       .summary-btn:hover{
+           background-color: var(--signoff-bg-color) !important;
+       }
+
+       .dqr-summary-btn.not-collapsed,
+       .summary-btn:hover,
+       .summary-btn:focus{
+        background-color: transparent !important;
+        border: 1px solid var(--border-grey-color) !important;
+       }
+
+       .summarydashboard-page .indicatorCardBody{
+        border: 1px solid transparent !important;
+    }
+
+
+    .analytic-charts{
+        border: 1px solid var(--border-grey-color) !important;
+       
+    }
+
+    .analytic{ 
+        
+        .newcolumntab .card.emu-chart{
+            border-right: 1px solid var(--border-grey-color) !important ;
+        }
+
+        .newcolumntab.grey-newborder .card{
+            border: 1px solid var(--border-grey-color) !important;
+        }
+
+        .anc-charts{
+            border: transparent !important;
+        }
+        .newcolumntab .card{
+            background-color: transparent !important;
+            border: transparent !important;
+        }
+        .card-header:first-child,
+        .card-footer:last-child{
+            background-color: transparent !important;
+            border: transparent !important;
+            color: var(--text-color) !important;
+        }
+
+       
+        #benchmarking-sub-tabContent .fullContainer{
+            // border-right: 1px solid var(--primary-bg-color) !important;
+            // border-bottom: 1px solid var(--primary-bg-color) !important;
+        }
+
+        #input_tab_content_commoditiesToClients .card{
+            border-right: 1px solid var(--primary-bg-color) !important;
+        }
+
+        .page-item.disabled .page-link{
+            background-color: var(--primary-bg-color) !important;
+            border-color: var(--primary-bg-color) !important;
+        }
+    
+
+    }
+
+
+
+     #modal-anc {
+       
+
+    .modal-content{
+    background-color: var(--bg-main-color) !important;
+   
+    }
+
+   
+    }
+
+    #modal-newanc {
+    
+        .border-modal {
+            border: 1px solid var(--maindropdown-bg-color) !important;
+            
+        }
+
+        .border-map{
+            border: 1px solid var(--maindropdown-bg-color) !important;
+            
+        
+        }
+        
+        .border-greyright{
+            border: 1px solid var(--maindropdown-bg-color) !important;
+                    
+        }
+
+        
+
+    .modal-content{
+    background-color: var(--footer-components-color ) !important;
+    }
+    }
+
+    .modal-newac {
+
+    .anc-charts{
+        border: 1px solid transparent !important;
+    }
+    }    
+    
+    
+    /*DQR Dashboard*/
+   
+       .dqr-main{
+    
+        .summary-dqr-page{
+           
+
+            .overview-card{
+              
+
+                .dqr-card-body 
+
+                     .inner-card{
+                        background-color: var(--signoff-bg-color) !important;
+
+                        .card-header{
+                         background-color: var(--signoff-top-card) !important;
+                         border: var(--signoff-top-card) !important;
+                        }
+
+                       
+                        
+                     }
+                  
+            }
+
+            .overview-card .dqr-card-body .inner-card .emu-dqr .card-header{
+                background-color: transparent !important;
+              }
+        }
+       
+      
+        }
+
+        .dqr-main2 {
+                            
+            .dqr-greyvue .vue-treeselect__control{
+
+                background: var(--maindropdown-bg-color) !important;
+                border: 0px solid var(--maindropdown-bg-color) !important;
+            }
+
+            .border-bottom{
+                border: 1px solid transparent !important;
+            }
+
+            .selection-pills{
+                background-color: var(--maindropdown-bg-color) !important;
+                color: var(--text-color) !important;
+            }
+
+           .typeDropdown{
+            background: var(--maindropdown-bg-color) !important;
+            border: 0px solid var(--maindropdown-bg-color) !important;
+           }
+
+           .analytic-charts{
+            border: 1px solid transparent !important;
+           
+           }
+
+
+          .ml-2 .typeDropdown.custom-select{
+            background: #323b47 url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='4' height='5' viewBox='0 0 4 5'%3e%3cpath fill='%23ffffff' d='M2 0L0 2h4zm0 5L0 3h4z'/%3e%3c/svg%3e") right 0.75rem center/8px 10px no-repeat !important;
+             }
+
+
+             
+        }    
+
+
+        .dqr-summary-collapse{
+            background-color: transparent !important;
+            border: 1px solid var(--border-grey-color) !important;
+        }
+
+                
+        .dqr-table .thead-light th{
+            border-color: var(--border-grey-color) !important;
+        }
+ 
+
+        #input_tab_content_commoditiesToClients .card-body,
+        #output_tab_content_commoditiesToClients .card-body,
+        .bg-data .card
+        {
+            background-color: var(--signoff-bottom-card) !important;
+        }
+ 
+        #benchmarking-sub-tabContent .card,
+        #benchmarking-sub-tabContent .card-header{
+         background-color: transparent !important;
+        }
+
+        .emu-dqr,
+        .emu-dqr1{
+         border-bottom: 1px solid transparent !important;
+        }
+    
+        #dqreporting .card-body.offwhite-bg, #benchmarking-sub-tab .card-body.offwhite-bg, #benchmarking-sub-tab .card, #input_tab_content_commoditiesToClients .card-body, #input_tab_content_commoditiesToClients .row.px-3.pt-2, #input_tab_content_commoditiesToClients .card, #output_tab_content_commoditiesToClients .card-body, #output_tab_content_commoditiesToClients .card, #benchmarking-comfacilities .card, #benchmarking-comfacilities .card-body, #input_tab_content_fp_visits .card, #input_tab_content_fp_visits .card-body, #output_tab_content_fp_visits .card, #output_tab_content_fp_visits .card-body, #reporting_tab_content_commoditiesToClients .card, #reporting_tab_content_commoditiesToClients .card-body, #reporting_tab_content_commoditiesToClients .row.px-3.pt-2, #reporting_tab_content_fp_visits .card, #reporting_tab_content_fp_visits .card-body, #benchmarking-fpemuoutput .card, #benchmarking-fpemuoutput .card-body, #benchmarking-sub-tabContent .card, #benchmarking-sub-tabContent .card-body, #benchmarking-sub-tabContent .card-footer{
+            background-color: transparent !important;
+        }
+
+        #exampleModalScrollable3 .modal-body .card-body{
+            background-color: var(--signoff-bottom-card) !important;
+            border-color: var(--signoff-bottom-card) !important;
+           }
+    
+           #exampleModalScrollable3 .modal-body .card-header{
+            background-color: var(--signoff-top-card) !important;
+            border-color: var(--signoff-top-card) !important;
+           }
+
+           .indicatorSectionWrap .mainHeader h6,
+           .dqr-charts .summary-highchart1-header 
+           {
+               border-top: 1px solid transparent !important; 
+           }  
+           
+           .indicatorSectionWrap .mainHeader{
+            background-color: transparent !important;
+            border-bottom: transparent !important;
+            
+            }
+           
+        .emu-dqr .card,
+        .emu-dqr1 .card {
+          border: 1px solid var(--border-grey-color) !important;
+          border-radius: 5px !important;
+          background-color: transparent;
+        }
+
+          .emu-dqr .card-header,
+          .emu-dqr1 .card-header {
+          border-color: transparent !important;
+          background-color: transparent !important;
+          }
+
+        .border-dqrleft{
+          border-left: 1px solid var(--border-grey-color) !important;
+        }
+
+        .dqr-scoreboard .card{
+            background-color: var(--bg-main-color ) !important;
+            border: var(--bg-main-color ) !important;
+            
+        }
+
+        .fpsource-modal .modal-body .card{
+            border: 1px solid var(--border-grey-color) !important;
+        }
+
+        .not-emu .signoff-modal-content .list-of-questions .question-answer textarea{
+            background-color: var(--primary-bg-color) !important;
+            border-color: var(--primary-bg-color) !important;
+        }
+
+        .not-emu .signoff-modal-content .list-of-questions .question-answer{
+            background-color: var(--maindropdown-bg-color) !important;
+            border-color: var(--maindropdown-bg-color) !important;
+        }
+
+
+        .emu-tablehighlight{
+            background-color: var(--bg-main-color) !important;
+       }
+
+       .benchmark-new.border-bottom,
+       .benchmark-emu.border-bottom{
+           border-bottom: 1px solid var(--border-grey-color) !important;
+       }
+
+       
+
+    /*Map Visualization*/
+
+
+    .bottom_toolbar_wrap .input-select-items .form-group .form-control{
+        background: var(--footer-sub-component) !important;
+    }
+
+    .searchbox .form-control{
+        background-color: var(--signoff-bottom-card ) !important;
+        border-color: var(--signoff-bottom-card) !important;
+    }
+    .map-firstitem{
+        background: transparent;
+    }
+
+  
+    .linked-img{
+        background: transparent !important;
+    }
+
+    .map-greyitem {
+        .item-1{
+           background-color: rgb(50 59 71 / 97%) !important;
+           color: var(--text-color) !important;
+        }
+        .item-2{
+           background-color: rgb(50 59 71 / 72%) !important;
+           color: var(--text-color) !important;
+        }
+      }
+
+      .mapIndiBg{
+
+         
+           .map_cardBody,.dashboardchart-container.mapheight .card{
+             
+               .btn-secondary {
+                   background-color: var(--main-header-color) !important;
+                   border: var(--main-header-color) !important;
+                   color: var(--text-color);
+                   box-shadow: none !important;
+               }
+
+               .map-dropdown .btn-secondary{
+                   background-color: transparent !important;
+                   border-color: transparent !important;
+                   width: 45px;
+               }
+
+              
+           }
+
+           .searchbox{
+           border-bottom: 1px solid var(--border-grey-color) !important;
+           }
+
+            #bubblemap .btn-secondary.map-btn1,
+            #bubblemap .btn-secondary.map-btn2
+           {
+            background-color: var(--primary-bg-color) !important;
+            border-color: var(--primary-bg-color) !important;
+            opacity: 1;
+           }
+           
+
+      }
+                
+      .map-live,
+      .typeDropdown{
+          background-color: var(--signoff-bottom-card  ) !important;
+      }
+
+      .mapDivLegend,
+      #modal-newanc .map-live{
+          background-color: var(--legend-bg-color) !important;
+      }
+
+      
+     .mapDivLegend ul li a{
+       background-color: var(--primary-bg-color) !important;
+     }
+
+
+     .bubblemap #dropdown-1 .dropdown-menu-right.show{
+        background-color: var(--primary-bg-color) !important;
+       }
+    
+       .cust_map_dropdown .custom-control-inline span{
+        color: var(--text-color) !important;
+        font-weight: 100 !important;
+       }
+       
+       .map-newicons .map-dropdown .dropdown-menu{
+        background-color: var(--primary-bg-color) !important;
+       }
+
+     
+
+    .saved-Fav-page {
+        background-color: var(--primary-bg-color) !important;
+     
+        .saved-fav{
+        background-color: var(--primary-bg-color) !important;
+         
+        }
+      
+   }
+
+   .report-container {
+    background-color: var(--bg-main-color) !important;
+    
+
+   }
+   
+   #createModuleModal {
+        
+    .vue-treeselect__menu{
+        background-color: var(--maindropdown-bg-color) !important;
+        border: 0px solid var(--maindropdown-bg-color) !important;
+    }
+
+}
+
+   .report-theme{
+    background-color: var(--maincard-bg-color) !important;
+   }
+
+   .grey-mainbg,
+   #myModalEdit {
+   
+    .vue-treeselect__menu{
+        background-color: var(--maindropdown-bg-color) !important;
+        border: 0px solid var(--maindropdown-bg-color) !important;
+    }
+
+    .input-group-append .input-group-text{
+        background-color: var(--primary-bg-color) !important;
+        border-color: var(--primary-bg-color) !important;
+    }
+   .modal-body{
+       background: var(--bg-main-color) !important;
+   }
+
+   .fa-cog,.vue-resizable-handle{
+    background-color: var(--primary-bg-color) !important;
+   }
+
+   .vue-resizable-handle{
+    background-color: var(--maindropdown-bg-color) !important;
+   }
+   
+   
+
+    }
+
+    #setReport .fa-close,
+    #myModalEdit .fa-close{
+        background-color: var(--primary-bg-color) !important;
+    }
+
+    #addSection{
+        .vue-grid-item .card{
+            background-color: var(--signoff-bottom-card) !important;
+        }
+    }
+
+    
+    .saved-report-card,
+    .saved-report-card:hover{
+        background: var(--signoff-bottom-card) !important;
+    }
+
+    #createModuleModal{ 
+        
+      
+
+        .dropdown-item{
+            background-color: var(--bg-main-color) !important;
+          }
+
+    }
+
+
+    #myModalEdit .modal-body > .row:first-child,
+    #createModuleModal .modal-header{
+        background-color: var(--main-header-color) !important;
+    }
+
+   .sect_de_wrap{
+     border: 2px solid var(--maindropdown-bg-color) !important;
+   }
+
+    .na{
+        background-color: var(--footer-components-color) !important;
+    }
+
+      .vue-treeselect--open-above .vue-treeselect__menu,
+      .vue-treeselect__menu,
+        .interactive-page {
+            .greydhisheader{
+                margin-right: 1% !important;
+            }
+
+            .interactive .interactive-card {
+            
+                .year-btn-right,
+                .year-btn-left,
+                .move-btn-right,
+                .move-btn-left{
+                    background-color: var(--main-header-color) !important;
+                    border: var(--main-header-color) !important;
+                    
+                }
+
+        }
+                .interactive #accordion-3 .search-unit .vue-treeselect__menu{
+                    background-color: var(--maindropdown-bg-color) !important;
+                    border: 0px solid var(--maindropdown-bg-color) !important;
+                }
+
+        }
+
+        .vue-grid-item .card,
+        #myModalEdit .modal-body .card-body{
+            background-color: var(--signoff-bottom-card) !important;
+        }
+
+       
+        .vue-grid-item .topCardChartName,
+        #myModalEdit .modal-body .card-header{
+            background-color: var(--signoff-top-card) !important;
+        }  
+
+      .vue-treeselect--single .vue-treeselect__option--selected,
+      .vue-treeselect__option--highlight,
+      .mx-calendar-content .cell:hover,
+      .interactive-page .interactive .interactive-card .year-list .year-list-item:hover
+     {
+           background: var( --primary-bg-color )!important;
+      }
+
+
+      .form-control.tabbarselect option{
+        background-color: var(--maindropdown-bg-color) !important;
+      }
+
+    
+      .mx-datepicker-main ,
+      .mx-calendar-content .cell.active{
+       background-color: var(--maindropdown-bg-color) !important;
+      }
+   
+      .custom-select,
+      .dataConfig{
+       background-color: var( --signoff-bottom-card ) !important;
+       border: var( --signoff-bottom-card ) !important;
+      }
+     
+      
+       .list-of-cards .card {
+           background-color: var(--signoff-bg-color) !important;
+           border-color: var(--signoff-bg-color) !important;
+        
+       }
+
+         
+     .grid-layout-section {
+
+        .grid-down{
+            background-color: var( --maincard-bg-color) !important;
+        }
+     
+            .vue-grid-layout
+            {
+                background-color: var( --maincard-bg-color) !important;
+
+                .grid-layout-section .vue-grid-item:not(.vue-grid-placeholder){
+                    .modal-body .card{
+                        background-color: var(--signoff-bottom-card) !important;
+                    }
+                }    
+            }
+        }
+   
+   
+       .leaflet-control-layers-expanded,
+       .leaflet-bar a,
+       .reset-map,
+       .leaflet-control .btn-secondary,
+       .mapactionbtn,
+       .map-container .map .l-map .leaflet-bar a
+       {
+           background-color: var(--primary-bg-color) !important;
+           border: var(--primary-bg-color) !important;
+           box-shadow: none !important;
+       }
+   
+   
+       .leaflet-control .select-wrapper .form-control{
+           background-color: var(--maindropdown-bg-color) !important;
+           border: var(--maindropdown-bg-color) !important;
+           box-shadow: none !important;
+       }
+   
+     
+       /*Grey Button*/
+       .modal-footer .btn-secondary,
+       .canbtn, .canbtn:disabled,
+       #createModuleModal .reset-create,
+       .btn-dark,
+       .modal-content .modal-body .btn-secondary.ok-grey,
+       .deleteBtn,
+       .modal-footer .btn-primary.drill-newbtn.newbtn-theme,
+       .modal-footer .btn-primary.cancel-newbtn,
+       .modal-content .modal-body .btn-secondary.move-btn-left,
+       .modal-content .modal-body .btn-secondary.move-btn-right,
+       .v-tour .v-step__button.v-step__button-skip,  
+       .grey-btn,
+       .modal-content .modal-body .btn-secondary.grey-btn{
+       
+           background-color: var(--main-header-color) !important;
+           border-color: var(--main-header-color) !important;
+           color: var(--text-color) !important;
+       }
+   
+    
+
+       /*Blue button*/
+       .modal-footer .btn-primary,
+       .addgrpBtn,
+       .black-btn.save-emubtn,
+       .newbtn-theme1,
+       .v-tour .v-step__button.v-step__button-next,
+       .v-tour .v-step__button.v-step__button-stop,
+       .black-btn.save-btn,
+       .black-btn.blue-btn ,
+       .btn-dark.blue-btn,
+       .generate-btn,
+       .blue-btn,
+       .modal-content .modal-body .btn-secondary.regenerate-btn
+       {
+           background-color: var( --sidebar-border-left) !important;
+           border-color: var( --sidebar-border-left) !important;
+           color: var(--text-color) !important;
+       }
+   
+       .modal-content .modal-body .btn-secondary.blue-btn
+       {
+           background-color: var(--sidebar-border-left) !important;
+           border-color: var(--sidebar-border-left) !important;
+           color: var(--text-color) !important;
+       }
+
+       .map-search{
+        background-color: var(--signoff-bottom-card) !important;
+        border-color: var(--signoff-bottom-card) !important;
+    }
+
+      
+   
+       .totalicons .icontoggle .arrow-btn{
+           background-color: var(--new-footer-color) !important;
+       }
+
+       .black-btn.grey-btn,
+       .black-btn.generate-greybtn,
+       .black-btn.new-btndisable{
+           background-color: var(--sidebar-border-left) !important;
+           border-color: var(--sidebar-border-left) !important;
+       }
+   
+    
+       .newcolumntab .card{
+           background-color: transparent !important;
+        //    border: 1px solid var(--border-grey-color) !important;
+       }
+        
+     
+    #addTextPopup {
+        .btn-secondary{
+            background-color: var(--main-header-color) !important;
+            border: var(--main-header-color) !important;
+           }
+    }
+   
+
+       .modal-content .modal-body .btn-secondary,
+       #modal-newanc .modal-content .modal-body .btn-secondary{
+           background-color: var(--primary-bg-color) !important;
+           border-color: var(--primary-bg-color) !important;
+       }
+   
+       #dropdownnav .dropdown-menu{
+           background-color: var(--primary-bg-color) !important;
+           border:var(--primary-bg-color) !important;
+       }
+       #dropdownnav .dropdown-menu .dropdown-item:hover{
+           background-color: var(--signoff-bg-color);
+           border: var(--signoff-bg-color);
+       }
+   
+       .new-gradbtn,
+       .black-btn,
+       .repBtn,
+       .integratedFamilyWrap .transparentDiv .purple-btn,
+       .integratedFamilyWrap .scorboardcardHeader .scorboardLabel,
+       .layout-item,
+       .addgrpBtn,
+       .subgrpBtn,.addgrpBtn,.indiBtn,.editBtn{
+           background: var(--main-header-color) !important;
+           border-color: var(--main-header-color) !important;
+       }
+
+       .black-btn.black-btn.bgbtn-theme{
+            background-color: var(--main-header-color) !important;
+            border-color: var(--main-header-color) !important;
+       }
+
+    
+       .integratedDashboardPage {
+       
+        
+        .black-btn{
+            background-color: var(--sidebar-border-left) !important;
+            border-color: var(--sidebar-border-left) !important;
+        }
+
+        .map-container .map .l-map #legend{
+            background: transparent !important;
+        }
+
+        }
+
+        .interactive-page{ 
+            
+                .interactive .interactive-card .period .dropdown-menu{
+                    background-color: var(--maindropdown-bg-color);
+                }
+
+                .dropdown-item{
+                    background-color: var(--main-header-color) !important;
+                }
+
+                .interactive .interactive-card .left-year-data .year-list .year-list-item:hover{
+                    color: var(--text-color) !important;
+                }
+
+
+                .interactive .interactive-card .med-list .med-list-item:hover,
+                .interactive #accordion-3 .search-unit .vue-treeselect__multi-value-item
+                {
+                background-color: var(--bg-main-color) !important;
+                color: var(--text-color) !important;
+                }
+
+
+                .interactive .interactive-card{
+                    background-color: var(--bg-main-color);
+                }
+            
+                .interactive .interactive-card .search-input,
+                .interactive .interactive-card .right-data,            
+                .interactive .interactive-card .left-data, .interactive-page .interactive .interactive-card .right-data, .interactive-page .interactive .interactive-card .left-year-data, .interactive-page .interactive .interactive-card .right-year-data{
+                    background-color: var(--primary-bg-color) !important;
+                }
+
+                
+    
+                .interactive .interactive-card .chart{
+                    background-color: var(--primary-bg-color) !important;
+                }
+
+                    .interactive .interactive-card .chart .layout-info{
+                        background-color: var(--maindropdown-bg-color) !important;
+                    }
+
+                    .interactive .interactive-card .med-list .med-list-item:hover .move-txt
+                    {
+                        background-color: var(--bg-main-color);
+                
+                    }   
+
+                    
+                    .interactive .interactive-card .indi .dropdown-menu
+                    {
+                        background-color: var(--primary-bg-color)!important;
+                        border: 1px solid var(--primary-bg-color) !important;
+                    }
+
+                    .interactive .interactive-card .indi .dropdown-menu .dropdown-item{
+                        background-color: var(--signoff-bg-color ) !important;
+                        border: 1px solid var(--primary-bg-color)!important;
+                    }
+
+
+        }
+
+        .interactive-section {
+
+            #accordion-4 .search-unit .vue-treeselect__menu{
+                background-color: var(--maindropdown-bg-color) !important;
+                border: 0px solid var(--maindropdown-bg-color) !important;
+                color: var(--text-color);
+            }
+
+            #accordion-4 .search-unit .vue-treeselect__multi-value-item{
+                background-color: var(--bg-main-color)!important;
+                color: var(--text-color)!important;
+            }
+            .interactive-main{
+
+                .card{
+                    background-color: var(--bg-main-color) !important;
+                    }
+              
+                .card-header{
+                    background-color: var(--new-header-color) !important;
+                    border-color: var( --new-header-color) !important;
+                }
+
+                .layout-info,
+                .configure{
+                    background-color: var(--primary-bg-color) !important;
+                }
+    
+            }
+
+            .period .dropdown-menu{
+                background-color: var(--maindropdown-bg-color);
+            }
+
+            .dropdown-item{
+                background-color: var(--main-header-color) !important;
+            }
+
+          
+            .year-list .year-list-item:hover,
+           
+            .med-list .med-list-item:hover .move-txt{
+                background-color: var(--bg-main-color) !important;
+            }
+            
+            .border-right{
+                border-right: 1px solid var(--border-grey-color) !important;
+                
+            }
+
+           
+
+            .chart .layout-info{
+                background-color: var(--maindropdown-bg-color) !important;
+            }
+
+            .search-unit .vue-treeselect__multi-value-item
+            {
+            background-color: var(--bg-main-color) !important;
+            color: var(--text-color) !important;
+            }
+        
+           .search-input,
+           .right-data,            
+           .left-data, .right-data, .left-year-data, .right-year-data{
+                background-color: var(--primary-bg-color) !important;
+            }
+ 
+                .indi .dropdown-menu
+                {
+                    background-color: var(--primary-bg-color)!important;
+                    border: 1px solid var(--primary-bg-color) !important;
+                }
+
+                .indi .dropdown-menu .dropdown-item{
+                    background-color: var(--signoff-bg-color ) !important;
+                    border: 1px solid var(--primary-bg-color)!important;
+                }
+
+
+
+        }
+
+
+       .secondDivCard.commonCardDiv .card.secCard {
+        background-color: var(--signoff-bottom-card) !important;  
+
+      
+      
+        .card-body.secCardBody{
+            background-color: var(--signoff-bottom-card) !important;  
+            border: 1px solid var(--signoff-bottom-card) !important;
+
+            .text{
+                background-color: var(--signoff-bottom-card) !important;
+            }
+        }
+
+        }
+        
+       
+    .explore-col .dropdown-menu,
+    .explore-col .dropdown-menu:hover, 
+    .explore-col .dropdown-menu:focus,
+    .explore-col .dropdown-menu .dropdown-item,
+    .explore-col .dropdown-menu:hover .dropdown-item,
+    .explore-col .dropdown-menu:focus .dropdown-item,
+    .explore-col:hover .dropdown-menu .dropdown-item, 
+    .explore-col:hover .dropdown-menu .dropdown-item:hover, .explore-col:hover .dropdown-menu 
+    .dropdown-item:focus, .explore-col:hover .dropdown-menu:hover .dropdown-item, .explore-col:hover .dropdown-menu:hover .dropdown-item:hover, .explore-col:hover .dropdown-menu:hover .dropdown-item:focus
+     {
+            background-color: var(--footer-components-color) !important;
+    }
+
+    .explore-col .dropdown-menu .dropdown-item span{
+        color: var(--sidebar-maincolor) !important;
+
+        .dropdown-menu .dropdown-item span:hover{
+            color: var(--sidebar-activecolor) !important;
+        }
+    
+    }
+
+    .footer-body {
+               
+        .vue-treeselect__control {
+            background-color: var(--footer-components-color) !important;
+            border: 0px solid var(--footer-components-color) !important;
+            // border-top-color: #2e2d58;
+        }
+    }
+
+    
+    .toolbarDropdown .dropdown-menu,
+    .multiselect,
+    .sumVolume .multiselect__input,
+    .sumVolume .multiselect__content-wrapper,
+    .sumVolume .multiselect__tags,
+    #dqrModal_indicator .multiselect__tags
+    {
+        background-color: var(--maindropdown-bg-color) !important;
+        border: 0px solid var(--maindropdown-bg-color) !important;
+    }
+  
+    .mx-calendar-content .cell.active,
+    .sumVolume .multiselect__option--highlight{
+        background-color: var(--primary-bg-color) !important;
+    }
+
+    .fullscreen.fullContainer{
+        background-color: var(--bg-main-color) !important;
+    }
+
+   
+    .dynamic-modules-section{
+
+        .card-body,.card{
+            background-color: transparent !important;
+
+        }
+
+        .fullContainer{
+            border: 1px solid var(--border-grey-color) !important;
+            border-radius: 5px;
+        }
+
+        .card-header{
+            background-color: transparent !important;
+            border: transparent;
+        }
+
+      
+    }
+
+    .right_menu .fa{
+        color: var(--fa-subfirst-color) !important;
+        // opacity: 1 !important;
+        
+    }
+
+
+        .bg-data .card-header,
+        .top_menu .nav,
+        .sect_de_wrap h5,
+        .med-list-item:hover
+        {
+            background-color: var(--signoff-top-card) !important;
+        }
+ 
+        .myDivToPrint .vue-grid-item .card{
+         background-color: transparent !important;
+        }
+ 
+        .top_menu .nav{
+         background-color: var(--maincard-bg-color) !important;
+        }
+ 
+      
+        .med-list-item:hover{
+         color: var(--text-color) !important;
+        }
+    
+    
+        .map-collapse-btndiv,
+        .modal-content .modal-body .new-resetbtn,
+        .dashboardchart-container .form-control#exampleFormControlSelect1{
+            background-color: var(--main-header-color) !important;
+            border: var(--main-header-color) !important;
+            color: var(--text-color);
+        }
+    
+        .condom-filter,
+        .condom-filter span
+        {
+            background-color: var(--primary-bg-color) !important;
+            border: var(--primary-bg-color) !important;
+        }
+       
+       .signoff-modal-header .heading{
+         background: var(--signoff-bottom-card) !important;
+       }
+       
+ 
+     .fa-cog{
+         background-color: var(--primary-bg-color) !important;
+     }
+
+     #page-content-wrapper {
+        
+        .header-body .fa-cog{
+            background-color: transparent !important;
+        }   
+    }
+
+        .vue-resizable-handle{
+            background-color: var(--maindropdown-bg-color) !important;
+        }
+
+
+        
+        .bg-head,
+        .bg-fav{
+           
+            background-color: var(--main-header-color) !important; 
+            color: var(--text-color) !important;
+        }
+
+
+        .page-link{
+            background-color: var(--primary-bg-color) !important;
+            border-color: var(--primary-bg-color) !important;
+          }
+
+          .page-item.active .page-link{
+            background-color: var(--maindropdown-bg-color) !important;
+          }
+
+          .timeFrequenncyDropdown{
+            background-color: var(--maindropdown-bg-color) !important;
+            border-color: var(--maindropdown-bg-color) ;
+          }
+
+       
+    .paginaionWrap .paginaionDiv .pagination .page-item .page-link{
+        color: var(--text-color) !important;
+    }
+
+
+    #dropdownOptions, .chart-dd-menu,
+    .sumVolume .multiselect__single{
+        background-color: var(--maindropdown-bg-color) !important;
+    }
+
+    #dropdownChartExportOptions{
+        background-color: var(--bg-main-color) !important;
+    }
+
+    .modal .drilldownTabs .nav-tabs .nav-link.active,
+    .modal .interactive_analytics .nav-tabs .nav-link.active
+   {
+        background: var(--main-header-color) !important;
+    }
+
+
+   .modal-xl .modal-footer{
+   border-top: 0px solid transparent !important;
+   }
+
+        //adminCSS themeChanges
+        
+        .main-tabs,
+        .tab-name{
+            margin-bottom: 0px !important;
+        }
+
+
+        .swal2-styled.swal2-cancel,
+        .top-date-page-div span,
+        .top-date-page-div span:hover,
+        .modal-content .modal-body .btn-secondary.cancelgrey-report
+       {
+            background: var( --main-header-color ) !important;
+            border: var(--main-header-color) !important;
+        }
+
+        .modal-content .form-control,
+        .report-dialog .custom-select,
+        .vue-color .custom-select,
+        #createModuleModal .custom-select
+        {
+            background-color: var(--signoff-bg-color ) !important;
+            border: 1px solid var(--signoff-bg-color)!important;
+        }
+
+      
+            .vue-treeselect__menu,
+            .vue-treeselect__control {
+                background-color: var(--maindropdown-bg-color) !important;
+                border: 0px solid var(--maindropdown-bg-color) !important;
+                border-top-color: var(--vue-custom-color);
+            }
+
+            .swal2-popup,
+            .noteBackground{
+                background-color: var(--signoff-bottom-card) !important;
+            }
+    
+            .swal2-styled.swal2-confirm,
+            .modal-content .modal-body .btn-secondary.addgrey-report{
+                background: var(--sidebar-border-left) !important;
+                border: var(--sidebar-border-left) !important;
+            }
+    
+      
+
+        .mdgridviewpage-bg{
+        
+            .md_tabs .nav-tabs .nav-link.active{
+                border-bottom: 0px solid transparent !important
+            }
+
+            .charts-tabs .nav-tabs .nav-link.active{
+                background-color: var(--main-header-color) !important;
+                border-bottom: transparent !important;
+            }
+
+            .charts-tabs .nav-tabs .nav-link{
+                background-color: var(--border-grey-color) !important;
+            }
+
+          
+
+            .md_tabs .default-emu .nav-tabs .nav-link.active{
+                background-color: var(--main-header-color) !important;
+                
+            }
+
+          
+
+            .md_tabs .default-emu .nav-tabs .nav-link{
+                margin-bottom: 10px !important;
+            }
+
+        }
+
+        .adminConfig{ 
+            
+            .nav-tabs .nav-link:hover
+            {
+                background: var(--maindropdown-bg-color) !important;
+        
+            }
+
+            .nav-tabs .nav-link:hover .main-tabs{
+            
+                background-color: var(--border-grey-color) !important;
+            
+    
+            }
+
+            .nav-tabs .nav-link.active{
+               
+                background: var(--maindropdown-bg-color) !important;
+            }
+
+
+            .nav-tabs .nav-item.add-adminbtn .nav-link{
+                border-radius: 4px !important;
+            }
+
+
+        }
+   
+        .adminConfigInner{ 
+            
+            .card-header-tabs{
+                background-color: transparent!important;
+                border-top-right-radius: 10px !important;
+            }
+
+           .mdgridviewpage-bg .nav-tabs .nav-link.active,
+           .mdgridviewpage-bg .nav-tabs .nav-link:hover{
+                border-bottom: transparent !important;
+            }
+
+            
+            .nav-tabs 
+            {  
+            
+                .nav-link.active{
+                    background-color: var(--border-grey-color) !important;
+                    
+                }
+            }
+    
+
+        }
+
+  
+     
+        .datamappingtopcar{ 
+            
+            .md_nested_tabs.admin-main .border{
+                border: none !important;
+            }
+
+            .md_nested_tabs .border{
+              
+                .collapse-section-border{
+                    border: 1px solid var(--footer-components-color) !important;
+                }
+    
+              
+            }
+
+            .md_nested_tabs .md_tabs .card-header.nav-pills li a.active{
+            
+                background-color: var(--maindropdown-bg-color) !important;
+            }
+
+            .adminConfig .md_nested_tabs .border{
+                border: transparent !important;
+            }
+       
+        }
+
+       
+        .admin-side {
+            .dashboardchart-container .card{
+                background-color: var(--maincard-bg-color) !important;
+                
+             
+            }
+
+            .dashboardchart-container .card-border .card {
+                border: 1px solid var(--border-grey-color);
+                border-top-left-radius: 10px !important;
+                border-top-right-radius: 10px !important;
+                border-bottom-left-radius: 0px !important;
+                border-bottom-right-radius: 0px !important;
+            }
+
+            .vue-treeselect__control
+            .timeFrequenncyDropdown{
+                background-color: var(--maindropdown-bg-color) !important;
+                border: 0px solid var(--maindropdown-bg-color) !important;
+            }
+
+            .fa-cog{
+                background-color: transparent !important;
+            }
+
+            .custom-control-input:checked ~ .custom-control-label::before{
+                background-color: var(--custom-select-color) !important;
+                border: var(--custom-select-color) !important;
+            }
+    
+            .dashboardchart-container .card.admin-emucard{
+                border: 1px solid var(--border-grey-color) !important;
+                border-radius: 0% !important;
+            }
+
+        }  
+
+        .admin-sidebar{
+            
+                
+                    .md_nested_tabs .card .card-header.adminConfigInner{
+                            background-color: transparent !important;
+                    }
+            
+                    .card .md_tabs .accordion .card-header{
+                        border-top-left-radius: 10px !important;
+                        border-top-right-radius: 10px !important;
+                    }
+                    
+
+                    .md_nested_tabs .card .md_tabs .card-header{
+                        background-color: var(--signoff-top-card) !important;
+                    }
+
+                    .card .accordion .card-header{
+                        border-top-left-radius:0% !important;
+                        border-top-right-radius: 0% !important;
+            
+                    }    
+                    
+                    .card .card-header.adminConfigInner{
+                        background-color: transparent !important;
+                    }
+
+                    .card  .adminConfig .card-header,
+                    .md_nested_tabs .card .card-header {
+                        background-color: var(--primary-bg-color) !important;
+                    }
+        
+                                
+                    .card .accordion .card-header.sub-header{
+                        border-top-left-radius: 10px !important;
+                        border-top-right-radius: 10px !important;
+                        border-bottom-left-radius: 0px !important;
+                        border-bottom-right-radius: 0px !important;
+                    }
+        
+                    .md_nested_tabs .card .card-header.sub-header{
+                        background-color: var(--signoff-top-card) !important;
+                        border-top-left-radius: 10px !important;
+                        border-top-right-radius: 10px !important;
+                        border-bottom-left-radius: 0px !important;
+                        border-bottom-right-radius: 0px !important;
+                    }
+        
+                                
+                    .md_nested_tabs .card .adminConfigInner.card-header .border .card-header{
+                        background-color: var(--signoff-bg-color) !important;
+                    }
+
+    
+
+        }
+
+            .dashboardchart-container {
+                .map-admin .card{
+                    border-right-color: var(--footer-components-color ) !important;
+                    border-bottom-color: var(--footer-components-color ) !important;
+                    border-left-color: Var(--footer-components-color ) !important;
+                }
+            }
+
+           
+
+            //Admincardheader
+
+            .admin-sidebar .md_nested_tabs .card .card-header.map-header,
+            .admin-sidebar .md_nested_tabs .card .card-header.accordion-header1,
+            .accordion-header {
+                background-color: var(--signoff-top-card) !important;
+            }
+
+                            
+                .admin-sidebar .md_nested_tabs .card .card-header.accordion-header1{
+                
+                    border-top-left-radius: 10px !important;
+                    border-top-right-radius: 10px !important;
+
+                
+                }  
+
+              
+            .accordion .admin-sidebar .card .card-header{
+                background-color: var(--signoff-top-card) !important;          
+            }
+
+                    
+        #methodmapping .card-header,
+        .admin-sidebar .md_nested_tabs .card .card-header.method-header,
+        .admin-sidebar .md_nested_tabs .card.basic-header .card-header,
+        .admin-sidebar .md_nested_tabs .module-spacing .card .card-header.sub-header,
+        .admin-sidebar .md_nested_tabs .card .card-header.accordion-header2 {
+            background-color: var(--signoff-top-card) !important;
+        }
+
+
+            .accordianFp{
+                background: var(--signoff-top-card) !important;
+            }
+
+    .md_nested_tabs .collapse-section-border,
+    .map-admin .map-fpadmin,
+    .map-fpborder,
+    #collapseChartSettings .indicator-main,
+    .scalesTabSection .card-body{
+        border: 1px solid var(--footer-components-color ) !important;
+    }
+
+    .map-fpborder,
+    .border-admin .card{
+        border-right-color: var(--footer-components-color ) !important;
+        border-bottom-color: var(--footer-components-color ) !important;
+        border-left-color:  var(--footer-components-color ) !important;
+    }
+
+    .globalconfigcontainer{ 
+        .form-control{
+            background-color: var(--primary-bg-color) !important;
+            border: 1px solid var(--primary-bg-color) !important;
+        }
+
+        .color-admingroup .form-control{
+            background-color: transparent !important;
+            border-color: transparent !important;
+        }
+
+    }
+
+    .globalconfigcontainer .border-adminmain .form-control,
+    .color-shades .palette
+    {
+        background-color: var(--border-grey-color) !important;
+        border-color: var(--border-grey-color) !important;
+    }
+
+   
+
+.modal .sectionReportDiv .nav-tabs .nav-link.active,
+.modal .sectionReportDiv .nav-tabs .nav-item.show .nav-link{
+    background: var(--signoff-top-card) !important;
+    color: var(--text-color) !important;
+}
+
+.sectionReportDiv{ 
+    
+    .alert-secondary {
+        background: var(--signoff-top-card) !important;
+        color: var(--text-color) !important;
+    }
+
+    select option{
+        background-color: var(--primary-bg-color) !important;
+        // color: #000;
+    }
+
+}
+
+
+.mapping-border .accordion .card-header{
+    border-top-left-radius: 10px !important;
+    border-top-right-radius: 10px !important;
+    border-bottom-left-radius: 0px !important;
+    border-bottom-right-radius: 0px !important;
+}
+
+.groupCreationtable {
+    table tbody td{
+        background-color: var(--maincard-bg-color) !important;
+        border-right-color: var(--border-grey-color) !important;
+    }   
+
+}
+   
+.ql-toolbar.ql-snow {
+    background-color: var(--maindropdown-bg-color) !important;
+}
+
+.ql-container.ql-snow{
+    background-color: var(--primary-bg-color) !important;
+}
+
+.color-admingroup {
+    .input-group{
+        background-color: var(--border-grey-color) !important;
+        border-radius: 5px !important;
+    }
+
+    .input-group-prepend{
+        border-right: 1px solid var(--main-header-color) !important;
+    }
+
+}
+
+.user-module .vue-treeselect__control{
+    background-color: var(--border-grey-color) !important;
+    border-color: var(--border-grey-color) !important;
+}
+
+.main-theme{
+    .vue-treeselect__multi-value-item-container{
+       background-color: var(--border-grey-color);
+       
+       
+   }
+
+
+}  
+
+.input-group-append{
+    background-color: var(--primary-bg-color) !important;
+}
+
+.question-answer .form-control:disabled{
+    background-color: var(--signoff-bg-color) !important;
+}
+
+}
+        
+        
+
+                                             

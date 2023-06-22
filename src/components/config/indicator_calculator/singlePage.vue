@@ -3,36 +3,42 @@
 </template>
 <script>
 import service from "@/service";
-import { compress, decompress } from "compress-json";
-import {
-  getFormatedData,
-  getFinalChartData,
-  getFinalTotalCYP,
-  getTotalCYP,
-  getYearFormated,
-  getFormatedBackGroundData,
-  getComputedContFact,
-  getYearFormatedMonthly,
-  calculateSTMNotAdjusted,
-  getSumOfCont,
-  calculateNewBU,
-  getFinaladjNonAdjData,
-  getuserTrendsbyEmuForSlope,
-  getuserTrendsbyEmu,
-  getSumOfContMonthly,
-  getFpSourceVals,
-  getChartFormatedData,
-  getChartFormatedDataMonthly,
-  getUserTrendsData,
-  getUserTrendsDatafromSurvey,
-  getSurveyWiseData,
-  combinedComparisonEstimate,
-  comarisonEstimateColumnChart,
-  getadjNonAdjLineChart,
-  getadjNonAdjBarChart,
-  getMethodMixServicePie,
-  getSlopData,
-} from "./DataMassaging.js";
+import StaticColorMixin from "@/helpers/StaticColorMixin";
+import { compress, decompress, trimUndefinedRecursively } from "compress-json"; //https://www.npmjs.com/package/compress-json
+// import {
+//   getFormatedData,
+//   getFinalChartData,
+//   getFinalTotalCYP,
+//   getTotalCYP,
+//   getYearFormated,
+//   getFormatedBackGroundData,
+//   getComputedContFact,
+//   getYearFormatedMonthly,
+//   calculateSTMNotAdjusted,
+//   getSumOfCont,
+//   calculateNewBU,
+//   getFinaladjNonAdjData,
+//   getuserTrendsbyEmuForSlope,
+//   getuserTrendsbyEmu,
+//   getSumOfContMonthly,
+//   getFpSourceVals,
+//   getChartFormatedData,
+//   getChartFormatedDataMonthly,
+//   getUserTrendsData,
+//   getUserTrendsDatafromSurvey,
+//   getSurveyWiseData,
+//   combinedComparisonEstimate,
+//   comarisonEstimateColumnChart,
+//   getadjNonAdjLineChart,
+//   getadjNonAdjBarChart,
+//   getMethodMixServicePie,
+//   getSlopData,
+//   getemuComparisonData,
+//   emuOutputCompByMethod,
+//   emuOutputUserByMethod,
+// } from "./DataMassaging.js";
+import dataM from "./DataMassaging.js";
+
 export default {
   props: [
     "startP",
@@ -45,10 +51,23 @@ export default {
     "EMULocation",
     "categoryOptionID",
     "methodCatId",
+    "finalCount",
   ],
+  mixins: [StaticColorMixin],
   data() {
-    console.log(this.dqrConfig, this.defaultType, this.startP);
     return {
+      excludeAF: null,
+      filter: {
+        Commodities_Client: "inc",
+        Commodities_Facilities: "inc",
+        Users: "inc",
+        Visits: "inc",
+      },
+      finalAnnualSavedCharts: {},
+      annaulEMUChartsUpdated: false,
+      monthlyEMUChartsSaved: false,
+      mainmethodSeq: [],
+      monthlyMethodSeq: [],
       sYearArray: [],
       totalCyp: null,
       finalMethodArr: [],
@@ -111,8 +130,31 @@ export default {
     };
   },
   watch: {
+    annaulEMUChartsUpdated(newVal) {
+      if (
+        this.adjNonAdjCalcData &&
+        this.annualEMU &&
+        newVal === true &&
+        this.monthlyEMUChartsSaved === true &&
+        this.monthlyEMU &&
+        Object.keys(this.monthlyEMU).length > 0
+      ) {
+        this.deProcess = true;
+      }
+    },
+    monthlyEMUChartsSaved(newVal) {
+      if (
+        this.adjNonAdjCalcData &&
+        this.annualEMU &&
+        newVal === true &&
+        this.annaulEMUChartsUpdated === true &&
+        this.monthlyEMU &&
+        Object.keys(this.monthlyEMU).length > 0
+      ) {
+        this.deProcess = true;
+      }
+    },
     startP(newVal) {
-      console.log("watch called startP", newVal);
       this.start = newVal;
     },
     deProcess(newVal) {
@@ -131,14 +173,6 @@ export default {
         this.getFinalChartsdata(); //monthly method
       }
     },
-    // annualInputChartData: {
-    //   handler(val) {
-    //     if (val.length > 0) {
-    //       console.log(val, "annualInputChartData watch called");
-    //     }
-    //   },
-    //   deep: true,
-    // },
     monthlyStart(newval) {
       if (
         newval &&
@@ -151,6 +185,8 @@ export default {
         let configData = this.dqrConfig,
           defaultType = this.defaultType;
         let sStartYear = configData.emu_monthly[defaultType]["initialYear"];
+        let popYear =
+          configData.emu_monthly.Background_Data.SSDataRecentYear * 1 + 1;
         this.startYearM = sStartYear;
         let curr_date = this.$moment().format("YYYY-MM");
         let months = configData["emu_monthly"][defaultType]["backTrackingMonth"]
@@ -159,20 +195,24 @@ export default {
         let lYear = this.$moment(curr_date, "YYYY-MM")
           .subtract(months, "months")
           .format("YYYY");
+        let lastYearMonth = this.$moment(curr_date, "YYYY-MM")
+          .subtract(months, "months")
+          .format("YYYYMM");
         this.endYearM = lYear;
         let startDate = this.$moment(sStartYear, "YYYY"),
           endDate = this.$moment(lYear).add(1, "year"),
           monthsArr = [];
-        while (startDate.isBefore(endDate)) {
+        while (
+          startDate.isBefore(this.$moment(lastYearMonth).add(1, "months"))
+        ) {
           monthsArr.push(startDate.format("YYYYMM"));
           startDate.add(1, "month");
         }
 
         let sYearMonthly = monthsArr.join(";");
-
         this.sYearMonthly = sYearMonthly;
         this.monthContinuation(this.globeData, sStartYear, lYear, defaultType);
-        this.getPopulationData(configData, this.loc, sStartYear, lYear);
+        this.getPopulationData(configData, this.loc, sStartYear, popYear);
       }
     },
 
@@ -189,19 +229,24 @@ export default {
           .format("YYYY");
         this.startYear = stYear;
         this.endYear = lYear;
-        let yrStr = getYearFormated(stYear, lYear);
+        let yrStr = dataM.getYearFormated(stYear, lYear);
 
         let bgLastYear =
           configData["emu"]["Background_Data"]["SSDataRecentYear"];
-        let popYearStr = getYearFormated(stYear, bgLastYear);
+        let popYearStr = dataM.getYearFormated(stYear, bgLastYear * 1 + 1);
         console.log("population year", popYearStr);
         this.popYear = popYearStr;
         this.sYear = yrStr;
         let startDate = this.$moment(stYear, "YYYY"),
           endDate = this.$moment(lYear).add(1, "year"),
           monthsArr = [];
-
-        while (startDate.isBefore(endDate)) {
+        let lastYearMonth = this.$moment(curr_date, "YYYY-MM")
+          .subtract(months, "months")
+          .format("YYYYMM");
+        this.endYearM = lYear;
+        while (
+          startDate.isBefore(this.$moment(lastYearMonth).add(1, "months"))
+        ) {
           monthsArr.push(startDate.format("YYYYMM"));
           startDate.add(1, "month");
         }
@@ -210,10 +255,8 @@ export default {
         this.sYearMonthly = sYearMonthly;
         //calling annual basic functions
         if (this.sYear && this.loc && this.defaultType) {
-          ////console.log("Calling sYear useeffect getAnnualSectorReporting");
           this.getCatOptCombo();
           this.getAllCatOptCombo();
-          this.getAnnualSectorReporting(this.loc);
           if (!this.disableChart) {
             this.getReportingRate(
               this.loc,
@@ -222,51 +265,48 @@ export default {
               this.defaultType
             );
           }
+          this.getAnnualSectorReporting(this.loc);
         }
       }
     },
     start(newVal) {
-      console.log("calling start", newVal, this.startP);
       if (this.startP) this.start = this.startP;
       if (newVal) this.setValues();
     },
   },
   methods: {
     saveJson(noalert = true) {
-      // console.log(this.dqrConfig);
       //this.$store.commit("setLoading", true);
+      let key = this.generateKey("dqrModule");
       service
-        .updateConfig(this.dqrConfig, "dqrModule_en", false, "fp-dashboard")
+        .updateConfig(this.dqrConfig, key, false, "fp-dashboard")
         .then((resp) => {
           if (resp.data.status === "OK") {
             //this.$store.commit("setLoading", false);
             if (noalert)
-              this.$swal({
+              this.sweetAlert({
                 title: "Data updated successfully.",
-                type: "success",
-              }).then(() => {});
+              });
           }
         })
         .catch((err) => {
           service
-            .saveConfig(this.dqrConfig, "dqrModule_en", false, "fp-dashboard")
+            .saveConfig(this.dqrConfig, key, false, "fp-dashboard")
             .then((resp) => {
               if (resp.data.status === "OK") {
                 // this.$store.commit("setLoading", false);
                 if (noalert)
-                  this.$swal({
+                  this.sweetAlert({
                     title: "Data saved successfully.",
-                    type: "success",
-                  }).then(() => {});
+                  });
               }
             })
             .catch((er) => {
               // this.$store.commit("setLoading", false);
               if (noalert)
-                this.$swal({
+                this.sweetAlert({
                   title: "Something went wrong. Please try again later.",
-                  type: "error",
-                }).then(() => {});
+                });
             });
         });
     },
@@ -275,7 +315,6 @@ export default {
         return obj["displayName"] === dataEleName;
       });
       if (isExistDEArAdj.length) {
-        //console.log("Data Element already exist", isExistDEAr);
         let actDEID = isExistDEArAdj[0]["id"];
         // setActDEIDInc(actDEID);
         return actDEID;
@@ -286,7 +325,6 @@ export default {
             orgResp.data.organisationUnitLevels.forEach((oj) => {
               if (!orgLevels.includes(oj.level)) orgLevels.push(oj.level);
             });
-            //console.log("create ID");
             let createJson = {
               aggregationType: "SUM",
               domainType: "AGGREGATE",
@@ -297,7 +335,6 @@ export default {
               legendSets: [],
               aggregationLevels: orgLevels,
             };
-            ////console.log(createJson);
             service
               .createDE(createJson)
               .then((resp) => {
@@ -310,7 +347,6 @@ export default {
                 }
               })
               .catch((res) => {
-                console.log(res, "in catch DE");
                 return null;
               });
           }
@@ -323,33 +359,35 @@ export default {
         dataValues: [],
       };
       let monthlyEMUbyMethod = this.totalEMUByMethod;
-      console.log("in uploadFile function", monthlyEMUbyMethod);
       Object.keys(monthlyEMUbyMethod).forEach((method) => {
         let innerObj = monthlyEMUbyMethod[method];
         Object.keys(innerObj).forEach((year) => {
           let val = innerObj[year];
-          //  Object.keys(actObj).forEach((subMethod) => {
-          let singleCat = this.allCatOpt.filter(
-            (obj) => obj.displayName === method
-          );
-          if (singleCat.length > 0) {
-            let innerObj = {
-              dataElement: this.totalEMUByMethodDEID,
-              period: year,
-              orgUnit: selectedLoc.split("/")[1],
-              categoryOptionCombo: singleCat[0]["id"], //"HllvX50cXC0"
-              attributeOptionCombo: singleCat[0]["id"],
-              value: val,
-            };
-            finalIncJson["dataValues"].push(innerObj);
-          } else {
-            console.log(
-              "data not uploaded for method " +
-                subM +
-                " as Category Option Combo not craeted"
+          if (year !== "name" && year !== "subname") {
+            //  Object.keys(actObj).forEach((subMethod) => {
+            let singleCat = this.allCatOpt.filter(
+              (obj) => obj.displayName === method
             );
+            if (singleCat.length > 0) {
+              let innerObj = {
+                dataElement: this.totalEMUByMethodDEID,
+                period: year,
+                orgUnit: selectedLoc.split("/")[1],
+                categoryOptionCombo: singleCat[0]["id"], //"HllvX50cXC0"
+                attributeOptionCombo: singleCat[0]["id"],
+                value: val,
+              };
+              finalIncJson["dataValues"].push(innerObj);
+            } else {
+              console.log(
+                "data not uploaded for method " +
+                  subM +
+                  " as Category Option Combo not craeted"
+              );
+            }
+
+            // });
           }
-          // });
         });
       });
 
@@ -357,7 +395,6 @@ export default {
         annualEMU = this.annualEMU,
         monthlyEMU = this.monthlyEMU;
 
-      console.log("in uploadFile function", adjNonAdjCalcData);
       Object.keys(adjNonAdjCalcData.adjusted).forEach((method) => {
         let innerObj = adjNonAdjCalcData.adjusted[method];
         Object.keys(innerObj).forEach((year) => {
@@ -430,6 +467,7 @@ export default {
         };
         finalIncJson["dataValues"].push(innerObj);
       });
+      console.log(annualEMU, "annualEMU");
       Object.keys(annualEMU["exCondom"]["data"]).forEach((period) => {
         let value = annualEMU["exCondom"]["data"][period];
         let innerObj = {
@@ -442,22 +480,25 @@ export default {
         };
         finalIncJson["dataValues"].push(innerObj);
       });
+      console.log(monthlyEMU, "monthlyEMU");
+
       Object.keys(monthlyEMU).forEach((period) => {
-        let value = monthlyEMU[period];
-        let innerObj = {
-          dataElement: this.DataElementID,
-          period: period,
-          orgUnit: selectedLoc.split("/")[1],
-          categoryOptionCombo: this.cocId,
-          attributeOptionCombo: this.cocId,
-          value: String(value),
-        };
-        finalIncJson["dataValues"].push(innerObj);
+        if (period !== "name" && period !== "subname") {
+          let value = monthlyEMU[period];
+          let innerObj = {
+            dataElement: this.DataElementID,
+            period: period,
+            orgUnit: selectedLoc.split("/")[1],
+            categoryOptionCombo: this.cocId,
+            attributeOptionCombo: this.cocId,
+            value: String(value),
+          };
+          finalIncJson["dataValues"].push(innerObj);
+        }
       });
       await service
         .uploadJson(finalIncJson)
         .then((resp) => {
-          ////console.log(resp);
           if (resp && resp.data && resp.data.status === "OK") {
             return resp;
           } else {
@@ -477,7 +518,6 @@ export default {
             })
             .then(() => {
               service.showTaskSumm(uploadID).then((taskResp) => {
-                ////console.log(taskResp);
                 if (
                   taskResp &&
                   taskResp.data &&
@@ -507,13 +547,6 @@ export default {
         });
     },
     async fetchData() {
-      // if(status === "Calculation Done")
-      // {
-      console.log(
-        "fetchdata method called",
-        this.methodCatId,
-        this.categoryOptionID
-      );
       if (
         this.deList &&
         this.deNameInc &&
@@ -592,13 +625,6 @@ export default {
           DEID: this.DataElementID,
           type: "Monthly EMU",
         });
-        console.log(
-          this.DataElementIDinc,
-          this.DataElementIDex,
-          this.DataElementID,
-          "Data Elements"
-        );
-
         this.dqrConfig.emu[this.defaultType]["annualDE"] = annualDEArr;
         this.dqrConfig.emu[this.defaultType]["monthlyDE"] = monthlyDEArr;
 
@@ -694,7 +720,7 @@ export default {
 
       let categoryData = configData.emu_monthly;
 
-      let allYear = getYearFormatedMonthly(startYearM, endYearM * 1 + 1);
+      let allYear = dataM.getYearFormatedMonthly(startYearM, endYearM * 1 + 1);
       let aBackgorundIndicators = categoryData["Background_Data"][
         "backgroundIndicators"
       ]
@@ -728,7 +754,7 @@ export default {
         let key = `population_${popType}_${levelid}`;
 
         let popObj = {};
-        if (!population) {
+        if (!this.population) {
           await service
             .getSavedConfig(key, false, "fp-dashboard")
             .then(async (popResp) => {
@@ -739,18 +765,22 @@ export default {
                       rows: decompress(JSON.parse(popResp.data.rows)),
                     }
                   : popResp.data;
+
               let newpopResponse = popResponse.rows.filter(
                 (arr) => arr[2] === locationID
               );
               newpopResponse.forEach((data) => {
                 popObj[data[1]] = data[3] * 1;
               });
+              console.log(popResponse, newpopResponse);
+
               this.population = popObj;
             })
             .catch((res) => {});
         } else {
           popObj = this.population;
         }
+        console.log(popObj, "popObj");
         let oPopulation = {};
         Object.keys(popObj).forEach((key) => {
           let oContVal = {};
@@ -838,10 +868,16 @@ export default {
           }
         });
         this.monthlyPopulation = oMonthPopulation;
-        if (this.monthlyPopulation && this.population) {
-          this.getMonthlyBackgrounData();
-          this.generateFormatedData();
-        }
+      }
+
+      if (this.monthlyPopulation && this.population) {
+        console.log(
+          this.monthlyPopulation,
+          this.population,
+          "this.monthlyPopulation && this.population"
+        );
+        this.getMonthlyBackgrounData();
+        this.generateFormatedData();
       }
     },
     async getMonthlyBackgrounData() {
@@ -855,16 +891,7 @@ export default {
       let backData =
           categoryData.emu_monthly.Background_Data.fpSourceIndicators,
         sLocId = selectedLoc.split("/")[1];
-      let stYear = this.startYearM;
-      let eYaer = this.endYearM;
-      let startDate = this.$moment(stYear, "YYYY"),
-        endDate = this.$moment(eYaer).add(1, "year"),
-        months = [];
 
-      while (startDate.isBefore(endDate)) {
-        months.push(startDate.format("YYYYMM"));
-        startDate.add(1, "month");
-      }
       let sYear = this.sYearMonthly;
       let oData = {};
 
@@ -900,7 +927,10 @@ export default {
               //nNumber++;
 
               key["subIndicators"].forEach((de) => {
-                let sKey = de.static_name;
+                let sKey =
+                  typeof de.static_name == "object"
+                    ? de.static_name[this.$i18n.locale]
+                    : de.static_name;
 
                 if (!oData[sKey]) {
                   oData[sKey] = {};
@@ -911,7 +941,13 @@ export default {
                 Object.keys(de["selectedDatastoreDE"]).forEach((sde) => {
                   ids.push(de["selectedDatastoreDE"][sde]["id"]);
                   dName[de["selectedDatastoreDE"][sde]["id"]] =
-                    de["selectedDatastoreDE"][sde]["static_displayName"];
+                    typeof de["selectedDatastoreDE"][sde][
+                      "static_displayName"
+                    ] == "object"
+                      ? de["selectedDatastoreDE"][sde]["static_displayName"][
+                          this.$i18n.locale
+                        ]
+                      : de["selectedDatastoreDE"][sde]["static_displayName"];
                 });
                 if (ids.length) {
                   Object.keys(dName).forEach((name) => {
@@ -926,7 +962,7 @@ export default {
                         let year = obj[1] * 1;
                         if (year >= firstYear) {
                           firstYear = year;
-                          oData[sKey][statName] = {
+                          oData[sKey][statName] = oData[sKey][statName] || {
                             name: key.static_name,
                             vals: {},
                           };
@@ -951,7 +987,10 @@ export default {
       } else {
         backData.forEach((key) => {
           key["subIndicators"].forEach(async (de) => {
-            let sKey = de.static_name;
+            let sKey =
+              de.static_name == "object"
+                ? de.static_name[this.$i18n.locale]
+                : de.static_name;
 
             if (!oData[sKey]) {
               oData[sKey] = {};
@@ -961,9 +1000,14 @@ export default {
 
             Object.keys(de["selectedDE"]).forEach((sde) => {
               ids.push(de["selectedDE"][sde]["id"]);
+              //updatedName is replaced with static_displayName on 27 march 2023
               dName.push({
                 [de["selectedDE"][sde]["id"]]:
-                  de["selectedDE"][sde]["updatedName"],
+                  typeof de["selectedDE"][sde]["static_displayName"] == "object"
+                    ? de["selectedDE"][sde]["static_displayName"][
+                        this.$i18n.locale
+                      ]
+                    : de["selectedDE"][sde]["static_displayName"],
               });
             });
             let sdes = ids.join(";");
@@ -1001,17 +1045,23 @@ export default {
       this.defaultLevelID = levelID;
       let type = this.defaultType;
       let selectedLoc = this.loc;
-      let oRet = getFormatedData(
+      let oRet = dataM.getFormatedData(
         this.dqrConfig.emu[type],
+        this.$store.getters.getApplicationModule(
+          this.$store.getters.getIsMultiProgram
+        ),
         this.startYear,
-        selectedLoc.split("/")[1],
+
         this.bgData.cyp[type],
         this.bgData.continuation[type]
       );
       let globalConfig = oRet.data;
+      console.log(globalConfig, "globalConfig");
       this.totalCyp = oRet.totalCYP;
       this.finalMethodArr = oRet.finalMethodArr;
       this.methodSeq = oRet.methodSeq;
+      this.mainmethodSeq = oRet.mainmethodSeq;
+      this.monthlyMethodSeq = oRet.monthlyMethodSeq;
       this.gConfig = globalConfig;
       if (globalConfig.chartArr.length) {
         this.isGlobalConfig = true;
@@ -1032,53 +1082,34 @@ export default {
         };
 
       for (i = 0; i < nLen; i++) {
-        aFinalCharts.push(getFinalChartData(aChartArr[i], ochartConfig));
+        aFinalCharts.push(dataM.getFinalChartData(aChartArr[i], ochartConfig));
       }
 
       aFinalCharts.push(
-        getFinalTotalCYP(getTotalCYP(aChartArr), ochartConfig, this.totalCyp)
+        dataM.getFinalTotalCYP(
+          dataM.getTotalCYP(aChartArr),
+          ochartConfig,
+          this.totalCyp
+        )
       );
 
       this.annualInputChartData = aFinalCharts;
-      console.log("annualInputChartData", this.annualInputChartData);
-      if (this.annualInputChartData.length > 0) {
-        this.saveCharts(
-          "annualCharts_en",
-          "inputCharts",
-          this.annualInputChartData
-        );
-      }
-      // dataM.saveChartColors(aFinalCharts, this.tabName);
-      // console.log(this.aFinalInputData);
+      trimUndefinedRecursively(this.annualInputChartData);
+      this.finalAnnualSavedCharts["inputCharts"] = [];
+      this.finalAnnualSavedCharts["inputCharts"] = JSON.stringify(
+        compress(this.annualInputChartData)
+      );
     },
     async getAllDataelemsData() {
       let selectedLoc = this.loc;
       let gConfig = this.gConfig;
-      let startDate = this.$moment(this.startYear, "YYYY"),
-        endDate = this.$moment(this.endYear).add(1, "year"),
-        months = [];
 
-      while (startDate.isBefore(endDate)) {
-        months.push(startDate.format("YYYYMM"));
-        startDate.add(1, "month");
-      }
+      let newPeriodStr = this.sYear.concat(";", this.sYearMonthly);
 
-      // this.allMonthArray = months;
-      // months.sort(() => Math.random() - 0.5);
-      let mntStr = months.join(";");
-      //console.log(mntStr, sYear);
-      let newPeriodStr = this.sYear.concat(";", mntStr);
-      //console.log("newPeriodStr", newPeriodStr);
-
-      ////console.log("calling getAllDataelemsData");
-      //console.log("annual chartArr", gConfig);
       let i,
         aChart = gConfig.chartArr,
         ncLen = aChart.length,
-        //sLocId = gConfig.locationId,
         sLocId = selectedLoc.split("/")[1],
-        //sYear = dataM.getYearFormated(this.startYear,this.endYear),
-        //sYear = getYearFormated(startYear, endYear),
         nFlag1 = 0,
         nFlag2 = 0,
         noDataCount = 0;
@@ -1111,22 +1142,14 @@ export default {
           }
           nFlag2++;
           let subinpName = aDe[j].name;
-          ////console.log(sdes)
           await service
             .getAnalyticalIndicatorData(sdes.join(";"), sLocId, newPeriodStr)
             .then(async (response) => {
-              // console.log("getting response", subinpName, response);
               if (
                 response !== undefined &&
                 response.data &&
                 response.data.rows.length
               ) {
-                // console.log(
-                //   "getting response with length",
-                //   subinpName,
-                //   response.data.rows.length
-                // );
-
                 if (!aChart[nI].charts) {
                   aChart[nI].charts = {};
                 }
@@ -1136,22 +1159,19 @@ export default {
                 if (!aChart[nI].scaling) {
                   aChart[nI].scaling = {};
                 }
-                // console.log(aChart[nI].charts, nI, "annual charts data");
 
-                aChart[nI].charts = getChartFormatedData(
+                aChart[nI].charts = dataM.getChartFormatedData(
                   response.data.rows,
                   aChart[nI].dataElems[nJ],
                   aChart[nI].charts,
                   this.sYear
                 );
-                // console.log(aChart[nI].charts, "annual charts data");
-                aChart[nI].monthlyCharts = getChartFormatedDataMonthly(
+                aChart[nI].monthlyCharts = dataM.getChartFormatedDataMonthly(
                   response.data,
                   aChart[nI].dataElems[nJ],
                   aChart[nI].monthlyCharts,
-                  mntStr
+                  this.sYearMonthly
                 );
-                // console.log(aChart[nI].monthlyCharts, "monthly charts data");
               } else {
                 noDataCount++;
                 showAlert = true;
@@ -1172,8 +1192,6 @@ export default {
       );
 
       if (nFlag1 === nFlag2 && nFlag1 !== 0) {
-        console.log("Input data fetched");
-
         this.bRequestFlag = true;
         this.scaling = scallingOj;
         this.chartConfigUpdated = true;
@@ -1189,41 +1207,55 @@ export default {
           "location" + selectedLoc + " Error NO Data found for -" + alertSt
         );
         this.stopProcessing(selectedLoc, "No data found", this.defaultType);
-        // getIndividualOrganisation(selectedLoc.split('/')[1]).then(key => {
-        //   // //console.log(key)
-        //   //console.log("location" + key.data.displayName + "Error NO Data found for" - alertSt)
-        //   //   this.bshowLoader=false;
-        // })
-        // return "location"+ service.getLocationName(this.location.split('/')[1])+ "Error" - mainAlertSt;
-        //  return this.location;
       }
     },
     getOtherChartDeatils(emutype, obj, index, type) {
+      let chartConfigObj =
+        emutype === "Output"
+          ? this.dqrConfig["emu"][emutype]
+          : this.dqrConfig[emutype][this.defaultType];
       obj.title =
-        this.dqrConfig[emutype][this.defaultType]["derivedCharts"][index][
-          "chartOptions"
-        ]["chartName"];
+        typeof chartConfigObj["derivedCharts"][index]["chartOptions"][
+          "chartName"
+        ] == "object"
+          ? chartConfigObj["derivedCharts"][index]["chartOptions"]["chartName"][
+              this.$i18n.locale
+            ]
+          : chartConfigObj["derivedCharts"][index]["chartOptions"]["chartName"];
       obj.source = "";
       obj.xTitle =
-        this.dqrConfig[emutype][this.defaultType]["derivedCharts"][index][
-          "chartOptions"
-        ]["xAxis"]["text"];
+        typeof chartConfigObj["derivedCharts"][index]["chartOptions"]["xAxis"][
+          "text"
+        ] == "object"
+          ? chartConfigObj["derivedCharts"][index]["chartOptions"]["xAxis"][
+              "text"
+            ][this.$i18n.locale]
+          : chartConfigObj["derivedCharts"][index]["chartOptions"]["xAxis"][
+              "text"
+            ];
       obj.yTitle =
-        this.dqrConfig[emutype][this.defaultType]["derivedCharts"][index][
-          "chartOptions"
-        ]["yAxis"]["text"];
+        typeof chartConfigObj["derivedCharts"][index]["chartOptions"]["yAxis"][
+          "text"
+        ] == "object"
+          ? chartConfigObj["derivedCharts"][index]["chartOptions"]["yAxis"][
+              "text"
+            ][this.$i18n.locale]
+          : chartConfigObj["derivedCharts"][index]["chartOptions"]["yAxis"][
+              "text"
+            ];
       obj.disable =
-        this.dqrConfig[emutype][this.defaultType]["derivedCharts"][index][
-          "chartOptions"
-        ]["disableChart"];
-      obj.cid =
-        this.dqrConfig[emutype][this.defaultType]["derivedCharts"][index][
-          "chartOptions"
-        ]["cid"];
+        chartConfigObj["derivedCharts"][index]["chartOptions"]["disableChart"];
+      obj.cid = chartConfigObj["derivedCharts"][index]["chartOptions"]["cid"];
       obj.chartInfo =
-        this.dqrConfig[emutype][this.defaultType]["derivedCharts"][index][
-          "chartOptions"
-        ]["chartInfo"];
+        typeof chartConfigObj["derivedCharts"][index]["chartOptions"][
+          "chartInfo"
+        ] == "object"
+          ? chartConfigObj["derivedCharts"][index]["chartOptions"]["chartInfo"][
+              this.$i18n.locale
+            ]
+          : chartConfigObj["derivedCharts"][index]["chartOptions"]["chartInfo"];
+
+      obj.reportChartType = type === "stacked" ? "column_stack" : type;
       obj.type = type;
       return obj;
     },
@@ -1233,30 +1265,19 @@ export default {
       let type = this.defaultType,
         bgData = this.bgData;
       this.sYearArray = this.sYear.split(";");
-      // console.log(
-      //   "calling getOutComAdjustment",
-      //   bgData,
-      //   this.gConfig.chartArr,
-      //   this.repoRate,
-      //   this.disableChart
-      // );
-      //setStatus("Long term and Short term methods calculation is started.")
+
       let allMethodsAdjusted = { adjusted: {}, nonAdjusted: {} };
 
       let oAdjustmentFactors =
         bgData.adjustmentFactorTypeWise[type] || bgData.adjustmentFactor;
-      let oSTMAdjusment = calculateSTMNotAdjusted(
+      let oSTMAdjusment = dataM.calculateSTMNotAdjusted(
         this.gConfig.chartArr,
         this.repoRate,
         oAdjustmentFactors,
         this.disableChart
       );
 
-      // //console.log(type, "Short term methods calculation", repoRate, oSTMAdjusment);
-      // //console.log("Continuation factor ", bgData.continuation[type]);
-      let aSumOfCont = getSumOfCont(bgData.continuation[type]);
-      // bIsUser = this.tabName === "fp_users";
-      ////console.log(type, "aSumOfContinuation", aSumOfCont);
+      let aSumOfCont = dataM.getSumOfCont(bgData.continuation[type]);
       let continuation = {};
       Object.keys(bgData.continuation[type]).forEach((cont) => {
         continuation[cont] = [];
@@ -1269,7 +1290,7 @@ export default {
         );
       });
 
-      let newBaseLineUsers = calculateNewBU(
+      let newBaseLineUsers = dataM.calculateNewBU(
         this.gConfig.chartArr,
         aSumOfCont,
         this.repoRate,
@@ -1289,11 +1310,10 @@ export default {
       console.log("allMethodsAdjusted", allMethodsAdjusted);
       this.adjNonAdjCalcData = allMethodsAdjusted;
 
-      let adjNonAdjData = getFinaladjNonAdjData(allMethodsAdjusted);
+      let adjNonAdjData = dataM.getFinaladjNonAdjData(allMethodsAdjusted);
       console.log("adjNonAdjData", adjNonAdjData);
       let methodWiseAdjObject = adjNonAdjData.adjusted;
-      //setStatus("EMU Calculation started")
-      let userTrendsbyEmu = getuserTrendsbyEmu(
+      let userTrendsbyEmu = dataM.getuserTrendsbyEmu(
         this.sYear,
         methodWiseAdjObject,
         bgData.population
@@ -1301,14 +1321,12 @@ export default {
       this.annualEMU = userTrendsbyEmu;
 
       // Outputchart craetion start
-      let oUserTrends = getUserTrendsData(
+      let oUserTrends = dataM.getUserTrendsData(
         this.tabName,
         this.finalMethodArr,
         this.sYearArray,
         methodWiseAdjObject
       );
-      //console.log("oUserTrendsNew",oUserTrendsNew);
-      // console.log("oUserTrends",oUserTrends);
       let outPutTrendsChart = this.getOtherChartDeatils(
         "emu",
         oUserTrends,
@@ -1351,7 +1369,7 @@ export default {
       let oMethodMix = this.bgData.methodMix,
         oPopulation = this.bgData.population;
 
-      let surveyData = getSurveyWiseData(
+      let surveyData = dataM.getSurveyWiseData(
         this.sYearArray,
         this.finalMethodArr,
         unpdData,
@@ -1374,7 +1392,7 @@ export default {
       // }
 
       //comparison estimate chart calculation
-      let combinedComparisonEstimateChart = combinedComparisonEstimate(
+      let combinedComparisonEstimateChart = dataM.combinedComparisonEstimate(
         this.currentYear,
         [...this.finalMethodArr],
         this.sYearArray,
@@ -1390,12 +1408,13 @@ export default {
       outputChartObj["comparisionEstimateData"] = comparisionEstimateData;
 
       //Column chart for comparison estimate chart
-      let MordernUsersByMethodsData = comarisonEstimateColumnChart(
+      let MordernUsersByMethodsData = dataM.comarisonEstimateColumnChart(
         this.currentYear,
         this.finalMethodArr,
         this.sYearArray,
         methodWiseAdjObject,
-        surveyData
+        surveyData,
+        this.staticColors
       );
       MordernUsersByMethodsData = this.getOtherChartDeatils(
         "emu",
@@ -1405,11 +1424,12 @@ export default {
       );
       outputChartObj["MordernUsersByMethodsData"] = MordernUsersByMethodsData;
 
-      let adjNonAdjLineChart = getadjNonAdjLineChart(
+      let adjNonAdjLineChart = dataM.getadjNonAdjLineChart(
         this.sYearArray,
         this.finalMethodArr,
         adjNonAdjData,
-        surveyData
+        surveyData,
+        this.staticColors
       );
       let lineAdNonAdChartData = this.getOtherChartDeatils(
         "emu",
@@ -1419,7 +1439,7 @@ export default {
       );
       outputChartObj["lineAdNonAdChartData"] = lineAdNonAdChartData;
 
-      let adjNonAdjBarChart = getadjNonAdjBarChart(
+      let adjNonAdjBarChart = dataM.getadjNonAdjBarChart(
         this.currentYear,
         this.sYearArray,
         [...this.finalMethodArr],
@@ -1434,7 +1454,7 @@ export default {
       );
       outputChartObj["adNonadChartData"] = adNonadChartData;
 
-      let methodMixService = getMethodMixServicePie(
+      let methodMixService = dataM.getMethodMixServicePie(
         this.currentYear,
         this.finalMethodArr,
         this.sYearArray,
@@ -1446,12 +1466,14 @@ export default {
 
       let dhsData = this.bgData.DHS ? this.bgData.DHS : {};
       let pmaData = this.bgData.PMA ? this.bgData.PMA : {};
-      let userTrendsByMethodSurvey = getUserTrendsDatafromSurvey(
+      let bAllWomen =
+        this.dqrConfig.emu["Background_Data"]["FPWomenPopulation"] === "WRA";
+      let userTrendsByMethodSurvey = dataM.getUserTrendsDatafromSurvey(
         this.sYearArray,
         unpdData,
         dhsData,
         pmaData,
-        this.bAllWomen,
+        bAllWomen,
         this.bgData["bgIndColor"],
         unpdtext
       );
@@ -1461,12 +1483,13 @@ export default {
         Commodities_Facilities: this.$i18n.t("commodities_to_facility"),
         User: this.$i18n.t("fp_users"),
       };
-      userTrendsbyEmu = getuserTrendsbyEmuForSlope(
+      userTrendsbyEmu = dataM.getuserTrendsbyEmuForSlope(
         this.sYearArray,
         methodWiseAdjObject,
         oPopulation,
         userTrendsByMethodSurvey,
-        aSource[this.defaultType]
+        aSource[this.defaultType],
+        this.staticColors
       );
       let userTrendsByMethod = this.getOtherChartDeatils(
         "emu",
@@ -1476,7 +1499,7 @@ export default {
       );
       outputChartObj["userTrendsByMethod"] = userTrendsByMethod;
 
-      let slopeData = getSlopData(userTrendsbyEmu);
+      let slopeData = dataM.getSlopData(userTrendsbyEmu);
       let comparisionSlope = this.getOtherChartDeatils(
         "emu",
         slopeData,
@@ -1487,51 +1510,142 @@ export default {
       outputChartObj["methodWiseAdjObject"] = methodWiseAdjObject;
       outputChartObj["userTrendsbyEmu"] = userTrendsbyEmu;
 
-      //console.log("comparisionSlope by ashvini", this.comparisionSlope);
-      // console.log("adjNonAdjData.adjusted",adjNonAdjData.adjusted);
-      // if (this.getData) {
-      //   this.getData(this.tabName, methodWiseAdjObject, "userT", this.filter);
-      // }
-      // if (this.getData) {
-      //   this.getData(this.tabName, this.comparisionSlope, "slope", this.filter);
-      // }
-      // //console.log("userTrendsbyEmu",this.userTrendsByMethod)
-      // if (this.getData) {
-      //   this.getData(this.tabName, userTrendsbyEmu, "output", this.filter);
-      // }
       chartObj.push(outputChartObj);
-      this.saveCharts("annualCharts_en", "outputCharts", chartObj);
+      trimUndefinedRecursively(outputChartObj);
+      this.finalAnnualSavedCharts["outputCharts"] = {};
+      this.finalAnnualSavedCharts["outputCharts"] = JSON.stringify(
+        compress(outputChartObj)
+      );
+      let key = this.generateKey(`annualCharts_${this.$i18n.locale}`);
+      this.saveAnnualCharts(key);
       // Outputchart craetion end
     },
-    saveCharts(dataStoreKey, key, chartData) {
+    async saveAnnualCharts(dataStoreKey) {
       //"annualCharts_en"
-      console.log(key, chartData);
-      service
+      setTimeout(function () {
+        console.log("Hello World");
+      }, 1000);
+
+      await service
         .getSavedConfig(dataStoreKey, false, "fp-dashboard")
         .then((resp) => {
-          console.log(resp, "getdata from api");
           if (resp && resp.data) {
             let annualCharts = resp.data;
             if (!annualCharts[this.loc.split("/")[1]])
               annualCharts[this.loc.split("/")[1]] = {};
             if (!annualCharts[this.loc.split("/")[1]][this.defaultType])
               annualCharts[this.loc.split("/")[1]][this.defaultType] = {};
-            if (!annualCharts[this.loc.split("/")[1]][this.defaultType][key])
-              annualCharts[this.loc.split("/")[1]][this.defaultType][key] = [];
-            annualCharts[this.loc.split("/")[1]][this.defaultType][key] =
-              JSON.stringify(compress(chartData));
-            console.log(annualCharts);
+            annualCharts[this.loc.split("/")[1]][this.defaultType] =
+              this.finalAnnualSavedCharts;
+
             service
               .updateConfig(annualCharts, dataStoreKey, false, "fp-dashboard")
               .then((resp) => {
                 if (resp.data.status === "OK") {
-                  // this.$store.commit("setLoading", false);
-                  // if (noalert)
-                  //   this.$swal({
-                  //     title: "Data saved successfully.",
-                  //     type: "success",
-                  //   }).then(() => {});
-                  console.log("annual charts saved");
+                  console.log(
+                    JSON.stringify(JSON.parse(this.finalCount[this.loc])),
+                    this.loc,
+                    this.finalCount[this.loc] ===
+                      this.dqrConfig.emu.Background_Data.defaultDataType.length,
+                    dataStoreKey == "annualCharts"
+                  );
+                  if (
+                    this.finalCount[this.loc] ===
+                      this.dqrConfig.emu.Background_Data.defaultDataType
+                        .length &&
+                    dataStoreKey == `annualCharts_${this.$i18n.locale}`
+                  ) {
+                    this.saveFinalAnnualEMU(annualCharts);
+                  } else {
+                    this.annaulEMUChartsUpdated = true;
+                  }
+                }
+              })
+              .catch((er) => {
+                service
+                  .saveConfig(annualCharts, dataStoreKey, false, "fp-dashboard")
+                  .then((resp) => {
+                    if (resp.data.status === "OK") {
+                      if (
+                        this.finalCount[this.loc] ===
+                          this.dqrConfig.emu.Background_Data.defaultDataType
+                            .length &&
+                        key == "outputCharts" &&
+                        dataStoreKey == "annualCharts"
+                      ) {
+                        this.saveFinalAnnualEMU(annualCharts);
+                      } else {
+                        this.annaulEMUChartsUpdated = true;
+                      }
+                    }
+                  });
+              });
+          }
+        })
+        .catch(async (err) => {
+          console.log("in outer catch", err);
+          let annualCharts = {};
+          if (!annualCharts[this.loc.split("/")[1]])
+            annualCharts[this.loc.split("/")[1]] = {};
+          if (!annualCharts[this.loc.split("/")[1]][this.defaultType])
+            annualCharts[this.loc.split("/")[1]][this.defaultType] = {};
+          annualCharts[this.loc.split("/")[1]][this.defaultType] =
+            this.finalAnnualSavedCharts;
+          service
+            .saveConfig(annualCharts, dataStoreKey, false, "fp-dashboard")
+            .then((resp) => {
+              if (resp.data.status === "OK") {
+                if (
+                  this.finalCount[this.loc] ===
+                    this.dqrConfig.emu.Background_Data.defaultDataType.length &&
+                  key == "outputCharts" &&
+                  dataStoreKey == "annualCharts"
+                ) {
+                  this.saveFinalAnnualEMU(annualCharts);
+                } else {
+                  this.annaulEMUChartsUpdated = true;
+                }
+              }
+            });
+        });
+    },
+    async saveCharts(dataStoreKey, key, chartData, dataType) {
+      //"annualCharts_en
+      setTimeout(function () {
+        console.log(
+          "Hello World for saveCharts",
+          dataStoreKey,
+          key,
+          chartData,
+          dataType
+        );
+      }, 1000);
+      trimUndefinedRecursively(chartData);
+      await service
+        .getSavedConfig(dataStoreKey, false, "fp-dashboard")
+        .then((resp) => {
+          if (resp && resp.data) {
+            let annualCharts = resp.data;
+            if (!annualCharts[this.loc.split("/")[1]])
+              annualCharts[this.loc.split("/")[1]] = {};
+            if (!annualCharts[this.loc.split("/")[1]][this.defaultType])
+              annualCharts[this.loc.split("/")[1]][this.defaultType] = {};
+            annualCharts[this.loc.split("/")[1]][this.defaultType][key] = {};
+            let compressedData = JSON.stringify(compress(chartData));
+            // let compressedData = chartData;
+
+            annualCharts[this.loc.split("/")[1]][this.defaultType][key] =
+              compressedData;
+
+            service
+              .updateConfig(annualCharts, dataStoreKey, false, "fp-dashboard")
+              .then((resp) => {
+                if (resp.data.status === "OK") {
+                  console.log(
+                    "Charts saved for dashboard",
+                    this.defaultType,
+                    this.loc
+                  );
                 }
               })
               .catch((er) => {
@@ -1544,32 +1658,449 @@ export default {
                   .saveConfig(annualCharts, dataStoreKey, false, "fp-dashboard")
                   .then((resp) => {
                     if (resp.data.status === "OK") {
-                      console.log("annual charts key created");
+                      console.log(
+                        "Charts saved for dashboard",
+                        this.defaultType,
+                        this.loc
+                      );
                     }
                   });
               });
           }
         })
-        .catch((err) => {
+        .catch(async (err) => {
           console.log("in outer catch", err);
-          let annualCharts = {};
-          if (!annualCharts[this.loc.split("/")[1]])
-            annualCharts[this.loc.split("/")[1]] = {};
-          if (!annualCharts[this.loc.split("/")[1]][this.defaultType])
-            annualCharts[this.loc.split("/")[1]][this.defaultType] = {};
-
-          if (!annualCharts[this.loc.split("/")[1]][this.defaultType][key])
-            annualCharts[this.loc.split("/")[1]][this.defaultType][key] = [];
-          annualCharts[this.loc.split("/")[1]][this.defaultType][key] =
-            JSON.stringify(compress(chartData));
-          service
-            .saveConfig(annualCharts, dataStoreKey, false, "fp-dashboard")
+        });
+    },
+    async saveFinalAnnualEMU(annualCharts) {
+      console.log(
+        "====================== Calling saveFinalAnnualEMU method ======================="
+      );
+      let key = this.generateKey(`annualCharts_${this.$i18n.locale}`);
+      let allKeys = service.getAllKeys(false, "fp-dashboard");
+      allKeys.then(async (keys) => {
+        if (keys.data.includes(key)) {
+          await service
+            .getSavedConfig(key, false, "fp-dashboard")
             .then((resp) => {
-              if (resp.data.status === "OK") {
-                console.log("annual charts key created");
+              // console.log(resp, "getdata from api");
+              if (resp && resp.data) {
+                annualCharts = resp.data;
+                let outputCharts = annualCharts[this.loc.split("/")[1]]
+                  ? annualCharts[this.loc.split("/")[1]]
+                  : {};
+                if (outputCharts) {
+                  let selectedTypesArray =
+                    this.dqrConfig.emu.Background_Data.defaultDataType;
+                  if (selectedTypesArray.length > 0) {
+                    //first chart of emu o/p
+                    let obj = {
+                      commoditiesToClients: this.$i18n.t("Commodities_Client"),
+                      commoditiesToFacilities: this.$i18n.t(
+                        "Commodities_Facilities"
+                      ),
+                      fp_visits: this.$i18n.t("visits"),
+                      fp_users: this.$i18n.t("users"),
+                    };
+                    let aMICS = [];
+                    aMICS = [
+                      {
+                        name:
+                          this.dqrConfig.emu.Background_Data
+                            .FPWomenPopulation === "WRA"
+                            ? this.$i18n.t("mCPR_AW_MICS")
+                            : this.$i18n.t("mCPR_MW_MICS"),
+                        data: [],
+                        color: this.bgData["bgIndColor"]["MICS"],
+                        keyVal: {},
+                      },
+                    ];
+                    if (this.bgData["MICS"]) {
+                      for (let yearInd in this.sYearArray) {
+                        let year = this.sYearArray[yearInd];
+                        aMICS[0].data.push(
+                          this.bgData["MICS"][year]
+                            ? this.bgData["MICS"][year]
+                            : null
+                        );
+                        aMICS[0].keyVal[year] = this.bgData["MICS"][year]
+                          ? this.bgData["MICS"][year]
+                          : null;
+                      }
+                    }
+                    let unpdData = {},
+                      unpdtext = "";
+                    if (this.defaultLevelID == this.loc.split("/")[0]) {
+                      // unpdData = this.bgData.UNPD;
+                      unpdData = this.bgData.FPET;
+                      // unpdtext = 'unpd';
+                      unpdtext = "fpet";
+                    } else {
+                      unpdData = this.bgData.FPET;
+                      unpdtext = "fpet";
+                    }
+                    let dhsData = this.bgData.DHS ? this.bgData.DHS : {};
+                    let pmaData = this.bgData.PMA ? this.bgData.PMA : {};
+                    let bgSureyData = dataM.getUserTrendsDatafromSurvey(
+                      this.sYearArray,
+                      unpdData,
+                      dhsData,
+                      pmaData,
+                      this.bAllWomen,
+                      this.bgData["bgIndColor"],
+                      unpdtext
+                    );
+                    let outputdata = {}; //fr 1st chart
+                    let userTrendsData = {},
+                      surveyData = {},
+                      finalMethodArr = {}; //for 3rd chart
+                    selectedTypesArray.forEach((dttype) => {
+                      if (
+                        outputCharts[dttype] &&
+                        outputCharts[dttype]["outputCharts"]
+                      ) {
+                        let opChartData =
+                          typeof outputCharts[dttype]["outputCharts"] ===
+                          "string"
+                            ? decompress(
+                                JSON.parse(outputCharts[dttype]["outputCharts"])
+                              )
+                            : outputCharts[dttype]["outputCharts"];
+                        outputdata[dttype] = opChartData["userTrendsbyEmu"];
+                        userTrendsData[dttype] =
+                          opChartData["methodWiseAdjObject"];
+                        surveyData[dttype] = opChartData["surveyData"];
+                        finalMethodArr[dttype] = opChartData["finalMethodArr"];
+                      }
+                    });
+                    let oResponse = dataM.getemuComparisonData(
+                      bgSureyData,
+                      outputdata,
+                      this.filter,
+                      this.staticColors
+                    );
+                    let finalEMUComparisonData = this.getOtherChartDeatils(
+                      "Output",
+                      oResponse,
+                      0,
+                      "line"
+                    );
+                    finalEMUComparisonData.reportChartType =
+                      finalEMUComparisonData.type;
+                    finalEMUComparisonData.isPeriodChart = true;
+                    finalEMUComparisonData.fields = [];
+                    finalEMUComparisonData.tableData = [];
+                    finalEMUComparisonData.fields.push({
+                      key: this.$i18n.t("period"),
+                      sortable: true,
+                    });
+                    finalEMUComparisonData.categories.forEach((cat, i) => {
+                      let row = {};
+                      row[this.$i18n.t("period")] = cat;
+                      finalEMUComparisonData.data.forEach((d) => {
+                        if (
+                          finalEMUComparisonData.fields.indexOf(d.name) == -1
+                        ) {
+                          finalEMUComparisonData.fields.push(d.name);
+                        }
+                        row[d.name] = d.data[i];
+                      });
+                      finalEMUComparisonData.tableData.push(row);
+                    });
+                    //end of first chart
+
+                    //second chart of emu o/p
+                    let secondChartResponse = dataM.getSlopData(
+                      finalEMUComparisonData
+                    );
+                    let annualAvgComarisonChart = this.getOtherChartDeatils(
+                      "Output",
+                      secondChartResponse,
+                      1,
+                      "bar"
+                    );
+
+                    annualAvgComarisonChart.reportChartType =
+                      annualAvgComarisonChart.type;
+                    annualAvgComarisonChart.isPeriodChart = false;
+
+                    //end of second chart
+
+                    //third chart of emu o/p
+                    let emufromDQR = this.dqrConfig.emu["Background_Data"][
+                      "defaultEMU"
+                    ]
+                      ? this.dqrConfig.emu["Background_Data"]["defaultEMU"]
+                      : "Commodities_Client";
+                    let sourcesData = {
+                      Commodities_Client: this.$i18n.t(
+                        "commodities_to_clients"
+                      ),
+                      Visits: this.$i18n.t("fp_visits"),
+                      Commodities_Facilities: this.$i18n.t(
+                        "commodities_to_facility"
+                      ),
+                      User: this.$i18n.t("fp_users"),
+                    };
+                    let oRet = dataM.emuOutputCompByMethod(
+                      this.dqrConfig.emu["Background_Data"]["SSDataRecentYear"],
+                      this.sYearArray,
+                      userTrendsData,
+                      surveyData,
+                      finalMethodArr,
+                      sourcesData[emufromDQR]
+                    );
+                    let retData = oRet.data ? oRet.data.reverse() : [];
+                    let annualComparisionOfMethods = {
+                      data: retData,
+                      tableData: oRet.tableData,
+                      fields: oRet.fields,
+                      categories: oRet.categories,
+                    };
+                    annualComparisionOfMethods = this.getOtherChartDeatils(
+                      "Output",
+                      annualComparisionOfMethods,
+                      2,
+                      "bar"
+                    );
+                    annualComparisionOfMethods.reportChartType =
+                      annualComparisionOfMethods.type;
+                    annualComparisionOfMethods.isPeriodChart = false;
+                    //end of third chart
+
+                    //fourth chart of emu o/p emuOutputUserByMethod
+                    let userByMethodData = dataM.emuOutputUserByMethod(
+                      this.sYearArray,
+                      userTrendsData,
+                      finalMethodArr,
+                      sourcesData[emufromDQR],
+                      this.filter,
+                      this.staticColors
+                    );
+                    let saveuserTrendsByMethods = userByMethodData;
+                    saveuserTrendsByMethods.type = "line";
+                    saveuserTrendsByMethods.reportChartType = "line";
+                    saveuserTrendsByMethods.isPeriodChart = true;
+                    //end of fourth chart
+
+                    //save final emu process started
+                    finalEMUComparisonData.source = this.category;
+                    annualAvgComarisonChart.source = this.category;
+                    annualComparisionOfMethods.source = this.category;
+                    // this.userTrendsDataByMethods.source = this.category
+                    let dataStore = {};
+                    let key = this.generateKey(
+                      `annualEMU_${this.$i18n.locale}`
+                    );
+                    // this.bshowLoader = true;
+                    if (keys.data.includes(key)) {
+                      let oConfig = service.getSavedConfig(
+                        key,
+                        false,
+                        "fp-dashboard"
+                      );
+                      oConfig.then((response) => {
+                        let oResponse = response.data;
+                        if (oResponse["compEMU"]) {
+                          oResponse["compEMU"] = JSON.parse(
+                            oResponse["compEMU"]
+                          );
+                          if (oResponse["compEMU"][this.loc.split("/")[1]]) {
+                            oResponse["compEMU"][this.loc.split("/")[1]] =
+                              finalEMUComparisonData;
+                          } else {
+                            oResponse["compEMU"] = {
+                              ...oResponse["compEMU"],
+                              [this.loc.split("/")[1]]: finalEMUComparisonData,
+                            };
+                          }
+                        } else {
+                          oResponse["compEMU"] = {
+                            [this.loc.split("/")[1]]: finalEMUComparisonData,
+                          };
+                        }
+
+                        if (oResponse["compAvgAnuual"]) {
+                          oResponse["compAvgAnuual"] = JSON.parse(
+                            oResponse["compAvgAnuual"]
+                          );
+                          if (
+                            oResponse["compAvgAnuual"][this.loc.split("/")[1]]
+                          ) {
+                            oResponse["compAvgAnuual"][this.loc.split("/")[1]] =
+                              annualAvgComarisonChart;
+                          } else {
+                            oResponse["compAvgAnuual"] = {
+                              ...oResponse["compAvgAnuual"],
+                              [this.loc.split("/")[1]]: annualAvgComarisonChart,
+                            };
+                          }
+                        } else {
+                          oResponse["compAvgAnuual"] = {
+                            [this.loc.split("/")[1]]: annualAvgComarisonChart,
+                          };
+                        }
+
+                        if (oResponse["compUsers"]) {
+                          oResponse["compUsers"] = JSON.parse(
+                            oResponse["compUsers"]
+                          );
+                          if (oResponse["compUsers"][this.loc.split("/")[1]]) {
+                            oResponse["compUsers"][this.loc.split("/")[1]] =
+                              annualComparisionOfMethods;
+                          } else {
+                            oResponse["compUsers"] = {
+                              ...oResponse["compUsers"],
+                              [this.loc.split("/")[1]]:
+                                annualComparisionOfMethods,
+                            };
+                          }
+                        } else {
+                          oResponse["compUsers"] = {
+                            [this.loc.split("/")[1]]:
+                              annualComparisionOfMethods,
+                          };
+                        }
+
+                        if (oResponse["usersTrend"]) {
+                          oResponse["usersTrend"] = JSON.parse(
+                            oResponse["usersTrend"]
+                          );
+                          if (oResponse["usersTrend"][this.loc.split("/")[1]]) {
+                            oResponse["usersTrend"][this.loc.split("/")[1]] =
+                              saveuserTrendsByMethods;
+                          } else {
+                            oResponse["usersTrend"] = {
+                              ...oResponse["usersTrend"],
+                              [this.loc.split("/")[1]]: saveuserTrendsByMethods,
+                            };
+                          }
+                        } else {
+                          oResponse["usersTrend"] = {
+                            [this.loc.split("/")[1]]: saveuserTrendsByMethods,
+                          };
+                        }
+                        if (oResponse["methodTable"]) {
+                          oResponse["methodTable"] = JSON.parse(
+                            oResponse["methodTable"]
+                          );
+                          if (
+                            oResponse["methodTable"][this.loc.split("/")[1]]
+                          ) {
+                            oResponse["methodTable"][this.loc.split("/")[1]] =
+                              this.$store.state.methodTable
+                                ? this.$store.state.methodTable[
+                                    this.loc.split("/")[1]
+                                  ]
+                                : null;
+                          } else {
+                            oResponse["methodTable"] = {
+                              ...oResponse["methodTable"],
+                              [this.loc.split("/")[1]]: this.$store.state
+                                .methodTable
+                                ? this.$store.state.methodTable[
+                                    this.loc.split("/")[1]
+                                  ]
+                                : null,
+                            };
+                          }
+                        } else {
+                          oResponse["methodTable"] = {
+                            [this.loc.split("/")[1]]: this.$store.state
+                              .methodTable
+                              ? this.$store.state.methodTable[
+                                  this.loc.split("/")[1]
+                                ]
+                              : null,
+                          };
+                        }
+                        //methodtable is not sure where get used
+                        //if(oResponse['methodTable']){
+                        //    oResponse['methodTable'] = this.$store.state.methodTable
+                        //}
+                        oResponse["emuColors"] = JSON.parse(
+                          localStorage.getItem("emuColors")
+                        );
+                        oResponse["compEMU"] = JSON.stringify(
+                          oResponse["compEMU"]
+                        );
+                        oResponse["compAvgAnuual"] = JSON.stringify(
+                          oResponse["compAvgAnuual"]
+                        );
+                        oResponse["compUsers"] = JSON.stringify(
+                          oResponse["compUsers"]
+                        );
+                        oResponse["usersTrend"] = JSON.stringify(
+                          oResponse["usersTrend"]
+                        );
+                        oResponse["methodTable"] = JSON.stringify(
+                          oResponse["methodTable"]
+                        );
+                        console.log(oResponse, "annualemu updating");
+                        service
+                          .updateConfig(oResponse, key, false, "fp-dashboard")
+                          .then(() => {
+                            // this.$store.state.loading = false;
+                            this.annaulEMUChartsUpdated = true;
+                            this.$store.commit("setEMUMethodTable", null);
+                            this.$store.commit("setEMUColors", null);
+                          });
+                      });
+                    } else {
+                      let compEMUObj = {
+                          [this.loc.split("/")[1]]: finalEMUComparisonData,
+                        },
+                        compAvgAnuualObj = {
+                          [this.loc.split("/")[1]]: annualAvgComarisonChart,
+                        },
+                        compUsersObj = {
+                          [this.loc.split("/")[1]]: annualComparisionOfMethods,
+                        },
+                        usersTrendObj = {
+                          [this.loc.split("/")[1]]: saveuserTrendsByMethods,
+                        },
+                        methodTable = {
+                          [this.loc.split("/")[1]]: this.$store.state
+                            .methodTable
+                            ? this.$store.state.methodTable[
+                                this.loc.split("/")[1]
+                              ]
+                            : null,
+                        };
+
+                      dataStore = {
+                        compEMU: JSON.stringify(compEMUObj),
+                        compAvgAnuual: JSON.stringify(compAvgAnuualObj),
+                        compUsers: JSON.stringify(compUsersObj),
+                        usersTrend: JSON.stringify(usersTrendObj),
+                        methodTable: JSON.stringify(methodTable),
+                        emuColors: JSON.parse(
+                          localStorage.getItem("emuColors")
+                        ),
+                      };
+                      console.log(dataStore, "annual emu creating key");
+                      service
+                        .saveConfig(dataStore, key, false, "fp-dashboard")
+                        .then(() => {
+                          this.annaulEMUChartsUpdated = true;
+                          // this.$store.state.loading = false;
+                          this.$store.commit("setEMUMethodTable", null);
+                          this.$store.commit("setEMUColors", null);
+                          // this.$emit("saveEMUFinal", this.loc);
+                          // this.sweetAlert({
+                          //   title: this.$i18n.t("data_saved_successfully"),
+                          // });
+                        });
+                    }
+                    //});
+                    //process ends here
+                  }
+                }
               }
             });
-        });
+        }
+      });
+      console.log("saveFinalAnnual EMU mETHOD END");
     },
     getPieChart(pieDataObject) {
       let sources = {
@@ -1644,7 +2175,6 @@ export default {
           ],
         },
       };
-      //console.log(oResponse, this.tabName, this.location.split('/')[1])
       return oResponse;
     },
     getFinalChartsdata() {
@@ -1656,7 +2186,9 @@ export default {
         let valArr = {},
           contArr = {};
         aChartArr.forEach((a, i) => {
-          let name = "";
+          let name = "",
+            color = "",
+            mTransname = "";
           Object.keys(this.continuation[type][cont]).forEach((c) => {
             if (
               a["monthlyCharts"] !== undefined &&
@@ -1667,9 +2199,14 @@ export default {
 
                 if (newKey[1] === cont) {
                   name = a.name;
+                  mTransname = a.trans_name;
+                  color = a.color;
                   methodArr[cont]["name"] = name;
-
+                  methodArr[cont]["mTransname"] = mTransname;
+                  methodArr[cont]["trans_name"] = newKey[0];
                   methodArr[cont]["subname"] = newKey[1];
+                  methodArr[cont]["color"] = color;
+                  methodArr[cont]["sfa"] = color;
 
                   let val =
                     a["monthlyCharts"][c][key] !== undefined
@@ -1697,12 +2234,17 @@ export default {
           oFinalVals[j] = {
             vals: {},
             name: methodArr[j].name,
+            mTransname: methodArr[j].mTransname,
             subname: methodArr[j].subname,
+            trans_name: methodArr[j].trans_name,
           };
           oNewUsers[j] = {
             vals: {},
             name: methodArr[j].name,
+            mTransname: methodArr[j].mTransname,
             subname: methodArr[j].subname,
+            color: methodArr[j].color,
+            trans_name: methodArr[j].trans_name,
           };
           for (let k in oVal) {
             let nIndex = aMonths.indexOf(k),
@@ -1741,13 +2283,17 @@ export default {
           });
         });
       });
-      contSum = getSumOfContMonthly(continuation[type]);
+      contSum = dataM.getSumOfContMonthly(continuation[type]);
       let historicUsers = {};
       Object.keys(newUsers).forEach((method, i) => {
         historicUsers[method] = {
           vals: {},
           name: newUsers[method].name,
           subname: newUsers[method].subname,
+          contSum: {},
+          mTransname: newUsers[method].mTransname,
+          color: newUsers[method].color,
+          trans_name: newUsers[method].trans_name,
           contSum: {},
         };
         var keys = Object.keys(newUsers[method]["vals"]);
@@ -1771,12 +2317,15 @@ export default {
     },
     getTotalUsers(users, histUsers) {
       let totalUsers = {};
+      // console.log(this.methodSeq);
       let historicUsers = histUsers;
       Object.keys(users).forEach((method) => {
         totalUsers[method] = {
           vals: {},
           name: "",
           subname: "",
+          mTransname: "",
+          trans_name: "",
           color: historicUsers[method]["color"],
         };
         Object.keys(users[method]["vals"]).forEach((userVal) => {
@@ -1788,6 +2337,8 @@ export default {
         });
         totalUsers[method]["name"] = users[method]["name"];
         totalUsers[method]["subname"] = users[method]["subname"];
+        totalUsers[method]["mTransname"] = users[method]["mTransname"];
+        totalUsers[method]["trans_name"] = users[method]["trans_name"];
       });
 
       let oTemp = {};
@@ -1795,11 +2346,22 @@ export default {
       let categories = [];
       Object.keys(totalUsers).forEach((method) => {
         let methodnName = method;
-        if (!totalEMUByMethod[method]) totalEMUByMethod[method] = {};
+        if (!totalEMUByMethod[method])
+          totalEMUByMethod[method] = {
+            name: totalUsers[method]["name"],
+            mTransname: totalUsers[method]["mTransname"],
+            subname: totalUsers[method]["subname"],
+            vals: {},
+            color: totalUsers[method]["color"],
+            trans_name: totalUsers[method]["trans_name"],
+          };
         if (!oTemp[methodnName]) {
           oTemp[methodnName] = {
             name: totalUsers[method]["name"],
+            mTransname: totalUsers[method]["mTransname"],
             subname: totalUsers[method]["subname"],
+            color: totalUsers[method]["color"],
+            trans_name: totalUsers[method]["trans_name"],
             vals: {},
           };
         }
@@ -1811,6 +2373,11 @@ export default {
           totalEMUByMethod[method]["subname"] = totalUsers[method]["subname"];
           oTemp[methodnName]["vals"][year] =
             totalUsers[method]["vals"][year] || 0;
+          // console.log(
+          //   this.monthlyPopulation[year],
+          //   year,
+          //   totalUsers[method]["vals"][year]
+          // );
           totalEMUByMethod[method][year] = this.monthlyPopulation[year]
             ? (
                 (totalUsers[method]["vals"][year] /
@@ -1821,42 +2388,81 @@ export default {
         });
       });
       let sumTotalEmu = {};
+
+      let last24Cat = [...categories];
+      if (last24Cat.length > 12) {
+        last24Cat.splice(0, last24Cat.length - 24);
+      }
       Object.keys(totalEMUByMethod).forEach((method) => {
         Object.keys(totalEMUByMethod[method]).forEach((year) => {
           sumTotalEmu[year] =
             (sumTotalEmu[year] || 0) + totalEMUByMethod[method][year];
         });
       });
-      this.monthlyEMU = sumTotalEmu;
       this.totalEMUByMethod = totalEMUByMethod;
-      let firstChartSeries = [];
-      console.log(this.newUsers, "this.newUsers i/p data");
-      let aTable = [];
+      console.log(
+        this.totalEMUByMethod,
+        "================ this.totalEMUByMethod final object data =============="
+      );
+      let firstChartSeries = [],
+        firstChartSaveSeries = [];
+
       let filterArr = [],
         mainObj = {
           id: "",
           label: "",
           children: [],
         };
+      let firstChartTableData = [],
+        secondChartTableData = [];
       Object.keys(this.newUsers).forEach((method) => {
         let actObj = {
           data: [],
-          name: method,
-          mName: this.newUsers[method]["name"],
+          name: this.newUsers[method]["trans_name"],
+          mName: this.newUsers[method]["mTransname"],
+          trans_name: this.newUsers[method]["trans_name"],
+          color: this.newUsers[method]["color"],
         };
-        actObj.data = this.newUsers[method]["vals"];
-        // Object.keys(this.newUsers[method]["vals"]).forEach((year) => {
-        // });
+        let tableObj = {
+          data: [],
+          name: this.newUsers[method]["trans_name"],
+          mName: this.newUsers[method]["mTransname"],
+          trans_name: this.newUsers[method]["trans_name"],
+        };
+        let saveActObj = {
+          data: [],
+          name: this.newUsers[method]["trans_name"],
+          mName: this.newUsers[method]["mTransname"],
+          trans_name: this.newUsers[method]["trans_name"],
+          color: this.newUsers[method]["color"],
+        };
+        last24Cat.forEach((year) => {
+          let obj = {};
+          obj["Period"] = this.$moment(year, "YYYYMM").format("MMM YYYY");
+          obj["EMU"] = this.newUsers[method]["vals"][year];
+          actObj.data.push(this.newUsers[method]["vals"][year]);
+          tableObj.data.push(obj);
+        });
+        firstChartTableData.push(tableObj);
+        categories.forEach((year) => {
+          saveActObj.data.push(this.newUsers[method]["vals"][year]);
+        });
+
         firstChartSeries.push(actObj);
+        firstChartSaveSeries.push(saveActObj);
       });
+      console.log(firstChartTableData, "firstChartTableData");
       let firstChart = {
         data: firstChartSeries,
         max: 11,
-        categories: categories,
-        tableData: firstChartSeries,
-        saveData: firstChartSeries,
-        saveCategories: categories,
-        filter: filterArr,
+        categories: last24Cat.map((period) =>
+          this.$moment(period, "YYYYMM").format("MMM YYYY")
+        ),
+        tableData: firstChartTableData,
+        saveData: firstChartSaveSeries,
+        saveCategories: categories.map((period) =>
+          this.$moment(period, "YYYYMM").format("MMM YYYY")
+        ),
       };
       firstChart = this.getOtherChartDeatils(
         "emu_monthly",
@@ -1864,18 +2470,19 @@ export default {
         1,
         "column"
       );
-      Object.keys(this.totalEMUByMethod).forEach((method) => {
-        let oMethodTable = {
-          name: "",
-          data: [],
-          mName: "",
-          trans_name: "",
-        };
-
+      let secondChartSeries = [],
+        secondChartSaveSeries = [],
+        trendChartSaveSeries = [],
+        dhsSeries = [],
+        dhsSaveSeries = [], //FOR ONE MONTH EMU CHART
+        trendChartSeries = []; //without dhs for trend chart in emu monthly o/p 2nd and 3rd chart
+      this.monthlyMethodSeq.forEach((method, methodIndex) => {
         let isFound = filterArr.find(
-          (obj) => obj.id === this.totalEMUByMethod[method]["name"]
+          (obj) =>
+            this.totalEMUByMethod[method] &&
+            obj.id === this.totalEMUByMethod[method]["name"]
         );
-        if (!isFound) {
+        if (!isFound && this.totalEMUByMethod[method]) {
           mainObj = {
             id: this.totalEMUByMethod[method]["name"],
             label: this.totalEMUByMethod[method]["name"],
@@ -1888,7 +2495,9 @@ export default {
           filterArr.push(mainObj);
         } else {
           let findIndex = filterArr.findIndex(
-            (obj) => obj.id === this.totalEMUByMethod[method]["name"]
+            (obj) =>
+              this.totalEMUByMethod[method] &&
+              obj.id === this.totalEMUByMethod[method]["name"]
           );
           if (findIndex >= 0) {
             filterArr[findIndex]["children"].push({
@@ -1897,129 +2506,611 @@ export default {
             });
           }
         }
-        Object.keys(this.totalEMUByMethod[method]).forEach((year) => {
+      });
+      Object.keys(this.totalEMUByMethod).forEach((method) => {
+        let oMethodTable = {
+          name: "",
+          data: [],
+          mName: "",
+          trans_name: "",
+          color: this.staticColors["emuColor"],
+        };
+        let dhsTable = {
+          name: "",
+          data: [],
+          mName: "",
+          trans_name: "",
+          color: this.staticColors["dhsColor"],
+        };
+        let saveDhsTable = {
+          name: "",
+          data: [],
+          mName: "",
+          trans_name: "",
+          color: this.staticColors["dhsColor"],
+        };
+        let secondChartTableObj = {
+          name: "",
+          data: [],
+          mName: "",
+        };
+        let oMethodSaveTable = {
+          name: "",
+          data: [],
+          mName: "",
+          trans_name: "",
+          color: this.staticColors["emuColor"],
+        };
+        // let publicObj = { name: "", data: [], mName: "", trans_name: "" };
+
+        last24Cat.forEach((year) => {
+          let oTable = {};
+          oTable[this.$i18n.t("Period")] = this.$moment(year, "YYYYMM").format(
+            "MMM YYYY"
+          );
+          if (this.backgroundData != null) {
+            Object.keys(this.backgroundData[method]).forEach((back) => {
+              this.backgroundData[method][back]["vals"][year] =
+                this.backgroundData[method][back]["vals"][year] || 0;
+              oTable[back] =
+                this.backgroundData[method][back]["vals"][year].toFixed(2) * 1;
+            });
+          }
+          oTable[this.$i18n.t("EMU")] =
+            this.totalEMUByMethod[method][year] || 0;
+          oMethodTable["name"] = method + " " + this.$i18n.t("EMU");
+          oMethodTable["mName"] = this.totalEMUByMethod[method]["mTransname"];
+          oMethodTable["trans_name"] = this.totalEMUByMethod[method]["subname"]; //taking subname as transname
+          oMethodTable["data"].push(
+            this.totalEMUByMethod[method][year].toFixed(2) * 1
+          );
+          oMethodTable["color"] = this.totalEMUByMethod[method]["color"];
+          secondChartTableObj["name"] = method + " " + this.$i18n.t("EMU");
+          secondChartTableObj["mName"] =
+            this.totalEMUByMethod[method]["mTransname"];
+          secondChartTableObj["data"].push(oTable);
+        });
+        secondChartTableData.push(secondChartTableObj);
+
+        categories.forEach((year) => {
           let oTable = {};
           if (this.backgroundData != null) {
             Object.keys(this.backgroundData[method]).forEach((back) => {
-              this.backgroundData[method][back][year] =
-                this.backgroundData[method][back][year] || 0;
+              this.backgroundData[method][back]["vals"][year] =
+                this.backgroundData[method][back]["vals"][year] || 0;
               oTable[back] =
-                this.backgroundData[method][back][year].toFixed(2) * 1;
+                this.backgroundData[method][back]["vals"][year].toFixed(2) * 1;
             });
           }
           oTable[this.$i18n.t("EMU")] = this.totalEMUByMethod[method][year];
-          oMethodTable["name"] = method;
-          oMethodTable["mName"] = this.totalEMUByMethod[method]["name"];
-          oMethodTable["trans_name"] = this.totalEMUByMethod[method]["subname"]; //taking subname as transname
-          oMethodTable["data"].push(oTable);
+          oMethodSaveTable["name"] = this.totalEMUByMethod[method]["subname"];
+          oMethodSaveTable["trans_name"] = method + " " + this.$i18n.t("EMU");
+          //taking subname as transname
+          oMethodSaveTable["mName"] =
+            this.totalEMUByMethod[method]["mTransname"];
+          oMethodSaveTable["color"] = this.totalEMUByMethod[method]["color"];
+          oMethodSaveTable["data"].push(
+            this.totalEMUByMethod[method][year].toFixed(2) * 1
+          );
         });
-        aTable.push(oMethodTable);
+        if (
+          this.backgroundData &&
+          Object.keys(this.backgroundData[method]).length > 0
+        ) {
+          Object.keys(this.backgroundData[method]).forEach((back) => {
+            let peevVal = 0;
+            Object.keys(this.backgroundData[method][back]["vals"]).forEach(
+              (d) => {
+                // if (this.backgroundData[method][back][d] != 0) {
+                //   peevVal = this.backgroundData[method][back][d];
+                // }
+                this.backgroundData[method][back]["vals"][d] =
+                  this.backgroundData[method][back]["vals"][d] || 0;
+                peevVal =
+                  this.backgroundData[method][back]["vals"][d].toFixed(2) * 1;
+              }
+            );
+            last24Cat.forEach((year) => {
+              dhsTable["name"] = back + " " + method;
+              dhsTable["trans_name"] = method;
+              dhsTable.data.push(peevVal);
+            });
+            categories.forEach((year) => {
+              saveDhsTable["name"] = back + " " + method;
+              saveDhsTable["trans_name"] = method;
+              saveDhsTable.data.push(peevVal);
+            });
+          });
+        }
+        secondChartSeries.push(dhsTable);
+        dhsSeries.push(dhsTable);
+        secondChartSeries.push(oMethodTable);
+        trendChartSeries.push(oMethodTable);
+        secondChartSaveSeries.push(oMethodSaveTable);
+        secondChartSaveSeries.push(saveDhsTable);
+        dhsSaveSeries.push(saveDhsTable);
+        trendChartSaveSeries.push(oMethodSaveTable);
       });
       //calculate monthly charts
       let secondChart = {
-        data: aTable,
+        data: secondChartSeries,
         max: 11,
-        categories: categories,
-        tableData: aTable,
-        saveData: aTable,
-        saveCategories: categories,
+        categories: last24Cat.map((period) =>
+          this.$moment(period, "YYYYMM").format("MMM YYYY")
+        ),
+        tableData: secondChartTableData,
+        saveData: secondChartSaveSeries,
+        saveCategories: categories.map((period) =>
+          this.$moment(period, "YYYYMM").format("MMM YYYY")
+        ),
         filter: filterArr,
       };
+      firstChart.filter = filterArr;
       secondChart = this.getOtherChartDeatils(
         "emu_monthly",
         secondChart,
         0,
         "line"
       );
-      //generate Table
-      // Object.keys(this.filterTableData).forEach((key) => {
-      //   key = key.trim();
-      //   this.selected = this.selected.trim();
-      //   if (this.selected == key) {
-      //     this.catArr.forEach((val, i) => {
-      //       let oTable = {},
-      //         dataArr = [];
-      //       if (i < 24) {
-      //         oTable[this.$i18n.t("period")] = this.$moment(
-      //           val,
-      //           "YYYYMM"
-      //         ).format("MMM YYYY");
-      //         let userVal = this.filterTableData[key]["totalusers"][val]
-      //           ? parseInt(
-      //               this.filterTableData[key]["totalusers"][val]
-      //             ).toLocaleString()
-      //           : 0;
-      //         oTable[this.$i18n.t("Total Users")] = userVal;
-      //         oTable[this.$i18n.t("emu_value_per")] = isNaN(
-      //           this.filterTableData[key]["totalEMU"][i]
-      //         )
-      //           ? null
-      //           : this.filterTableData[key]["totalEMU"][i];
-      //         // let cypVal = this.cypPopVal[key]
-      //         //   ? this.cypPopVal[key][val]
-      //         //   : null;
-      //         oTable["Population"] = this.monthlyPopulation[val]
-      //           ? this.monthlyPopulation[val].toLocaleString()
-      //           : "NA";
-      //         /* commented to remove CYPs/Population */
-      //         //oTable[this.$i18n.t('cyp_pop')] = cypVal == 'NaN' ? null : cypVal
-      //         this.items.push(oTable);
-      //         dataArr.push(this.$moment(val, "YYYYMM").format("MMM YYYY"));
-      //         dataArr.push(userVal);
-      //         dataArr.push(this.filterTableData[key]["totalEMU"][i] || null);
-      //         // dataArr.push(cypVal == "NaN" ? null : cypVal);
-      //         dataArr.push(
-      //           this.monthlyPopulation[val] ? this.monthlyPopulation[val] : "NA"
-      //         );
-      //         data.push(dataArr);
-      //       }
-      //     });
-      //   }
-      // });
-      // let filelds = [
-      //   {
-      //     key: this.$i18n.t("period"),
-      //     sortable: true,
-      //   },
-      //   {
-      //     key: this.$i18n.t("emu_value_per"),
-      //     label: this.$i18n.t("emu_value_per"),
-      //   },
-      //   {
-      //     key: this.$i18n.t("Total Users"),
-      //   },
-      //   {
-      //     key: "Population",
-      //     label: this.$i18n.t("Population"),
-      //   },
-      // ];
-      //-------------//
       let chartObj = {};
       chartObj["inputChart"] = firstChart;
       chartObj["emuByMethod"] = secondChart;
-      this.saveCharts("monthlyCharts_en", "inputCharts", chartObj);
-      //end of monthly charts
-      console.log(
-        this.adjNonAdjCalcData,
-        this.annualEMU,
-        this.monthlyEMU,
-        this.totalEMUByMethod,
-        Object.keys(this.monthlyEMU).length
+      chartObj["inputNewUsers"] = this.newUsers;
+      chartObj["totalUsers"] = totalUsers;
+      chartObj["monthlyPopulation"] = this.monthlyPopulation;
+      let indDataSeq = [];
+      let indData = this.dqrConfig.emu_monthly[this.defaultType]["chartData"];
+      indData.forEach((ind) => {
+        let paretnInd = Array.isArray(ind["indicator"]["static_name"])
+          ? ind["indicator"]["static_name"][this.$i18n.locale]
+          : ind["indicator"]["static_name"];
+        let obj = {};
+        obj["parent"] = paretnInd;
+        obj["subInd"] = [];
+        obj["dataDiffer"] = false;
+        ind["indicator"]["subIndicator"].forEach((subind) => {
+          let subIndName = Array.isArray(subind["static_name"])
+            ? subind["static_name"][this.$i18n.locale]
+            : subind["static_name"];
+          obj["subInd"].push(subIndName);
+        });
+        indDataSeq.push(obj);
+      });
+
+      let emuByMethodChart = {
+        agreData: [],
+        saveAgreData: [],
+        agreTableData: [],
+        tableData: [],
+        methodData: trendChartSeries,
+        methodTableData: [],
+        data: trendChartSeries,
+        saveData: trendChartSaveSeries,
+        categories: last24Cat.map((period) =>
+          this.$moment(period, "YYYYMM").format("MMM YYYY")
+        ),
+        saveCategories: categories.map((period) =>
+          this.$moment(period, "YYYYMM").format("MMM YYYY")
+        ),
+      };
+      let oneMonthEMU = {
+        agreData: [
+          {
+            data: [],
+            name: this.$i18n.t("EMU") + " " + last24Cat[last24Cat.length - 1],
+            color: this.staticColors["emuColor"],
+          },
+          {
+            data: [],
+            name: "DHS",
+            color: this.staticColors["dhsColor"],
+          },
+        ],
+        saveAgreData: [],
+        agreTableData: [
+          {
+            data: [],
+            name: this.$i18n.t("EMU") + " " + last24Cat[last24Cat.length - 1],
+          },
+          {
+            data: [],
+            name: "DHS",
+          },
+        ],
+        tableData: [
+          {
+            data: [],
+            name: this.$i18n.t("EMU") + " " + last24Cat[last24Cat.length - 1],
+          },
+          {
+            data: [],
+            name: "DHS",
+          },
+        ],
+        methodData: trendChartSeries,
+        methodTableData: [],
+        data: [
+          {
+            data: [],
+            name: this.$i18n.t("EMU") + " " + last24Cat[last24Cat.length - 1],
+            color: this.staticColors["emuColor"],
+          },
+          {
+            data: [],
+            name: "DHS",
+            color: this.staticColors["dhsColor"],
+          },
+        ],
+        saveData: trendChartSaveSeries,
+        methodCategories: [],
+        categories: [],
+        saveCategories: categories.map((period) =>
+          this.$moment(period, "YYYYMM").format("MMM YYYY")
+        ),
+        agreCategories: [],
+      };
+      indDataSeq.forEach((mobj) => {
+        if (mobj.parent != "Total CYP") {
+          // let actObj = {
+          //   name: mobj.parent,
+          //   data: [],
+          // };
+          let saveObj = {
+            name: mobj.parent,
+            data: [],
+            color: "",
+          };
+          last24Cat.forEach((year, yearIndex) => {
+            let agreEmu = 0,
+              oneMonthAgreEMU = 0,
+              saveoneMonthAgreDHS = 0;
+            // agreDHS = 0;
+
+            mobj.subInd.forEach((sunMethod, subi) => {
+              let findinArray = trendChartSeries.filter((obj) => {
+                return sunMethod == obj.trans_name; //line no 2609
+              });
+
+              if (findinArray.length) {
+                let sum = 0;
+                findinArray.forEach((obj) => {
+                  agreEmu = agreEmu + obj["data"][yearIndex];
+                  if (
+                    !oneMonthEMU.categories.includes(sunMethod) &&
+                    yearIndex == last24Cat.length - 1
+                  ) {
+                    oneMonthEMU.categories.push(sunMethod);
+                    if (yearIndex == last24Cat.length - 1) {
+                      oneMonthEMU.data[0].data.push(obj["data"][yearIndex]);
+                    }
+                  }
+                  if (
+                    !oneMonthEMU.agreCategories.includes(mobj.parent) &&
+                    yearIndex == last24Cat.length - 1
+                  ) {
+                    oneMonthEMU.agreCategories.push(mobj.parent);
+                  }
+                  if (yearIndex == last24Cat.length - 1) {
+                    oneMonthAgreEMU = oneMonthAgreEMU + obj["data"][yearIndex];
+                  }
+                });
+              }
+              //for dhs values
+              let findindhs = dhsSeries.filter((obj) => {
+                return sunMethod == obj.trans_name; //line no 2609
+              });
+              if (findindhs.length) {
+                findindhs.forEach((obj) => {
+                  if (yearIndex == last24Cat.length - 1) {
+                    oneMonthEMU.data[1].data.push(obj["data"][yearIndex]);
+                  }
+
+                  if (yearIndex == last24Cat.length - 1) {
+                    saveoneMonthAgreDHS =
+                      saveoneMonthAgreDHS + obj["data"][yearIndex];
+                  }
+                });
+              }
+            });
+            // actObj.data.push(agreEmu);
+
+            if (yearIndex == last24Cat.length - 1) {
+              oneMonthEMU.agreData[0].data.push(oneMonthAgreEMU);
+              oneMonthEMU.agreData[1].data.push(saveoneMonthAgreDHS);
+            }
+          });
+          // emuByMethodChart.agreData.push(actObj);
+
+          categories.forEach((year, yearIndex) => {
+            //for all months
+            let saveAgreEMU = 0;
+            mobj.subInd.forEach((subMethod, subi) => {
+              let findAllinArray = trendChartSaveSeries.filter((obj) => {
+                return subMethod == obj.name; //line no 2609
+              });
+
+              if (findAllinArray.length) {
+                findAllinArray.forEach((obj) => {
+                  // console.log(obj, yearIndex, findAllinArray);
+
+                  saveAgreEMU = saveAgreEMU + obj["data"][yearIndex];
+                  saveObj.color = obj.color;
+                  // console.log(sum);
+                });
+              }
+            });
+            saveObj.data.push(saveAgreEMU);
+          });
+          emuByMethodChart.agreData.push(saveObj);
+        }
+      });
+      emuByMethodChart.agreTableData.push({ data: [], name: "EMU" });
+      emuByMethodChart.methodTableData.push({ data: [], name: "EMU" });
+      emuByMethodChart.tableData.push({ data: [], name: "EMU" });
+      last24Cat.forEach((year, yearIndex) => {
+        let tableObj = {};
+        tableObj["Period"] = this.$moment(year, "YYYYMM").format("MMM YYYY");
+        emuByMethodChart.agreData.forEach((obj) => {
+          tableObj[obj.name] = obj.data[yearIndex];
+        });
+        emuByMethodChart.agreTableData[0].data.push(tableObj);
+        let actTablObj = {};
+        actTablObj["Period"] = this.$moment(year, "YYYYMM").format("MMM YYYY");
+        secondChartSeries.forEach((obj) => {
+          actTablObj[obj.name] = obj.data[yearIndex];
+        });
+        emuByMethodChart.tableData[0].data.push(actTablObj);
+      });
+      //one month emu tables
+
+      oneMonthEMU.categories.forEach((method, ind) => {
+        let emuTable = {};
+        emuTable["Method"] = method;
+        oneMonthEMU.data.forEach((obj) => {
+          emuTable[obj.name] = obj.data[ind];
+        });
+        oneMonthEMU.tableData[0].data.push(emuTable);
+      });
+      oneMonthEMU.agreCategories.forEach((method, ind) => {
+        let emuAgreTable = {};
+        emuAgreTable["Method"] = method;
+        oneMonthEMU.agreData.forEach((obj) => {
+          emuAgreTable[obj.name] = obj.data[ind];
+        });
+        oneMonthEMU.agreTableData[0].data.push(emuAgreTable);
+      });
+      emuByMethodChart.methodTableData = emuByMethodChart.tableData;
+      oneMonthEMU.methodTableData = emuByMethodChart.tableData;
+      oneMonthEMU.methodCategories = oneMonthEMU.categories;
+      let trendEmuByMethodChart = this.getOtherChartDeatils(
+        "emu_monthly",
+        { ...emuByMethodChart },
+        4,
+        "stacked"
       );
-      if (
-        this.adjNonAdjCalcData &&
-        this.annualEMU &&
-        this.monthlyEMU &&
-        Object.keys(this.monthlyEMU).length > 0
-      ) {
-        this.deProcess = true;
-        // this.$store.commit("setLoading", false);
-        // console.log(
-        //   "data upload into de to be strted",
-        //   this.annualEMU,
-        //   this.monthlyEMU
-        // );
-      }
+      let methodEmuByMethodChart = this.getOtherChartDeatils(
+        "emu_monthly",
+        { ...emuByMethodChart },
+        5,
+        "line"
+      );
+      oneMonthEMU = this.getOtherChartDeatils(
+        "emu_monthly",
+        oneMonthEMU,
+        6,
+        "column"
+      );
+      let totalEMUObj = {
+        data: [
+          { name: "EMU", data: [], color: this.staticColors["emuColor"] },
+          { name: "DHS", data: [], color: this.staticColors["dhsColor"] },
+        ],
+        categories: last24Cat.map((period) =>
+          this.$moment(period, "YYYYMM").format("MMM YYYY")
+        ),
+        saveData: [
+          { name: "EMU", data: [], color: this.staticColors["emuColor"] },
+          { name: "DHS", data: [], color: this.staticColors["dhsColor"] },
+        ],
+        saveCategories: categories.map((period) =>
+          this.$moment(period, "YYYYMM").format("MMM YYYY")
+        ),
+        tableData: [{ name: "CompEMU", data: [] }],
+      };
+      last24Cat.forEach((year, yearIndex) => {
+        let val = 0,
+          dhsVal = 0;
+        trendChartSeries.forEach((obj, index) => {
+          val = val + (obj["data"][yearIndex] ? obj["data"][yearIndex] * 1 : 0);
+        });
+        dhsSeries.forEach((obj, index) => {
+          dhsVal =
+            dhsVal + (obj["data"][yearIndex] ? obj["data"][yearIndex] * 1 : 0);
+        });
+        totalEMUObj.data[0].data.push(val.toFixed(2) * 1);
+        totalEMUObj.data[1].data.push(dhsVal);
+        let tableObj = {};
+        tableObj["Period"] = this.$moment(year, "YYYYMM").format("MMM YYYY");
+        tableObj["EMU"] = val;
+        tableObj["DHS"] = dhsVal;
+        totalEMUObj.tableData[0].data.push(tableObj);
+      });
+      categories.forEach((year, yearIndex) => {
+        let val = 0,
+          dhsVal = 0;
+        trendChartSaveSeries.forEach((obj) => {
+          val = val + obj.data[yearIndex];
+        });
+        totalEMUObj.saveData[0].data.push(val);
+        dhsSaveSeries.forEach((obj, index) => {
+          dhsVal =
+            dhsVal + (obj["data"][yearIndex] ? obj["data"][yearIndex] * 1 : 0);
+        });
+        totalEMUObj.saveData[1].data.push(dhsVal);
+      });
+      totalEMUObj = this.getOtherChartDeatils(
+        "emu_monthly",
+        totalEMUObj,
+        3,
+        "line"
+      );
+      console.log(chartObj);
+
+      chartObj["trendEmuByMethodChart"] = trendEmuByMethodChart; //second
+      chartObj["methodEmuByMethodChart"] = methodEmuByMethodChart; //third
+      chartObj["oneMonthEMUChart"] = oneMonthEMU; //forth
+      chartObj["totalEMUChart"] = totalEMUObj; //first
+      let key = this.generateKey(`monthlyCharts_${this.$i18n.locale}`);
+      this.saveCharts(key, "outputCharts", chartObj, "object");
+      this.saveFinalEMUcharts(chartObj);
+      this.monthlyEMU = sumTotalEmu;
+
+      //end of monthly charts
+    },
+    saveFinalEMUcharts(chartObj) {
+      let dataStore = {};
+      let key = this.generateKey(`monthlyEMU_${this.$i18n.locale}`);
+      let allKeys = service.getAllKeys(false, "fp-dashboard");
+      allKeys.then((keys) => {
+        if (keys.data.includes(key)) {
+          let oConfig = service.getSavedConfig(key, false, "fp-dashboard");
+          oConfig.then((response) => {
+            let oResponse = response.data;
+            if (oResponse["totalEMU"]) {
+              oResponse["totalEMU"] =
+                typeof oResponse["totalEMU"] === "string"
+                  ? JSON.parse(oResponse["totalEMU"])
+                  : oResponse["totalEMU"];
+              if (oResponse["totalEMU"][this.loc.split("/")[1]]) {
+                oResponse["totalEMU"][this.loc.split("/")[1]] =
+                  chartObj["totalEMUChart"];
+              } else {
+                oResponse["totalEMU"] = {
+                  ...oResponse["totalEMU"],
+                  [this.loc.split("/")[1]]: chartObj["totalEMUChart"],
+                };
+              }
+            } else {
+              oResponse["totalEMU"] = {
+                [this.loc.split("/")[1]]: chartObj["totalEMUChart"],
+              };
+            }
+
+            if (oResponse["methodTrend"]) {
+              oResponse["methodTrend"] =
+                typeof oResponse["methodTrend"] === "string"
+                  ? JSON.parse(oResponse["methodTrend"])
+                  : oResponse["methodTrend"];
+              if (oResponse["methodTrend"][this.loc.split("/")[1]]) {
+                oResponse["methodTrend"][this.loc.split("/")[1]] =
+                  chartObj["methodEmuByMethodChart"];
+              } else {
+                oResponse["methodTrend"] = {
+                  ...oResponse["methodTrend"],
+                  [this.loc.split("/")[1]]: chartObj["methodEmuByMethodChart"],
+                };
+              }
+            } else {
+              oResponse["methodTrend"] = {
+                [this.loc.split("/")[1]]: chartObj["methodEmuByMethodChart"],
+              };
+            }
+
+            if (oResponse["monthTrend"]) {
+              oResponse["monthTrend"] =
+                typeof oResponse["monthTrend"] === "string"
+                  ? JSON.parse(oResponse["monthTrend"])
+                  : oResponse["monthTrend"];
+              if (oResponse["monthTrend"][this.loc.split("/")[1]]) {
+                oResponse["monthTrend"][this.loc.split("/")[1]] =
+                  chartObj["oneMonthEMUChart"];
+              } else {
+                oResponse["monthTrend"] = {
+                  ...oResponse["monthTrend"],
+                  [this.loc.split("/")[1]]: chartObj["oneMonthEMUChart"],
+                };
+              }
+            } else {
+              oResponse["monthTrend"] = {
+                [this.loc.split("/")[1]]: chartObj["oneMonthEMUChart"],
+              };
+            }
+            if (oResponse["emuTrend"]) {
+              oResponse["emuTrend"] =
+                typeof oResponse["emuTrend"] === "string"
+                  ? JSON.parse(oResponse["emuTrend"])
+                  : oResponse["emuTrend"];
+              if (oResponse["emuTrend"][this.loc.split("/")[1]]) {
+                oResponse["emuTrend"][this.loc.split("/")[1]] =
+                  chartObj["trendEmuByMethodChart"];
+              } else {
+                oResponse["emuTrend"] = {
+                  ...oResponse["emuTrend"],
+                  [this.loc.split("/")[1]]: chartObj["trendEmuByMethodChart"],
+                };
+              }
+            } else {
+              oResponse["emuTrend"] = {
+                [this.loc.split("/")[1]]: chartObj["trendEmuByMethodChart"],
+              };
+            }
+
+            // oResponse['totalEMU'] = JSON.stringify(oResponse['totalEMU'])
+            // oResponse['methodTrend'] = JSON.stringify(oResponse['methodTrend'])
+            // oResponse['monthTrend'] = JSON.stringify(oResponse['monthTrend'])
+            // oResponse['emuTrend'] = JSON.stringify(oResponse['emuTrend'])
+            service
+              .updateConfig(oResponse, key, false, "fp-dashboard")
+              .then((res) => {
+                if (res.data.status.toLowerCase() === "ok") {
+                  this.monthlyEMUChartsSaved = true;
+                  // this.bshowLoader = false;
+                  // this.$emit("saveEMUFinal", this.location);
+                  // this.sweetAlert({
+                  //   title: this.$i18n.t("data_saved_successfully"),
+                  // });
+                }
+              });
+          });
+        } else {
+          let totalEMU = {
+              [this.loc.split("/")[1]]: chartObj["totalEMUChart"],
+            },
+            emuTrend = {
+              [this.loc.split("/")[1]]: chartObj["trendEmuByMethodChart"],
+            },
+            methodTrend = {
+              [this.loc.split("/")[1]]: chartObj["methodEmuByMethodChart"],
+            },
+            monthTrend = {
+              [this.loc.split("/")[1]]: chartObj["oneMonthEMUChart"],
+            };
+          // dataStore = {
+          //   'totalEMU': JSON.stringify(totalEMU),
+          //   'emuTrend': JSON.stringify(emuTrend),
+          //   'methodTrend': JSON.stringify(methodTrend),
+          //   'monthTrend': JSON.stringify(monthTrend)
+          // }
+          dataStore = {
+            totalEMU: totalEMU,
+            emuTrend: emuTrend,
+            methodTrend: methodTrend,
+            monthTrend: monthTrend,
+          };
+          service
+            .saveConfig(dataStore, key, false, "fp-dashboard")
+            .then((res) => {
+              if (res.data.status.toLowerCase() === "ok") {
+                this.monthlyEMUChartsSaved = true;
+                // this.bshowLoader = false;
+                // this.$emit("saveEMUFinal", this.location);
+                // this.sweetAlert({
+                //   title: this.$i18n.t("data_saved_successfully"),
+                // });
+              }
+            });
+        }
+      });
     },
     getCatOptCombo() {
       service.getCategoryOptionCombo("default").then((resp) => {
@@ -2042,7 +3133,7 @@ export default {
       });
     },
     getAnnualSectorReporting(loc) {
-      let key = `annualSectorReporting_en`;
+      let key = this.generateKey("annualSectorReporting");
       //India
       // if (!settings.country) {
       //     let appId = this.$store.state.appId ? this.$store.state.appId : "", appUserId = this.$store.state.appUserId ? this.$store.state.appUserId : ""
@@ -2117,7 +3208,6 @@ export default {
         });
     },
     async getReportingRate(loc, configData, sYear, defaultType) {
-      console.log("Calling method getReportingRate");
       let type = defaultType;
       let selectedLoc = loc;
       let yearArray = sYear.split(";");
@@ -2142,7 +3232,6 @@ export default {
               : 0;
           }
           this.repoRate = oRepoRate;
-          //console.log(this.data['reportingRate'][0]['indicator']['chartOptions']['title']['text'], 'jvhnvhgvng')
           let categories = [];
           let seriesData = [];
           let catData = [];
@@ -2177,8 +3266,12 @@ export default {
           repoData.type = "column";
           repoData.tableData = catData;
           repoData.cid = repoConfig[0]["indicator"]["cid"];
-          console.log("reporate data==========", repoData);
-          this.saveCharts("annualCharts_en", "repoCharts", this.repoRate);
+          trimUndefinedRecursively(this.repoRate);
+
+          this.finalAnnualSavedCharts["repoCharts"] = {};
+          this.finalAnnualSavedCharts["repoCharts"] = JSON.stringify(
+            compress(this.repoRate)
+          );
         })
         .catch((res) => {
           console.log("reporting rate data is not available");
@@ -2240,16 +3333,6 @@ export default {
           });
         fpData.forEach((res) => {
           res.subIndicators.forEach((r) => {
-            //let static_name = res.static_name ? res.static_name : res.key
-            // if(static_name === 'Sterilization' || static_name === 'Condom'){
-            //   this.methodSeq.push(r.name)
-            // }else
-            // if(!existMethod.includes(static_name)){
-            //     existMethod.push(static_name)
-            //     this.methodSeq.push(static_name)
-            // }
-
-            //count++;
             let indId = [];
             let oData = [];
             oData["method"] = res.name;
@@ -2292,15 +3375,6 @@ export default {
       } else {
         await fpData.forEach((res) => {
           res.subIndicators.forEach((r) => {
-            // let static_name = res.static_name ? res.static_name : res.key
-            // if(static_name === 'Sterilization' || static_name === 'Condom'){
-            //   this.methodSeq.push(static_name)
-            // }else
-            // if(!existMethod.includes(static_name)){
-            //     existMethod.push(static_name)
-            //     this.methodSeq.push(static_name)
-            // }
-
             count++;
             let indId = [];
             r.selectedDE.forEach((de) => {
@@ -2308,7 +3382,6 @@ export default {
             });
             if (indId.length > 0) {
               nCount++;
-              ////console.log(indId)
               service
                 .getAnalyticalIndicatorData(
                   indId.join(";"),
@@ -2406,7 +3479,6 @@ export default {
                     obj["Shop"] = null;
                     fpItems.push(obj);
                   }
-                  ////console.log(fpItems, nCount)
                   if (fpItems.length === nCount) {
                     this.drawChart(fpItems, selectedLoc, sectorReporting);
                   }
@@ -2459,7 +3531,6 @@ export default {
           // } else {
           // ofpSource = sectorReporting[i];
           //}
-          ////console.log(ofpSource)
           for (let j in ofpSource) {
             // if (this.defaultLevel === this.selectedLevel.split("/")[0]) {
             // if (j !== "reporting" && j !== "type") {
@@ -2473,7 +3544,7 @@ export default {
             // tempObj[j] = ofpSource[j];
             // }
           }
-          let sData = getFpSourceVals(oModified, fpItems);
+          let sData = dataM.getFpSourceVals(oModified, fpItems, this.excludeAF);
           sData["aData"].forEach((d) => {
             oTemp.data.push(d);
           });
@@ -2481,17 +3552,7 @@ export default {
           combinedObj[i] = sData["combinedObj"];
         }
       }
-      // key = `ssToEMUBgData_en`;
-      //for INDIA
-      // if (!settings.country) {
-      //   let appId = this.$store.state.appId ? this.$store.state.appId : "", appUserId = this.$store.state.appUserId ? this.$store.state.appUserId : ""
-      //   if(appId && appUserId) {
-      //     key = `${appUserId}_${appId}_ssToEMUBgData_${locale}`;
-      //   } else {
-      //       this.showLocalStorageError()
-      //       return;
-      //   }
-      // }
+
       let adjData = {
         adjustments: { data: series, cat: categories },
         combinedObj: combinedObj,
@@ -2536,7 +3597,9 @@ export default {
         cypGlobal[contName] = {};
         globData.cyp[contName].chartData.forEach((ind) => {
           ind.indicator.subIndicator.forEach((sub) => {
-            let subName = Array.isArray(sub.name) ? sub.name[0] : sub.name;
+            let subName = Array.isArray(sub.name)
+              ? sub.name[this.$i18n.locale]
+              : sub.name;
             cypGlobal[contName][subName] = sub.cyp;
           });
         });
@@ -2559,14 +3622,23 @@ export default {
           let bgStore = bg.bgDataSource;
           let subIndicators = bg.subIndicators;
           for (let j = 0; j < subIndicators.length; j++) {
-            let sName = subIndicators[j].name,
+            let sName =
+                typeof subIndicators[j].name == "object"
+                  ? subIndicators[j].name[this.$i18n.locale]
+                  : subIndicators[j].name,
               aSelectedDE =
                 bgStore === "Datastore"
                   ? subIndicators[j].selectedDatastoreDE
                   : subIndicators[j].selectedDE;
             oBackground[sName] = aSelectedDE.map((ele) => {
               if (ele.static_displayName) {
-                return ele.id + "/" + ele.static_displayName;
+                return (
+                  ele.id +
+                  "/" +
+                  (typeof ele.static_displayName == "object"
+                    ? ele.static_displayName[this.$i18n.locale]
+                    : ele.static_displayName)
+                );
               } else {
                 return ele.id;
               }
@@ -2593,7 +3665,6 @@ export default {
             //     return;
             //   }
             // }
-            ////console.log(key);
             promises.push(service.getSavedConfig(key, false, "fp-dashboard"));
           } else {
             let allDES = [];
@@ -2602,7 +3673,6 @@ export default {
                 allDES.push(ele);
               });
             }
-            ////console.log(allDES);
             allDES.forEach((ele) => {
               aSelectedDe.push(ele.id);
             });
@@ -2634,7 +3704,6 @@ export default {
                   }
                 });
               }
-              ////console.log("resultResponse", JSON.parse(JSON.stringify(resultResponse)));
             });
           })
           .catch((res) => {
@@ -2643,12 +3712,11 @@ export default {
       }
       if (aSelectedDe.length) {
         let sSelectedDEs = aSelectedDe.join(";");
-        ////console.log(sSelectedDEs)
         await service
           .getAnalyticalIndicatorData(
             sSelectedDEs,
             selectedLoc.split("/")[1],
-            sYear
+            popYear
           )
           .then((dataresponse) => {
             if (promises.length === 0) {
@@ -2661,18 +3729,15 @@ export default {
             //console.log(res);
           });
       }
-      console.log("Final response", response);
       if (response && response.rows.length) {
-        let oFinalData = getFormatedBackGroundData(
+        let oFinalData = dataM.getFormatedBackGroundData(
           response,
           oBackground,
-          aYear,
           pYear
         );
-        console.log("oFinalData from dataMassaging method", oFinalData);
         let oTemp = oFinalData.final,
           odata = adjustmentData,
-          ocontdata = getComputedContFact(
+          ocontdata = dataM.getComputedContFact(
             JSON.parse(JSON.stringify(globData.continuation))
           );
         this.population = oTemp["Population (MWRA)"] || oTemp.Population;
@@ -2696,6 +3761,7 @@ export default {
         this.bgData = oBgdata;
         this.bgDataFound = true;
         this.monthlyStart = true;
+        console.log("bg data", this.bgData);
       } else {
         this.bgDataFound = false;
         this.stopProcessing(
@@ -2708,6 +3774,7 @@ export default {
     stopProcessing(val, errorText = "", dataType) {
       this.annualStart = false;
       this.monthlyStart = false;
+      this.annaulEMUChartsUpdated = false;
       this.start = false;
       this.adjustmentData = null;
       this.adjFlag = false;
@@ -2723,6 +3790,7 @@ export default {
       this.DataElementIDex = null;
       //forMonthly
       this.continuation = null;
+      this.monthlyEMUChartsSaved = false;
       this.population = null;
       this.monthlyPopulation = null;
       this.backgroundData = null;
@@ -2742,7 +3810,6 @@ export default {
       //eslint-disable-next-line
     },
     setValues() {
-      console.log("setvalues method called");
       let configData = this.dqrConfig;
       if (this.start && configData && this.defaultType) {
         this.disableChart =
@@ -2779,6 +3846,8 @@ export default {
         ]
           ? configData["emu"][this.defaultType]["monthlyEMUByMethod"]
           : "Monthly EMU (Method wise): " + tp;
+        this.excludeAF =
+          configData["emu"]["Background_Data"]["adjustmentFactor"];
         this.deNameInc = emuInc;
         this.deNameEx = emuEx;
         this.deName = monthlyEMU;
@@ -2786,7 +3855,6 @@ export default {
         this.userUnadjustedDE = userUnadjusted;
         this.totalEMUByMethodDEName = monthlyEMUByMethod;
         this.annualStart = true;
-        console.log("this.annualStart set", this.annualStart);
       }
     },
   },

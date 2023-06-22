@@ -1,125 +1,166 @@
 <template>
   <div
-    class="anchor-map"
+    class="anchor-map h-100"
     :class="{
       'text-center': !isJsonFetched,
     }"
     :style="{ height: computedHeight + 'px' }"
+    id="leafLet_map"
   >
-    <l-map
-      ref="myMap"
-      :zoom="zoom"
-      :center="center"
-      @ready="mapReady"
-      v-if="isJsonFetched"
-      @update:zoom="zoomUpdated"
-      @update:center="centerUpdated"
-      @update:bounds="boundsUpdated"
-      style="height: 100%; width: 100%"
-      :options="{
-        keyboard: false, // check issues - 1) https://github.com/Leaflet/Leaflet/issues/4125 2) https://github.com/Leaflet/Leaflet/issues/1228 3) https://github.com/Leaflet/Leaflet/commit/b61b7b47570dfbe7d72ef4dbe50b3af85f7b1a8c
-        zoomControl: false,
-        attributionControl: false,
-      }"
-    >
-      <l-geo-json
-        :geojson="geojson"
-        :options="getOptions"
-        v-if="showGeoJson"
-      ></l-geo-json>
-      <l-control-fullscreen
-        position="topright"
-        class="full-screen"
+    <template v-if="isJSONError">
+      <div class="mt-5 text-center">
+        {{ $t("jsonError") }}
+      </div>
+    </template>
+    <template v-else>
+      <l-map
+        ref="myMap"
+        :zoom="zoom"
+        :center="center"
+        @ready="mapReady"
+        v-if="isJsonFetched"
+        @update:zoom="zoomUpdated"
+        @update:center="centerUpdated"
+        @update:bounds="boundsUpdated"
+        @fullscreenchange="reCenterMap"
+        style="height: 100%; width: 100%"
         :options="{
-          title: { false: 'View Full Screen', true: 'Be regular' },
+          zoomSnap: 0.1,
+          keyboard: false, // check issues - 1) https://github.com/Leaflet/Leaflet/issues/4125 2) https://github.com/Leaflet/Leaflet/issues/1228 3) https://github.com/Leaflet/Leaflet/commit/b61b7b47570dfbe7d72ef4dbe50b3af85f7b1a8c
+          zoomControl: false,
+          attributionControl: false,
         }"
-      />
-      <l-control-zoom
-        style="padding: 4px 8.5px"
-        position="topright"
-        zoomInTitle="Zoom In"
-        zoomOutTitle="Zoom Out"
-        class="zoom-inout"
       >
-      </l-control-zoom>
-      <l-control position="topright" class="reset-map">
-        <span
-          @click.prevent.stop="resetMap"
-          title="Reset Map"
-          data-html2canvas-ignore="true"
-        >
-          <i class="fa fa-refresh"></i>
-        </span>
-      </l-control>
-      <l-control position="bottomleft" id="legend">
-        <div class="select-wrapper">
-          <div
-            v-b-toggle.my-collapse
-            class="toggleLegend fs-17-1920"
-            v-b-tooltip.hover
-            title="Legend"
-          >
-            {{ $t("Legend") }}
-          </div>
-        </div>
-        <b-collapse id="my-collapse" visible>
-          <div class="maplegend mapDivLegend map-live">
-            <ul class="list-unstyled mb-0">
-              <li
-                class="p-2 legend-map"
-                v-for="(scales, index) in scaleDescription[0].scales"
-                :key="index"
-              >
-                <!-- <a
-									class="dropdown-item descVal fs-17-1920 px-2"
-									v-for="(scales, index) in scaleDescription[0].scales"
-									:key="index"
-								> -->
-                <input
-                  type="color"
-                  class="cursor-pointer mapInputBox fs-15-1920 w-25"
-                  v-bind:style="{
-                    color: scaleDescription[0].scales[index].scaleColor,
-                  }"
-                  disabled
-                  v-bind:value="scaleDescription[0].scales[index].scaleColor"
-                />
-                <span class="ml-2" style="color: white">{{
-                  scaleDescription[0].scales[index].scaleLabel
-                }}</span>
-                <!-- </a> -->
-              </li>
-            </ul>
-          </div>
-        </b-collapse>
-      </l-control>
-      <l-control
-        class="play-content"
-        position="bottomright"
-        v-if="yearArr.length"
-      >
-        <YearSlider
-          :pType="pType"
-          :yearArr="yearArr"
-          class="contentplay-year"
-          @currentYearChange="currentYearChange"
-          :updatedYearSliderValue="updatedYearSliderValue"
+        <l-tile-layer v-if="url" :url="url"></l-tile-layer>
+        <l-geo-json
+          :geojson="geoJson"
+          :options="getOptions"
+          v-if="showGeoJson"
+        ></l-geo-json>
+        <l-control-fullscreen
+          v-if="!isExporting"
+          position="topright"
+          class="full-screen"
+          :options="{
+            title: { false: $t('fullScreen'), true: $t('exitFullScreen') },
+          }"
         />
-      </l-control>
-    </l-map>
-    <b-spinner type="grow" label="Spinning" v-else></b-spinner>
+        <l-control-zoom
+          style="padding: 4px 6px"
+          position="topright"
+          :zoomInTitle="$t('zoomin')"
+          :zoomOutTitle="$t('zoomout')"
+          class="zoom-inout"
+          v-if="!isExporting"
+        >
+        </l-control-zoom>
+        <l-control position="topright" class="reset-map" v-if="!isExporting">
+          <span
+            @click.prevent.stop="reCenterMap"
+            :title="$t('resetMap')"
+            data-html2canvas-ignore="true"
+          >
+            <img
+              src="@/assets/images/icons/icon-refresh.svg"
+              class="w-17px"
+              :style="{ filter: filterColor }"
+            />
+          </span>
+        </l-control>
+        <l-control
+          position="bottomleft"
+          id="legend"
+          v-if="scaleDescription.length"
+        >
+          <div class="select-wrapper">
+            <div
+              v-b-toggle.my-collapse
+              class="toggleLegend fs-17-1920"
+              v-b-tooltip.hover
+              :title="selectedInd || $t('legend')"
+            >
+              <span class="toggleHeading">
+                {{ selectedInd || $t("legend") }}
+              </span>
+            </div>
+          </div>
+          <b-collapse id="my-collapse" visible>
+            <div class="maplegend mapDivLegend map-live">
+              <ul class="list-unstyled mb-0">
+                <li
+                  class="p-2 legend-map"
+                  v-for="(scales, index) in scaleDescription[0].scales"
+                  :key="index"
+                >
+                  <input
+                    type="color"
+                    class="mapInputBox fs-15-1920 w-30"
+                    v-bind:style="{
+                      color: scaleDescription[0].scales[index].scaleColor,
+                    }"
+                    disabled
+                    v-bind:value="scaleDescription[0].scales[index].scaleColor"
+                  />
+                  <span
+                    class="ml-2 legend-plot cursor-pointer"
+                    style="color: white"
+                    v-b-tooltip.hover
+                    :title="scaleDescription[0].scales[index].scaleLabel"
+                    >{{ scaleDescription[0].scales[index].scaleLabel }}</span
+                  >
+                </li>
+              </ul>
+            </div>
+          </b-collapse>
+        </l-control>
+        <l-control
+          class="play-content"
+          position="bottomright"
+          v-if="yearArr.length && !isExporting"
+        >
+          <YearSlider
+            :pType="pType"
+            :yearArr="yearArr"
+            class="contentplay-year"
+            @currentYearChange="currentYearChange"
+            :updatedYearSliderValue="updatedYearSliderValue"
+          />
+        </l-control>
+      </l-map>
+      <div
+        class="align-items-center d-flex justify-content-center h-400px"
+        v-else
+      >
+        <b-spinner type="grow" label="Spinning"></b-spinner>
+      </div>
+    </template>
   </div>
 </template>
 <script>
 import L from "leaflet";
-import service from "@/service";
-import dom_to_image from "dom-to-image";
-import { LMap, LGeoJson, LControl, LControlZoom } from "vue2-leaflet";
+import domtoimage from "dom-to-image";
+import {
+  LMap,
+  LGeoJson,
+  LControl,
+  LTileLayer,
+  LControlZoom,
+} from "vue2-leaflet";
+import { featureGroup } from "leaflet";
 import * as LocationModes from "leaflet-dvf";
 import LControlFullscreen from "vue2-leaflet-fullscreen";
 import "leaflet/dist/leaflet.css";
 import YearSlider from "@/components/Common/YearSliderNew.vue";
 import { isNumber } from "@/components/Common/commonFunctions";
+import DynamicImageMixin from "@/helpers/DynamicImageMixin";
+delete L.Icon.Default.prototype._getIconUrl;
+
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png"),
+  iconUrl: require("leaflet/dist/images/marker-icon.png"),
+  shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
+});
+
 export default {
   props: [
     "hideYears",
@@ -129,46 +170,39 @@ export default {
     "allGeoJson",
     "selectedInd",
     "mapConfigData",
+    "selectedLayer",
     "locationPeriod",
   ],
   components: {
     LMap,
     LControl,
     LGeoJson,
+    LTileLayer,
     YearSlider,
     LControlZoom,
     LControlFullscreen,
   },
+  mixins: [DynamicImageMixin],
   data() {
     return {
       zoom: 5,
+      url: null,
+      scales: [],
       yearArr: [],
       bounds: null,
       minVal: null,
       maxVal: null,
-      geojson: null,
+      geoJson: null,
       mapData: null,
       pType: "yearly",
+      isJSONError: false,
       showGeoJson: false,
+      isExporting: false,
       locNameLayer: null,
       scaleDescription: [],
       isJsonFetched: false,
-      scales: [
-        {
-          lowScale: "0",
-          highScale: "25",
-          scaleColor: "#FF6850",
-          scaleLabel: "Lowest Coverage",
-        },
-        {
-          lowScale: "25",
-          highScale: "50",
-          scaleColor: "#69D48C",
-          scaleLabel: "Highest Coverage",
-        },
-      ],
       updatedYearSliderValue: null,
-      center: [50.919437, 19.145136],
+      center: [0, 0],
     };
   },
   computed: {
@@ -185,7 +219,6 @@ export default {
     bStyleFunction() {
       return (feature) => {
         let fillColor = this.getFillColor(this.getFeatureValue(feature.id));
-        // let fillColor = "#65648c";
         return {
           weight: 1.5,
           color: "#9a99c7",
@@ -196,13 +229,10 @@ export default {
       };
     },
     onEachFeatureFunction() {
-      // if (!this.enableTooltip) {
-      // 	return () => {};
-      // }
       return (feature, layer) => {
-        var locationISO = feature.id;
-        var locationName = feature.properties.name;
-        var tooltipContent = this.getToolTipContent(locationName, locationISO);
+        let locationISO = feature.id;
+        let locationName = feature.properties.name;
+        let tooltipContent = this.getToolTipContent(locationName, locationISO);
         layer.bindTooltip(tooltipContent, {
           permanent: false,
           sticky: true,
@@ -210,15 +240,29 @@ export default {
         layer.on({
           mouseover: this.highlightFeature,
           mouseout: this.resetHighlight,
-          click: this.drilldown,
         });
       };
     },
   },
   watch: {
+    allGeoJson(newValue) {
+      if (newValue[this.locationPeriod.location] === "error") {
+        this.isJSONError = true;
+      }
+      if (newValue[this.locationPeriod.location]) {
+        this.$nextTick(() => {
+          this.geoJson = newValue[this.locationPeriod.location];
+          this.isJsonFetched = true;
+        });
+      }
+    },
+    selectedLayer(newValue) {
+      this.url = newValue;
+    },
     selectedInd(newValue) {
       this.mapData = null;
       this.showGeoJson = false;
+      this.scaleDescription = [];
       this.setPeriod();
     },
     isJsonFetched(newValue) {
@@ -227,47 +271,64 @@ export default {
       }
     },
     "$store.getters.getActiveTab": function () {
-        this.$refs.myMap.mapObject.invalidateSize();
+      this.$refs.myMap.mapObject.invalidateSize();
+    },
+    isExporting(newValue) {
+      if (newValue) {
+        this.removedLocationName();
+      } else {
+        this.setPeriod();
+      }
     },
   },
   methods: {
     getFillColor(value) {
-      let returnColor = "#65648c";
+      let returnColor = "#A0ADBA";
       if (this.showScales) {
-        let scales = this.scaleDescription[0].scales;
-
-        for (var i in scales) {
-          if (value != undefined && value * 1 != -1) {
-            if (value * 1 > scales[i].highScale * 1) {
-              returnColor = scales[i].scaleColor;
-            } else {
-              if (
-                value * 1 >= scales[i].lowScale * 1 &&
-                value * 1 <= scales[i].highScale * 1
-              ) {
+        if (this.scaleDescription.length) {
+          let scales = this.scaleDescription[0].scales;
+          for (let i in scales) {
+            if (value != undefined && value * 1 != -1) {
+              if (value * 1 > scales[i].highScale * 1) {
                 returnColor = scales[i].scaleColor;
-                break;
-              }
-              if (value * 1 < scales[i].lowScale * 1) {
-                returnColor = scales[i].scaleColor;
-                break;
+              } else {
+                if (
+                  value * 1 >= scales[i].lowScale * 1 &&
+                  value * 1 <= scales[i].highScale * 1
+                ) {
+                  returnColor = scales[i].scaleColor;
+                  break;
+                }
+                if (value * 1 < scales[i].lowScale * 1) {
+                  returnColor = scales[i].scaleColor;
+                  break;
+                }
               }
             }
           }
         }
       } else {
-        if (value === this.minVal) {
+        if (isNumber(value)) {
+          returnColor = "#6c7787";
+        }
+        if (
+          value === this.minVal &&
+          ![null, this.$i18n.t("NA")].includes(this.minVal)
+        ) {
           returnColor = "#FF6850";
         }
-        if (value === this.maxVal) {
+        if (
+          value === this.maxVal &&
+          ![null, this.$i18n.t("NA")].includes(this.maxVal)
+        ) {
           returnColor = "#69D48C";
         }
       }
       return returnColor;
     },
     getFeatureValue(paramId) {
-      var returnVal = "N/A";
-      var dataVal =
+      let returnVal = this.$i18n.t("NA");
+      let dataVal =
         this.mapData && this.mapData.length
           ? this.mapData.find((d) => d.locationID === paramId)
           : null;
@@ -322,7 +383,11 @@ export default {
             }
             let overlayData = this.getGeoJsonMapped(data);
             this.locationNames(overlayData);
+          } else {
+            this.dummyGeoJson();
           }
+        } else {
+          this.dummyGeoJson();
         }
       }
     },
@@ -335,27 +400,31 @@ export default {
       }
     },
     getScales(scaleData) {
+      let scales = [];
       this.scaleDescription = [];
-
       let scaleDescription = this.mapConfigData.levels.filter(
         (c) => c.level === this.locationPeriod.location.split("/")[0] * 1
       );
       this.scaleDescription = JSON.parse(JSON.stringify(scaleDescription));
-      if (this.scaleDescription[0].isAutoRange) {
+      if (this.scaleDescription.length === 0) {
+        this.scaleDescription = [{ scales: [] }];
+      }
+      if (this.scaleDescription[0]?.isAutoRange) {
         let color = [],
           scaleD = [];
         this.scaleDescription[0].scales.forEach((scale) => {
           color.push(scale.scaleColor);
-          scaleD.push(scale.scaleLabel);
+          scaleD.push(scale.scaleLabel[this.$i18n.locale]);
         });
         let valArray = [];
         scaleData.forEach((obj) => {
           valArray.push(obj.originalY * 1);
         });
-
         let maxValue = Math.max.apply(Math, valArray);
         let medianValue =
-          isNumber(maxValue) && valArray.length ? parseInt(maxValue / 4) : 0;
+          isNumber(maxValue) && valArray.length
+            ? Math.ceil(parseFloat(maxValue / 4))
+            : 0;
         let legendScales = {
           lowScale: [],
           highScale: [],
@@ -365,7 +434,7 @@ export default {
 
         let lowScaleMinValue = 0;
         let highScaleMinValue = medianValue;
-        for (var i = 0; i < 4; i++) {
+        for (let i = 0; i < 4; i++) {
           if (i == 0) {
             legendScales.lowScale.push(0);
             legendScales.highScale.push(highScaleMinValue);
@@ -376,24 +445,15 @@ export default {
             legendScales.highScale.push(highScaleMinValue);
           }
         }
-        let scales = [];
         for (let i = 0; i < legendScales.lowScale.length; i++) {
           let scaleDescValue = "";
-          if (i == legendScales.lowScale.length - 1) {
-            scaleDescValue =
-              legendScales.scaleDesc[i] +
-              " (" +
-              legendScales.lowScale[i] +
-              " + )";
-          } else {
-            scaleDescValue =
-              legendScales.scaleDesc[i] +
-              " (" +
-              legendScales.lowScale[i] +
-              " - " +
-              legendScales.highScale[i] +
-              " )";
-          }
+          scaleDescValue =
+            legendScales.scaleDesc[i] +
+            " (" +
+            legendScales.lowScale[i] +
+            " - " +
+            legendScales.highScale[i] +
+            " )";
 
           scales.push({
             highScale: legendScales.highScale[i],
@@ -402,8 +462,24 @@ export default {
             scaleLabel: scaleDescValue,
           });
         }
-        this.scaleDescription[0].scales = scales;
+      } else {
+        this.scaleDescription[0].scales.forEach((scale) => {
+          scales.push({
+            ...scale,
+            scaleLabel: `${scale.scaleLabel[this.$i18n.locale]} (${
+              scale.lowScale
+            } - ${scale.highScale})`,
+          });
+        });
       }
+      scales.push({
+        highScale: null,
+        lowScale: null,
+        scaleColor: "#A0ADBA",
+        scaleLabel: this.$i18n.t("noData"),
+      });
+      this.scaleDescription[0].scales = scales;
+      this.$emit("getScales", this.scaleDescription[0].scales);
     },
     currentYearChange(year) {
       this.mapData = null;
@@ -411,47 +487,51 @@ export default {
       this.updatedYearSliderValue = year;
       this.getUpdatedMapValues();
     },
-    async exportChart(type) {
-      var map = this.$refs.mapObj.mapObject;
-      this.isExpanded = map.isFullscreen();
-      var getStyleObj = this.isExpanded
+    async exportChart(type = "jpg") {
+      this.isExporting = true;
+      this.$store.commit("setLoading", true);
+      let map = this.$refs.myMap.mapObject;
+      let isExpanded = map.isFullscreen();
+      let getStyleObj = isExpanded
         ? { width: 1000, quality: 0.95 }
         : { quality: 0.95 };
       if (type === "jpg") {
-        await dom_to_image
-          .toJpeg(document.getElementById("leafLet"), { quality: 0.95 })
-          .then(function (dataUrl) {
-            var link = document.createElement("a");
+        await domtoimage
+          .toJpeg(document.getElementById("leafLet_map"), getStyleObj)
+          .then((dataUrl) => {
+            let link = document.createElement("a");
             link.download = "my_image.jpg";
             link.href = dataUrl;
             link.click();
+            this.isExporting = false;
+            this.$store.commit("setLoading", false);
           })
-          .catch(function (error) {
+          .catch((error) => {
+            this.isExporting = false;
+            this.$store.commit("setLoading", false);
             console.error("oops, something went wrong!", error);
           });
       } else if (type === "png") {
-        await dom_to_image
-          .toPng(document.getElementById("leafLet"), getStyleObj)
-          .then(function (dataUrl) {
-            var link = document.createElement("a");
+        await domtoimage
+          .toPng(document.getElementById("leafLet_map"), getStyleObj)
+          .then((dataUrl) => {
+            let link = document.createElement("a");
             link.download = "my_image.png";
             link.href = dataUrl;
             link.click();
+            this.isExporting = false;
+            this.$store.commit("setLoading", false);
           })
-          .catch(function (error) {
+          .catch((error) => {
+            this.isExporting = false;
+            this.$store.commit("setLoading", false);
             console.error("oops, something went wrong!", error);
           });
       }
     },
-    resetMap() {
-      this.zoom = 5;
-      this.center = [50.919437, 21.145136];
-      this.$refs.myMap.setCenter(this.center);
-      this.$refs.myMap.setZoom(this.zoom);
-    },
     getToolTipContent(locationName, locationISO) {
       let value = this.getFeatureValue(locationISO);
-      var content =
+      let content =
         '<div style="max-width:180px;"><div style="font-weight: 600;"> ' +
         locationName +
         " : " +
@@ -460,7 +540,7 @@ export default {
       return content;
     },
     highlightFeature(e) {
-      var layer = e.target;
+      let layer = e.target;
       layer.setStyle({
         weight: 3,
         color: "#9a99c7",
@@ -469,7 +549,7 @@ export default {
       });
     },
     resetHighlight(e) {
-      var layer = e.target;
+      let layer = e.target;
       layer.setStyle({
         color: "#9a99c7",
         dashArray: "",
@@ -493,29 +573,30 @@ export default {
       });
       setTimeout(() => {
         map.invalidateSize();
+        this.reCenterMap();
       }, 0);
     },
-    getGeoJson() {
-      let loc = this.locationPeriod.location.split("/");
-      service
-        .getGeoJson(loc[1], loc[0] * 1 + 1)
-        .then((response) => {
-          this.geojson = response.data;
-          this.$emit("getGeoJson", this.locationPeriod.location, response.data);
-          this.isJsonFetched = true;
-        })
-        .catch(() => {
-          this.isJsonFetched = true;
+    reCenterMap() {
+      this.$nextTick().then(() => {
+        let group = new featureGroup();
+        this.$refs.myMap.mapObject.eachLayer(function (layer) {
+          if (layer.feature && layer.feature != undefined)
+            group.addLayer(layer);
         });
+        this.$refs.myMap.mapObject.fitBounds(group.getBounds(), {
+          padding: [10, 10],
+        });
+      });
     },
     locationNames(overlayData) {
-      var _this = this;
-      var textFunction = function (value) {
+      let _this = this;
+      let textFunction = (value) => {
         return {
           text: value,
           style: {
-            fill: " #cbcbcb ",
-            "font-size": _this.fontsize,
+            // fill: " #cbcbcb ",
+            fill: "#5C5B6D",
+            "font-size": this.fontsize,
             "margin-left": "-100px",
             "font-family": "Roboto",
             "background-color": "rgb(255, 255, 245)",
@@ -539,6 +620,7 @@ export default {
           radius: 1,
           weight: 0,
           color: "#343361",
+          // color: "#5C5B6D",
           opacity: 0,
           stroke: true,
           fillOpacity: 0.1,
@@ -547,55 +629,57 @@ export default {
         },
       };
       let dataLayer = new L.DataLayer(overlayData, markerOptions);
-      var overlayMaps = {};
+      let overlayMaps = {};
       if (this.isChecked) {
-        overlayMaps["names"] = new L.LayerGroup([dataLayer]).addTo(
-          this.$refs.myMap.mapObject
-        );
+        overlayMaps[this.$i18n.t("names")] = new L.LayerGroup([
+          dataLayer,
+        ]).addTo(this.$refs.myMap.mapObject);
       } else {
-        overlayMaps["names"] = new L.LayerGroup([dataLayer]);
+        overlayMaps[this.$i18n.t("names")] = new L.LayerGroup([dataLayer]);
       }
-
       this.locNameLayer = new L.Control.Layers(null, overlayMaps, {
         position: "topleft",
         collapsed: false,
       }).addTo(this.$refs.myMap.mapObject);
       this.$nextTick(() => {
         this.showGeoJson = true;
+        this.$emit("getGeoData", overlayData);
         this.$refs.myMap.mapObject.invalidateSize();
       });
     },
     getGeoJsonMapped(indData) {
       let overlaysMap = [];
-      if (this.geojson != null) {
-        for (let i in this.geojson.features) {
-          let layerObj = L.geoJson(this.geojson.features[i]);
+      if (this.geoJson != null) {
+        for (let i in this.geoJson.features) {
+          let layerObj = L.geoJson(this.geoJson.features[i]);
           let mapCentroid = layerObj.getBounds().getCenter();
-
           let nameControlObj = {},
             findId = false,
-            value = "N/A";
+            value = this.$i18n.t("NA");
           if (indData.length > 0) {
             findId = indData.find(
-              (obj) => obj.locationID === this.geojson.features[i]["id"]
+              (obj) => obj.locationID === this.geoJson.features[i]["id"]
             );
-            value = findId.originalY;
+            value = findId ? findId.originalY : this.$i18n.t("NA");
           } else {
             findId = true;
           }
-
           if (findId) {
             nameControlObj = {
-              name: this.geojson.features[i]["properties"].name,
+              name: this.geoJson.features[i]["properties"].name,
               lat: mapCentroid.lat,
               lng: mapCentroid.lng,
-              value: this.geojson.features[i]["properties"].name + ": " + value,
+              value: this.geoJson.features[i]["properties"].name + ": " + value,
+              period: this.updatedYearSliderValue,
             };
           }
           overlaysMap.push(nameControlObj);
         }
       }
       return overlaysMap;
+    },
+    ConvertToRadian(input) {
+      return (input * Math.PI) / 180;
     },
     setPeriod() {
       if (this.chartData && this.chartData.series.length) {
@@ -610,23 +694,61 @@ export default {
             this.updatedYearSliderValue = this.yearArr[this.yearArr.length - 1];
           }
           this.getUpdatedMapValues();
+        } else {
+          this.dummyGeoJson();
         }
       } else {
-        console.log("Chart data not found");
-        let overlayData = this.getGeoJsonMapped([]);
-        this.locationNames(overlayData);
+        this.dummyGeoJson();
       }
+    },
+    dummyGeoJson() {
+      console.log("Chart data not found");
+      this.removedLocationName();
+      let overlayData = this.getGeoJsonMapped([]);
+      if (this.showScales) {
+        this.getScales([]);
+      } else {
+        this.setMinMax([]);
+      }
+      this.locationNames(overlayData);
     },
   },
   created() {
-    this.scaleDescription.push({ scales: this.scales });
+    this.zoom = this.$store.getters.getAppSettings?.defaultMapZoom || 5;
+    if (!this.showScales) {
+      this.scales = [
+        {
+          highScale: "25",
+          lowScale: "0",
+          scaleColor: "#FF6850",
+          scaleLabel: this.$i18n.t("lowCoverage"),
+        },
+        {
+          highScale: "25",
+          lowScale: "50",
+          scaleColor: "#69D48C",
+          scaleLabel: this.$i18n.t("highCoverage"),
+        },
+        {
+          highScale: "50",
+          lowScale: "75",
+          scaleColor: "#6c7787",
+          scaleLabel: this.$i18n.t("coverage"),
+        },
+        {
+          highScale: null,
+          lowScale: null,
+          scaleColor: "#A0ADBA",
+          scaleLabel: this.$i18n.t("noData"),
+        },
+      ];
+      this.scaleDescription.push({ scales: this.scales });
+    }
     if (this.allGeoJson[this.locationPeriod.location]) {
       this.$nextTick(() => {
-        this.geojson = this.allGeoJson[this.locationPeriod.location];
+        this.geoJson = this.allGeoJson[this.locationPeriod.location];
         this.isJsonFetched = true;
       });
-    } else {
-      this.getGeoJson();
     }
   },
   mounted() {},
@@ -634,24 +756,12 @@ export default {
 </script>
 <style scoped>
 .reset-map {
-  border: 1px solid #2f2d55;
-  padding: 4px 7px;
-  border-radius: 7px;
-  background-color: #2f2d55 !important;
-  color: #d9d9d9 !important;
+  border: 1px solid var(--sidebar-main-active-color) !important;
+  padding: 4px;
+  border-radius: 5px;
+  background-color: var(--sidebar-main-active-color) !important;
+  color: var(--text-font-color) !important;
+  cursor: pointer;
 }
-.toggleLegend {
-  padding: 3px 5px;
-  min-width: 100px;
-}
-.mapDivLegend {
-  min-width: 155px;
-}
-#legend .select-wrapper:after {
-  top: 0px;
-}
-.dropdown-item:hover,
-.dropdown-item:focus {
-  background-color: none;
-}
+
 </style>

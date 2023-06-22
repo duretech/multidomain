@@ -8,55 +8,56 @@
       </b-col>
     </template>
     <template v-else>
-      <b-col sm="6" class="m-b-30px">
+      <b-col sm="6" class="mb-3">
         <card-component
           v-if="comparingEMU"
           :chartdata="comparingEMU"
           :showSource="true"
           :canComment="canComment"
           defaultSort="JAN-DEC"
-          sorting="['JAN-DEC','DEC-JAN']"
+          :sorting="['JAN-DEC', 'DEC-JAN']"
         />
         <template v-else>
           <HighChartComponent :chartData="placeholderObj" />
         </template>
       </b-col>
-      <b-col sm="6" class="m-b-30px">
+      <b-col sm="6" class="mb-3">
         <card-component
           v-if="comparingAverageAnnual"
           :chartdata="comparingAverageAnnual"
           :showSource="true"
           :canComment="canComment"
           defaultSort="A-Z"
-          sorting="['0-1','1-0', 'A-Z','Z-A']"
+          :sorting="['0-1', '1-0', 'A-Z', 'Z-A']"
         />
         <template v-else>
           <HighChartComponent :chartData="placeholderObj" />
         </template>
       </b-col>
-      <b-col sm="6" class="m-b-30px">
+
+      <b-col sm="6" class="mb-3">
         <card-component
           v-if="comparingUsers"
           :chartdata="comparingUsers"
           :showSource="true"
           :canComment="canComment"
           defaultSort="A-Z"
-          sorting="['0-1','1-0', 'A-Z','Z-A']"
+          :sorting="['0-1', '1-0', 'A-Z', 'Z-A']"
         />
         <template v-else>
           <HighChartComponent :chartData="placeholderObj" />
         </template>
       </b-col>
-      <b-col sm="6" class="m-b-30px">
+      <b-col sm="6" class="mb-3">
         <card-component
           v-if="annualuserTrendsDataByMethods"
           :chartdata="annualuserTrendsDataByMethods"
           :ddOptions="userMethodList"
-          :handleFilterChange="handleFilterChange"
+          @handleFilterChange="handleFilterChange"
           :showSource="true"
           :canComment="canComment"
           defaultSort="JAN-DEC"
-          sorting="['JAN-DEC','DEC-JAN']"
+          :sorting="['JAN-DEC', 'DEC-JAN']"
         />
         <template v-else>
           <HighChartComponent :chartData="placeholderObj" />
@@ -67,13 +68,18 @@
 </template>
 <script>
 import service from "@/service";
-import basicChartConfig from "@/config/basicChartConfig.js";
+import { commonChartConfig } from "@/config/basicChartConfig";
 import cardComponent from "@/components/FPDashboard/dqr/emuAnnual/cardComponent";
-import HighChartComponent from "@/components/Highcharts/HighChartComponentDynamic";
 
 export default {
   props: ["emuData", "dqrResponse", "locationPeriod"],
-  components: { cardComponent, HighChartComponent },
+  components: {
+    cardComponent,
+    HighChartComponent: () =>
+      import(
+        /* webpackChunkName: "HighChartComponentDynamic"*/ "@/components/Highcharts/HighChartComponentDynamic"
+      ),
+  },
   data() {
     return {
       noData: "",
@@ -83,23 +89,37 @@ export default {
       selectedUserMethod: 0,
       globalPeriodData: null,
       comparingAverageAnnual: null,
-      placeholderObj: basicChartConfig,
+      placeholderObj: commonChartConfig,
       annualuserTrendsDataByMethods: null,
     };
   },
   watch: {
     emuData: {
       handler(newValue) {
-        if (newValue["yearly"] && this.dqrResponse) {
+        if (
+          newValue[`yearly_${this.$i18n.locale}`] &&
+          newValue[`yearly_${this.$i18n.locale}`] !== "Error" &&
+          this.dqrResponse
+        ) {
           this.getEMUChart();
+        }
+        if (newValue[`yearly_${this.$i18n.locale}`] === "Error") {
+          this.noData = this.$i18n.t("no_data_to_display");
         }
       },
       deep: true,
     },
     dqrResponse: {
       handler(newValue) {
-        if (this.emuData["yearly"] && newValue) {
+        if (
+          this.emuData[`yearly_${this.$i18n.locale}`] &&
+          this.emuData[`yearly_${this.$i18n.locale}`] !== "Error" &&
+          newValue
+        ) {
           this.getEMUChart();
+        }
+        if (this.emuData[`yearly_${this.$i18n.locale}`] === "Error") {
+          this.noData = this.$i18n.t("no_data_to_display");
         }
       },
       deep: true,
@@ -119,38 +139,40 @@ export default {
       this.annualuserTrendsDataByMethods = null;
       let emuData = JSON.parse(JSON.stringify(this.emuData));
       let compEMU =
-        typeof emuData["yearly"]["compEMU"] === "string"
-          ? JSON.parse(emuData["yearly"]["compEMU"])
-          : emuData["yearly"]["compEMU"];
+        typeof emuData[`yearly_${this.$i18n.locale}`]["compEMU"] === "string"
+          ? JSON.parse(emuData[`yearly_${this.$i18n.locale}`]["compEMU"])
+          : emuData[`yearly_${this.$i18n.locale}`]["compEMU"];
       let locId = this.locationPeriod.location.split("/")[1];
-      // console.log("locId", locId);
-      // console.log("compEMU", compEMU);
-      // console.log("compEMU[locId]", compEMU[locId]);
       if (compEMU[locId]) {
         let dqrData = this.dqrResponse.emu.Output.derivedCharts;
-        // console.log("dqrResponse", this.dqrResponse.emu.Output.derivedCharts)
 
         let comparingEMU = compEMU[locId] ? compEMU[locId] : null;
-        // console.log("comparingEMU", comparingEMU)
         if (comparingEMU) {
           let data = dqrData.find(
             (d) => d.chartOptions.cid === comparingEMU.cid
           );
-          // console.log("data",data)
           if (data) {
             data = data.chartOptions;
-            comparingEMU.chartInfo = data.chartInfo;
-            comparingEMU.title = data.chartName;
+            comparingEMU.chartInfo =
+              data.chartInfo[this.$i18n.locale] || data.chartInfo;
+            comparingEMU.title =
+              data.chartName[this.$i18n.locale] || data.chartName;
             comparingEMU.xTitle =
-              data.xAxis && data.xAxis.visible ? data.xAxis.text : "";
+              data.xAxis && data.xAxis.visible
+                ? data.xAxis.text[this.$i18n.locale] || data.xAxis.text
+                : "";
             comparingEMU.yTitle =
-              data.yAxis && data.yAxis.visible ? data.yAxis.text : "";
+              data.yAxis && data.yAxis.visible
+                ? data.yAxis.text[this.$i18n.locale] || data.yAxis.text
+                : "";
           }
           this.comparingEMU = comparingEMU;
         } else {
           this.comparingEMU = null;
         }
-        let comAvgEMU = JSON.parse(emuData["yearly"]["compAvgAnuual"]);
+        let comAvgEMU = JSON.parse(
+          emuData[`yearly_${this.$i18n.locale}`]["compAvgAnuual"]
+        );
         let comparingAverageAnnual = comAvgEMU[locId] ? comAvgEMU[locId] : null;
         if (comparingAverageAnnual) {
           let data = dqrData.find(
@@ -158,20 +180,28 @@ export default {
           );
           if (data) {
             data = data.chartOptions;
-            comparingAverageAnnual.chartInfo = data.chartInfo;
-            comparingAverageAnnual.title = data.chartName;
+            comparingAverageAnnual.chartInfo =
+              data.chartInfo[this.$i18n.locale] || data.chartInfo;
+            comparingAverageAnnual.title =
+              data.chartName[this.$i18n.locale] || data.chartName;
             comparingAverageAnnual.type = "bar";
             comparingAverageAnnual.xTitle =
-              data.xAxis && data.xAxis.visible ? data.xAxis.text : "";
+              data.xAxis && data.xAxis.visible
+                ? data.xAxis.text[this.$i18n.locale] || data.xAxis.text
+                : "";
             comparingAverageAnnual.yTitle =
-              data.yAxis && data.yAxis.visible ? data.yAxis.text : "";
+              data.yAxis && data.yAxis.visible
+                ? data.yAxis.text[this.$i18n.locale] || data.yAxis.text
+                : "";
           }
           this.comparingAverageAnnual = comparingAverageAnnual;
         } else {
           this.comparingAverageAnnual = null;
         }
 
-        let comUsers = JSON.parse(emuData["yearly"]["compUsers"]);
+        let comUsers = JSON.parse(
+          emuData[`yearly_${this.$i18n.locale}`]["compUsers"]
+        );
         let comparingUsers = comUsers[locId] ? comUsers[locId] : null;
         if (comparingUsers) {
           let data = dqrData.find(
@@ -179,19 +209,27 @@ export default {
           );
           if (data) {
             data = data.chartOptions;
-            comparingUsers.chartInfo = data.chartInfo;
-            comparingUsers.title = data.chartName;
+            comparingUsers.chartInfo =
+              data.chartInfo[this.$i18n.locale] || data.chartInfo;
+            comparingUsers.title =
+              data.chartName[this.$i18n.locale] || data.chartName;
             comparingUsers.type = "bar";
             comparingUsers.xTitle =
-              data.xAxis && data.xAxis.visible ? data.xAxis.text : "";
+              data.xAxis && data.xAxis.visible
+                ? data.xAxis.text[this.$i18n.locale] || data.xAxis.text
+                : "";
             comparingUsers.yTitle =
-              data.yAxis && data.yAxis.visible ? data.yAxis.text : "";
+              data.yAxis && data.yAxis.visible
+                ? data.yAxis.text[this.$i18n.locale] || data.yAxis.text
+                : "";
           }
           this.comparingUsers = comparingUsers;
         } else {
           this.comparingUsers = null;
         }
-        let usersT = JSON.parse(emuData["yearly"]["usersTrend"]);
+        let usersT = JSON.parse(
+          emuData[`yearly_${this.$i18n.locale}`]["usersTrend"]
+        );
         this.usersTrend = usersT[locId] ? usersT[locId] : null;
       } else {
         this.comparingEMU = null;
@@ -207,7 +245,11 @@ export default {
         let oRet = data,
           aCategories = Object.keys(oRet),
           sMethod;
-        this.userMethodList = aCategories;
+        this.userMethodList = aCategories.length
+          ? aCategories.filter(
+              (el) => !["type", "isPeriodChart", "reportChartType"].includes(el)
+            )
+          : [];
         if (p_bFlag) {
           this.selectedUserMethod = 0;
         }
@@ -216,6 +258,7 @@ export default {
           this.annualuserTrendsDataByMethods = {
             data: oRet[sMethod].data,
             title: this.$i18n.t("user_trend"),
+            cid: data.cid,
             source: "",
             xTitle: "",
             yTitle: "",
@@ -227,8 +270,8 @@ export default {
         }
       }
     },
-    handleFilterChange(e) {
-      this.selectedUserMethod = e.target.value;
+    handleFilterChange(newVal) {
+      this.selectedUserMethod = newVal;
       this.drawUserByMethods(false, this.usersTrend);
     },
     getConfig() {
@@ -246,7 +289,9 @@ export default {
               title: this.$i18n.t("configurationnotavailable"),
               text: this.$i18n.t("pleasesetyourconfiguration"),
               showCancelButton: true,
-              confirmButtonText: this.$i18n.t("configurenow"),
+              reverseButtons: true,
+              confirmButtonText: this.$i18n.t("configureNow"),
+              cancelButtonText: this.$i18n.t("cancelbtn"),
             }).then((result) => {
               if (result.value) {
                 this.$router.push("/config");
@@ -254,9 +299,9 @@ export default {
             });
           } else {
             // Popup message to contact admin for the configurations
-            this.$swal({
+            this.sweetAlert({
               title: this.$i18n.t("configurationnotavailable"),
-              text: this.$i18n.t("error_text_2"),
+              text: this.$i18n.t("contactAdmin"),
             });
           }
         });
@@ -271,7 +316,7 @@ export default {
     if (!this.dqrResponse) {
       this.getConfig();
     }
-    if (this.emuData["yearly"] && this.dqrResponse) {
+    if (this.emuData[`yearly_${this.$i18n.locale}`] && this.dqrResponse) {
       this.getEMUChart();
     }
   },

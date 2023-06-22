@@ -14,13 +14,13 @@
       <dqr
         :sideMenu="sideMenu"
         :dqrResponse="dqrResponse"
+        :preFetchData="preFetchData"
         :selectedData="selectedData"
         @updatedConfig="updatedConfig"
         :locationPeriod="locationPeriod"
         :reportChartData="reportChartData"
         @setReportChart="setReportChart"
       />
-      <!-- v-if="locationPeriod" -->
     </div>
     <Footer
       v-if="
@@ -28,6 +28,7 @@
           this.$store.getters.getActiveTab
         )
       "
+      :IDLocationPeriod="IDLocationPeriod"
       :globalPeriodData="globalPeriodData"
       @getLocationPeriod="getLocationPeriod"
     />
@@ -38,6 +39,7 @@ import service from "@/service";
 import dqr from "@/components/DQR/dqr";
 import ResetMenuMixin from "@/helpers/ResetMenuMixin";
 import DocumentTitleMixin from "@/helpers/DocumentTitleMixin";
+import ReFetchConfigMixin from "@/helpers/ReFetchConfigMixin";
 import LanguageChangeMixin from "@/helpers/LanguageChangeMixin";
 import EmitTourCallbackMixin from "@/helpers/EmitTourCallbackMixin";
 
@@ -48,7 +50,9 @@ export default {
   props: [
     "sideMenu",
     "activeTab",
+    "preFetchData",
     "reportPeriod",
+    "IDLocationPeriod",
     "reportLocationValue",
     "reportDefaultLevelID",
     "reportDefaultLocationID",
@@ -60,6 +64,7 @@ export default {
   mixins: [
     ResetMenuMixin,
     DocumentTitleMixin,
+    ReFetchConfigMixin,
     LanguageChangeMixin,
     EmitTourCallbackMixin,
   ],
@@ -106,22 +111,22 @@ export default {
       this.configData = configData;
     },
     getConfigData() {
-      let key1 = this.generateKey("dqrModule");
-
-      service
-        .getSavedConfig(key1)
-        .then((dqrResponse) => {
-          this.dqrResponse = dqrResponse.data;
-          //Before destroy we need to reset the value
-          this.$emit("getConfigDataFP", {
-            data: dqrResponse.data,
-            module: "dqr",
+      if (this.$store.getters.getNamespace.includes("_fp-dashboard")) {
+        let key1 = this.generateKey("dqrModule");
+        service
+          .getSavedConfig(key1)
+          .then((dqrResponse) => {
+            this.dqrResponse = dqrResponse.data;
+            //Before destroy we need to reset the value
+            this.$emit("getConfigDataFP", {
+              data: dqrResponse.data,
+              module: "dqr",
+            });
+          })
+          .catch(() => {
+            console.log("DQR module getConfig() - dqrModule response failed");
           });
-        })
-        .catch(() => {
-          console.log("DQR module getConfig() - dqrModule response failed");
-        });
-
+      }
       let key = this.generateKey("dqrDashboard");
       let namespace = this.reportChartData
         ? this.reportChartData.selectedDashboard
@@ -133,8 +138,9 @@ export default {
           this.$emit("getConfigData", response.data);
           this.setTab();
         })
-        .catch(() => {
+        .catch((err) => {
           console.log("Config not found...");
+          this.reFetchConfig(err);
         });
     },
     setTab() {

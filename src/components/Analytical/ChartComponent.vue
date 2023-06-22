@@ -19,16 +19,24 @@
       v-else
       :r2="r2"
       :cID="cID"
+      :subTab="subTab"
       :source="source"
       :chartData="cObj"
+      :isError="isError"
       :drillSD="drillSD"
       :sorting="sorting"
       :outliers="outliers"
       class="border-bottom"
+      :chartInfo="chartInfo"
       :chartType="chartType"
       :showLabels="showLabels"
       :dataFetched="dataFetched"
+      :defaultSort="defaultSort"
+      @reloadChart="reloadChart"
       :chartConfigData="chartData"
+      :exceptionTable="exceptionTable"
+      :backgroundData="backgroundData"
+      :locationPeriod="locationPeriod"
       :drillPointBenchmark="drillPointBenchmark"
     />
   </div>
@@ -36,7 +44,16 @@
 <script>
 import service from "@/service";
 import chunk from "lodash/chunk";
+import { decompress } from "compress-json";
 import {
+  commonChartConfig,
+  methodChartConfig,
+  averageChartConfig,
+  outlierChartConfig,
+  methodMixChartConfig,
+} from "@/config/basicChartConfig";
+import {
+  getChild,
   capitalize,
   getDateRange,
   generateChart,
@@ -46,13 +63,8 @@ import {
   formatSeasonalPeriod,
 } from "@/components/Common/commonFunctions";
 import SummaryDataMixin from "@/helpers/SummaryDataMixin";
-import basicChartConfig from "@/config/basicChartConfig.js";
 import standardDeviation from "ml-array-standard-deviation";
-import HighChartTable from "@/components/Analytical/HighChartTable";
 import SetChartMetaDataMixin from "@/helpers/SetChartMetaDataMixin";
-import externalChartConfig from "@/components/DQR/externalChartConfig.js";
-import oChartConfig from "@/components/Analytical/geographicalChartConfig";
-import HighChartComponent from "@/components/Highcharts/HighChartComponentDynamic";
 
 export default {
   props: [
@@ -60,41 +72,53 @@ export default {
     "emuData",
     "childArr",
     "chartData",
+    "allExtData",
+    "population",
     "summaryList",
+    "isShowChart",
+    "preFetchData",
     "locationPeriod",
+    "backgroundData",
     "reportChartData",
     "scorecardLocation",
   ],
   mixins: [SummaryDataMixin, SetChartMetaDataMixin],
   components: {
-    HighChartTable,
-    HighChartComponent,
+    HighChartTable: () =>
+      import(
+        /* webpackChunkName: "HighChartTable"*/ "@/components/Analytical/HighChartTable"
+      ),
+    HighChartComponent: () =>
+      import(
+        /* webpackChunkName: "HighChartComponentDynamic"*/ "@/components/Highcharts/HighChartComponentDynamic"
+      ),
   },
   data() {
     return {
       r2: -1,
       source: null,
-      chartInfo: "",
-      chartName: "",
       outliers: null,
       drillSD: false,
+      isError: false,
       matrixData: {},
       methodSeq: null,
       periodLength: 1,
       showLabels: false,
       dataFetched: false,
       emuMethodData: null,
+      exceptionTable: null,
       calType: "aggregate",
       matrixDataBool: false,
+      abortController: null,
       drillPointBenchmark: false,
-      cObj: JSON.parse(JSON.stringify(basicChartConfig)),
+      cObj: JSON.parse(JSON.stringify(commonChartConfig)),
     };
   },
   computed: {
     matrixType() {
       let type = "EMU";
       if (
-        ["OTHER_MATRIX_TABLE"].includes(
+        ["OTHER_MATRIX_TABLE", "OTHER_MATRIX_TABLE_CYP"].includes(
           this.chartData.chartOptions.chartCalculation
         )
       ) {
@@ -106,9 +130,11 @@ export default {
       let isMatrix = false;
       if (
         this.$route.name === "AnalyticalDashboard" &&
-        ["MATRIX_TABLE", "OTHER_MATRIX_TABLE"].includes(
-          this.chartData.chartOptions.chartCalculation
-        )
+        [
+          "MATRIX_TABLE",
+          "OTHER_MATRIX_TABLE",
+          "OTHER_MATRIX_TABLE_CYP",
+        ].includes(this.chartData.chartOptions.chartCalculation)
       ) {
         isMatrix = true;
       }
@@ -121,6 +147,11 @@ export default {
         monthlyFormat: "MMM YYYY",
       });
     },
+    defaultSort() {
+      return this.chartData.chartOptions.chartCategory === "regional"
+        ? "1-0"
+        : "JAN-DEC";
+    },
     chartType() {
       return this.chartData.chartOptions.chartCategory === "regional"
         ? "regional"
@@ -129,15 +160,74 @@ export default {
     cID() {
       return this.chartData.chartOptions.cid;
     },
+    chartInfo() {
+      return this.chartData.chartOptions.chartInfo[this.$i18n.locale];
+    },
+    chartName() {
+      return this.chartData.chartOptions.chartName[this.$i18n.locale];
+    },
     sorting() {
-      return ["seasonal", "regional"].includes(
-        this.chartData.chartOptions.chartCategory
-      )
-        ? "type4"
-        : "type3";
+      let sortOpt = null;
+      if (
+        !["packedbubble", "scatter"].includes(this.chartData.chartOptions.type)
+      ) {
+        if (
+          ["seasonal", "regional"].includes(
+            this.chartData.chartOptions.chartCategory
+          )
+        ) {
+          sortOpt = "type4";
+        } else {
+          sortOpt = "type3";
+        }
+      }
+      return sortOpt;
+    },
+    isChart() {
+      let chart = false;
+      if (
+        (!this.reportChartData &&
+          !this.dataFetched &&
+          ((this.$route.name === "SummaryDashboard" &&
+            ([
+              this.subTab.summary.primaryChart,
+              this.subTab.summary.secondaryChart,
+            ].includes(this.chartData.chartOptions.id) ||
+              (this.isShowChart &&
+                (this.$store.getters.getActiveTab.includes("sd-summary") ||
+                  this.$store.getters.getActiveTab.includes(this.subTab.id))) ||
+              this.isError)) ||
+            (this.$route.name === "DQRDashboard" &&
+              (this.chartData.chartOptions.generateSummary ||
+                this.$store.getters.getActiveTab.includes(this.subTab.id) ||
+                this.isError)) ||
+            (this.$route.name === "AnalyticalDashboard" &&
+              (this.chartData.chartOptions.generateFlag ||
+                this.chartData.chartOptions.compareFlag ||
+                this.$store.getters.getActiveTab.includes(this.subTab.id) ||
+                this.isError)))) ||
+        (this.reportChartData &&
+          this.reportChartData.selectedSource === this.subTab.id &&
+          this.reportChartData.cid.split("/")[1] ===
+            this.chartData.chartOptions.cid)
+      ) {
+        chart = true;
+      }
+      return chart;
     },
   },
   watch: {
+    isChart(newValue) {
+      if (newValue) {
+        this.$nextTick(() => {
+          if (this.chartData.chartOptions.isSavedData) {
+            this.getEMUChart(true);
+          } else {
+            this.setValues();
+          }
+        });
+      }
+    },
     summaryList: {
       handler(newValue) {
         let isFound = newValue.find(
@@ -167,14 +257,18 @@ export default {
             newValue.period !== oldValue.period)
         ) {
           this.dataFetched = false;
-          this.cObj = JSON.parse(JSON.stringify(basicChartConfig));
-          if (this.chartData.chartOptions.isSavedData) {
-            if (!this.emuData[this.locationPeriod.periodType]) {
-              this.getEMUChart();
-            }
-          } else {
-            this.setValues();
-          }
+          this.$nextTick(() => {
+            this.matrixData = {};
+            this.cObj = JSON.parse(JSON.stringify(commonChartConfig));
+          });
+        }
+      },
+      deep: true,
+    },
+    scorecardLocation: {
+      handler(newValue) {
+        if (newValue) {
+          this.dataFetched = false;
         }
       },
       deep: true,
@@ -183,29 +277,81 @@ export default {
       handler() {
         if (this.chartData.chartOptions.isSavedData) {
           this.dataFetched = false;
-          this.getEMUChart();
+          if (this.isChart) {
+            this.getEMUChart();
+          }
         }
       },
       deep: true,
     },
+    "$store.getters.getActiveTab": function () {
+      if (this.isError) {
+        this.dataFetched = false;
+        this.isError = false;
+      }
+    },
   },
   methods: {
-    setBenchmarks({ benchmarkValue, chartData, chartOptions }) {
+    reloadChart() {
+      this.dataFetched = false;
+      this.isError = false;
+    },
+    async setBenchmarks({ benchmarkValue, chartData, chartOptions }) {
       let plotLines = [],
         allBenchmarks = this.$store.getters.getGlobalFactors().allBenchmarks;
-      chartOptions.benchmarks.forEach((b) => {
+      for (const b of chartOptions.benchmarks) {
         let isFound = allBenchmarks.benchmarks.find((a) => b.includes(a.id));
         if (isFound) {
           let obj = {
             ...isFound.plotLine,
             id: `${isFound.id}_${isFound.plotLineType}`,
-            name: isFound.displayName,
+            name: isFound.displayName[this.$i18n.locale],
+            label: {
+              ...isFound.plotLine.label,
+              text: isFound.plotLine.label.text[this.$i18n.locale],
+              y: chartOptions.type.includes("bar") ? 125 : -5,
+            },
           };
           if (b.includes("national")) {
             obj.value = benchmarkValue;
           }
+          if (b.includes("external")) {
+            let level = this.locationPeriod.location.split("/")[0],
+              res = null;
+            if (this.allExtData[level]) {
+              res = this.allExtData[level];
+            } else {
+              try {
+                res = await service.getSavedConfig(`externalData_${level}`);
+                res = res?.data || null;
+                this.$emit("setExtData", level, res);
+              } catch (e) {
+                console.log("External Data not found...");
+              }
+            }
+            if (res?.rows) {
+              let r =
+                  typeof res.rows == "string"
+                    ? decompress(JSON.parse(res.rows))
+                    : res.rows,
+                sortedData = [];
+              if (r.length) {
+                let isData = r.filter((r) =>
+                  r[0].includes(isFound.plotLine.extID)
+                );
+                if (isData.length) {
+                  sortedData = isData.sort((a, b) => b[1] * 1 - a[1] * 1);
+                }
+              }
+              if (sortedData.length) {
+                obj.value = sortedData?.[0]?.[3] * 1 || null;
+              }
+            }
+          }
+          obj.label.text = `${obj.label.text ? obj.label.text : obj.name} (${
+            obj.value
+          })`;
           if (chartOptions.benchmarkInLegend) {
-            const _this = this;
             chartData.series.push({
               ...obj,
               type: "line",
@@ -214,25 +360,11 @@ export default {
                 enabled: false,
               },
               isBenchmark: true,
-              events: {
-                // Event for showing/hiding plot line
-                legendItemClick: function (e) {
-                  _this.$swal({
-                    title: "No action available on benchmarks",
-                  });
-                  return false;
-                  // if (this.visible) {
-                  // 	this.chart.xAxis[0].removePlotLine(plotLineId);
-                  // } else {
-                  // 	this.chart.xAxis[0].addPlotLine(plotLineOptions);
-                  // }
-                },
-              },
             });
           }
           plotLines.push(obj);
         }
-      });
+      }
       if (plotLines.length) {
         chartData.yAxis.plotLines = plotLines;
       }
@@ -240,14 +372,12 @@ export default {
     },
     updateOutliersList({ name, value, header, outliers, method = "default" }) {
       if (!outliers[method]) {
-        outliers = {
-          [method]: [
-            {
-              header,
-              outlierList: [],
-            },
-          ],
-        };
+        outliers[method] = [
+          {
+            header,
+            outlierList: [],
+          },
+        ];
       }
       let isMIndex = outliers[method].findIndex((m) => m.header === header);
       if (isMIndex >= 0) {
@@ -296,8 +426,22 @@ export default {
         let low = avg * 1 - standardDeviationValue * stdDev;
         let high = avg * 1 + standardDeviationValue * stdDev;
         let updatedData = c.data.map((d) => {
-          d.label = d.y > high ? "High" : d.y < low ? "Low" : "";
-          d.color = d.y > high ? "#55BF3B" : d.y < low ? "#DF5353" : "";
+          d.label =
+            d.y !== null
+              ? d.y > high
+                ? this.$i18n.t("high")
+                : d.y < low
+                ? this.$i18n.t("low")
+                : ""
+              : "";
+          d.color =
+            d.y !== null
+              ? d.y > high
+                ? "#55BF3B"
+                : d.y < low
+                ? "#DF5353"
+                : ""
+              : "";
           if (d.label) {
             if (d.pe === currentPeriod) {
               isOutlier = true;
@@ -337,7 +481,7 @@ export default {
       };
       const setOutliers = (data, s, m = "default") => {
         let updatedData = data.map((d) => {
-          if (d.y < benchmarkValue) {
+          if (d.y !== null && d.y < benchmarkValue) {
             d.color = "#FE8081";
             let obj = {
               header,
@@ -488,7 +632,7 @@ export default {
     }) {
       if (
         this.subTab.group.includes("-CT-") &&
-        !["seasonal", "regional"].includes(cData.chartCategory)
+        !["seasonal"].includes(cData.chartCategory)
       ) {
         let outObj = {
             cObj: cObj,
@@ -516,7 +660,7 @@ export default {
       let outlier = false;
       if (
         this.subTab.group.includes("-IC-") &&
-        !["seasonal", "regional"].includes(cData.chartCategory)
+        !["seasonal"].includes(cData.chartCategory)
       ) {
         let outObj = {
           cObj: cObj,
@@ -569,7 +713,7 @@ export default {
         };
       });
       let obj = {
-        name: chartOptions.totalLegend,
+        name: chartOptions.totalLegend[this.$i18n.locale],
         color: chartOptions.totalColor,
         data: locData,
       };
@@ -620,12 +764,26 @@ export default {
       let qualityThreshold = this.subTab?.backgroundData?.qualityThreshold
         ? (this.subTab.backgroundData.qualityThreshold * 1) / 100
         : 33 / 100;
-
+      //Check if mapping is available
       if (de) {
+        //Get the data from DHIS2
+        const signal = this.abortController.signal;
         service
-          .getIndicatorData(de, levels, location, period)
+          .getIndicatorData(
+            de,
+            levels,
+            location,
+            period,
+            null,
+            null,
+            null,
+            null,
+            signal
+          )
           .then(async (response) => {
+            //Check if data is available
             if (response.data.rows.length) {
+              //special condition for the seasonal charts
               let periods =
                 cData.chartCategory === "seasonal"
                   ? this.getChunk({
@@ -633,30 +791,33 @@ export default {
                       periodType: this.locationPeriod.periodType,
                     })
                   : periodArr;
-              let obj = this.cObj;
+              //set HighChart object
+              let obj = this.scorecardLocation
+                ? JSON.parse(JSON.stringify(commonChartConfig))
+                : JSON.parse(JSON.stringify(this.cObj));
               if (
                 cData.chartCalculation === "DEFAULT" &&
                 cData.type === "scatter"
               ) {
-                obj = JSON.parse(JSON.stringify(externalChartConfig.method));
+                obj = JSON.parse(JSON.stringify(methodChartConfig));
               }
               if (
                 !cData.isSingleSource &&
                 cData.chartCalculation === "SOURCE_DIFF"
               ) {
-                obj = JSON.parse(JSON.stringify(externalChartConfig.outlier));
+                obj = JSON.parse(JSON.stringify(outlierChartConfig));
               }
               if (
                 !cData.isSingleSource &&
                 cData.chartCalculation === "SOURCE_AVG"
               ) {
-                obj = JSON.parse(JSON.stringify(externalChartConfig.average));
+                obj = JSON.parse(JSON.stringify(averageChartConfig));
               }
               if (
-                cData.chartCalculation === "DEFAULT" &&
+                ["CYP", "DEFAULT"].includes(cData.chartCalculation) &&
                 cData.type === "packedbubble"
               ) {
-                obj = JSON.parse(JSON.stringify(oChartConfig.methodMix));
+                obj = JSON.parse(JSON.stringify(methodMixChartConfig));
               }
               if (
                 ["OTHER_MATRIX_TABLE", "OTHER_MATRIX_TABLE_CYP"].includes(
@@ -665,7 +826,8 @@ export default {
               ) {
                 obj = {};
               }
-              let { cObj, benchmarkValue, r2 } = generateChart({
+              //Call common function to generate chart series
+              let { cObj, benchmarkValue, r2, exceptionTable } = generateChart({
                 cData,
                 catArray,
                 response,
@@ -684,176 +846,199 @@ export default {
                 periodType: this.locationPeriod.periodType,
                 locationName: this.locationPeriod.locationName,
               });
+              //set r2 value, used for scatter charts
               this.r2 = r2;
-              if (!this.scorecardLocation) {
+              this.exceptionTable = exceptionTable;
+
+              // if (!this.scorecardLocation) {
+              //condition to generate matrix table in Analytical Dashboard
+              if (
+                ["OTHER_MATRIX_TABLE", "OTHER_MATRIX_TABLE_CYP"].includes(
+                  cData.chartCalculation
+                ) &&
+                !this.scorecardLocation
+              ) {
+                this.methodSeq = cObj.methodSeq;
+                this.matrixData = cObj;
+              } else {
+                //rest charts
+                //Set Benchmarks in the charts
                 if (
-                  ["OTHER_MATRIX_TABLE", "OTHER_MATRIX_TABLE_CYP"].includes(
-                    cData.chartCalculation
-                  )
+                  (isBenchmark ||
+                    (cData.benchmarks && cData.benchmarks.length)) &&
+                  cData.type !== "packedbubble"
                 ) {
-                  this.methodSeq = cObj.methodSeq;
-                  this.chartName = cData.chartName;
-                  this.chartInfo = cData.chartInfo;
-                  this.matrixData = cObj;
-                } else {
-                  if (
-                    (isBenchmark ||
-                      (cData.benchmarks && cData.benchmarks.length)) &&
-                    cData.type !== "packedbubble"
-                  ) {
-                    cObj = this.setBenchmarks({
-                      benchmarkValue,
-                      chartData: cObj,
-                      chartOptions: cData,
-                    });
-                  }
+                  cObj = await this.setBenchmarks({
+                    benchmarkValue,
+                    chartData: cObj,
+                    chartOptions: cData,
+                  });
+                }
 
-                  let bValue = null,
-                    isOutlier = false;
-                  if (
-                    this.$route.name === "DQRDashboard" &&
-                    !this.reportChartData
-                  ) {
-                    bValue = this.getBenchmarkValue({
+                let bValue = null,
+                  isOutlier = false;
+                if (
+                  this.$route.name === "DQRDashboard" &&
+                  !this.reportChartData
+                ) {
+                  bValue = this.getBenchmarkValue({
+                    cObj,
+                  });
+
+                  //generate outliers
+                  if (cData.generateOutliers) {
+                    let { oSeries, outlier } = this.generateOutliers({
                       cObj,
+                      cData,
+                      bValue,
+                      currentPeriod,
+                      substantialChange,
+                      standardDeviationValue,
                     });
-
-                    if (cData.generateOutliers) {
-                      let { oSeries, outlier } = this.generateOutliers({
-                        cObj,
-                        cData,
-                        bValue,
-                        currentPeriod,
-                        substantialChange,
-                        standardDeviationValue,
-                      });
-                      cObj = oSeries;
-                      isOutlier = outlier;
-                    }
+                    cObj = oSeries;
+                    isOutlier = outlier;
                   }
+                }
+                //Set chart metadata, look for mixin method
+                if (!this.scorecardLocation) {
                   cObj = this.setMetaData({
                     chartData: cObj,
                     chartOptions: cData,
                   });
+                }
 
-                  if (cData.generateTotal) {
-                    cObj = this.generateTotal({
-                      chartData: cObj,
-                      chartOptions: cData,
+                //Generate total series
+                if (cData.generateTotal) {
+                  cObj = this.generateTotal({
+                    chartData: cObj,
+                    chartOptions: cData,
+                  });
+                }
+                //Get lower level data for "STOCK_OUT" / "AVAILABILITY" chart calcualtions
+                if (
+                  ["STOCK_OUT", "AVAILABILITY"].includes(
+                    cData.chartCalculation
+                  ) &&
+                  cData.chartCategory === "regional" &&
+                  !this.scorecardLocation
+                ) {
+                  //Get the children of selected location
+                  let child = await this.getChildren({ location: location });
+                  if (child.length) {
+                    let promises = [],
+                      obj = cObj;
+                    //Fetch data for each child location
+                    child.forEach((locationID) => {
+                      promises.push(
+                        service.getIndicatorData(
+                          de,
+                          levels,
+                          locationID.id,
+                          period,
+                          null,
+                          null,
+                          null,
+                          null,
+                          signal
+                        )
+                      );
                     });
-                  }
-                  this.cObj = cObj;
-                  if (
-                    ["STOCK_OUT", "AVAILABILITY"].includes(
-                      cData.chartCalculation
-                    ) &&
-                    cData.chartCategory === "regional"
-                  ) {
-                    let child = await service.getChildOrganisation(location);
-                    if (
-                      child.data &&
-                      child.data.children &&
-                      child.data.children.length
-                    ) {
-                      let promises = [];
-                      child.data.children.forEach((locationID) => {
-                        promises.push(
-                          service.getIndicatorData(
-                            de,
-                            levels,
-                            locationID.id,
-                            period
-                          )
-                        );
-                      });
-                      Promise.allSettled(promises).then((results) => {
-                        results.forEach((response, i) => {
-                          if (response.status === "fulfilled") {
-                            let { cObj } = generateChart({
-                              cData,
-                              catArray,
-                              response: response.value,
-                              location: child.data.children[i].id,
-                              cObj: this.cObj,
-                              minOutlier,
-                              prevPeriod,
-                              isBenchmark,
-                              currentPeriod,
-                              wastageFactor,
-                              qualityThreshold,
-                              periodArr: periods,
-                              childArr: this.childArr,
-                              periodLength: this.periodLength,
-                              backgroundData: this.subTab.backgroundData,
-                              periodType: this.locationPeriod.periodType,
-                              locationName: child.data.children[i].name,
-                            });
-                            this.cObj = cObj;
-                            if (i === child.data.children.length - 1) {
-                              this.dataFetched = true;
-                            }
+                    Promise.allSettled(promises).then((results) => {
+                      results.forEach((response, i) => {
+                        if (response.status === "fulfilled") {
+                          let { cObj } = generateChart({
+                            cData,
+                            catArray,
+                            response: response.value,
+                            location: child[i].id,
+                            cObj: obj,
+                            minOutlier,
+                            prevPeriod,
+                            isBenchmark,
+                            currentPeriod,
+                            wastageFactor,
+                            qualityThreshold,
+                            periodArr: periods,
+                            childArr: this.childArr,
+                            periodLength: this.periodLength,
+                            backgroundData: this.subTab.backgroundData,
+                            periodType: this.locationPeriod.periodType,
+                            locationName: child[i].name,
+                          });
+                          obj = cObj;
+                          if (i === child.length - 1) {
+                            this.cObj = obj;
+                            this.dataFetched = true;
                           }
-                        });
+                        }
                       });
-                    } else {
-                      this.dataFetched = true;
-                    }
-                  }
-
-                  if (cData.generateSummary && !this.reportChartData) {
-                    if (this.$route.name === "SummaryDashboard") {
-                      if (
-                        this.subTab.summary &&
-                        !this.subTab.summary.disable &&
-                        this.subTab.summary.primaryChart ===
-                          this.chartData.chartOptions.id
-                      ) {
-                        this.sdSummary({
-                          cData,
-                        });
-                      }
-                    } else if (this.$route.name === "DQRDashboard") {
-                      this.dqrSummary({
-                        r2Max,
-                        bValue,
-                        isOutlier,
-                        currentPeriod,
-                        standardDeviationValue,
-                      });
-                    } else {
-                      this.analyticalSummary({
-                        cData,
-                        location,
-                      });
-                    }
-                  }
-                  //To show secondary chart in view more section of summary dashboard
-                  if (
-                    this.subTab.summary &&
-                    !this.subTab.summary.disable &&
-                    this.subTab.summary.secondaryChart ===
-                      this.chartData.chartOptions.id &&
-                    !this.reportChartData
-                  ) {
-                    this.$emit("summaryChartData", {
-                      cId: cData.id,
-                      id: this.subTab.id,
-                      chartData: this.cObj,
-                      chartConfigData: cData,
-                      chartCategory: cData.chartCategory,
                     });
+                  } else {
+                    this.cObj = cObj;
+                    this.dataFetched = true;
                   }
-                  if (this.reportChartData) {
-                    this.$emit("setReportChart", {
-                      cId: cData.id,
-                      id: this.subTab.id,
-                      chartData: this.cObj,
-                      chartConfigData: cData,
-                      chartCategory: cData.chartCategory,
+                } else {
+                  //Set HighChart object
+                  if (!this.scorecardLocation) {
+                    this.cObj = cObj;
+                  }
+                }
+                //Generate summary
+                if (cData.generateSummary && !this.reportChartData) {
+                  if (this.$route.name === "SummaryDashboard") {
+                    if (
+                      this.subTab.summary &&
+                      !this.subTab.summary.disable &&
+                      this.subTab.summary.primaryChart ===
+                        this.chartData.chartOptions.id
+                    ) {
+                      this.sdSummary({
+                        cData,
+                      });
+                    }
+                  } else if (this.$route.name === "DQRDashboard") {
+                    this.dqrSummary({
+                      cObj,
+                      r2Max,
+                      bValue,
+                      isOutlier,
+                      currentPeriod,
+                      standardDeviationValue,
+                    });
+                  } else {
+                    this.analyticalSummary({
+                      cData,
+                      location,
                     });
                   }
                 }
+                //To show secondary chart in view more section of summary dashboard
+                if (
+                  this.subTab.summary &&
+                  !this.subTab.summary.disable &&
+                  this.subTab.summary.secondaryChart ===
+                    this.chartData.chartOptions.id &&
+                  !this.reportChartData
+                ) {
+                  this.$emit("summaryChartData", {
+                    cId: cData.id,
+                    id: this.subTab.id,
+                    chartData: this.cObj,
+                    chartConfigData: cData,
+                    chartCategory: cData.chartCategory,
+                  });
+                }
+                if (this.reportChartData) {
+                  this.$emit("setReportChart", {
+                    cId: cData.id,
+                    id: this.subTab.id,
+                    chartData: this.cObj,
+                    chartConfigData: cData,
+                    chartCategory: cData.chartCategory,
+                  });
+                }
               }
+              // }
               if (
                 !(
                   ["STOCK_OUT", "AVAILABILITY"].includes(
@@ -864,24 +1049,119 @@ export default {
                 this.dataFetched = true;
               }
             } else {
+              //if no data available
               // errorMsg: "No Data to Display",
               this.cObj = this.setMetaData({
                 chartData: this.cObj,
                 chartOptions: cData,
               });
               this.dataFetched = true;
+              if (cData.generateSummary && !this.reportChartData) {
+                this.setSummaryData(this.$i18n.t("no_data_to_display"));
+              }
+              if (
+                cData.generateSummary &&
+                !this.reportChartData &&
+                this.$route.name === "DQRDashboard"
+              ) {
+                this.dqrSummary({
+                  cObj: this.cObj,
+                  r2Max,
+                  bValue: 80,
+                  isOutlier: false,
+                  currentPeriod,
+                  standardDeviationValue,
+                });
+              }
             }
+            this.abortController = null;
           })
-          .catch(() => {
-            this.dataFetched = true;
+          .catch((res) => {
+            this.isError = true;
+            if (res.message !== "canceled" || !signal.aborted) {
+              this.dataFetched = true;
+            }
+            this.abortController = null;
+            this.cObj = this.setMetaData({
+              chartData: this.cObj,
+              chartOptions: cData,
+            });
             // errorMsg: "Error in fetching data",
+            if (
+              cData.generateSummary &&
+              !this.reportChartData &&
+              (res.message !== "canceled" || !signal.aborted)
+            ) {
+              this.setSummaryData(this.$i18n.t("errorInData"));
+            }
+            if (
+              cData.generateSummary &&
+              !this.reportChartData &&
+              this.$route.name === "DQRDashboard"
+            ) {
+              this.dqrSummary({
+                cObj: this.cObj,
+                r2Max,
+                bValue: 80,
+                isOutlier: false,
+                currentPeriod,
+                standardDeviationValue,
+              });
+            }
           });
       } else {
+        //if mapping not available
         this.dataFetched = true;
+        this.cObj = this.setMetaData({
+          chartData: this.cObj,
+          chartOptions: cData,
+        });
+        if (cData.generateSummary && !this.reportChartData) {
+          this.setSummaryData(this.$i18n.t("maperror_msg"));
+        }
         // errorMsg: "Mapping not available",
+        if (
+          cData.generateSummary &&
+          !this.reportChartData &&
+          this.$route.name === "DQRDashboard"
+        ) {
+          this.dqrSummary({
+            cObj: this.cObj,
+            r2Max,
+            bValue: 80,
+            isOutlier: false,
+            currentPeriod,
+            standardDeviationValue,
+          });
+        }
+      }
+    },
+    setSummaryData(msg) {
+      if (this.$route.name === "SummaryDashboard") {
+        if (
+          this.subTab.summary &&
+          !this.subTab.summary.disable &&
+          this.subTab.summary.primaryChart === this.chartData.chartOptions.id
+        ) {
+          this.$emit("summaryChartData", {
+            id: this.subTab.id,
+            errorMsg: msg,
+          });
+        }
+      } else if (this.$route.name === "DQRDashboard") {
+        this.$emit("summaryData", {
+          id: this.subTab.id,
+          errorMsg: msg,
+        });
+      } else {
+        this.$emit("summaryData", {
+          id: this.subTab.id,
+          errorMsg: msg,
+        });
       }
     },
     dqrSummary({
+      cObj,
       r2Max,
       bValue,
       isOutlier,
@@ -890,8 +1170,8 @@ export default {
     }) {
       if (this.subTab.group.includes("-CT-")) {
         let s =
-          this.cObj.series.length &&
-          this.cObj.series[0].data.find((obj) => obj.pe == currentPeriod);
+          cObj.series.length &&
+          cObj.series[0].data.find((obj) => obj.pe == currentPeriod);
         let hoverText = this.$i18n.t("rr_hover", {
           date: this.selectedDate ? "(" + this.selectedDate + ")" : "",
           plotLines: bValue ? "(" + bValue + "%)" : "",
@@ -907,13 +1187,12 @@ export default {
           } else {
             obj["hoverText"] = hoverText;
           }
-
           this.$emit("summaryData", obj);
         } else {
           let obj = {
             score: null,
             id: this.subTab.id,
-            errorMsg: "Data not available for selected period",
+            errorMsg: this.$i18n.t("noDataPeriod"),
           };
           if (this.scorecardLocation) {
             obj["scorecardLocation"] = this.scorecardLocation;
@@ -929,7 +1208,7 @@ export default {
           factor,
         });
         let obj = {
-          errorMsg: this.r2 >= 0 ? "" : `Error in R${factor} calculation`,
+          errorMsg: this.r2 >= 0 ? "" : this.$i18n.t("rError", { factor }),
           id: this.subTab.id,
           score: this.r2 >= 0 ? (this.r2 > r2Max ? 1 : 0) : null,
         };
@@ -978,10 +1257,11 @@ export default {
       let found = [], // an array to collect the strings that are found
         rxp = /{([^}]+)}/g,
         summaryText = this.subTab.summary
-          ? this.subTab.summary.summaryText
+          ? typeof this.subTab.summary.summaryText === "object"
+            ? this.subTab.summary.summaryText[this.$i18n.locale] || null
+            : this.subTab.summary.summaryText || null
           : null,
         curMatch;
-
       if (summaryText) {
         while ((curMatch = rxp.exec(summaryText))) {
           found.push(curMatch[1]);
@@ -1046,18 +1326,19 @@ export default {
           );
         });
       }
-      return { summaryText };
+      return { summaryText: summaryText ? summaryText : "" };
     },
     getBenchmark(currValue) {
       let benchmarkValue =
           this.subTab.summary && this.subTab.summary.benchmarkValue !== ""
             ? this.subTab.summary.benchmarkValue * 1
             : null,
-        performanceBenchmarking = "N/A";
+        performanceBenchmarking = this.$i18n.t("NA");
       let percentage = this.subTab.summary
         ? this.subTab.summary.percentageIndicator
         : true; //kept default percentage to true, need to add admin setting for this
       if (benchmarkValue && benchmarkValue >= 0) {
+        //Do not add translations for High, Low, and Equal. We are using the same text for comparison.
         performanceBenchmarking =
           currValue * 1 > benchmarkValue
             ? "High"
@@ -1065,7 +1346,7 @@ export default {
             ? "Low"
             : currValue * 1 === benchmarkValue
             ? "Equal"
-            : "N/A";
+            : this.$i18n.t("NA");
         benchmarkValue = percentage ? `${benchmarkValue}%` : benchmarkValue;
       }
       return { benchmarkValue, percentage, performanceBenchmarking };
@@ -1163,13 +1444,11 @@ export default {
             compareIndicatorName = "";
           if (compareData) {
             compareIndicatorName = compareData[0].indicatorName;
-            compareIndicator = this.$i18n.t("similar_to_V3");
+            compareIndicator = this.$i18n.t("similar_to_V2");
 
-            let diff = 0.0;
-            diff = (
-              currValue -
-              compareData[0].currValue.split("%")[0] * 1
-            ).toFixed(1);
+            let diff = 0.0,
+              cmpData = compareData[0].currValue.split("%")[0] * 1 || 0;
+            diff = (currValue - cmpData).toFixed(1);
             if (diff > 5) {
               compareIndicator = this.$i18n.t("higher_than_V3");
             } else if (diff < -5) {
@@ -1259,7 +1538,7 @@ export default {
     analyticalSummary({ cData, location }) {
       let { currDate, currForDate, prevDate, prevForDate } = this.getPeriods();
       let details = [];
-      if (cData.chartCalculation === "PERIOD_DIFF") {
+      if (["PERIOD_DIFF", "PERIOD_DIFF_CYP"].includes(cData.chartCalculation)) {
         this.cObj.series.forEach((s) => {
           let aBenchmark = 0,
             bBenchmark = 0,
@@ -1301,7 +1580,8 @@ export default {
             ((cData.priorityFlagIndicator &&
               !cData.chartDataSum &&
               indicatorName.includes(cData.priorityFlagIndicator)) ||
-              (cData.chartDataSum && indicatorName.includes(cData.sumLegend)))
+              (cData.chartDataSum &&
+                indicatorName.includes(cData.sumLegend[this.$i18n.locale])))
           ) {
             priorityFlagIndicator = indicatorName;
           }
@@ -1315,7 +1595,7 @@ export default {
           });
         });
       } else {
-        let percentage = cData.percentageIndicator || true;
+        let percentage = cData.percentageIndicator;
         this.cObj.series.forEach((s) => {
           let pe = formatSeasonalPeriod({
             rawData: currDate,
@@ -1324,7 +1604,9 @@ export default {
           });
           if (
             cData.chartCategory !== "seasonal" ||
-            (cData.chartCategory === "seasonal" && s.name.includes(pe))
+            (cData.chartCategory === "seasonal" &&
+              s.name &&
+              s.name.includes(pe))
           ) {
             let { currValue, prevValue } = this.getValue(
               s.data,
@@ -1361,7 +1643,8 @@ export default {
               ((cData.priorityFlagIndicator &&
                 !cData.chartDataSum &&
                 indicatorName.includes(cData.priorityFlagIndicator)) ||
-                (cData.chartDataSum && indicatorName.includes(cData.sumLegend)))
+                (cData.chartDataSum &&
+                  indicatorName.includes(cData.sumLegend[this.$i18n.locale])))
             ) {
               priorityFlagIndicator = indicatorName;
             }
@@ -1382,6 +1665,7 @@ export default {
       }
       let obj = {
         id: this.subTab.id,
+        tabName: this.subTab.tabName[this.$i18n.locale],
         summaryDetails: details,
         cid: this.chartData.chartOptions.cid,
         chartCalculation: cData.chartCalculation,
@@ -1395,7 +1679,7 @@ export default {
           obj["priorityFlagIndicator"] = cData.priorityFlagIndicator;
         }
         if (cData.chartDataSum && cData.sumLegend) {
-          obj["priorityFlagIndicator"] = cData.sumLegend;
+          obj["priorityFlagIndicator"] = cData.sumLegend[this.$i18n.locale];
         }
       }
       if (cData.generateFlag) {
@@ -1425,23 +1709,23 @@ export default {
           )
         );
         rMapping = allMappings.filter((m) =>
-          cData.dataMapping.includes(m.indicator.static_name)
+          cData?.dataMapping?.includes(m.indicator.static_name)
         );
         if (!cData.isSingleSource) {
           rMapping2 = allMappings.filter((m) =>
-            cData.dataMapping2.includes(m.indicator.static_name)
+            cData?.dataMapping2?.includes(m.indicator.static_name)
           );
         }
       }
       if (!cData.isSingleSource) {
         let color = cData.color,
-          name = cData.sumLegend
-            ? cData.sumLegend
+          name = cData.sumLegend[this.$i18n.locale]
+            ? cData.sumLegend[this.$i18n.locale]
             : cData.xAxis.visible
-            ? cData.xAxis.text
-              ? cData.xAxis.text
-              : "Source 1"
-            : "Source 1";
+            ? cData.xAxis.text[this.$i18n.locale]
+              ? cData.xAxis.text[this.$i18n.locale]
+              : `${this.$i18n.t("source")} 1`
+            : `${this.$i18n.t("source")} 1`;
         let mapObj = {
           name,
           static_name: name,
@@ -1456,6 +1740,7 @@ export default {
               subEle.selectedDE.forEach((s) => {
                 mapObj.cyp[s.id] = [
                   "CYP",
+                  "PERIOD_DIFF_CYP",
                   "OTHER_AVERAGE_CYP",
                   "OTHER_MATRIX_TABLE_CYP",
                 ].includes(cData.chartCalculation)
@@ -1470,13 +1755,13 @@ export default {
         }
         catArray.push(mapObj);
         let color1 = cData.color,
-          name1 = cData.sumLegend2
-            ? cData.sumLegend2
+          name1 = cData.sumLegend2[this.$i18n.locale]
+            ? cData.sumLegend2[this.$i18n.locale]
             : cData.yAxis.visible
-            ? cData.yAxis.text
-              ? cData.yAxis.text
-              : "Source 2"
-            : "Source 2";
+            ? cData.yAxis.text[this.$i18n.locale]
+              ? cData.yAxis.text[this.$i18n.locale]
+              : `${this.$i18n.t("source")} 2`
+            : `${this.$i18n.t("source")} 2`;
         let mapObj1 = {
           name: name1,
           static_name: name1,
@@ -1491,6 +1776,7 @@ export default {
               subEle.selectedDE.forEach((s) => {
                 mapObj1.cyp[s.id] = [
                   "CYP",
+                  "PERIOD_DIFF_CYP",
                   "OTHER_AVERAGE_CYP",
                   "OTHER_MATRIX_TABLE_CYP",
                 ].includes(cData.chartCalculation)
@@ -1508,7 +1794,9 @@ export default {
         if (rMapping.length) {
           if (cData.chartDataSum || cData.type === "scatter") {
             let color = cData.color,
-              name = cData.sumLegend;
+              name = cData.sumLegend
+                ? cData.sumLegend[this.$i18n.locale]
+                : this.locationPeriod.locationName;
             if (cData.chartCategory === "seasonal") {
               color = [cData.color, ...cData.seasonalColors];
             }
@@ -1525,6 +1813,7 @@ export default {
                 subEle.selectedDE.forEach((s) => {
                   mapObj.cyp[s.id] = [
                     "CYP",
+                    "PERIOD_DIFF_CYP",
                     "OTHER_AVERAGE_CYP",
                     "OTHER_MATRIX_TABLE_CYP",
                   ].includes(cData.chartCalculation)
@@ -1544,7 +1833,7 @@ export default {
                 color = [element.indicator.color, ...cData.seasonalColors];
               }
               let mapObj = {
-                name: element.indicator.name,
+                name: element.indicator.name[this.$i18n.locale],
                 static_name: element.indicator.static_name,
                 color: color,
                 visible: !element.indicator.disable,
@@ -1555,6 +1844,7 @@ export default {
                 subEle.selectedDE.forEach((s) => {
                   mapObj.cyp[s.id] = [
                     "CYP",
+                    "PERIOD_DIFF_CYP",
                     "OTHER_AVERAGE_CYP",
                     "OTHER_MATRIX_TABLE_CYP",
                   ].includes(cData.chartCalculation)
@@ -1576,13 +1866,23 @@ export default {
       };
     },
     async setValues() {
-      let loc = this.locationPeriod.location;
+      if (this.abortController) {
+        this.abortController.abort();
+      }
+      this.abortController = new AbortController();
+      //Set the location
+      let loc = this.scorecardLocation
+        ? this.scorecardLocation
+        : this.locationPeriod.location;
       let location = loc.split("/")[1];
       let levelID = loc.split("/")[0] * 1;
       let subLevelID = levelID + 1;
       let levels = [];
+      //Get the mapping
       let { de, catArray } = this.getMapping();
+      //Chart config from admin
       let cData = this.chartData.chartOptions;
+      //Seasonal charts
       if (cData.chartCategory === "seasonal") {
         if (this.locationPeriod.periodType === "monthly") {
           this.periodLength =
@@ -1600,6 +1900,7 @@ export default {
           this.periodLength = 1 + cData.seasonalPeriod * 1;
         }
       }
+      //Trend Charts
       if (
         cData.chartCategory === "trend" ||
         cData.chartCategory === "regionalTrend"
@@ -1609,12 +1910,15 @@ export default {
           this.periodLength = 36;
         }
       }
+      //Regional Charts
       if (cData.chartCategory === "regional") {
         if (
-          cData.chartCalculation === "PERIOD_DIFF" ||
-          ["OTHER_AVERAGE", "OTHER_AVERAGE_CYP"].includes(
-            cData.chartCalculation
-          ) ||
+          [
+            "PERIOD_DIFF",
+            "PERIOD_DIFF_CYP",
+            "OTHER_AVERAGE",
+            "OTHER_AVERAGE_CYP",
+          ].includes(cData.chartCalculation) ||
           (["OTHER_MATRIX_TABLE", "OTHER_MATRIX_TABLE_CYP"].includes(
             cData.chartCalculation
           ) &&
@@ -1635,7 +1939,9 @@ export default {
         }
       }
       let isBenchmark = false;
+      //By default "facilityLevelID" is set to 1 level below the selected location level
       let facilityLevelID = subLevelID;
+      //Based on "STOCK_OUT" / "AVAILABILITY" chart calculation from admin, "facilityLevelID" is calculated from the org levels
       if (["STOCK_OUT", "AVAILABILITY"].includes(cData.chartCalculation)) {
         let levels = this.$store.getters.getOrgLevels;
         let facility = levels.find((o) =>
@@ -1648,6 +1954,7 @@ export default {
           facilityLevelID = Math.max(...facilityLevels);
         }
       }
+      //Set levels, to fetch the data from DHIS2
       if (cData.chartDrillDown) {
         levels = ["STOCK_OUT", "AVAILABILITY"].includes(cData.chartCalculation)
           ? [facilityLevelID]
@@ -1665,10 +1972,16 @@ export default {
         }
         levels = ["STOCK_OUT", "AVAILABILITY"].includes(cData.chartCalculation)
           ? [facilityLevelID]
-          : cData.chartCalculation === "PERIOD_DIFF" || isBenchmark
+          : [
+              "PERIOD_DIFF",
+              "PERIOD_DIFF_CYP",
+              "OTHER_MATRIX_TABLE",
+              "OTHER_MATRIX_TABLE_CYP",
+            ].includes(cData.chartCalculation) || isBenchmark
           ? [levelID, subLevelID]
           : [subLevelID];
       }
+      //Set range of periods
       let period = getDateRange({
         sendPeriod: this.locationPeriod.period,
         periodType: this.locationPeriod.periodType,
@@ -1676,14 +1989,17 @@ export default {
       });
       let periodArr = period;
       period = period.reverse().join(";");
+      //Get formatted selected date
       let currentPeriod = formatSingleDate({
         rawDate: this.locationPeriod.period,
         periodType: this.locationPeriod.periodType,
       });
+      //Get previous period that selected period
       let prevPeriod = subtractNDate({
         rawDate: this.locationPeriod.period,
         periodType: this.locationPeriod.periodType,
       });
+      //Call the calculation function
       this.getCharts({
         de,
         cData,
@@ -1701,16 +2017,16 @@ export default {
       let locationID = this.locationPeriod.location.split("/")[1],
         locID = [],
         locIDLabels = [];
-
-      await service.getChildOrganisation(locationID).then((response) => {
-        service.renameKeys({ ...response.data })?.children?.forEach((l) => {
-          locID.push(l.id.split("/")[1]);
+      let children = await this.getChildren({ location: locationID });
+      if (children.length) {
+        children.forEach((l) => {
+          locID.push(l.id);
           locIDLabels.push({
-            id: l.id.split("/")[1],
-            label: l.label,
+            id: l.id,
+            label: l.displayName,
           });
         });
-      });
+      }
       let emuData = null,
         emuDataKey = null;
       let emuMethodDataKey = null;
@@ -1833,7 +2149,7 @@ export default {
                 dataArr.push({
                   pe: p,
                   name: formattedDate,
-                  y: emuObj.data[catIndex],
+                  y: emuObj.data[catIndex].toFixed(2) * 1,
                   drilldown: cData.chartDrillDown ? drillText : null,
                 });
                 if (cData.chartDrillDown) {
@@ -1910,7 +2226,7 @@ export default {
                         dataArr.push({
                           name: locName,
                           locationID: locKey,
-                          y: currValue ? currValue : 0,
+                          y: currValue ? currValue.toFixed(2) * 1 : 0,
                         });
                       }
                     } else {
@@ -1985,15 +2301,35 @@ export default {
           this.dataFetched = true;
         } else {
           this.dataFetched = true;
+          if (
+            cData.generateSummary &&
+            !this.reportChartData &&
+            this.$route.name === "SummaryDashboard"
+          ) {
+            this.$emit("summaryChartData", {
+              id: this.subTab.id,
+              errorMsg: this.$i18n.t("noEmu"),
+            });
+          }
         }
       } else {
         this.dataFetched = true;
+        if (
+          cData.generateSummary &&
+          !this.reportChartData &&
+          this.$route.name === "SummaryDashboard"
+        ) {
+          this.$emit("summaryChartData", {
+            id: this.subTab.id,
+            errorMsg: this.$i18n.t("noEmu"),
+          });
+        }
       }
     },
     async getEMUNationalChart(cData, emuResponse) {
       let locationID = this.locationPeriod.location.split("/");
-      let children = await service.getChildOrganisation(locationID[1]),
-        emuModule = { ...emuResponse },
+      let children = await this.getChildren({ location: locationID[1] });
+      let emuModule = { ...emuResponse },
         parentName = this.locationPeriod.locationName,
         loc = locationID[1],
         period = translateDate({
@@ -2005,7 +2341,8 @@ export default {
       let categories = [],
         series = [],
         catIds = [];
-      let totalLegend = cData.totalLegend || this.$i18n.t("total-EMU");
+      let totalLegend =
+        cData.totalLegend[this.$i18n.locale] || this.$i18n.t("total-EMU");
       let totalSeriesObj = {
           name: totalLegend,
           data: [],
@@ -2030,7 +2367,7 @@ export default {
       }
 
       Object.keys(dataKey).forEach((ids) => {
-        children.data.children.forEach((child) => {
+        children.forEach((child) => {
           if (child.id == ids && dataKey[ids] != null) {
             if (categories.indexOf(child.name) == -1) {
               categories.push(child.name);
@@ -2211,7 +2548,7 @@ export default {
             data: [],
             visible: "",
             color: "",
-            type: cData.type,
+            // type: cData.type,
           },
           parSeries = {
             name: "",
@@ -2308,7 +2645,8 @@ export default {
         });
       let categories = [],
         series = [];
-      let totalLegend = cData.totalLegend || this.$i18n.t("total-EMU");
+      let totalLegend =
+        cData.totalLegend[this.$i18n.locale] || this.$i18n.t("total-EMU");
       let totalSeriesObj = {
           name: totalLegend,
           data: [],
@@ -2516,8 +2854,8 @@ export default {
     },
     async getEMUAverageChart(cData, emuResponse) {
       let locationID = this.locationPeriod.location.split("/");
-      let children = await service.getChildOrganisation(locationID[1]),
-        emuModule = { ...emuResponse },
+      let children = await this.getChildren({ location: locationID[1] });
+      let emuModule = { ...emuResponse },
         parentName = this.locationPeriod.locationName,
         loc = locationID[1],
         period = translateDate({
@@ -2542,7 +2880,8 @@ export default {
       let categories = [],
         series = [],
         catIds = [];
-      let totalLegend = cData.totalLegend || this.$i18n.t("total-EMU");
+      let totalLegend =
+        cData.totalLegend[this.$i18n.locale] || this.$i18n.t("total-EMU");
       let totalSeriesObj = {
           name: totalLegend,
           data: [],
@@ -2555,7 +2894,7 @@ export default {
       catIds.push(loc);
 
       Object.keys(dataKey).forEach((ids) => {
-        children.data.children.forEach((child) => {
+        children.forEach((child) => {
           if (child.id == ids && dataKey[ids] != null) {
             if (
               categories.indexOf(child.name) == -1 ||
@@ -2763,10 +3102,10 @@ export default {
       this.dataFetched = true;
     },
     async getEMUBubbleChart(cData, emuResponse) {
-      this.cObj = { ...oChartConfig.emuMethodMix };
+      this.cObj = { ...methodMixChartConfig };
       let locationID = this.locationPeriod.location.split("/");
-      let children = await service.getChildOrganisation(locationID[1]),
-        emuModule = { ...emuResponse },
+      let children = await this.getChildren({ location: locationID[1] });
+      let emuModule = { ...emuResponse },
         parentName = this.locationPeriod.locationName,
         loc = locationID[1],
         period = translateDate({
@@ -2778,7 +3117,8 @@ export default {
       let categories = [],
         series = [],
         catIds = [];
-      let totalLegend = cData.totalLegend || this.$i18n.t("total-EMU");
+      let totalLegend =
+        cData.totalLegend[this.$i18n.locale] || this.$i18n.t("total-EMU");
       let totalSeriesObj = {
           name: totalLegend,
           data: [],
@@ -2803,7 +3143,7 @@ export default {
       }
 
       Object.keys(dataKey).forEach((ids) => {
-        children.data.children.forEach((child) => {
+        children.forEach((child) => {
           if (child.id == ids && dataKey[ids] != null) {
             if (categories.indexOf(child.name) == -1) {
               categories.push(child.name);
@@ -2984,7 +3324,7 @@ export default {
             data: [],
             visible: "",
             color: "",
-            type: cData.type,
+            // type: cData.type,
           },
           parSeries = {
             name: "",
@@ -3096,7 +3436,9 @@ export default {
       let fSer = ser.filter((obj) => obj.name != "");
       this.cObj.series = fSer;
       this.cObj.tableData = [];
-      this.cObj.title.title = cData.chartName + ": " + this.cObj.source;
+      this.cObj.title.title = `${cData.chartName[this.$i18n.locale]}${
+        this.cObj.source
+      }`;
       let tabObj = {};
       Object.keys(ser).forEach((s) => {
         ser[s].data.forEach((d) => {
@@ -3118,10 +3460,27 @@ export default {
       }
       this.dataFetched = true;
     },
+    async getChildren({ location }) {
+      let children = [];
+      if (this.preFetchData?.orgList?.length) {
+        children = getChild({
+          locationList: this.preFetchData.orgList,
+          location: location,
+        });
+      } else {
+        try {
+          let response = await service.getChildOrganisation(location);
+          children = response?.data?.children || [];
+        } catch (err) {
+          console.log("err", err);
+        }
+      }
+      return children;
+    },
     async getEMUMethodMixChart(cData, emuResponse) {
       let locationID = this.locationPeriod.location.split("/");
-      let children = await service.getChildOrganisation(locationID[1]),
-        emuModule = { ...emuResponse },
+      let children = await this.getChildren({ location: locationID[1] });
+      let emuModule = { ...emuResponse },
         parentName = this.locationPeriod.locationName,
         loc = locationID[1],
         period = translateDate({
@@ -3157,7 +3516,7 @@ export default {
       catIds.push(loc);
 
       Object.keys(dataKey).forEach((ids) => {
-        children.data.children.forEach((child) => {
+        children.forEach((child) => {
           if (child.id == ids && dataKey[ids] != null) {
             if (
               categories.indexOf(child.name) == -1 ||
@@ -3181,7 +3540,7 @@ export default {
                   dataKey[ids].forEach((y) => {
                     Object.keys(y).forEach((yr) => {
                       if (yr == period && ids == row[2]) {
-                        y[yr] = y[yr].split(",").join("");
+                        y[yr] = y[yr].toString().split(",").join("");
                         y[yr] = ((y[yr] / Number(row[3])) * 100).toFixed(2) * 1;
                         sumVal[ids] += y[yr];
                       }
@@ -3333,8 +3692,9 @@ export default {
         });
         this.cObj.tableData.push(tabObj);
       });
-      this.cObj.source = so;
-      this.cObj.series = series.reverse();
+      this.cObj.source = ": " + so;
+      // this.cObj.series = series.reverse();
+      this.cObj.series = series;
       this.cObj = this.setMetaData({
         chartData: this.cObj,
         chartOptions: cData,
@@ -3354,12 +3714,11 @@ export default {
     },
     async getEMUMatrixTable(cData, emuResponse) {
       let locationID = this.locationPeriod.location.split("/");
-      let children = await service.getChildOrganisation(locationID[1]),
-        emuModule = { ...emuResponse },
+      let children = await this.getChildren({ location: locationID[1] });
+      let emuModule = { ...emuResponse },
         parentName = this.locationPeriod.locationName,
         loc = locationID[1],
         so = "";
-
       let dataKey = {};
       if (this.locationPeriod.periodType === "yearly") {
         dataKey = JSON.parse(JSON.stringify(emuModule.methodTable));
@@ -3381,18 +3740,16 @@ export default {
         dataObj = {};
       categories.push(parentName);
       catIds.push(loc);
-      Object.keys(dataKey).forEach((ids) => {
-        children.data.children.forEach((child) => {
-          if (child.id == ids && dataKey[ids] != null) {
-            if (
-              categories.indexOf(child.name) == -1 ||
-              categories.indexOf(loc) == -1
-            ) {
-              categories.push(child.name);
-              catIds.push(child.id);
-            }
+      children.forEach((child) => {
+        if (dataKey[child.id]) {
+          if (
+            categories.indexOf(child.name) == -1 ||
+            categories.indexOf(loc) == -1
+          ) {
+            categories.push(child.name);
+            catIds.push(child.id);
           }
-        });
+        }
       });
 
       catIds.forEach((cat) => {
@@ -3419,7 +3776,7 @@ export default {
                   ) {
                     this.population.rows.forEach((row) => {
                       if (row[2] == ids) {
-                        id[key] = id[key].split(",").join("");
+                        id[key] = id[key].toString().split(",").join("");
                         id[key] =
                           ((Number(id[key]) / Number(row[3])) * 100).toFixed(
                             2
@@ -3503,15 +3860,14 @@ export default {
       this.matrixData.source = so;
       this.matrixData["categories"] = categories;
       this.matrixData["avgAnnualGrowthData"] = seriesObj;
-      this.chartName = cData.chartName;
-      this.chartInfo = cData.chartInfo;
       this.dataFetched = true;
     },
-    getEMUChart() {
+    getEMUChart(isFilter = false) {
       let emuResponse = JSON.parse(JSON.stringify(this.emuData));
-      emuResponse = emuResponse[this.locationPeriod.periodType];
-      if (emuResponse) {
-        let cData = this.chartData.chartOptions;
+      emuResponse =
+        emuResponse[`${this.locationPeriod.periodType}_${this.$i18n.locale}`];
+      let cData = this.chartData.chartOptions;
+      if (emuResponse && emuResponse !== "Error") {
         if (cData) {
           if (
             this.$route.name === "AnalyticalDashboard" &&
@@ -3544,20 +3900,59 @@ export default {
           }
         } else {
           this.dataFetched = true;
+          if (
+            cData.generateSummary &&
+            !this.reportChartData &&
+            this.$route.name === "SummaryDashboard"
+          ) {
+            this.$emit("summaryChartData", {
+              id: this.subTab.id,
+              errorMsg: this.$i18n.t("configError"),
+            });
+          }
         }
       } else {
-        this.dataFetched = true;
+        if (
+          cData.generateSummary &&
+          !this.reportChartData &&
+          this.$route.name === "SummaryDashboard" &&
+          !isFilter
+        ) {
+          this.$emit("summaryChartData", {
+            id: this.subTab.id,
+            errorMsg: ["monthly", "yearly"].includes(
+              this.locationPeriod.periodType
+            )
+              ? this.$i18n.t("configError")
+              : this.$i18n.t("emuNotAvailable"),
+          });
+          this.dataFetched = true;
+        } else {
+          if (
+            !["monthly", "yearly"].includes(this.locationPeriod.periodType) ||
+            (["monthly", "yearly"].includes(this.locationPeriod.periodType) &&
+              !isFilter)
+          ) {
+            this.dataFetched = true;
+          }
+        }
       }
     },
   },
   created() {
-    if (!this.chartData.chartOptions.isSavedData) {
-      this.setValues();
-    } else {
-      //Useful when user changes tab and comes back
-      if (this.emuData) {
-        this.dataFetched = false;
-        this.getEMUChart();
+    if (this.isChart) {
+      if (!this.chartData.chartOptions.isSavedData) {
+        // data from DHIS2
+        this.setValues();
+      } else {
+        //Saved EMU data from DQR dashboard
+        //Useful when user changes tab and comes back
+        if (
+          this.emuData[`${this.locationPeriod.periodType}_${this.$i18n.locale}`]
+        ) {
+          this.dataFetched = false;
+          this.getEMUChart();
+        }
       }
     }
   },

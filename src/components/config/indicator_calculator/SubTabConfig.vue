@@ -1,6 +1,6 @@
 <template>
   <div class="md_tabs py-3">
-    <b-card no-body class="p-3">
+    <b-card no-body class="">
       <b-tabs pills card vertical>
         <b-tab
           title="Information"
@@ -31,7 +31,7 @@
           @click="updateActiveTab('numerator')"
         >
           <b-card-text v-if="activeTab === 'numerator'">
-            <div class="md_nested_tabs">
+            <div class="md_nested_tabs no-header">
               <b-card class="border">
                 <Numerator
                   v-if="config"

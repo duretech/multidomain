@@ -54,12 +54,6 @@
               }"
               @click="updateActiveTab('sd-summary')"
             >
-              <div>
-                <img
-                  :src="require('@/assets/images/icons/keyisights.png')"
-                  class="side-icon pr-4"
-                />
-              </div>
               <div class="fs-17-1920">{{ $t("key_insights") }}</div>
             </b-button>
           </div>
@@ -73,12 +67,6 @@
               }"
               v-b-toggle="'sd-accordion' + tab.id"
             >
-              <div class="" style="visibility: hidden">
-                <img
-                  :src="require('@/assets/images/icons/ANC.png')"
-                  class="side-icon pr-4"
-                />
-              </div>
               {{ tab.tabName }}</b-button
             >
             <b-collapse
@@ -105,7 +93,7 @@
                   }"
                   @click="updateActiveTab(`${tab.group}-${tab.id}-dqr-summary`)"
                 >
-                  <div class="ml-2 fs-16-1920">{{ $t("Summary") }}</div>
+                  <div class="ml-10px fs-16-1920">{{ $t("Summary") }}</div>
                 </b-button>
               </div>
               <template v-if="tab.showGroups">
@@ -114,7 +102,7 @@
                   :key="'subTabGroups-' + subTab.id"
                 >
                   <b-button
-                    class="sidebar-item my-3 collapse-delivery fs-17-1920"
+                    class="sidebar-item my-3 collapse-delivery subgroups fs-17-1920"
                     :class="{
                       'sidebar-item-active':
                         $store.getters.getActiveTab.includes(
@@ -123,12 +111,6 @@
                     }"
                     v-b-toggle="'sd-accordion' + tab.id + subTab.id + i"
                   >
-                    <div class="" style="visibility: hidden">
-                      <img
-                        :src="require('@/assets/images/icons/ANC.png')"
-                        class="side-icon pr-4"
-                      />
-                    </div>
                     {{ subTab.tabName }}</b-button
                   >
                   <b-collapse
@@ -143,7 +125,7 @@
                     <b-button
                       v-for="innerSubTab in subTab.subTabs"
                       :key="'innerSubTab-' + subTab.id + innerSubTab.id"
-                      class="sidebar-sub-menu-option fs-16-1920 my-3"
+                      class="sidebar-sub-menu-option subgroups-menu fs-16-1920 my-3"
                       :class="{
                         'sidebar-item-active-option':
                           $store.getters.getActiveTab.includes(
@@ -156,7 +138,7 @@
                         )
                       "
                     >
-                      <div class="ml-2 fs-16-1920">
+                      <div class="ml-10px fs-16-1920">
                         {{ innerSubTab.tabName }}
                       </div></b-button
                     >
@@ -178,7 +160,7 @@
                     updateActiveTab(`${tab.group}-${tab.id}-${subTab.id}`)
                   "
                 >
-                  <div class="ml-2 fs-16-1920">
+                  <div class="ml-10px fs-16-1920">
                     <template v-if="subTab.showFlag">
                       <b-spinner
                         type="grow"
@@ -203,7 +185,7 @@
                           triggers="hover"
                           placement="rightbottom"
                         >
-                          <template #title>Status</template>
+                          <template #title>{{ $t("status") }}</template>
                           <div
                             v-for="(message, index) in subTab.flagDetails
                               .messages"
@@ -214,7 +196,7 @@
                             class="text-center"
                             v-if="subTab.flagDetails.messages.length === 0"
                           >
-                            No message generated
+                            {{ $t("noMessage") }}
                           </div>
                         </b-popover>
                       </template>
@@ -238,7 +220,9 @@
                     }"
                     @click="updateActiveTab('emuMonthlyTab')"
                   >
-                    <div class="ml-2 fs-16-1920">{{ $t("emu_monthly") }}</div>
+                    <div class="ml-10px fs-16-1920">
+                      {{ $t("emu_monthly") }}
+                    </div>
                   </b-button>
                 </div>
                 <div v-if="isAnnualTab">
@@ -250,7 +234,7 @@
                     }"
                     @click="updateActiveTab('emuAnnualTab')"
                   >
-                    <div class="ml-2 fs-16-1920">{{ $t("emu_annual") }}</div>
+                    <div class="ml-10px fs-16-1920">{{ $t("emu_annual") }}</div>
                   </b-button>
                 </div>
               </template>
@@ -262,58 +246,56 @@
               $store.getters.getNamespace !== 'multi_program_mnch-dashboard'
             "
           >
-            <b-button
-              class="sidebar-item my-3 collapse-delivery fs-17-1920"
-              :class="{
-                'sidebar-item-active': [
-                  'emuMonthlyTab',
-                  'emuAnnualTab',
-                ].includes($store.getters.getActiveTab),
-              }"
-              v-b-toggle="'sd-accordion-benchmarking'"
-            >
-              <div class="" style="visibility: hidden">
-                <img
-                  :src="require('@/assets/images/icons/ANC.png')"
-                  class="side-icon pr-4"
-                />
-              </div>
-              {{ $t("benchmarking") }}</b-button
-            >
-            <b-collapse
-              :id="'sd-accordion-benchmarking'"
-              accordion="my-accordion"
-              :visible="
-                ['emuMonthlyTab', 'emuAnnualTab'].includes(
-                  $store.getters.getActiveTab
-                )
-              "
-            >
-              <div>
-                <b-button
-                  class="sidebar-sub-menu-option fs-16-1920 my-3"
-                  :class="{
-                    'sidebar-item-active-option':
-                      $store.getters.getActiveTab === 'emuMonthlyTab',
-                  }"
-                  @click="updateActiveTab('emuMonthlyTab')"
-                >
-                  <div class="ml-2 fs-16-1920">{{ $t("emu_monthly") }}</div>
-                </b-button>
-              </div>
-              <div>
-                <b-button
-                  class="sidebar-sub-menu-option fs-16-1920 my-3"
-                  :class="{
-                    'sidebar-item-active-option':
-                      $store.getters.getActiveTab === 'emuAnnualTab',
-                  }"
-                  @click="updateActiveTab('emuAnnualTab')"
-                >
-                  <div class="ml-2 fs-16-1920">{{ $t("emu_annual") }}</div>
-                </b-button>
-              </div>
-            </b-collapse>
+            <div>
+              <b-button
+                class="sidebar-item my-3 collapse-delivery fs-17-1920"
+                :class="{
+                  'sidebar-item-active': [
+                    'emuMonthlyTab',
+                    'emuAnnualTab',
+                  ].includes($store.getters.getActiveTab),
+                }"
+                v-b-toggle="'sd-accordion-benchmarking'"
+              >
+                {{ $t("benchmarking") }}</b-button
+              >
+              <b-collapse
+                :id="'sd-accordion-benchmarking'"
+                accordion="my-accordion"
+                :visible="
+                  ['emuMonthlyTab', 'emuAnnualTab'].includes(
+                    $store.getters.getActiveTab
+                  )
+                "
+              >
+                <div>
+                  <b-button
+                    class="sidebar-sub-menu-option fs-16-1920 my-3"
+                    :class="{
+                      'sidebar-item-active-option':
+                        $store.getters.getActiveTab === 'emuMonthlyTab',
+                    }"
+                    @click="updateActiveTab('emuMonthlyTab')"
+                  >
+                    <div class="ml-10px fs-16-1920">
+                      {{ $t("emu_monthly") }}
+                    </div>
+                  </b-button>
+                </div>
+                <div>
+                  <b-button
+                    class="sidebar-sub-menu-option fs-16-1920 my-3"
+                    :class="{
+                      'sidebar-item-active-option':
+                        $store.getters.getActiveTab === 'emuAnnualTab',
+                    }"
+                    @click="updateActiveTab('emuAnnualTab')"
+                  >
+                    <div class="ml-10px fs-16-1920">{{ $t("emu_annual") }}</div>
+                  </b-button>
+                </div>
+              </b-collapse>
+            </div>
           </template>
         </div>
         <div class="sidebar" v-if="$route.name === 'dqr-dashboard'">
@@ -327,12 +309,6 @@
                 }"
                 @click="updateActiveTab('emuMonthlyTab')"
               >
-                <div style="visibility: hidden">
-                  <img
-                    :src="require('@/assets/images/icons/keyisights.png')"
-                    class="side-icon pr-4"
-                  />
-                </div>
                 <div class="fs-17-1920">{{ $t("emu_monthly") }}</div>
               </b-button>
             </div>
@@ -345,12 +321,6 @@
                 }"
                 v-b-toggle="'sd-accordion-emuMonthlyTab'"
               >
-                <div class="" style="visibility: hidden">
-                  <img
-                    :src="require('@/assets/images/icons/ANC.png')"
-                    class="side-icon pr-4"
-                  />
-                </div>
                 {{ $t("emu_monthly") }}</b-button
               >
               <b-collapse
@@ -371,12 +341,6 @@
                     }"
                     v-b-toggle="'sd-accordion1-emuMonthlyTab-client'"
                   >
-                    <div class="" style="visibility: hidden">
-                      <img
-                        :src="require('@/assets/images/icons/ANC.png')"
-                        class="side-icon pr-4"
-                      />
-                    </div>
                     {{ $t("commodities_Distributed_to_Clients") }}</b-button
                   >
                   <b-collapse
@@ -400,7 +364,7 @@
                         updateActiveTab('emuMonthlyTab-client-inputData')
                       "
                     >
-                      <div class="ml-2 fs-16-1920">
+                      <div class="ml-10px fs-16-1920">
                         {{ $t("inputData") }}
                       </div></b-button
                     >
@@ -416,7 +380,7 @@
                         updateActiveTab('emuMonthlyTab-client-totalEMU')
                       "
                     >
-                      <div class="ml-2 fs-16-1920">
+                      <div class="ml-10px fs-16-1920">
                         {{ $t("total-EMU") }}
                       </div></b-button
                     >
@@ -433,12 +397,6 @@
                     }"
                     v-b-toggle="'sd-accordion1-emuMonthlyTab-facilities'"
                   >
-                    <div class="" style="visibility: hidden">
-                      <img
-                        :src="require('@/assets/images/icons/ANC.png')"
-                        class="side-icon pr-4"
-                      />
-                    </div>
                     {{ $t("commodities_Distributed_to_Facilities") }}</b-button
                   >
                   <b-collapse
@@ -462,7 +420,7 @@
                         updateActiveTab('emuMonthlyTab-facilities-inputData')
                       "
                     >
-                      <div class="ml-2 fs-16-1920">
+                      <div class="ml-10px fs-16-1920">
                         {{ $t("inputData") }}
                       </div></b-button
                     >
@@ -478,7 +436,7 @@
                         updateActiveTab('emuMonthlyTab-facilities-totalEMU')
                       "
                     >
-                      <div class="ml-2 fs-16-1920">
+                      <div class="ml-10px fs-16-1920">
                         {{ $t("total-EMU") }}
                       </div></b-button
                     >
@@ -495,12 +453,6 @@
                     }"
                     v-b-toggle="'sd-accordion1-emuMonthlyTab-visits'"
                   >
-                    <div class="" style="visibility: hidden">
-                      <img
-                        :src="require('@/assets/images/icons/ANC.png')"
-                        class="side-icon pr-4"
-                      />
-                    </div>
                     {{ $t("fp_visits") }}</b-button
                   >
                   <b-collapse
@@ -524,7 +476,7 @@
                         updateActiveTab('emuMonthlyTab-visits-inputData')
                       "
                     >
-                      <div class="ml-2 fs-16-1920">
+                      <div class="ml-10px fs-16-1920">
                         {{ $t("inputData") }}
                       </div></b-button
                     >
@@ -540,7 +492,7 @@
                         updateActiveTab('emuMonthlyTab-visits-totalEMU')
                       "
                     >
-                      <div class="ml-2 fs-16-1920">
+                      <div class="ml-10px fs-16-1920">
                         {{ $t("total-EMU") }}
                       </div></b-button
                     >
@@ -557,12 +509,6 @@
                     }"
                     v-b-toggle="'sd-accordion1-emuMonthlyTab-users'"
                   >
-                    <div class="" style="visibility: hidden">
-                      <img
-                        :src="require('@/assets/images/icons/ANC.png')"
-                        class="side-icon pr-4"
-                      />
-                    </div>
                     {{ $t("fp_users") }}</b-button
                   >
                   <b-collapse
@@ -586,7 +532,7 @@
                         updateActiveTab('emuMonthlyTab-users-inputData')
                       "
                     >
-                      <div class="ml-2 fs-16-1920">
+                      <div class="ml-10px fs-16-1920">
                         {{ $t("inputData") }}
                       </div></b-button
                     >
@@ -602,7 +548,7 @@
                         updateActiveTab('emuMonthlyTab-users-totalEMU')
                       "
                     >
-                      <div class="ml-2 fs-16-1920">
+                      <div class="ml-10px fs-16-1920">
                         {{ $t("total-EMU") }}
                       </div></b-button
                     >
@@ -619,12 +565,6 @@
                 }"
                 @click="updateActiveTab('emuAnnualTab')"
               >
-                <div style="visibility: hidden">
-                  <img
-                    :src="require('@/assets/images/icons/keyisights.png')"
-                    class="side-icon pr-4"
-                  />
-                </div>
                 <div class="fs-17-1920">{{ $t("emu_annual") }}</div>
               </b-button>
             </div>
@@ -637,12 +577,6 @@
                 }"
                 v-b-toggle="'sd-accordion-emuAnnualTab'"
               >
-                <div class="" style="visibility: hidden">
-                  <img
-                    :src="require('@/assets/images/icons/ANC.png')"
-                    class="side-icon pr-4"
-                  />
-                </div>
                 {{ $t("emu_annual") }}</b-button
               >
               <b-collapse
@@ -661,12 +595,6 @@
                     }"
                     v-b-toggle="'sd-accordion1-emuAnnualTab-client'"
                   >
-                    <div class="" style="visibility: hidden">
-                      <img
-                        :src="require('@/assets/images/icons/ANC.png')"
-                        class="side-icon pr-4"
-                      />
-                    </div>
                     {{ $t("commodities_Distributed_to_Clients") }}</b-button
                   >
                   <b-collapse
@@ -690,7 +618,7 @@
                         updateActiveTab('emuAnnualTab-client-reportingRates')
                       "
                     >
-                      <div class="ml-2 fs-16-1920">
+                      <div class="ml-10px fs-16-1920">
                         {{ $t("reportingRates") }}
                       </div></b-button
                     >
@@ -706,7 +634,7 @@
                         updateActiveTab('emuAnnualTab-client-inputData')
                       "
                     >
-                      <div class="ml-2 fs-16-1920">
+                      <div class="ml-10px fs-16-1920">
                         {{ $t("inputData") }}
                       </div></b-button
                     >
@@ -722,7 +650,7 @@
                         updateActiveTab('emuAnnualTab-client-outputs')
                       "
                     >
-                      <div class="ml-2 fs-16-1920">
+                      <div class="ml-10px fs-16-1920">
                         {{ $t("outputs") }}
                       </div></b-button
                     >
@@ -739,12 +667,6 @@
                     }"
                     v-b-toggle="'sd-accordion1-emuAnnualTab-facilities'"
                   >
-                    <div class="" style="visibility: hidden">
-                      <img
-                        :src="require('@/assets/images/icons/ANC.png')"
-                        class="side-icon pr-4"
-                      />
-                    </div>
                     {{ $t("commodities_Distributed_to_Facilities") }}</b-button
                   >
                   <b-collapse
@@ -770,7 +692,7 @@
                         )
                       "
                     >
-                      <div class="ml-2 fs-16-1920">
+                      <div class="ml-10px fs-16-1920">
                         {{ $t("reportingRates") }}
                       </div></b-button
                     >
@@ -786,7 +708,7 @@
                         updateActiveTab('emuAnnualTab-facilities-inputData')
                       "
                     >
-                      <div class="ml-2 fs-16-1920">
+                      <div class="ml-10px fs-16-1920">
                         {{ $t("inputData") }}
                       </div></b-button
                     >
@@ -802,7 +724,7 @@
                         updateActiveTab('emuAnnualTab-facilities-outputs')
                       "
                     >
-                      <div class="ml-2 fs-16-1920">
+                      <div class="ml-10px fs-16-1920">
                         {{ $t("outputs") }}
                       </div></b-button
                     >
@@ -819,12 +741,6 @@
                     }"
                     v-b-toggle="'sd-accordion1-emuAnnualTab-visits'"
                   >
-                    <div class="" style="visibility: hidden">
-                      <img
-                        :src="require('@/assets/images/icons/ANC.png')"
-                        class="side-icon pr-4"
-                      />
-                    </div>
                     {{ $t("fp_visits") }}</b-button
                   >
                   <b-collapse
@@ -848,7 +764,7 @@
                         updateActiveTab('emuAnnualTab-visits-reportingRates')
                       "
                     >
-                      <div class="ml-2 fs-16-1920">
+                      <div class="ml-10px fs-16-1920">
                         {{ $t("reportingRates") }}
                       </div></b-button
                     >
@@ -864,7 +780,7 @@
                         updateActiveTab('emuAnnualTab-visits-inputData')
                       "
                     >
-                      <div class="ml-2 fs-16-1920">
+                      <div class="ml-10px fs-16-1920">
                         {{ $t("inputData") }}
                       </div></b-button
                     >
@@ -880,7 +796,7 @@
                         updateActiveTab('emuAnnualTab-visits-outputs')
                       "
                     >
-                      <div class="ml-2 fs-16-1920">
+                      <div class="ml-10px fs-16-1920">
                         {{ $t("outputs") }}
                       </div></b-button
                     >
@@ -897,12 +813,6 @@
                     }"
                     v-b-toggle="'sd-accordion1-emuAnnualTab-users'"
                   >
-                    <div class="" style="visibility: hidden">
-                      <img
-                        :src="require('@/assets/images/icons/ANC.png')"
-                        class="side-icon pr-4"
-                      />
-                    </div>
                     {{ $t("fp_users") }}</b-button
                   >
                   <b-collapse
@@ -926,7 +836,7 @@
                         updateActiveTab('emuAnnualTab-users-reportingRates')
                       "
                     >
-                      <div class="ml-2 fs-16-1920">
+                      <div class="ml-10px fs-16-1920">
                         {{ $t("reportingRates") }}
                       </div></b-button
                     >
@@ -942,7 +852,7 @@
                         updateActiveTab('emuAnnualTab-users-inputData')
                       "
                     >
-                      <div class="ml-2 fs-16-1920">
+                      <div class="ml-10px fs-16-1920">
                         {{ $t("inputData") }}
                       </div></b-button
                     >
@@ -958,7 +868,7 @@
                         updateActiveTab('emuAnnualTab-users-outputs')
                       "
                     >
-                      <div class="ml-2 fs-16-1920">
+                      <div class="ml-10px fs-16-1920">
                         {{ $t("outputs") }}
                       </div></b-button
                     >
@@ -978,12 +888,6 @@
                   }"
                   @click="updateActiveTab('emuAnnualTab-output')"
                 >
-                  <div style="visibility: hidden">
-                    <img
-                      :src="require('@/assets/images/icons/keyisights.png')"
-                      class="side-icon pr-4"
-                    />
-                  </div>
                   <div class="fs-17-1920">{{ $t("emu_Output") }}</div>
                 </b-button>
               </b-collapse>
@@ -1001,12 +905,6 @@
                 }"
                 v-b-toggle="'sd-accordion-benchMarkingTab'"
               >
-                <div class="" style="visibility: hidden">
-                  <img
-                    :src="require('@/assets/images/icons/ANC.png')"
-                    class="side-icon pr-4"
-                  />
-                </div>
                 {{ $t("benchmarking") }}</b-button
               >
               <b-collapse
@@ -1026,7 +924,7 @@
                     updateActiveTab('benchMarkingTab-monthly')
                   "
                 >
-                  <div class="ml-2 fs-16-1920">
+                  <div class="ml-10px fs-16-1920">
                     {{ $t("emu_monthly") }}
                   </div></b-button
                 >
@@ -1040,7 +938,7 @@
                     updateActiveTab('benchMarkingTab-annual')
                   "
                 >
-                  <div class="ml-2 fs-16-1920">
+                  <div class="ml-10px fs-16-1920">
                     {{ $t("emu_annual") }}
                   </div></b-button
                 >
@@ -1058,16 +956,20 @@
               <div>
                 <b-button
                   class="sidebar-item my-3 fs-17-1920"
+                  :class="{
+                    'sidebar-item-active':
+                      $store.getters.getActiveTab === 'create-new-module',
+                  }"
                   @click="updateActiveTab('create-new-module')"
                 >
                   <div class="fav-img">
-                    <img
+                    <!-- <img
                       :src="require('@/assets/images/create_report.png')"
                       class="side-icon-saved-fav pr-2"
-                    />
+                    /> -->
                   </div>
                   <div class="text-line">
-                    {{ $t("new_modules") }}
+                    {{ $t("subMenu_1") }}
                   </div>
                 </b-button>
               </div>
@@ -1076,13 +978,17 @@
               <div>
                 <b-button
                   class="sidebar-item my-3 fs-17-1920"
+                  :class="{
+                    'sidebar-item-active':
+                      $store.getters.getActiveTab === 'view-module',
+                  }"
                   @click="updateActiveTab('view-module')"
                 >
                   <div class="fav-img">
-                    <img
+                    <!-- <img
                       :src="require('@/assets/images/view_report.png')"
                       class="side-icon-saved-fav pr-2"
-                    />
+                    /> -->
                   </div>
                   <div class="text-line">
                     {{ $t("view_modules") }}
@@ -1103,18 +1009,18 @@
                 <b-button
                   class="sidebar-item my-3 fs-17-1920"
                   :class="{
-                    'sidebar-item-active-option':
+                    'sidebar-item-active':
                       $store.getters.getActiveTab === 'generate-new-report',
                   }"
                   @click="updateActiveTab('generate-new-report')"
                 >
                   <div class="fav-img">
-                    <img
+                    <!-- <img
                       :src="
-                        require('@/assets/img/icons/report_new_active_white.png')
+                        require('@/assets/images/icons/report_new_active_white.png')
                       "
                       class="side-icon-saved-fav pr-2"
-                    />
+                    /> -->
                   </div>
                   <div class="text-line pt-1">
                     {{ $t("exportbtn") }}
@@ -1133,16 +1039,16 @@
                 <b-button
                   class="sidebar-item my-3 fs-17-1920"
                   :class="{
-                    'sidebar-item-active-option':
+                    'sidebar-item-active':
                       $store.getters.getActiveTab === 'create-new-report',
                   }"
                   @click="updateActiveTab('create-new-report')"
                 >
                   <div class="fav-img">
-                    <img
+                    <!-- <img
                       :src="require('@/assets/images/create_report.png')"
                       class="side-icon-saved-fav pr-2"
-                    />
+                    /> -->
                   </div>
                   <div class="text-line pt-1">
                     {{ $t("createReport") }}
@@ -1161,16 +1067,16 @@
                 <b-button
                   class="sidebar-item my-3 fs-17-1920"
                   :class="{
-                    'sidebar-item-active-option':
+                    'sidebar-item-active':
                       $store.getters.getActiveTab === 'view-report',
                   }"
                   @click="updateActiveTab('view-report')"
                 >
                   <div class="fav-img">
-                    <img
+                    <!-- <img
                       :src="require('@/assets/images/view_report.png')"
                       class="side-icon-saved-fav pr-2"
-                    />
+                    /> -->
                   </div>
                   <div class="text-line pt-1">
                     {{ $t("viewReports") }}
@@ -1181,7 +1087,7 @@
           </div>
         </div>
         <div class="social-icons py-2">
-          <p class="follow-us fs-15-1920 text-center mb-0 pr-4">
+          <p class="follow-us fs-15-1920 text-center mb-0">
             {{ $t("follow_us") }}:
             <img
               :src="require('@/assets/images/icons/facebook.png')"
@@ -1198,9 +1104,10 @@
   </div>
 </template>
 <script>
+import DynamicImageMixin from "@/helpers/DynamicImageMixin";
 export default {
   props: ["configData", "configDataFP", "flagData", "updateKey"],
-  mixins: [],
+  mixins: [DynamicImageMixin],
   data() {
     return {
       monthlyClient: true,
@@ -1222,7 +1129,7 @@ export default {
         this.configData.forEach((c) => {
           let innerObj = {
             id: c.id,
-            tabName: c.tabName,
+            tabName: c.tabName[this.$i18n.locale],
             group: c.group,
             showGroups: c.showGroups,
             subTabs: [],
@@ -1230,9 +1137,10 @@ export default {
           c.subTabs.forEach((t) => {
             let isMapping = t.chartSetting.find(
               (c) =>
-                c.chartOptions.isSavedData ||
-                (c.chartOptions.dataMapping &&
-                  c.chartOptions.dataMapping.length)
+                (c.chartOptions.isSavedData ||
+                  (c.chartOptions.dataMapping &&
+                    c.chartOptions.dataMapping.length)) &&
+                !c.chartOptions.disable
             );
             if (isMapping) {
               if (c.showGroups) {
@@ -1241,19 +1149,22 @@ export default {
                 if (isFound >= 0) {
                   innerObj.subTabs[isFound].subTabs.push({
                     id: t.id,
-                    tabName: t.tabName,
+                    tabName: t.tabName[this.$i18n.locale],
                     group: t.group,
                   });
                 } else {
                   let gName = "";
                   if (group === "CT") {
-                    gName = "Completeness and Timeliness";
+                    gName = this.$i18n.t("compTime");
                   }
                   if (group === "IC") {
-                    gName = "Internal Consistency";
+                    gName = this.$i18n.t("Internal_Consistency");
                   }
                   if (group === "CC") {
-                    gName = "Internal Consistency Correlation";
+                    gName = this.$i18n.t("icc");
+                  }
+                  if (group === "EC") {
+                    gName = this.$i18n.t("eConsistency");
                   }
                   innerObj.subTabs.push({
                     id: group,
@@ -1261,7 +1172,7 @@ export default {
                     subTabs: [
                       {
                         id: t.id,
-                        tabName: t.tabName,
+                        tabName: t.tabName[this.$i18n.locale],
                         group: t.group,
                       },
                     ],
@@ -1270,7 +1181,7 @@ export default {
               } else {
                 let obj = {
                   id: t.id,
-                  tabName: t.tabName,
+                  tabName: t.tabName[this.$i18n.locale],
                   group: t.group,
                 };
                 if (this.$route.name === "AnalyticalDashboard") {

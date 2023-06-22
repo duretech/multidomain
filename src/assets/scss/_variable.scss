@@ -13,62 +13,64 @@
 
    
 }
+
+//Dark theme starts
  [data-theme="dark"] {
-    --modal-bg-color: #353362;
-     --primary-bg-color                  : #181736;
+   
+   //main define new colors
+    --icon-fill-color: #E1E7EC; //langIconColor
+    --main-header-color : #5C56A2; //mainHeaderButton
+    --bg-main-color: #272642; //mainBGBody
+    --bg-inner-color:#201F3C; //innerBluePages
+    --text-color:#E8EDF2; //mainTextColor
+    --sidebar-bg-color:#42415E; //innerDropdownBg
+    --primary-bg-color                  : #393856;
+
      --body-font-family                  : 'Roboto', sans-serif;
      --heading-font-family               : 'Roboto', sans-serif;
      --color-white                       : #fff;
      --color-black                       : #000;
-     --light-white-btn-color             : #ebebe9;
-     --text-black-color                  : #151314;
-     --fonts-white-shade                 : #dad7d7;
-     --yellow-text-color                 : #f4e331;
+    
+     //homePageModule section
      --module-red-bg-color               : #a35445;
      --module-red-border-color           : #cd8a77;
      --module-blue-bg-color              : #40839d;
      --module-blue-border-color          : #3baeda;
      --module-yellow-bg-color            : #b89f5f;
      --module-yellow-border-color        : #ffce55;
-     --orange-color                      : #e8bb69;
      --module-green-bg-color             : #3e905f;
      --module-green-border-color         : #49df80;
      --module-purple-bg-color            : #885d88;
      --module-purple-border-color        : #cb8acb;
-     --half-circle-color                 : #605f65;
-     --chatbot-bg-color                  : #353362;
-     --signoff-bg-color                  : #353362;
-     --chart-container-color             : #12122a;
-     --chart-body-color                  : #181736;
-     --footer-div-color                  : #343261;
-     --footer-components-color           : #353362;
-     --footer-grey-btn-color             : #b5b3a7;
-     --view-more-btn-color               : #12122a;
+     --semicircle-border-color           : #5d5c62;
+
+      //summary section
+     --orange-color                      : #e8bb69; 
      --bg-red-color                      : #d97276;
      --bg-green-color                    : #5ab276;
-     --light-purple-color                : #353362;
-     --export-btn-color                  : #343361;
-     --chat-body-content-color           : #353362;
-     --chat-msgbox-color                 : #181736;
-     --chat-inside-div-color             : #2a2951;
+     --list-red-color                    : #ef5350;
+     --list-green-color                  : #66bb6a;
+     
+
+    //chatBot
+     --chatbot-bg-color                  : #353362;
      --chat-textbox-color                : #2a2951;
      --chat-user-sender-bg-color         : #585687;
      --chat-user-receiver-bg-color       : #181736;
-     --home-page-bg-color                : #020024;
-     --home-page-liner-gradient-color    : linear-gradient(149deg, rgba(2, 0, 36, 1) 0%, rgba(29, 25, 67, 1) 35%, rgba(24, 23, 53, 1) 100%);
-     --active-option-bg-color            : rgb(52, 51, 97);
-     --active-option-liner-gradient-color: linear-gradient(180deg, rgba(52, 51, 97, 1) 0%, rgba(44, 43, 82, 1) 50%);
-     --semicircle-border-color           : #5d5c62;
      --modal-popup-backdrop-color        : rgb(18 18 42 / 62%);
+
+   //sidebar section 
+     --active-option-liner-gradient-color: #4B4A69;
      --collapsebtn-active-border-color   : #4cd1ab;
      --collapsebtn-items                 : #a9a9c2;
-     --border-color                      : #212041;
-     --map-elements-bg-color             : #353362;
-     --dropdown-bg-color                 : #343361;
-     --dropdown-item-bg                  : #2a2951;
-     --dropdown-border-color             : #474675;
-     --control-border-color              : #adb5bd;
-     --modal-header-color                : #212041;
+     --sidebar-border-left:#4375BC;
+     --sidebar-maincolor:#A0ADBA;
+     --sidebar-activecolor: #E8EDF2;
+     --sidebar-main-active-color:#4B4A69;
+     --sidebar-subgroup-color: #42415E;
+    
+     //signOff  section
+     --signoff-bg-color                  : #353362; //signOFF
      --signoff-top-card                  : #2a2951;
      --signoff-bottom-card               : #343361;
      --signoff-username                  : #b1b1b4;
@@ -83,18 +85,19 @@
      --signoff-highmedium-color          : #80b853;
      --signoff-high-color                : #528fc5;
      --signoff-scrollbar-color           : rgba(192, 192, 192, 0.3);
-     --leafletbox-shadow                 : rgba(15, 10, 10, 0.65);
-     --legend-title                      : rgba(235, 233, 233, 0.521);
-     --wide-active                       : #ffffff87;
+
+   //textColor InnerColor used
      --main-font-color                   : #e5e5e5;
      --innertext-font-color              : #d9d6d6;
-     --home-main-color                   : #d6d6d6;
+     --home-main-color                   : #d6d6d6; 
      --home-btn-color                    : #181735;
-     --font-white-color                  : #d9d6d6;
-     --list-red-color                    : #ef5350;
-     --list-green-color                  : #66bb6a;
+   
+
+     //modal colors
      --modal-header-bg                   : #222143;
-     --sidebar-border-left:#4375BC;
+     --modal-header-color                : #212041;
+     --modal-overlay:rgba(18, 18, 33, 0.75);
+     
      // font size variables
      --font-size-heading                 : 2rem; // 32px
      --font-size-sub-heading             : 1rem; // 16px
@@ -118,13 +121,652 @@
      --s-font-heading: 1.813rem; //34px
 
      //new theme ui colors
-     --new-header-color          : #2E2E48;
+     --new-header-color          : #2E2E48;  //mainHeader
      --new-bg-dark-color         : #181736;
+     --tour-prevbtn-color        : rgb(127 127 175 / 70%);
+
+     //Footer Section
      --new-footer-color          : #181735;
      --new-footer-component-color: #343361;
+     --footer-components-color    : #393856;
+
+     --border-grey-color: #4A5768; //mainBorderColor
+     --border-blue-color:#6C7787;
+     --border-color     : #212041;
+
+     --legend-inactive-color:  #848F9A; //legendColor
+     --legend-bg-color : rgb(57 56 86 / 93%); //legendBGColor
+     --custom-select-color:#479a67; //customColor
+
+     //LoaderColor
+     --loader-main-color: #00000061;
+     --loader-bg-color: #f6f6f6;
+
+
+     // new css variables
+     --fontsize-button-color:#b7b6bf;
+     --black-btn-color: #5E57B3;
+     --btn-text-color:#6e6e70;
+     --scroll-color:#474665;
+    --bg-active-color: #2f2d55;
+     --fa-color:#676767;
+     --fa-sub-color: #a6a6a6;
+     --fa-subfirst-color: #bfbfc4 ;
+     --text-font-color:#d9d9d9;
+     --text-subfont-color: #d4d4d4;
+     --subtext-pop-color:#353535;
+     --list-text-color: #ddd;
+     --dropdown-text-color:#333;
+     --subtext-font-color: #cbcbcb;
+     --text-fourth-color: #f4f4f4;
+     --text-fifth-color: #f5f5f5;
+     --text-nine-color: #f9f9f9;
+     --font-text-color: #f8f9fa;
+     --innerbg-text-color: #f1f1f1;
+     --subinner-bg-color: #CFCFCF;
+     --icons-active-color: #c3c3c3;
+     --bg-text-color: #f2f2f2;
+     --highcharts-text-color:#c9cfdb;
+     --highcharts-fill-color: #d9dde5;
+     --custom-range-color: #6C7787;
+     --custom-range-bgcolor: #64648D;
+     
+
+     //Integrated family dashboard colors
+     --course-color:#651D1D;
+     --purple-box-color: #B83C6D;
+     --pink-box-color: #DC536D;
+     --orange-box-color: #FE8A67;
+     --lightorange-box-color: #FFAF79;
+      --bg-box-color:rgb(100 100 141 / 24%);
+      --bg-overlay-color: rgb(18 18 42 / 90%);
+     --overlay-bg-color:#2A2A41;
+     --sub-blue-color:#121221;
+     --vuedropdown-bg-color: #302f5a;
+
+     // admin css 
+
+     --green-darkbg-color:#23af8a;
+    --blue-bg-color: #299ac2;
+    --green-bg-color: #3cc06a;
+    --orange-bg-color: #f8775a;
+    --card-color:#212121;
+    --subtext-color: #C0BFD4 ;
+
+    //background color style
+
+    --bg-light-red: #F7927E;
+    --bg-light-green: #7BCDB7;
+    --bg-light-yellow: #F2D764;
+    --bg-light-blue: #64BADB;
+    --bg-dark-grey: #c7c7c7;
+    --bg-light-grey:#e9e9e9;
+    --bg-grey: #e0e0e0;
+    --bg-faint-green:#49df80;
+    --bg-black: #2b2b2b;
+    --bg-green: #006600;
+    --bg-default: #38A1C1;
+    --bg-newdefault: #3471CE;
+    --bg-newgreen: #25984b;
+   
+    //homepage gradient bgColors 
+    --homepage-lineargradient-beforebgcolor: linear-gradient(to bottom,
+    #232060e8,
+    #232060e8,
+    #232060e8,
+    #232060e8,
+    #232060e8);
+    --homepage-lineargradient-afterbgcolor: transparent radial-gradient(circle at right top, #3f3b77db , #363564b8);
+    --homepage-border-color:#5e57b39e;
+    --subpage-gradient-bgcolor: rgb(33 41 52 / 55%); 
+    --home-bg-gradient: rgb(39 38 66 / 95%);
+
+    //theme color
+   --main-theme-blue-color : #5C56A2;
+    --main-theme-grey-color : #6C7787; //mainheader
+    --main-theme-white-color:#ffffff;
+
+   
+    --maindropdown-bg-bluecolor:#404B5A;
+    --maindropdown-bg-color: #42415e;
+    --admin-dark-color:#5C56A2;
+    --grey-color-button:#64648D;
+    --primary-color-button:#7F7FAF;
+    --vue-custom-color:#2e2d58;   
+    --chart-container-color             : #12122a;
+    --chart-body-color                  : #181736;
+    --view-more-btn-color               : #12122a; 
+    --light-purple-color                : #353362;
+    --export-btn-color                  : #343361;
+    --map-elements-bg-color             : #353362;
+    --dropdown-bg-color                 : #343361;
+    --dropdown-item-bg                  : #2a2951;
+    --dropdown-border-color             : #474675;
+    --leafletbox-shadow                 : rgba(15, 10, 10, 0.65);
+    --light-white-btn-color             : #ebebe9;
+    --fonts-white-shade                 : #dad7d7;
+    --yellow-text-color                 : #f4e331;
+  //   --footer-div-color                  : #343261;
+  //   --footer-grey-btn-color             : #b5b3a7;
+  //   --chat-body-content-color           : #353362;
+  //   --chat-msgbox-color                 : #181736;
+  //   --chat-inside-div-color             : #2a2951;  
+  //   --home-page-bg-color                : #020024;
+  //   --home-page-liner-gradient-color    : transparent radial-gradient(circle at right top, #3f3b77db , #363564b8);
+  //   --active-option-bg-color            : rgb(52, 51, 97);
+   //  --modal-bg-color: #353362;
+    //   --text-black-color                  : #151314;
+     //   --control-border-color              : #adb5bd;
+       //   --legend-title                      : rgba(235, 233, 233, 0.521);
+  //   --wide-active                       : #ffffff87;
+  //   --font-white-color                  : #d9d6d6;
+   //   --half-circle-color                 : #605f65;
 
     
  }
+
+ //Grey theme starts
+ [data-theme="grey"] {
+
+   //main define new colors
+   --icon-fill-color: #E1E7EC; //langIconColor
+    --main-header-color : #6C7787; //mainHeaderButton
+    --bg-main-color:#212934;  //mainBGBody
+    --text-color:#E8EDF2; //mainTextColor
+    --primary-bg-color                  : #323B47;
+
+    --body-font-family                  : 'Roboto', sans-serif;
+    --heading-font-family               : 'Roboto', sans-serif;
+    --color-white                       : #fff;
+    --color-black                       : #000;
+    
+      //homePageModule section
+     --module-red-bg-color               : #a35445;
+     --module-red-border-color           : #cd8a77;
+     --module-blue-bg-color              : #40839d;
+     --module-blue-border-color          : #3baeda;
+     --module-yellow-bg-color            : #b89f5f;
+     --module-yellow-border-color        : #ffce55;
+     --module-green-bg-color             : #3e905f; 
+     --module-green-border-color         : #49df80;
+     --module-purple-bg-color            : #885d88;
+     --module-purple-border-color        : #cb8acb;
+     --semicircle-border-color           : #5d5c62;
+
+
+     //summary section
+     --orange-color                      : #e8bb69; 
+     --bg-red-color                      : #d97276;
+     --bg-green-color                    : #5ab276;
+     --list-red-color                    : #ef5350;
+     --list-green-color                  : #66bb6a;
+  
+
+   //chatBot
+     --chatbot-bg-color                  : #404b5a; 
+     --chat-textbox-color                : #2a2951;
+     --chat-user-sender-bg-color         : #585687;
+     --chat-user-receiver-bg-color       : #323b47;
+     --modal-popup-backdrop-color        : rgb(18 18 42 / 62%);
+
+
+   //sidebar section 
+     --active-option-liner-gradient-color: #404B5A;
+     --collapsebtn-active-border-color   : #4cd1ab;
+     --collapsebtn-items                 : #a9a9c2;
+     --sidebar-border-left:#4375BC;
+     --sidebar-maincolor:#A0ADBA;  
+     --sidebar-activecolor: #E8EDF2;
+     --sidebar-subgroup-color: #37414F;
+
+     
+    //sigOoff  section  
+    --signoff-bg-color                  : #404B5A; //signOFF
+     --signoff-top-card                  : #404B5A;
+     --signoff-bottom-card               : #323B47;
+     --signoff-username                  : #b1b1b4;
+     --signoff-location                  : #bdbdc4;
+     --signoff-comment                   : #bdbdc4;
+     --signoff-card-bg                   : #2a2951;
+     --signoff-dropdown-color            : #474675;
+     --signoff-view-btn                  : #b1adaf;
+     --signoff-low-color                 : #f4665c;
+     --signoff-lowmedium-color           : #f5904c;
+     --signoff-medium-color              : #f5e367;
+     --signoff-highmedium-color          : #80b853;
+     --signoff-high-color                : #528fc5;
+     --signoff-scrollbar-color           : rgba(192, 192, 192, 0.3);
+
+  
+   //textColor InnerColor used
+     --main-font-color                   : #e5e5e5;
+     --innertext-font-color              : #d9d6d6;
+     --home-main-color                   : #d6d6d6;
+     --home-btn-color                    : #181735;
+
+     //modal colors 
+     --modal-header-bg                   : #222143; 
+     --modal-header-color                : #212041;
+     --modal-overlay:rgba(18, 18, 33, 0.75);
+    
+     // font size variables
+     --font-size-heading                 : 2rem; // 32px
+     --font-size-sub-heading             : 1rem; // 16px
+     --font-size-chart-sidebar-heading   : 0.875rem; // 14px
+     --font-size-p-normal-text           : 0.875rem; // 14px
+     --font-size-p-small-text            : 0.75rem; // 12px
+     --font-size-small-text              : 0.625rem; //10px4
+     --font-size-map-legend              : 0.8125rem;
+
+     //new font size for 1920
+     --font-heading    : 2.25rem; //36px
+     --font-module     : 1.25rem; //20px
+     --font-home-module: 1.125rem; //18px
+     --font-p          : 1rem; //16px
+     --font-sidebar    : 0.938rem; //15px
+     --font-medium     : 0.875rem; //14px
+     --font-small      : 0.75rem; //12px
+
+     //new font size for 1536
+     --m-font-heading: 2.063rem; //34px
+     --s-font-heading: 1.813rem; //34px
+
+     //new theme ui colors
+     --new-header-color          : #404B5A; //mainHeader
+     --new-bg-dark-color         : #181736;
+     --tour-prevbtn-color        :rgb(108 119 135 / 70%);
+
+       //Footer Section
+     --new-footer-color          : #323B47;
+     --new-footer-component-color: #323B47;
+     --footer-sub-component: #4A5768;   
+     --footer-components-color : #4A5768; //modalcontent
+
+     --border-grey-color: #4A5768;  //mainBorderColor
+     --border-color                      : #212041;
+
+     --custom-select-color:#479a67; //customColor
+    --legend-inactive-color:  #848F9A; //legendColor
+    --legend-bg-color:rgb(50 59 71 / 93%);  //legendBGColor
+
+     //LoaderColor
+    --loader-main-color: #00000061;
+    --loader-bg-color: #f6f6f6;
+    
+   // new css variables
+   --fontsize-button-color:#b7b6bf;
+   --btn-text-color:#6e6e70;
+    --fa-color:#676767;
+    --fa-sub-color: #a6a6a6;
+    --fa-subfirst-color: #bfbfc4 ;
+    --text-font-color:#d9d9d9;
+    --text-subfont-color: #d4d4d4;
+    --subtext-font-color: #cbcbcb;
+    --subinner-bg-color: #CFCFCF;
+    --dropdown-text-color:#333;
+    --bg-text-color: #f2f2f2;
+    --bg-active-color: #2f2d55;
+    --list-text-color: #ddd;
+    --innerbg-text-color: #f1f1f1;
+    --text-fourth-color: #f4f4f4;
+    --text-fifth-color: #f5f5f5;
+    --text-nine-color: #f9f9f9;
+    --font-text-color: #f8f9fa;
+    --subtext-font-color:#353535;
+    --highcharts-text-color:#c9cfdb;
+    --icons-active-color: #c3c3c3;
+    --highcharts-fill-color: #d9dde5;
+    --subborder-color:#cccccc;
+    --custom-range-color: #6C7787;
+     --custom-range-bgcolor: #64648D;
+     --subtext-pop-color:#353535;
+     --vue-custom-color:#2e2d58;
+     --scroll-color: #4A5768;
+     
+
+     //Integrated family dashboard colors
+     --course-color:#651D1D;
+     --purple-box-color: #B83C6D;
+     --pink-box-color: #DC536D;
+     --orange-box-color: #FE8A67;
+     --lightorange-box-color: #FFAF79;
+     --bg-box-color: #212934; 
+     --sub-blue-color:#121221;
+ 
+    
+     // admin css 
+
+    --green-darkbg-color:#23af8a;
+    --blue-bg-color: #299ac2;
+    --green-bg-color: #3cc06a;
+    --orange-bg-color: #f8775a;
+    --card-color:#212121;
+    --subtext-color: #C0BFD4 ;
+
+    //background color style
+
+    --bg-light-red: #F7927E;
+    --bg-light-green: #7BCDB7;
+    --bg-light-yellow: #F2D764;
+    --bg-light-blue: #64BADB;
+    --bg-dark-grey: #c7c7c7;
+    --bg-light-grey:#e9e9e9;
+    --bg-grey: #e0e0e0;
+    --bg-faint-green:#49df80;
+    --bg-black: #2b2b2b;
+    --bg-green: #006600;
+    --bg-default: #38A1C1;
+    --bg-newdefault: #3471CE;
+    --bg-newgreen: #25984b;
+
+    //homepage gradient bgcolors 
+
+    --homepage-lineargradient-beforebgcolor: transparent linear-gradient(3deg, #21293459 0%, #404B5AF2 100%);
+    --homepage-lineargradient-afterbgcolor: transparent linear-gradient(3deg, #21293459 0%, #404B5AF2);
+    --homepage-border-color: #4a5768;
+    --subpage-gradient-bgcolor: rgb(33 41 52 / 55%);
+    --home-bg-gradient: rgb(50 59 71 / 90%);
+
+    //theme colors
+    --main-theme-blue-color : #5C56A2; //mainheader
+    --main-theme-grey-color : #6C7787; //mainheader
+    --main-theme-white-color:#ffffff;
+    
+    
+    --map-elements-bg-color             : #353362;
+    --dropdown-bg-color                 : #343361;
+    --primary-color-button              : #4a5768;
+    --dropdown-item-bg                  : #2a2951;
+    --dropdown-border-color             : #474675;
+    --leafletbox-shadow                 : rgba(15, 10, 10, 0.65); 
+   --map-font-color:#B2B1C5; 
+   --view-box-color:#64648D;    
+   --chart-container-color             : #12122a;
+   --chart-body-color                  : #181736;
+   --maindropdown-bg-color:#404B5A;
+   --maincard-bg-color:#28303A;   
+    --light-white-btn-color             : #ebebe9;
+    --fonts-white-shade                 : #dad7d7;
+    --yellow-text-color                 : #f4e331; 
+   --view-more-btn-color               : #12122a;
+    --light-purple-color                : #6C7787;
+   --export-btn-color                  : #343361;
+ //   --chat-body-content-color           : #353362;
+ //   --chat-msgbox-color                 : #181736;
+ //   --chat-inside-div-color             : #2a2951;
+  
+ //   --home-page-bg-color                : #020024;
+ //   --home-page-liner-gradient-color    : #212934;
+ //   --active-option-bg-color            : rgb(52, 51, 97);
+  //  --modal-bg-color: #353362;
+   //   --text-black-color                  : #151314;
+    //   --half-circle-color                 : #605f65;
+     //   --footer-div-color                  : #343261;
+       //   --footer-grey-btn-color             : #b5b3a7;
+        //   --legend-title                      : rgba(235, 233, 233, 0.521);
+ //   --wide-active                       : #ffffff87;
+    //   --font-white-color                  : #d9d6d6;
+     //   --control-border-color              : #adb5bd;
+
+
+ }
+
+// White theme starts
+[data-theme="white"] {
+
+    //main define new colors
+   --icon-fill-color: #605f65; //langIconColor 
+   --main-header-color : #FFFFFF; //mainHeaderButton
+   --bg-main-color: #FFFFFF;  //mainBGBody
+   --bg-inner-color:#F3F5F7; //innerWhitePages
+   --text-color:#4A5768; //mainTextColor
+   --sidebar-bg-color:#ffffff; //innerDropdownBg
+    --primary-bg-color                  : #E8EDF2;
+
+    --body-font-family                  : 'Roboto', sans-serif;
+    --heading-font-family               : 'Roboto', sans-serif;
+    --color-white                       : #4A5768;
+    --color-black                       : #000;
+
+     //homePageModule section
+    --module-red-bg-color               : #a35445;
+    --module-red-border-color           : #cd8a77;
+    --module-blue-bg-color              : #40839d;
+    --module-blue-border-color          : #3baeda;
+    --module-yellow-bg-color            : #b89f5f;
+    --module-yellow-border-color        : #ffce55;
+    --module-green-bg-color             : #3e905f;
+    --module-green-border-color         : #49df80;
+    --module-purple-bg-color            : #885d88;
+    --module-purple-border-color        : #cb8acb;
+    --semicircle-border-color           : #5d5c62;
+
+      //summary section 
+   --bg-red-color                      : #d97276;
+   --bg-green-color                    : #5ab276;
+    --orange-color                      : #e8bb69; 
+    --list-red-color                    : #ef5350;
+    --list-green-color                  : #66bb6a;
+   
+
+   //chatBot
+    --chatbot-bg-color                  : #F3F5F7; 
+    --chat-textbox-color                : #2a2951;
+    --chat-user-sender-bg-color         : #A0ADBA;
+    --chat-user-receiver-bg-color       : #E8EDF2;
+    --modal-popup-backdrop-color        : rgb(18 18 42 / 62%);
+
+   
+    //sidebar section 
+    --active-option-liner-gradient-color: #FFFFFF;
+    --collapsebtn-active-border-color   : #4cd1ab;
+    --collapsebtn-items                 : #a9a9c2;
+    --sidebar-border-left:#4375BC;
+    --sidebar-maincolor:#6C7787;
+    --sidebar-activecolor: #4A5768;
+    --sidebar-main-active-color:#D5DDE5;
+    --sidebar-subgroup-color: #D5DDE5;
+  
+
+    //sigOoff  section 
+    --signoff-bg-color                  : #353362; //signOFF
+    --signoff-top-card                  : #A0ADBA;
+    --signoff-bottom-card               : #F3F5F7;
+    --signoff-username                  : #b1b1b4;
+    --signoff-location                  : #bdbdc4;
+    --signoff-comment                   : #bdbdc4;
+    --signoff-card-bg                   : #F3F5F7;
+    --signoff-dropdown-color            : #FFFFFF;
+    --signoff-view-btn                  : #b1adaf;
+    --signoff-low-color                 : #f4665c;
+    --signoff-lowmedium-color           : #f5904c;
+    --signoff-medium-color              : #f5e367;
+    --signoff-highmedium-color          : #80b853;
+    --signoff-high-color                : #528fc5;
+    --signoff-scrollbar-color           : rgba(192, 192, 192, 0.3);
+
+    //textColor InnerColor used
+    --main-font-color                   : #4A5768;
+    --main-subfont-color: #e5e5e5;
+    --innertext-font-color              : #4A5768;
+    --home-main-color                   : #4A5768;
+    --home-btn-color                    : #A0ADBA;
+
+    //modal colors
+    --modal-header-color                : #212041;
+    --modal-header-bg                   : #A0ADBA;
+    --modal-overlay:#f3f5f7e3;
+   
+    // font size variables
+    --font-size-heading                 : 2rem; // 32px
+    --font-size-sub-heading             : 1rem; // 16px
+    --font-size-chart-sidebar-heading   : 0.875rem; // 14px
+    --font-size-p-normal-text           : 0.875rem; // 14px
+    --font-size-p-small-text            : 0.75rem; // 12px
+    --font-size-small-text              : 0.625rem; //10px4
+    --font-size-map-legend              : 0.8125rem;
+
+    //new font size for 1920
+    --font-heading    : 2.25rem; //36px
+    --font-module     : 1.25rem; //20px
+    --font-home-module: 1.125rem; //18px
+    --font-p          : 1rem; //16px
+    --font-sidebar    : 0.938rem; //15px
+    --font-medium     : 0.875rem; //14px
+    --font-small      : 0.75rem; //12px
+
+    //new font size for 1536
+    --m-font-heading: 2.063rem; //34px
+    --s-font-heading: 1.813rem; //34px
+
+    //new whitetheme ui colors
+    --new-header-color          : #F3F5F7; //mainHeader
+    --new-bg-dark-color         : #F3F5F7;
+    --tour-prevbtn-color        : rgb(160 173 186 / 70%);
+
+   //Footer Section
+    --new-footer-color          : #F3F5F7;
+    --new-footer-component-color: #A0ADBA;
+   --footer-components-color    : #A0ADBA;
+
+    --border-grey-color: #A0ADBA; //mainBorder
+    --subborder-grey-color: #d5dde5; //WHITEBORDERTHEME
+    --border-blue-color:#6C7787;
+    --border-color     : transparent; //borderColor
+
+    
+    --legend-inactive-color:  #848F9A; //legendInactiveColor
+    --legend-bg-color: rgb(232 237 242 / 93%); //legendBgColor
+    --custom-select-color:#479a67; //customColor
+
+    //LoaderColor
+    --loader-main-color: #00000061;
+    --loader-bg-color: #f6f6f6;
+    
+
+    // new css variables
+    --fontsize-button-color:#b7b6bf;
+    --black-btn-color: #5E57B3;
+    --btn-text-color:#6e6e70;
+    --scroll-color:#D5DDE5;
+   --bg-active-color: #f3f5f7;
+    --fa-color:#676767;
+    --fa-sub-color: #a6a6a6;
+    --fa-subfirst-color: #bfbfc4 ;
+    --text-font-color:#d9d9d9;
+    --text-subfont-color: #d4d4d4;
+    --list-text-color: #ddd;
+    --dropdown-text-color:#333;
+    --subtext-font-color: #cbcbcb;
+    --text-fourth-color: #f4f4f4;
+    --text-fifth-color: #f5f5f5;
+    --text-nine-color: #f9f9f9;
+    --font-text-color: #f8f9fa;
+    --subtext-pop-color: #4A5768;
+    --innerbg-text-color: #f1f1f1;
+    --subinner-bg-color: #CFCFCF;
+    --icons-active-color: #c3c3c3;
+    --bg-text-color: #f2f2f2;
+    --highcharts-text-color:#c9cfdb;
+    --highcharts-fill-color: #d9dde5;
+    --custom-range-color: #6C7787;
+    --custom-range-bgcolor: #64648D;
+    --vue-custom-color:#2e2d58;
+
+
+    //Integrated family dashboard colors
+    --course-color:#651D1D;
+    --purple-box-color: #B83C6D;
+    --pink-box-color: #DC536D;
+    --orange-box-color: #FE8A67;
+    --lightorange-box-color: #FFAF79;
+    --bg-box-color: #dddddd70;
+    --bg-overlay-color: #ffffffd1;
+    --overlay-bg-color:#dddddd70;
+    --sub-blue-color:#121221;
+
+
+    // admin css 
+
+    --green-darkbg-color:#23af8a;
+   --blue-bg-color: #299ac2;
+   --green-bg-color: #3cc06a;
+   --orange-bg-color: #f8775a;
+   --card-color:#212121;
+   --subtext-color: #C0BFD4 ;
+
+   //background color style
+
+   --bg-light-red: #F7927E;
+   --bg-light-green: #7BCDB7;
+   --bg-light-yellow: #F2D764;
+   --bg-light-blue: #64BADB;
+   --bg-dark-grey: #c7c7c7;
+   --bg-light-grey:#e9e9e9;
+   --bg-grey: #e0e0e0;
+   --bg-faint-green:#49df80;
+   --bg-black: #2b2b2b;
+   --bg-green: #006600;
+   --bg-default: #38A1C1;
+   --bg-newdefault: #3471CE;
+   --bg-newgreen: #25984b;
+
+   //homepage gradient bgcolors 
+
+   --homepage-lineargradient-beforebgcolor: transparent linear-gradient(3deg, #FFFFFF8F 0%, #F3F5F7 100%);
+   --homepage-lineargradient-afterbgcolor:transparent linear-gradient(3deg, rgb(255 255 255 / 41%) 0%, rgb(243 245 247 / 50%) 100%);
+   --homepage-border-color: transparent;
+   --subpage-gradient-bgcolor:#FFFFFF;
+   --home-bg-gradient: rgb(232 237 242 / 90%);
+   
+   //theme color
+   --main-theme-blue-color : #5C56A2;
+   --main-theme-grey-color : #6C7787; //mainheader
+   --main-theme-white-color: #ffffff;
+
+  
+   --maindropdown-bg-bluecolor:#404B5A;
+   --maindropdown-bg-color: #ffffff;
+   --admin-dark-color:#5C56A2;
+   --grey-color-button:#FFFFFF;
+   --primary-color-button:#F3F5F7;
+   --leafletbox-shadow                 : rgba(15, 10, 10, 0.65);
+   --view-more-btn-color               : #12122a;
+   --light-purple-color                : #353362;
+   --export-btn-color                  : #F3F5F7;
+   --light-white-btn-color             : #ebebe9;
+   --fonts-white-shade                 : #4A5768;
+   --yellow-text-color                 : #f4e331;   
+   --map-elements-bg-color             : #ffffff;
+   --dropdown-bg-color                 : #ffffff;
+   --dropdown-item-bg                  : #E8EDF2;
+   --dropdown-border-color             : #A0ADBA;
+   --chart-container-color             : #ffffff;
+   --chart-body-color                  : #FFFFFF;
+  //  --control-border-color              : #adb5bd;
+  //  --chat-body-content-color           : #353362;
+  //  --chat-msgbox-color                 : #181736;
+  //  --chat-inside-div-color             : #2a2951; 
+  //  --home-page-bg-color                : #020024;
+  // --modal-bg-color: #353362;
+  //  --home-page-liner-gradient-color    : linear-gradient(149deg, rgba(2, 0, 36, 1) 0%, rgba(29, 25, 67, 1) 35%, rgba(24, 23, 53, 1) 100%);
+  //  --active-option-bg-color            : rgb(52, 51, 97);
+  //  --text-black-color                  : #151314;
+     //  --half-circle-color                 : #605f65;
+      //  --footer-div-color                  : #343261;
+         //  --footer-grey-btn-color             : #b5b3a7;
+         //  --font-white-color                  : #d9d6d6;
+
+  //  --legend-title                      : rgba(235, 233, 233, 0.521);
+  //  --wide-active                       : #ffffff87;
+
+   
+
+   
+}
+
+
+ 
 
 
 

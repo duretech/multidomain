@@ -1,71 +1,61 @@
 .analytic-page {
     background-color: var(--primary-bg-color);
-    position        : relative;
-    // height: 90vh;
-    padding-top     : 70px;
-    padding-bottom  : 50px;
+    height: 100vh !important;
+    width: 100%;
+   
 
     .analytic {
         margin-left: 230px;
+        height: calc(100vh - 70px) !important;
+        overflow-y: auto;
+        overflow-x: hidden;
+        background-color: var(--bg-main-color);
+      
 
-        // height     : calc(90vh - 20px);
-        &.wide {
-            //margin-top: 59px;
-            height  : auto;
-            //height: calc(100vh - 121px);
-
-            .analytic-charts {
-                height       : auto;
-                border-radius: 10px;
-                overflow-x   : hidden;
-            }
-
-            .wide-row {
-                border-radius   : 10px;
-                background-color: var(--chart-container-color);
-                padding         : 1.5rem !important;
-                //height: auto;
-                height          : 90vh;
-                overflow-y      : auto;
-                overflow-x      : hidden;
-
-                .wide-col-charts {
-                    order       : 1;
-                    padding-left: 0;
-                }
-
-                .wide-col-map {
-                    order        : 2;
-                    padding-right: 0;
-
-                    .map-container {
-                        height: auto;
-
-                        .card-body {
-                            padding-left : 0;
-                            padding-right: 0;
-                        }
-                    }
-                }
-            }
+        #scrollTop {
+            margin-top: 55px !important;
 
         }
 
-
+       
 
     }
-
 }
 
-.dropdownmap-col {
-    .dropdown-menu {
-        li {
-            a {
-                padding-left: 5px !important;
-            }
-        }
+.analytic 
+{
+    .anc-charts{
+        border: transparent !important;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+    .newcolumntab .card{
+        background-color: transparent !important;
+        border: transparent !important;
+    }
+
+    .newcolumntab.grey-newborder .card{
+        border: 1px solid var(--border-grey-color) !important;
+    }
+
+    .card-header:first-child,
+    .card-footer:last-child{
+        background-color: transparent !important;
+        border: transparent !important;
+        color: var(--text-color) !important;
+    }
+
+    #input_tab_content_commoditiesToClients .card{
+        border-right: 1px solid var(--primary-bg-color) !important;
+    }
+
+    .page-item.disabled .page-link{
+        background-color: var(--primary-bg-color) !important;
+        border-color: var(--primary-bg-color) !important;
     }
 }
+
+// responsive css
 
 @media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) and (-webkit-min-device-pixel-ratio: 1) {
     .analytic-page {
@@ -86,7 +76,7 @@
 @media (min-width: 1366px) {
     .analytic-page {
         .analytic {
-            margin-left: 250px;
+            // margin-left: 250px;
             margin-top : 5px;
         }
 
@@ -136,19 +126,5 @@
         margin-left: 0;
         height     : 100vh;
         margin-top : 2px;
-    }
-}
-
-.analytic-page .analytic .map-container .map .l-map {
-    height: calc(90vh - 240px);
-}
-
-.analytic-page .analytic .map-container {
-    height: calc(90vh - 85px);
-}
-
-#legend {
-    .select-wrapper:after {
-        top: -4px;
     }
 }

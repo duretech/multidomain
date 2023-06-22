@@ -59,11 +59,20 @@
           :aria-labelledby="'input_tab_link_' + tabName"
         >
           <TabSummary
-            v-if="data['tabCategoryInfo'] && data['tabCategoryInfo'][0]"
-            :content="data['tabCategoryInfo'][0]"
+            v-if="
+              data['tabCategoryInfo'] &&
+              (typeof data['tabCategoryInfo'][0] == 'object'
+                ? data['tabCategoryInfo'][0][$i18n.locale]
+                : data['tabCategoryInfo'][0])
+            "
+            :content="
+              typeof data['tabCategoryInfo'][0] == 'object'
+                ? data['tabCategoryInfo'][0][$i18n.locale]
+                : data['tabCategoryInfo'][0]
+            "
             :contKey="'input' + contName"
           />
-          <div class="row dashboardchart-container">
+          <div class="row dashboardchart-container emu-dqr m-1">
             <div class="col-lg-12 col-xl-12">
               <b-alert v-if="!aFinalInputData" show variant="danger">{{
                 $t("no_data_to_display")
@@ -75,6 +84,7 @@
                     (obj) => obj.disableChart != true
                   )"
                   :key="chart.title"
+                  class="border-right"
                 >
                   <card-component
                     :chartdata="chart"
@@ -82,7 +92,7 @@
                     :canComment="canComment"
                     :loggedInUserId="loggedInUserId"
                     defaultSort="JAN-DEC"
-                    sorting="['JAN-DEC','DEC-JAN']"
+                    sorting="type3"
                   ></card-component>
                 </div>
               </div>
@@ -101,8 +111,17 @@
           :aria-labelledby="'output_tab_link_' + tabName"
         >
           <TabSummary
-            v-if="data['tabCategoryInfo'] && data['tabCategoryInfo'][1]"
-            :content="data['tabCategoryInfo'][1]"
+            v-if="
+              data['tabCategoryInfo'] &&
+              typeof data['tabCategoryInfo'][1] == 'object'
+                ? data['tabCategoryInfo'][1][$i18n.locale]
+                : data['tabCategoryInfo'][1]
+            "
+            :content="
+              typeof data['tabCategoryInfo'][0] == 'object'
+                ? data['tabCategoryInfo'][0][$i18n.locale]
+                : data['tabCategoryInfo'][0]
+            "
             :contKey="'output' + contName"
           />
 
@@ -120,7 +139,7 @@
                   </div>
                 </div> -->
                 <div class="col-12">
-                  <div class="card mb-4">
+                  <div class="card mb-25px">
                     <div class="card-header">
                       {{ $t("outputsChartTitle1") }}
                     </div>
@@ -129,20 +148,21 @@
                       style="border-radius: 0 0 10px 10px"
                     >
                       <p>{{ $t("outputsChartBody1") }}</p>
-                      <div class="row">
+                      <div class="row emu-dqr">
                         <div
                           v-bind:class="getClass()"
                           v-if="
                             lineAdNonAdChartData &&
                             lineAdNonAdChartData.disable == false
                           "
+                          class=""
                         >
                           <card-component
                             :chartdata="lineAdNonAdChartData"
                             :canComment="canComment"
                             :loggedInUserId="loggedInUserId"
                             defaultSort="JAN-DEC"
-                            sorting="['JAN-DEC','DEC-JAN']"
+                            sorting="type3"
                           />
                         </div>
                         <div
@@ -157,7 +177,7 @@
                             :canComment="canComment"
                             :loggedInUserId="loggedInUserId"
                           />
-                          <!--  defaultSort="A-Z" sorting="['0-1','1-0', 'A-Z','Z-A']" -->
+                          <!--  defaultSort="A-Z" sorting="type4" -->
                         </div>
                       </div>
                     </div>
@@ -175,7 +195,7 @@
                   </div>
                 </div> -->
                 <div class="col-12">
-                  <div class="card mb-4">
+                  <div class="card mb-25px">
                     <div class="card-header">
                       {{ $t("outputsChartTitle2") }}
                     </div>
@@ -184,20 +204,21 @@
                       style="border-radius: 0 0 10px 10px"
                     >
                       <p>{{ $t("outputsChartBody2") }}</p>
-                      <div class="row">
+                      <div class="row emu-dqr">
                         <div
                           v-bind:class="getClass()"
                           v-if="
                             outPutTrendsChart &&
                             outPutTrendsChart.disable == false
                           "
+                          class="border-right"
                         >
                           <card-component
                             :chartdata="outPutTrendsChart"
                             :canComment="canComment"
                             :loggedInUserId="loggedInUserId"
                             defaultSort="JAN-DEC"
-                            sorting="['JAN-DEC','DEC-JAN']"
+                            sorting="type3"
                           ></card-component>
                         </div>
                         <div
@@ -213,7 +234,7 @@
                             :loggedInUserId="loggedInUserId"
                           />
                         </div>
-                        <!--                                             defaultSort="A-Z" sorting="['0-1','1-0', 'A-Z','Z-A']"
+                        <!--                                             defaultSort="A-Z" sorting="type4"
  -->
                         <div
                           class="col-lg-12 col-xl-12 mb-4 pieChart-col"
@@ -228,7 +249,7 @@
                             :canComment="canComment"
                             :loggedInUserId="loggedInUserId"
                             defaultSort="A-Z"
-                            sorting="['0-1','1-0', 'A-Z','Z-A']"
+                            sorting="type4"
                           />
                         </div>
 
@@ -244,7 +265,7 @@
                             :canComment="canComment"
                             :loggedInUserId="loggedInUserId"
                             defaultSort="A-Z"
-                            sorting="['0-1','1-0', 'A-Z','Z-A']"
+                            sorting="type4"
                           />
                         </div>
 
@@ -263,7 +284,7 @@
                           />
                         </div>
                         <div
-                          class="col-lg-8 col-xl-8 mb-4 pieChart-col"
+                          class="col-lg-8 col-xl-8 mb-4 pieChart-col border-left"
                           v-else-if="
                             MixComparisionData &&
                             MixComparisionData.disable == false
@@ -288,13 +309,14 @@
                             userTrendsByMethod &&
                             userTrendsByMethod.disable == false
                           "
+                          class="border-right"
                         >
                           <card-component
                             :chartdata="userTrendsByMethod"
                             :canComment="canComment"
                             :loggedInUserId="loggedInUserId"
                             defaultSort="JAN-DEC"
-                            sorting="['JAN-DEC','DEC-JAN']"
+                            sorting="type3"
                           />
                         </div>
 
@@ -310,7 +332,7 @@
                             :canComment="canComment"
                             :loggedInUserId="loggedInUserId"
                             defaultSort="A-Z"
-                            sorting="['0-1','1-0', 'A-Z','Z-A']"
+                            sorting="type4"
                           />
                         </div>
                       </div>
@@ -320,11 +342,12 @@
 
                 <div class="col-lg-12">
                   <div class="row dashboardchart-container">
-                    <div class="col-lg-12 col-xl-12 mb-4">
+                    <div class="col-lg-12 col-xl-12 mb-4 p-4">
                       <dataTable
                         v-if="userTrendsByMethod"
                         :chartdata="userTrendsByMethod"
                         :tableName="tableName"
+                        :popData="bgData.population"
                         :tableHeading="firstTableName"
                         :chartInfo="firstTableInfo"
                         @filter="getFilter"
@@ -371,7 +394,7 @@
           :aria-labelledby="'reporting_tab_link_' + tabName"
         >
           <div class="row dashboardchart-container">
-            <div class="col-lg-12 col-xl-12 mb-4" v-if="reportinRateChart">
+            <div class="col-lg-12 col-xl-12 mb-4 p-4" v-if="reportinRateChart">
               <TabSummary
                 :content="reportinRateChart['categoryInfo']"
                 :contKey="contName"
@@ -382,7 +405,7 @@
                 :loggedInUserId="loggedInUserId"
                 chartComp="repotingRate"
                 defaultSort="JAN-DEC"
-                sorting="['JAN-DEC','DEC-JAN']"
+                sorting="type3"
               />
             </div>
           </div>
@@ -395,12 +418,15 @@
 <script>
 /*global settings, $*/
 /*eslint no-undef: "error"*/
-import cardComponent from "./cardComponent";
-import dataTable from "./dataTable";
+import cardComponent from "./../emuAnnual/cardComponent";
+import dataTable from "./../emuAnnual/dataTable";
 import service from "@/service";
-import dataM from "./dataMassaging.js";
+import dataM from "./../emuAnnual/dataMassaging.js";
 import bechMarkingOutputTable from "./bechMarkingOutputTable";
+import DynamicImageMixin from "@/helpers/DynamicImageMixin";
+import StaticColorMixin from "@/helpers/StaticColorMixin";
 export default {
+  mixins: [DynamicImageMixin, StaticColorMixin],
   data() {
     //console.log(this.inputActive)
     return {
@@ -446,13 +472,31 @@ export default {
         User: this.$i18n.t("fp_users"),
       },
       firstTableName:
-        this.data["derivedCharts"][6]["chartOptions"]["chartName"],
+        typeof this.data["derivedCharts"][6]["chartOptions"]["chartName"] ==
+        "object"
+          ? this.data["derivedCharts"][6]["chartOptions"]["chartName"][
+              this.$i18n.locale
+            ]
+          : this.data["derivedCharts"][6]["chartOptions"]["chartName"],
       secondTableName:
-        this.data["derivedCharts"][7]["chartOptions"]["chartName"],
+        typeof this.data["derivedCharts"][7]["chartOptions"]["chartName"] ==
+        "object"
+          ? this.data["derivedCharts"][7]["chartOptions"]["chartName"][
+              this.$i18n.locale
+            ]
+          : this.data["derivedCharts"][7]["chartOptions"]["chartName"],
       firstTableInfo:
-        this.data["derivedCharts"][6]["chartOptions"]["chartInfo"],
+        this.data["derivedCharts"][6]["chartOptions"]["chartInfo"] == "object"
+          ? this.data["derivedCharts"][6]["chartOptions"]["chartInfo"][
+              this.$i18n.locale
+            ]
+          : this.data["derivedCharts"][6]["chartOptions"]["chartInfo"],
       secondTableInfo:
-        this.data["derivedCharts"][7]["chartOptions"]["chartInfo"],
+        this.data["derivedCharts"][7]["chartOptions"]["chartInfo"] == "object"
+          ? this.data["derivedCharts"][7]["chartOptions"]["chartInfo"][
+              this.$i18n.locale
+            ]
+          : this.data["derivedCharts"][7]["chartOptions"]["chartInfo"],
       filter: "inc",
       userTData: null,
       canComment: false,
@@ -471,6 +515,7 @@ export default {
     };
   },
   props: [
+    "byPassRepoRate",
     "data",
     "bgData",
     "bAllWomen",
@@ -559,7 +604,10 @@ export default {
       this.defaultLevelID = levelID;
       let oRet = dataM.getFormatedData(
         this.data,
-        this.$store.getters.getApplicationModule(),
+        this.$store.getters.getApplicationModule(
+          this.$store.getters.getIsMultiProgram
+        ),
+        this.startYear,
         this.bgData.cyp[this.contName],
         this.$store.getters.getGlobalFactors().continuation[this.contName]
       );
@@ -570,6 +618,8 @@ export default {
       this.tableMethodSeq = oRet.tableMethodSeq;
       this.emuColors = oRet.emuColors;
       if (this.globalConfig.chartArr.length) {
+        this.getReportingRate();
+
         let returnSt = this.getAllDataelemsData();
         if (returnSt) {
           this.$emit("errorOccured", returnSt);
@@ -588,6 +638,7 @@ export default {
      * Usage: `getAllDataelemsData()`
      */
     async getAllDataelemsData() {
+      console.log("getAllDataelemsData method caled==========================");
       let i,
         aChart = this.globalConfig.chartArr,
         ncLen = aChart.length,
@@ -599,7 +650,6 @@ export default {
         nFlag2 = 0;
       let showAlert = false;
       this.sYearArray = sYear.split(";");
-      this.getReportingRate(sLocId, sYear);
       for (i = 0; i < ncLen; i++) {
         let dataEle = aChart[i].dataElems;
         let j;
@@ -670,7 +720,9 @@ export default {
      * Using De
      *
      */
-    getReportingRate(p_loc, p_pe) {
+    getReportingRate() {
+      let p_loc = this.location.split("/")[1],
+        p_pe = dataM.getYearFormated(this.sourceStartYear, this.sourceEndYear);
       let yearArray = p_pe.split(";");
       service
         .getAnalyticalIndicatorData(this.reportingRateDe, p_loc, p_pe)
@@ -723,20 +775,48 @@ export default {
           },
         ],
       };
-      repoData.title = this.data["reportingRate"][0]["indicator"]["chartName"];
+      repoData.title =
+        typeof this.data["reportingRate"][0]["indicator"]["chartName"] ==
+        "object"
+          ? this.data["reportingRate"][0]["indicator"]["chartName"][
+              this.$i18n.locale
+            ]
+          : this.data["reportingRate"][0]["indicator"]["chartName"];
       repoData.chartInfo =
-        this.data["reportingRate"][0]["indicator"]["chartInfo"];
+        typeof this.data["reportingRate"][0]["indicator"]["chartInfo"] ==
+        "object"
+          ? this.data["reportingRate"][0]["indicator"]["chartInfo"][
+              this.$i18n.locale
+            ]
+          : this.data["reportingRate"][0]["indicator"]["chartInfo"];
       repoData.categoryInfo =
-        this.data["reportingRate"][0]["indicator"]["categoryInfo"];
+        typeof this.data["reportingRate"][0]["indicator"]["categoryInfo"] ==
+        "object"
+          ? this.data["reportingRate"][0]["indicator"]["categoryInfo"][
+              this.$i18n.locale
+            ]
+          : this.data["reportingRate"][0]["indicator"]["categoryInfo"];
       repoData.source = "";
       repoData.xTitle =
-        this.data["reportingRate"][0]["indicator"]["chartOptions"]["xAxis"][
-          "text"
-        ];
+        typeof this.data["reportingRate"][0]["indicator"]["chartOptions"][
+          "xAxis"
+        ]["text"] == "object"
+          ? this.data["reportingRate"][0]["indicator"]["chartOptions"]["xAxis"][
+              "text"
+            ][this.$i18n.locale]
+          : this.data["reportingRate"][0]["indicator"]["chartOptions"]["xAxis"][
+              "text"
+            ];
       repoData.yTitle =
-        this.data["reportingRate"][0]["indicator"]["chartOptions"]["yAxis"][
-          "text"
-        ];
+        typeof this.data["reportingRate"][0]["indicator"]["chartOptions"][
+          "yAxis"
+        ]["text"] == "object"
+          ? this.data["reportingRate"][0]["indicator"]["chartOptions"]["yAxis"][
+              "text"
+            ][this.$i18n.locale]
+          : this.data["reportingRate"][0]["indicator"]["chartOptions"]["yAxis"][
+              "text"
+            ];
       repoData.type = "column";
       repoData.tableData = catData;
       repoData.cid = this.data["reportingRate"][0]["indicator"]["cid"];
@@ -789,7 +869,8 @@ export default {
       let oSTMAdjusment = dataM.calculateSTMNotAdjusted(
         this.globalConfig.chartArr,
         this.repoRate,
-        oAdjustmentFactors
+        oAdjustmentFactors,
+        this.byPassRepoRate
       );
       console.log(
         this.contName,
@@ -823,7 +904,8 @@ export default {
         aSumOfCont,
         this.repoRate,
         oAdjustmentFactors,
-        continuation
+        continuation,
+        this.byPassRepoRate
       );
 
       allMethodsAdjusted.adjusted = Object.assign(
@@ -859,7 +941,11 @@ export default {
       );
       //console.log("oUserTrendsNew",oUserTrendsNew);
       // console.log("oUserTrends",oUserTrends);
-      this.outPutTrendsChart = this.getOtherChartDeatils(oUserTrends, 0, "");
+      this.outPutTrendsChart = this.getOtherChartDeatils(
+        oUserTrends,
+        0,
+        "line"
+      );
 
       let newData = [];
       oUserTrends.data.forEach((m) => {
@@ -884,10 +970,10 @@ export default {
       }
 
       let unpdData = {},
-        unpdtext = "unpd";
+        unpdtext = "fpet";
       if (this.defaultLevelID == this.location.split("/")[0]) {
-        unpdData = this.bgData.UNPD;
-        unpdtext = "unpd";
+        unpdData = this.bgData.FPET;
+        unpdtext = "fpet";
       } else {
         unpdData = this.bgData.FPET;
         unpdtext = "fpet";
@@ -917,7 +1003,7 @@ export default {
       //comparison estimate chart calculation
       let combinedComparisonEstimate = dataM.combinedComparisonEstimate(
         this.currentYear,
-        [...this.finalMethodArr],
+        this.finalMethodArr,
         this.sYearArray,
         methodWiseAdjObject,
         surveyData
@@ -933,7 +1019,8 @@ export default {
         this.finalMethodArr,
         this.sYearArray,
         methodWiseAdjObject,
-        surveyData
+        surveyData,
+        this.staticColors
       );
       this.MordernUsersByMethodsData = this.getOtherChartDeatils(
         MordernUsersByMethodsData,
@@ -945,7 +1032,8 @@ export default {
         this.sYearArray,
         this.finalMethodArr,
         adjNonAdjData,
-        surveyData
+        surveyData,
+        this.staticColors
       );
       this.lineAdNonAdChartData = this.getOtherChartDeatils(
         adjNonAdjLineChart,
@@ -956,7 +1044,7 @@ export default {
       let adjNonAdjBarChart = dataM.getadjNonAdjBarChart(
         this.currentYear,
         this.sYearArray,
-        [...this.finalMethodArr],
+        this.finalMethodArr,
         adjNonAdjData,
         surveyData
       );
@@ -991,7 +1079,8 @@ export default {
         methodWiseAdjObject,
         oPopulation,
         userTrendsByMethodSurvey,
-        this.aSource[this.contName]
+        this.aSource[this.contName],
+        this.staticColors
       );
       this.userTrendsByMethod = this.getOtherChartDeatils(
         userTrendsbyEmu,
@@ -1001,7 +1090,6 @@ export default {
 
       let slopeData = dataM.getSlopData(userTrendsbyEmu);
       this.comparisionSlope = this.getOtherChartDeatils(slopeData, 5, "bar");
-
       //console.log("comparisionSlope by ashvini", this.comparisionSlope);
       // console.log("adjNonAdjData.adjusted",adjNonAdjData.adjusted);
       if (this.getData) {
@@ -1019,28 +1107,40 @@ export default {
       let oResponse = {
         data: [
           {
-            size: 200,
-            center: [200, 180],
-            name: "Methods",
+            size: 130,
+            center: [150, 130],
+            name: this.$i18n.t("methods"),
             colorByPoint: true,
             data: pieDataObject["estiMethod"].data,
           },
           {
-            size: 200,
-            center: [600, 180],
-            name: "Methods",
+            size: 130,
+            center: [450, 250],
+            name: this.$i18n.t("methods"),
             colorByPoint: true,
             data: pieDataObject["methodMix"].data,
           },
         ],
-        title: this.data["derivedCharts"][3]["chartOptions"]["chartName"],
+        title:
+          typeof this.data["derivedCharts"][3]["chartOptions"]["chartName"] ==
+          "object"
+            ? this.data["derivedCharts"][3]["chartOptions"]["chartName"][
+                this.$i18n.locale
+              ]
+            : this.data["derivedCharts"][3]["chartOptions"]["chartName"],
         source: this.sources[this.contName],
         xTitle: "",
         yTitle: "",
         type: "pie",
         disable: this.data["derivedCharts"][3]["chartOptions"]["disableChart"],
         dataLable: true,
-        chartInfo: this.data["derivedCharts"][3]["chartOptions"]["chartInfo"],
+        chartInfo:
+          typeof this.data["derivedCharts"][3]["chartOptions"]["chartInfo"] ==
+          "object"
+            ? this.data["derivedCharts"][3]["chartOptions"]["chartInfo"][
+                this.$i18n.locale
+              ]
+            : this.data["derivedCharts"][3]["chartOptions"]["chartInfo"],
         cid: this.data["derivedCharts"][3]["chartOptions"]["cid"],
         tableData: pieDataObject.tableData,
         fields: pieDataObject.aFields,
@@ -1048,24 +1148,38 @@ export default {
           items: [
             {
               // html: 'Estimated Modern Method Mix',
-              html: this.data["derivedCharts"][3]["chartOptions"]["subTitle"][
-                "text"
-              ],
+              html:
+                (typeof this.data["derivedCharts"][3]["chartOptions"][
+                  "subTitle"
+                ]["text"] == "object"
+                  ? this.data["derivedCharts"][3]["chartOptions"]["subTitle"][
+                      "text"
+                    ][this.$i18n.locale]
+                  : this.data["derivedCharts"][3]["chartOptions"]["subTitle"][
+                      "text"
+                    ]) || "Estimated Modern Method Mix",
               style: {
-                left: "150px",
+                left: "100px",
                 top: "0px",
-                color: "black",
+                color: "#FFFFFF",
               },
             },
             {
               // html: 'Modern Contraceptive Method Mix',
-              html: this.data["derivedCharts"][3]["chartOptions"]["subTitle1"][
-                "text"
-              ],
+              html:
+                (typeof this.data["derivedCharts"][3]["chartOptions"][
+                  "subTitle1"
+                ]["text"] == "object"
+                  ? this.data["derivedCharts"][3]["chartOptions"]["subTitle1"][
+                      "text"
+                    ][this.$i18n.locale]
+                  : this.data["derivedCharts"][3]["chartOptions"]["subTitle1"][
+                      "text"
+                    ]) || "Modern Contraceptive Method Mix",
               style: {
-                left: "450px",
+                left: "400px",
                 top: "0px",
-                color: "black",
+                color: "#FFFFFF",
               },
             },
           ],
@@ -1076,17 +1190,39 @@ export default {
     },
     getOtherChartDeatils(obj, index, type) {
       obj.title =
-        this.data["derivedCharts"][index]["chartOptions"]["chartName"];
+        typeof this.data["derivedCharts"][index]["chartOptions"]["chartName"] ==
+        "object"
+          ? this.data["derivedCharts"][index]["chartOptions"]["chartName"][
+              this.$i18n.locale
+            ]
+          : this.data["derivedCharts"][index]["chartOptions"]["chartName"];
       obj.source = "";
       obj.xTitle =
-        this.data["derivedCharts"][index]["chartOptions"]["xAxis"]["text"];
+        typeof this.data["derivedCharts"][index]["chartOptions"]["xAxis"][
+          "text"
+        ] == "object"
+          ? this.data["derivedCharts"][index]["chartOptions"]["xAxis"]["text"][
+              this.$i18n.locale
+            ]
+          : this.data["derivedCharts"][index]["chartOptions"]["xAxis"]["text"];
       obj.yTitle =
-        this.data["derivedCharts"][index]["chartOptions"]["yAxis"]["text"];
+        typeof this.data["derivedCharts"][index]["chartOptions"]["yAxis"][
+          "text"
+        ] == "object"
+          ? this.data["derivedCharts"][index]["chartOptions"]["yAxis"]["text"][
+              this.$i18n.locale
+            ]
+          : this.data["derivedCharts"][index]["chartOptions"]["yAxis"]["text"];
       obj.disable =
         this.data["derivedCharts"][index]["chartOptions"]["disableChart"];
       obj.cid = this.data["derivedCharts"][index]["chartOptions"]["cid"];
       obj.chartInfo =
-        this.data["derivedCharts"][index]["chartOptions"]["chartInfo"];
+        typeof this.data["derivedCharts"][index]["chartOptions"]["chartInfo"] ==
+        "object"
+          ? this.data["derivedCharts"][index]["chartOptions"]["chartInfo"][
+              this.$i18n.locale
+            ]
+          : this.data["derivedCharts"][index]["chartOptions"]["chartInfo"];
       obj.type = type;
       return obj;
     },
@@ -1103,7 +1239,7 @@ export default {
      */
     showAlert() {
       // console.trace();
-      this.$swal({
+      this.sweetAlert({
         text: this.$i18n.t("somethingwentwrong"),
       });
       this.bshowLoader = false;
@@ -1198,50 +1334,17 @@ export default {
 .top-date-page-div {
   position: absolute;
   top: 0;
-  right: 15px;
+  right: 34px !important;
 
   span {
-    background-color: #2e2e48;
-    border-color: #2e2e48;
+    background-color: var(--new-header-color);
+    border-color: var(--new-header-color);
     font-size: 0.875rem;
     padding: 12px 12px;
   }
   span:hover {
-    background-color: #2e2e48;
-    border-color: #2e2e48;
-  }
-}
-.newGreen-theme .top-date-page-div {
-  position: absolute;
-  top: 0;
-  right: 15px;
-
-  span {
-    background-color: #0c5327;
-    border-color: #0c5327;
-    font-size: 0.875rem;
-    padding: 12px 12px;
-  }
-  span:hover {
-    background-color: #0c5327;
-    border-color: #0c5327;
-  }
-}
-
-.newBlack-theme .top-date-page-div {
-  position: absolute;
-  top: 0px;
-  right: 15px;
-
-  span {
-    background-color: #0b0c10;
-    border-color: #0b0c10;
-    font-size: 0.75rem;
-    padding: 12px;
-  }
-  span:hover {
-    background-color: #0b0c10;
-    border-color: #0b0c10;
+    background-color: var(--new-header-color);
+    border-color: var(--new-header-color);
   }
 }
 </style>

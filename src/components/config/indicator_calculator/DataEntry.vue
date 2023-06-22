@@ -1,21 +1,23 @@
 <template>
   <div>
-    <b-button class="btn btn-primary black-btn" @click="showModal"
-      >Data Entry</b-button
+    <b-button class="btn btn-primary black-btn blue-btn" @click="showModal"
+      >{{ $t("dataEntry") }}</b-button
     >
     <b-modal
       ref="my-modal"
       effect="fade/zoom"
       id="dataEntry"
+      centered
       size="lg"
-      title="Data Entry"
+      :title="$t('dataEntry')"
       ok-only
+      :ok-title="$t('ok')"
       @ok="updateDataStore"
     >
       <div class="row">
         <div class="col-6">
           <div class="d-block text-left">
-            <div>Select Organisation</div>
+            <div>{{$t("selectOrg")}}</div>
             <treeselect
               :multiple="false"
               :options="computedLocList"
@@ -26,13 +28,13 @@
             />
           </div>
           <div class="my-3">
-            Period
+            {{$t("period")}}
             <span class="float-right" v-if="dataEntryId.includes('prevalence')">
               <b-button class="black-btn btn-sm ml-3" @click="nextYear">
-                Next Year
+                {{$t("next_year")}}
               </b-button>
               <b-button class="black-btn btn-sm ml-3" @click="prevYear">
-                Perv Year
+                {{$t("prev_year")}}
               </b-button>
             </span>
           </div>
@@ -284,9 +286,8 @@ export default {
           .updateConfig(upData, newKey, false, "fp-dashboard")
           .then((response) => {
             if (response.data.status === "OK") {
-              this.$swal({
-                title: "Data saved successfully",
-                icon: "success",
+              this.sweetAlert({
+                title: this.$i18n.t("data_saved_successfully"),
               });
             }
           });

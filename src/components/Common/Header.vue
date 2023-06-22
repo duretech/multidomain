@@ -3,10 +3,11 @@
     <b-row class="py-2 mx-0">
       <b-col lg="5" md="8" class="summary-logoimg pl-0">
         <img
-          :src="require('@/assets/images/Icon ionic-md-home.png')"
+          :src="require('@/assets/images/icons/arrow-home.svg')"
           class="homelogo-img mx-3"
           v-if="headerConditions.home"
           @click="goToHome"
+          :style="{ filter: filterColor }"
         />
         <b-button
           v-b-toggle.sidebar-2
@@ -26,9 +27,9 @@
         </h6>
       </b-col>
       <!-- This section is used for mobile devices -->
-      <b-col md="4" class="profile pr-0">
+      <b-col class="profile pr-0">
         <template>
-          <FontSize class="mx-2" />
+          <!-- <FontSize class="mx-2" /> -->
         </template>
         <template>
           <LanguageChange @langChange="langChange" class="langChange" />
@@ -41,12 +42,16 @@
             menu-class="p-0"
           >
             <template #button-content>
-              <span class="fa fa-cog setting-icon logo-img-header"></span>
+              <!-- <span class="fa fa-cog setting-icon logo-img-header"></span> -->
+              <span>
+                <img
+                  v-bind:src="require('@/assets/images/icons/setting-icon.svg')"
+                  class="logo-img-header"
+                  :style="{ filter: filterColor }"
+                />
+              </span>
             </template>
-            <b-dropdown-text
-              class="text-center color-white font-14"
-              style="width: 200px"
-            >
+            <b-dropdown-text class="text-center font-14">
               <b-avatar variant="primary"></b-avatar>
               <div class="text-capitalize pt-1">
                 {{ userName }}
@@ -58,25 +63,42 @@
             <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-item-button class="mx-3 font-14" @click="activateTour">
               <img
-                src="@/assets/images/icons/tool-tip-tour-over.png"
-                class="mr-3"
+                src="@/assets/images/icons/tool-tip-tour-over.svg"
+                class="setImg"
+                :style="{ filter: filterColor }"
               />
-              Tour Guide
+              {{ $t("tourGuide") }}
             </b-dropdown-item-button>
             <b-dropdown-item-button class="mx-3 font-14">
               <img
-                src="@/assets/images/icons/Icon metro-youtube-play (1).svg"
-                class="mr-3"
+                src="@/assets/images/icons/train-icon.svg"
+                class="setImg mr-2"
+                :style="{ filter: filterColor }"
               />
-              Trainings Trainings
+              {{ $t("trainings") }}
             </b-dropdown-item-button>
             <b-dropdown-item-button class="mx-3 font-14" @click="clearCache">
               <img
-                src="@/assets/images/Icon material-refresh (1).svg"
-                class="mr-3"
+                src="@/assets/images/icons/Icon material-refresh (1).svg"
+                class="setImgclear mr-1 pr-1 w-20px"
+                :style="{ filter: filterColor }"
               />
-
-              Clear Cache
+              {{ $t("clearCache") }}
+            </b-dropdown-item-button>
+            <b-dropdown-item-button
+              class="mx-3 font-14"
+              @click="
+                showModal = true;
+                userShow = true;
+              "
+              v-if="$store.getters.getIsMultiProgram"
+            >
+              <img
+                src="@/assets/images/icons/Icon material-update.svg"
+                class="setImgclear mr-2 pr-1 w-17px"
+                :style="{ filter: filterColor }"
+              />
+              <span class="mx-1">{{ $t("Updates") }}</span>
             </b-dropdown-item-button>
             <b-dropdown-item-button class="mx-3 font-14">
               <template>
@@ -94,7 +116,7 @@
                       routeName: 'InteractiveDashboard',
                     })
                   "
-                  >Interactive Analytics</b-button
+                  >{{ $t("interactive_dashboard") }}</b-button
                 >
               </template>
             </b-dropdown-item-button>
@@ -114,17 +136,42 @@
                       routeName: 'SavedFavorites',
                     })
                   "
-                  >Save Favorites</b-button
+                  >{{ $t("saved") }}</b-button
                 >
               </template>
             </b-dropdown-item-button>
-            <b-dropdown-item-button class="mx-3 font-14">
+            <b-dropdown-divider></b-dropdown-divider>
+            <b-dropdown-item-button class="mx-3 font-14 text-center">
+              <span class="mx-1">{{ $t("theme") }}</span>
+              <div class="admin-component mt-2">
+                <b-form-group class="mb-0" v-slot="{ ariaDescribedby }">
+                  <b-form-radio-group
+                    id="local-theme"
+                    v-model="currentTheme"
+                    :aria-describedby="ariaDescribedby"
+                    name="local-theme"
+                  >
+                    <b-form-radio
+                      :value="t.value"
+                      v-for="t in themes"
+                      :key="'theme-' + t.value"
+                      ><div
+                        class="config-icon-container config-newcontainer"
+                        style="width: 40px !important; height: 40px !important"
+                      >
+                        <div class="colorBox" :class="t.color"></div></div
+                    ></b-form-radio>
+                  </b-form-radio-group>
+                </b-form-group>
+              </div>
+            </b-dropdown-item-button>
+            <b-dropdown-item-button class="mx-3 font-14" v-if="!isHeader">
               <template>
                 <b-button
                   size="sm"
                   class="bg-transparent border-0 mx-2 mr-4 p-0"
                   @click="backToDHIS"
-                  >DHIS 2</b-button
+                  >{{ $t("DHIS2") }}</b-button
                 >
               </template>
             </b-dropdown-item-button>
@@ -133,13 +180,14 @@
       </b-col>
       <!-- This section is used for desktop devices -->
       <b-col lg="7" class="pr-0">
-        <div class="explore-col mt-1">
+        <div class="explore-col mt-1 pt-1 mb-md-n2">
           <template>
             <slot name="report"></slot>
           </template>
           <template>
             <slot name="pageOptions"></slot>
           </template>
+
           <template>
             <b-button
               v-if="
@@ -148,14 +196,14 @@
                 isInteractiveModules
               "
               size="sm"
-              class="btn-bg-transparent mx-2 px-0"
+              class="btn-bg-transparent mx-2 px-0 bg-head"
               @click="
                 goTo({
                   setNamespace: true,
                   routeName: 'InteractiveDashboard',
                 })
               "
-              >Interactive Analytics</b-button
+              >{{ $t("interactive_dashboard") }}</b-button
             >
           </template>
           <template>
@@ -166,48 +214,69 @@
                 isInteractiveModules
               "
               size="sm"
-              class="btn-bg-transparent mx-2 px-0"
+              class="btn-bg-transparent mx-2 px-0 bg-fav"
               @click="
                 goTo({
                   setNamespace: true,
                   routeName: 'SavedFavorites',
                 })
               "
-              >Save Favorites</b-button
+              >{{ $t("saved") }}</b-button
             >
           </template>
+          <!-- <template>
+            <b-button
+             
+              size="md"
+              class="btn-bg-transparent mx-2 px-0 bg-head"
+              
+              >
+              <i class="fa fa-edit cursor-pointer home-editicon"></i>
+              <span class="modify-btn mx-1"> Modify Content </span>  
+              
+              </b-button
+            >
+          </template> -->
           <template>
             <slot name="dashboardType"></slot>
           </template>
           <template v-if="$route.name !== 'admin'">
             <AdminPopup />
           </template>
-          <template>
+          <template v-if="!isHeader">
             <b-button
               size="sm"
-              class="bg-transparent border-0 mx-2 mr-4 p-0"
+              class="bg-transparent border-0 mx-2 mr-4 p-0 bg-fav greydhisheader"
               @click="backToDHIS"
-              >DHIS 2</b-button
+              >{{ $t("DHIS2") }}</b-button
             >
           </template>
           <template>
             <FontSize class="mx-2" />
           </template>
-          <template>
-            <LanguageChange
-              @langChange="langChange"
-              className="langChangeBtn"
-            />
+          <template v-if="languageSupport">
+            <LanguageChange @langChange="langChange" class="langChangeBtn" />
           </template>
           <template>
-            <b-dropdown size="lg" class="mx-2 mr-3" no-caret menu-class="p-0">
+            <b-dropdown
+              size="lg"
+              class="mx-2 mr-3 mt-1"
+              no-caret
+              menu-class="p-0"
+            >
               <template #button-content>
-                <span class="fa fa-cog setting-icon logo-img-header"></span>
+                <!-- <span class="fa fa-cog setting-icon logo-img-header"></span> -->
+                <span>
+                  <img
+                    v-bind:src="
+                      require('@/assets/images/icons/setting-icon.svg')
+                    "
+                    class="logo-img-header mb-1"
+                    :style="{ filter: filterColor }"
+                  />
+                </span>
               </template>
-              <b-dropdown-text
-                class="text-center color-white font-14"
-                style="width: 200px"
-              >
+              <b-dropdown-text class="text-center font-14 mt-2">
                 <b-avatar variant="primary"></b-avatar>
                 <div class="text-capitalize pt-1">
                   {{ userName }}
@@ -222,47 +291,109 @@
                 @click="activateTour"
               >
                 <img
-                  src="@/assets/images/icons/tool-tip-tour-over.png"
-                  class="setImg mr-3"
+                  src="@/assets/images/icons/tool-tip-tour-over.svg"
+                  class="setImg"
+                  :style="{ filter: filterColor }"
                 />
-                Tour Guide
+                <span>{{ $t("tourGuide") }}</span>
               </b-dropdown-item-button>
               <b-dropdown-item-button class="mx-3 font-14">
                 <img
-                  src="@/assets/images/icons/Icon metro-youtube-play (1).svg"
-                  class="setImg"
+                  src="@/assets/images/icons/train-icon.svg"
+                  class="setImg mr-2"
+                  :style="{ filter: filterColor }"
                 />
-                Trainings
+                <span> {{ $t("trainings") }}</span>
               </b-dropdown-item-button>
               <b-dropdown-item-button class="mx-3 font-14" @click="clearCache">
                 <img
-                  src="@/assets/images/Icon material-refresh (1).svg"
-                  class="setImgclear mr-3 pr-1"
+                  src="@/assets/images/icons/Icon material-refresh (1).svg"
+                  class="setImgclear mr-1 pr-1 w-20px"
+                  :style="{ filter: filterColor }"
                 />
-
-                Clear Cache
+                <span class="mx-1">{{ $t("clearCache") }}</span>
+              </b-dropdown-item-button>
+              <b-dropdown-item-button
+                class="mx-3 font-14"
+                @click="
+                  showModal = true;
+                  userShow = true;
+                "
+                v-if="$store.getters.getIsMultiProgram"
+              >
+                <img
+                  src="@/assets/images/icons/Icon material-update.svg"
+                  class="setImgclear mr-2 pr-1 w-17px"
+                  :style="{ filter: filterColor }"
+                />
+                <span class="mx-1">{{ $t("Updates") }}</span>
+              </b-dropdown-item-button>
+              <b-dropdown-divider></b-dropdown-divider>
+              <b-dropdown-item-button class="mx-3 font-14 text-center">
+                <span class="mx-1">{{ $t("theme") }}</span>
+                <div class="admin-component mt-2">
+                  <b-form-group class="mb-0" v-slot="{ ariaDescribedby }">
+                    <b-form-radio-group
+                      id="local-theme"
+                      v-model="currentTheme"
+                      :aria-describedby="ariaDescribedby"
+                      name="local-theme"
+                    >
+                      <b-form-radio
+                        :value="t.value"
+                        v-for="t in themes"
+                        :key="'theme-' + t.value"
+                        ><div
+                          class="config-icon-container config-newcontainer"
+                          style="
+                            width: 40px !important;
+                            height: 40px !important;
+                          "
+                        >
+                          <div class="colorBox" :class="t.color"></div></div
+                      ></b-form-radio>
+                    </b-form-radio-group>
+                  </b-form-group>
+                </div>
               </b-dropdown-item-button>
             </b-dropdown>
           </template>
         </div>
       </b-col>
     </b-row>
+    <template v-if="(displayPage && !isDisableFlash) || userShow">
+      <FlashScreen
+        :showModal="showModal"
+        @hideModal="hideModal"
+        @getFlashData="getFlashData"
+        :allFlashData="allFlashData"
+        :isDisableFlash="isDisableFlash"
+      />
+    </template>
   </div>
 </template>
 <script>
-/*global settings*/
 import FontSize from "@/components/Common/FontSize";
 import NavigationMixin from "@/helpers/NavigationMixin";
+import DynamicImageMixin from "@/helpers/DynamicImageMixin";
 import LanguageChangeMixin from "@/helpers/LanguageChangeMixin";
 
 export default {
-  props: ["headerConditions", "pageHeader"],
-  mixins: [NavigationMixin, LanguageChangeMixin],
+  props: ["displayPage", "headerConditions", "pageHeader"],
+  mixins: [NavigationMixin, DynamicImageMixin, LanguageChangeMixin],
   data() {
-    return {};
+    return {
+      userShow: false,
+      showModal: true,
+      allFlashData: [],
+    };
   },
   components: {
     FontSize,
+    FlashScreen: () =>
+      import(
+        /*webpackChunkName: 'FlashScreen'*/ "@/components/Common/FlashScreen"
+      ),
     LanguageChange: () =>
       import(
         /*webpackChunkName: 'LanguageChange'*/ "@/components/Common/LanguageChange"
@@ -273,6 +404,42 @@ export default {
       ),
   },
   computed: {
+    themes() {
+      let t = [
+        {
+          value: "white",
+          color: "bg-newwhite",
+        },
+        {
+          value: "grey",
+          color: "bg-newgrey",
+        },
+        {
+          value: "dark",
+          color: "bg-newblack",
+        },
+      ];
+      return t;
+    },
+    isDisableFlash() {
+      return this.$store.getters.getAppSettings.disableFlash.includes(
+        this.$store.getters.getLoggedInUserId
+      );
+    },
+    currentTheme: {
+      get: function () {
+        return this.$store.state.defaultColorTheme;
+      },
+      set: function (newValue) {
+        this.$store.commit("setTheme", newValue);
+      },
+    },
+    languageSupport() {
+      return this.$store.getters.getAppSettings.languageSupport;
+    },
+    isHeader() {
+      return this.$store.getters.getAppSettings.isAppHub;
+    },
     isInteractiveModules() {
       return this.$store.getters.getIsAdmin
         ? true
@@ -287,26 +454,17 @@ export default {
     },
     dashboardLogo() {
       let logo = null;
-      if (this.$route.name === "mnch-dashboard") {
-        logo = require("@/assets/images/mh_homelogo.png");
-      } else if (this.$route.name === "fp-dashboard") {
-        logo = require("@/assets/images/fp_homelogo.png");
+      if (this.$route.name === "dashboard") {
+        if (this.$store.getters.getNamespace.includes("_fp-")) {
+          logo = require("@/assets/images/mh_homelogo.png");
+        }
+        if (this.$store.getters.getNamespace.includes("_mnch-")) {
+          logo = require("@/assets/images/fp_homelogo.png");
+        }
       } else if (this.$route.name === "SummaryDashboard") {
         logo = require("@/assets/images/summary.png");
-      } else if (this.$route.name === "summary-dashboard") {
-        logo = require("@/assets/images/summary.png");
-      } else if (this.$route.name === "analytical-dashboard") {
-        logo = require("@/assets/images/analytical-dash.png");
-      } else if (this.$route.name === "new-analytical-dashboard") {
-        logo = require("@/assets/images/analytical-dash.png");
-      } else if (this.$route.name === "dqr-dashboard") {
-        logo = require("@/assets/images/data-quilty-dash.png");
       } else if (this.$route.name === "map") {
         logo = require("@/assets/images/map-dash.png");
-      } else if (this.$route.name === "interactive-dashboard") {
-        logo = require("@/assets/images/intractive-dash.png");
-      } else if (this.$route.name === "saved-favorites") {
-        logo = require("@/assets/images/savefavorites-dashb.png");
       } else if (this.$route.name == "AnalyticalDashboard") {
         logo = require("@/assets/images/analytical-dash.png");
       } else if (this.$route.name == "SavedFavorites") {
@@ -317,46 +475,33 @@ export default {
         logo = require("@/assets/images/data-quilty-dash.png");
       } else if (this.$route.name == "InteractiveDashboard") {
         logo = require("@/assets/images/intractive-dash.png");
-      } else if (this.$route.name == "SavedFavorites") {
+      } else if (this.$route.name == "report") {
         logo = require("@/assets/images/logo.png");
       }
-      // console.log("logo", logo);
       return logo;
     },
     pageTitle() {
       let title = null;
-      if (
-        this.$route.name === "SummaryDashboard" ||
-        this.$route.name === "summary-dashboard"
-      ) {
+
+      if (this.$route.name === "SummaryDashboard") {
         title = this.$i18n.t("summary_dashboard");
-      } else if (
-        this.$route.name === "AnalyticalDashboard" ||
-        this.$route.name === "analytical-dashboard" ||
-        this.$route.name === "new-analytical-dashboard"
-      ) {
+      } else if (this.$route.name === "AnalyticalDashboard") {
         title = this.$i18n.t("analytical_dashboard");
       } else if (this.$route.name === "integrated-dashboard") {
-        title = "Integrated Family Planning and Maternal Health Dashboard";
-      } else if (
-        this.$route.name === "InteractiveDashboard" ||
-        this.$route.name === "interactive-dashboard"
-      ) {
+        title = this.$i18n.t("integratedDashboard");
+      } else if (this.$route.name === "InteractiveDashboard") {
         title = this.$i18n.t("interactive_dashboard");
-      } else if (
-        this.$route.name === "DQRDashboard" ||
-        this.$route.name === "dqr-dashboard"
-      ) {
+      } else if (this.$route.name === "DQRDashboard") {
         title = this.$i18n.t("DQR");
-      } else if (
-        this.$route.name === "SavedFavorites" ||
-        this.$route.name === "saved-favorites"
-      ) {
+      } else if (this.$route.name === "SavedFavorites") {
         title = this.$i18n.t("saved");
-      } else if (this.$route.name === "fp-dashboard") {
-        title = this.$i18n.t("family_planning");
-      } else if (this.$route.name === "mnch-dashboard") {
-        title = this.$i18n.t("maternal_newborn_and_child_health");
+      } else if (this.$route.name === "dashboard") {
+        if (this.$store.getters.getNamespace.includes("_fp-")) {
+          title = this.$i18n.t("family_planning");
+        }
+        if (this.$store.getters.getNamespace.includes("_mnch-")) {
+          title = this.$i18n.t("maternalHealth");
+        }
       } else if (this.$route.name === "map") {
         title = this.$i18n.t("mapVisualization");
       } else if (this.$route.name === "admin") {
@@ -369,19 +514,22 @@ export default {
     },
   },
   methods: {
+    getFlashData(data) {
+      this.allFlashData = data;
+    },
+    hideModal() {
+      this.userShow = false;
+      this.showModal = false;
+    },
     backToDHIS() {
-      if (process.env.NODE_ENV !== "production") {
-        // window.location.href = `${settings.baseURL}/`;
-      } else {
-        window.location.href = `${this.$store.state.baseURL}/`;
-      }
+      window.location.href = `${this.$store.state.baseURL}/`;
     },
     activateTour() {
       this.$emit("activateTour");
     },
     clearCache() {
-      this.$store.commit("setIsClearCache", true);
       this.$store.commit("setStoreValues");
+      this.$store.commit("setIsClearCache", true);
       if (this.$route.name === "Dashboard") {
         this.$emit("reload");
       } else {
@@ -389,21 +537,20 @@ export default {
       }
     },
     goToHome() {
-      // this.$router.push("/");
-      // console.log("window.history", window.history);
-
-      // window.history.length > 1 ? this.$router.go(-1) : this.$router.push("/");
-      // console.log(this.$store.getters.getNamespace);
-      if (this.$store.getters.getNamespace === `${settings.tableName}`) {
+      if (
+        this.$store.getters.getNamespace ===
+        `${this.$store.getters.getAppSettings.tableName}`
+      ) {
         this.$router.push("/");
+        return;
       }
 
       let key = "";
-      if (this.$store.getters.getNamespace.includes("_mnch-")) {
-        key = "mnch-dashboard";
-      }
-      if (this.$store.getters.getNamespace.includes("_fp-")) {
-        key = "fp-dashboard";
+      if (
+        this.$store.getters.getNamespace.includes("_mnch-") ||
+        this.$store.getters.getNamespace.includes("_fp-")
+      ) {
+        key = "dashboard";
       }
 
       if (key) {

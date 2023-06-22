@@ -1,95 +1,64 @@
 #createModuleModal {
   .modal-header {
     background: transparent;
-    color     : #343434;
+    color     : var(--text-color);
     padding   : 1rem;
+
   }
 
   .btn-primary.submitbtn.submit-create{
-    background-color: #5E57B3 !important;
-    border-color: #5E57B3 !important;
+    background-color: var(--black-btn-color) !important;
+    border-color: var(--black-btn-color) !important;
   }
 
   .reset-create{
-    background-color: #64648d !important;
-    border-color: #64648d !important;
+    background-color: var(--grey-color-button) !important;
+    border-color: var(--grey-color-button) !important;
   }
+
+  .custom-select{
+    background-color: var(--sidebar-main-active-color) !important;
+    
+  }
+
+  .modal-content{
+    border: none !important;
+  }
+
+  .logoSelect-dropdown button{
+    background-color: var(--sidebar-border-left) !important;
+    border-color: var(--sidebar-border-left) !important;
+    // color: var(--text-color) !important;
+    border: none !important;
+    border-radius: 5px;
+  }
+  .btn-primary.submitbtn{
+    background-color: var(--grey-color-button) !important;
+    border-color: var(--grey-color-button) !important;
+  }
+  .dropdown-item{
+      background-color: var(--signoff-bottom-card);
+  }
+
+  .modal-dynamic .blue-btn{
+  font-size: 0.875rem;
+  margin-right: 2%;
 }
 
-#myModalEdit {
-  padding-left: 0px !important;
-
-  i.fa {
-    color: #676767;
-  }
-}
-
-@media (min-width: 1200px) {
-  #myModalEdit .modal-xl {
-    max-width: 100%;
-    margin   : 0;
-  }
-}
-
-.options-draggable {
-  display        : flex;
-  justify-content: flex-end;
-  color          : var(--color-white);
-
-  .edit {
-    color: var(--color-white) !important;
+  .vue-treeselect__placeholder{
+      color: var(--text-font-color) !important;
   }
 
-  .close {
-    color     : var(--color-white) !important;
-    margin-top: -1rem;
-  }
-}
-
-.draggable-chart {
-  height: 0px !important;
-}
-
-.draggable-container {
-  margin: -5px;
-
-  .card-container {
-    border-color : var(--signoff-top-card) !important;
-    border-radius: 15px;
-  }
-
-  .container-title {
-    background-color: var(--signoff-top-card) !important;
-    border-radius   : 10px 10px 0px 0px !important;
-    color           : var(--color-white) !important;
-  }
-
-  .draggable-title {
-    background-color: var(--primary-bg-color);
-  }
-
-  .draggable-footer {
-    background-color: var(--primary-bg-color) !important;
-  }
-
-  .card-header {
-    background-color: var(--primary-bg-color);
-  }
-
-  .card-footer {
-    background-color: var(--signoff-top-card);
-    border-radius   : 0px 0px 10px 10px !important;
-
-    .bottomLabel {
-      justify-content: center;
+    .selectItemsDiv{
+        border: none !important;
     }
 
-    h6 {
-      font-size    : 0.875rem;
-      color        : var(--color-white) !important;
-      border-bottom: 2px solid var(--color-white) !important;
+    input{
+        border: 1px solid transparent !important;
+        border-radius: 5px;
+        color: var(--home-main-color);
     }
-  }
+
 }
 
 .mainCardBodyWrap {
@@ -99,20 +68,9 @@
   padding   : 0px !important;
 
   .card {
-    color           : var(--color-white);
+    color           : var(--text-color);
     background-color: var(--signoff-top-card);
   }
-}
-
-.dragged-card {
-  height       : inherit;
-  border-radius: 10px 10px 10px 10px !important;
-}
-
-.box-background {
-  min-height: 100vh;
-  background:
-    linear-gradient(-90deg, rgba(0, 0, 0, 0.1) 1px, transparent 1px) 10px 10px / 10px 10px, linear-gradient(rgba(0, 0, 0, 0.1) 1px, transparent 1px) 0% 0% / 10px 10px,
 }
 
 .textTitleHeading {
@@ -122,7 +80,7 @@
 
 .chartIconsDiv {
   margin          : 10px;
-  background-color: #1a1a38;
+ 
 
   .form-group {
 
@@ -148,29 +106,11 @@
   }
 }
 
-.delete-refresh-button {
-  width         : 20px;
-  color         : var(--color-white) !important;
-  display       : flex;
-  flex-direction: column;
-  margin        : 8% auto;
-}
-
-.edit-border {
-  border-bottom: 2px solid var(--border-color)
-}
-
-.button-add-text {
-  background-color: var(--view-more-btn-color);
-  border          : 1px solid var(--view-more-btn-color);
-  border-radius   : 10px;
-
-  &:hover,
-  &:focus,
-  &:active,
-  &:focus {
-    background-color: var(--view-more-btn-color) !important;
-    border          : 1px solid var(--view-more-btn-color) !important;
-    box-shadow      : none !important;
+// responsive css
+@media (min-width: 1200px) {
+  #myModalEdit .modal-xl {
+    max-width: 100%;
+    margin   : 0;
   }
 }
+

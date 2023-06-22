@@ -1,0 +1,208 @@
+strong{
+  font-weight: 500;
+}
+
+.pointer-none {
+  pointer-events: none;
+}
+
+.cursor-pointer {
+	cursor: pointer;
+}
+
+.d-none {
+  display: none;
+}
+
+.hide {
+  display: none;
+}
+
+.text-capitalize {
+  text-transform: capitalize;
+}
+
+.w-8px{
+  width: 8px;
+}
+
+.w-13{
+  width: 13px;
+}
+
+.w-14 {
+  width: 14px;
+}
+
+.w-15{
+  width: 15%;
+}
+
+.w-16px {
+  width: 16px;
+}
+
+.w-17px{
+  width: 17px;
+}
+
+.w-18px {
+  width: 18px;
+}
+
+.w-20px {
+  width: 20px;
+}
+
+.w-24{
+  width: 24%;
+}
+
+.w-30 {
+  width: 30% !important;
+}
+
+.w-35 {
+  width: 35%;
+}
+
+.w-37px{
+  width: 37px !important;
+}
+
+.w-45 {
+  width: 45%;
+}
+
+.w-90{
+  width: 90% !important;
+}
+
+.me-15 {
+  margin-right: 15px;
+}
+
+.p-b-1px {
+  padding-bottom: 1px !important;
+}
+
+.pr-4px {
+  padding-right: 4px;
+}
+
+.px-10px{
+  padding-left: 3px;
+  padding-right: 11px;
+}
+
+.pt-2px{
+  padding-top: 2%;
+}
+
+.mb-25px {
+  margin-bottom: -25px;
+}
+
+.mt-11px {
+  margin-top: -11px;
+}
+
+.mt-15px {
+  margin-top: -15px !important;
+}
+
+.mt-25px {
+  margin-top: -25px;
+}
+
+.m-t-28px {
+  margin-top: -28px;
+}
+
+.m-t-20px {
+  margin-top: 20px;
+}
+
+.m-t-40px {
+  margin-top: 20px;
+}
+
+.m-b-20px {
+  margin-bottom: 20px;
+}
+
+
+.ml-10px {
+  margin-left: -20%;
+}
+
+.ml-37px {
+  margin-left: 37px;
+}
+
+.ml-6{
+  margin-left: 0.6rem !important;
+}
+
+.ml-45px {
+  margin-left: -45px;
+}
+
+.pointer-event-none {
+  pointer-events: none;
+}
+
+.border-radius-zero {
+  border-radius: 0px !important;
+}
+
+
+.b-5 {
+  border-radius: 5px;
+}
+
+.bt-10 {
+  border-top-left-radius: 5px !important;
+  border-top-right-radius: 5px !important;
+}
+
+.border-adminradius {
+  border-radius: 5px;
+}
+
+.border-bottom {
+  border-bottom: 2px solid var(--border-color) !important;
+}
+
+.bordertop-grey {
+  border-top: 1px solid var(--border-grey-color) !important;
+}
+
+.border-bottomgrey {
+  border-bottom: 1px solid var(--border-grey-color) !important;
+}
+
+.sign-off{
+  div.row-div .row:nth-child(n+2){
+    border-top: 1px solid var(--border-grey-color) !important;
+    padding-top: 2% !important;
+  }
+}
+
+.border-adminmain {
+  border: 1px solid var(--border-grey-color) !important;
+}
+
+.border-blue {
+  border: 1px solid var(--border-grey-color) !important;
+}
+
+
+.no-header .card{
+  border-bottom-left-radius: 0px !important;
+  border-bottom-right-radius: 0px !important;
+}
+
+.v-tour__target--highlighted {
+  box-shadow: 0 0 0 99999px rgba(0,0,0,.4) !important;
+}

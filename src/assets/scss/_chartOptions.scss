@@ -2,7 +2,12 @@
     position: absolute;
     right   : 15px;
     width   : 250px;
+   
     // top     : -5px;
+
+    .openicons{
+        margin-right: 4%;
+    }
 
     .icontoggle {
 
@@ -12,7 +17,8 @@
         height: 45px;
 
         .icon {
-            width: 33px;
+            width: 19px;
+            margin-left: 13px;
         }
 
         .icon:hover {
@@ -20,7 +26,9 @@
         }
 
         .icon1 {
-            width: 30px;
+            width: 21px;
+            margin-left: 9px;
+            margin-right: 13px;
         }
 
         .icon1:hover {
@@ -32,16 +40,17 @@
         }
 
         .arrow-btn {
-            padding         : 0.1rem 0.6rem;
+            padding         : 0.2rem 0.6rem;
             border-radius   : 50%;
-            background-color: var(--chart-body-color);
+            font-size: 13px;
+            background-color: var(--sidebar-main-active-color);
             border          : 0;
             color           : var(--fonts-white-shade);
             transition      : all ease 0.5s;
 
             &:focus {
                 box-shadow      : none !important;
-                background-color: var(--chart-body-color);
+                background-color: var(--sidebar-main-active-color);
             }
         }
 
@@ -54,12 +63,27 @@
     }
 }
 
-.charticon-overlay {
-    background-color: var(--chart-container-color);
+.charticon-overlay { 
+    z-index: 998 !important;
+    background-color: var(--bg-main-color) !important;
+    border-radius: 4px !important; 
+
+    .openicons{
+        margin-right: 0%;
+    }
 }
 
-.dqr-main2 .icontoggle{
-    height: 16px !important;
+.chartsBtn{
+    background-color: var(--sidebar-border-left) !important;
+    border-color: var(--sidebar-border-left) !important;
+        border-radius: 5px;
+        color: var(--main-font-color);
+        padding: 7px 15px;
+
+}
+
+.dqr-main2 .totalicons{
+    bottom: 1px !important;
 }
 .anc-highchart1-body,
 .barchart-body {
@@ -84,7 +108,7 @@
 .commentDropDownBox .form-control {
     background  : var(--chart-body-color);
     border-color: var(--chart-body-color);
-    color       : var(--color-white)
+    color       : var(--text-color)
 }
 
 .highcharts-icons {
@@ -109,7 +133,7 @@
 
 .dropdown-item:hover,
 .dropdown-item:focus {
-    color          : #16181b;
+    // color          : #16181b;
     text-decoration: none;
 }
 
@@ -117,7 +141,7 @@
 
     .btn-secondary:focus,
     .btn-secondary.focus {
-        color     : #fff;
+        color     : var(--text-color);
         box-shadow: 0 0 0 0 var(--chart-container-color);
     }
 }
@@ -132,6 +156,9 @@
 
 .chart-dd-menu {
     background-color: var(--primary-bg-color);
+    padding         : 0px;
+    top             : 10px !important;
+    min-width       : 200px;
 }
 
 .list-group-item:hover {
@@ -142,6 +169,13 @@
 
 .list-group-item {
     padding: 0px !important;
+
+   
+}
+
+.csv-list{
+    border: 1px solid transparent !important;
+    padding: 0px 2px 0px 2px;
 }
 
 .card-body {
@@ -161,11 +195,6 @@
     }
 }
 
-.download-dropdown-ancmodal {
-    .dropdown-menu {
-        z-index: 9999;
-    }
-}
 
 .color-white {
     color          : var(--color-white) !important;

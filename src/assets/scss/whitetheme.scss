@@ -1,0 +1,874 @@
+body[data-theme~="white"]{
+
+    .color-default{
+        color: var(--sidebar-maincolor) !important;
+    }
+
+    .custom-select ,
+    .auto-admin{
+        background: black url("data:image/svg+xml;utf8,<svg viewBox='0 0 140 140' width='24' height='24' xmlns='http://www.w3.org/2000/svg'><g><path d='m121.3,34.6c-1.6-1.6-4.2-1.6-5.8,0l-51,51.1-51.1-51.1c-1.6-1.6-4.2-1.6-5.8,0-1.6,1.6-1.6,4.2 0,5.8l53.9,53.9c0.8,0.8 1.8,1.2 2.9,1.2 1,0 2.1-0.4 2.9-1.2l53.9-53.9c1.7-1.6 1.7-4.2 0.1-5.8z' fill='black'/></g></svg>") right 0.75rem center/8px 10px no-repeat;
+    }
+
+    .ml-2 .custom-select{
+        background: #A0ADBA url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='4' height='5' viewBox='0 0 4 5'%3e%3cpath fill='%23ffffff' d='M2 0L0 2h4zm0 5L0 3h4z'/%3e%3c/svg%3e") right 0.75rem center/8px 10px no-repeat !important;
+    }
+
+    .mdgridviewpage-bg.admin-side .select-wrapper select {
+        background: black url("data:image/svg+xml;utf8,<svg viewBox='0 0 140 140' width='24' height='24' xmlns='http://www.w3.org/2000/svg'><g><path d='m121.3,34.6c-1.6-1.6-4.2-1.6-5.8,0l-51,51.1-51.1-51.1c-1.6-1.6-4.2-1.6-5.8,0-1.6,1.6-1.6,4.2 0,5.8l53.9,53.9c0.8,0.8 1.8,1.2 2.9,1.2 1,0 2.1-0.4 2.9-1.2l53.9-53.9c1.7-1.6 1.7-4.2 0.1-5.8z' fill='black'/></g></svg>") right 0.75rem center/8px 10px no-repeat;
+    }
+
+    .btn-secondary,
+    .btn-secondary:hover,
+    .btn-secondary:active
+   {
+        color: var(--text-color);
+    }
+
+        
+    .highcharts-plot-background .highcharts-plot-border{
+        color: var(--sidebar-maincolor) !important;
+        fill:var(--bg-inner-color) !important;
+
+    }
+
+    .highcharts-tooltip-box {
+        fill: var(--bg-inner-color) !important;
+        fill-opacity: 0.6;
+        stroke-width: 0;
+    }
+
+    .highchart-theme,
+    .analytic .card-footer:last-child{
+    color: var(--home-main-color) !important;
+    }
+
+    .highcharts-button text{
+        color: var(--sidebar-bg-color) !important;
+        fill: var(--sidebar-bg-color) !important;
+    }
+
+
+    .carousel-control-prev-icon {
+        background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%4A5768' viewBox='0 0 8 8'%3E%3Cpath d='M5.25 0l-4 4 4 4 1.5-1.5-2.5-2.5 2.5-2.5-1.5-1.5z'/%3E%3C/svg%3E") !important;
+    }
+  
+    .carousel-control-next-icon {
+    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%4A5768' viewBox='0 0 8 8'%3E%3Cpath d='M2.75 0l-1.5 1.5 2.5 2.5-2.5 2.5 1.5 1.5 4-4-4-4z'/%3E%3C/svg%3E") !important;
+    }
+
+    .sidebar-newbody #sidebar-2 .sidebar .subgroups:hover,
+    .sidebar-newbody #sidebar-2 .sidebar .subgroups.sidebar-item-active{
+        background-color: var(--sidebar-main-active-color) !important;
+    }
+
+    .landingpage-text-container .black-btn {
+    color: var(--text-color) !important;
+    }
+
+
+    .header-body
+    {
+        box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.0784313725) !important;
+    }
+    
+    .follow-us,
+    .leaflet-control-layers-expanded {
+        color: var(--text-color) !important;
+    }
+
+
+    .integratedFamilyWrap {
+       
+            .scorboardcardHeader .scorboardLabel{
+                background-color: var(--home-btn-color);
+                color: var(--main-subfont-color);
+            }
+               
+    }  
+ 
+    .interactive-card .card-header,
+    .integratedDashboardPage .card-header
+    {
+           background-color: transparent !important;
+    }
+
+    .summary-highchart-body{
+        .typeDropdown.new-theme{
+            color: var(--text-color) !important;
+        }
+    }
+       
+    .summary-dqr-page{ 
+        
+        .overview-card .dqr-card-body .inner-card{
+            background-color: var(--primary-bg-color) !important;
+        }
+
+        .overview-card .dqr-card-body .inner-card .inner-card-body{
+            background-color: var(--bg-inner-color) !important;
+        }
+        
+
+    }
+
+    .summary-dot,
+    .mapDropdown.custom-select,
+    .bottom_toolbar_wrap .input-select-items .form-group .form-control,
+    .typeDropdown.custom-select  
+    {
+        color: var(--sidebar-bg-color) !important;
+    }
+
+    #modal-newanc{
+            .modal-content{
+                background-color: var(--bg-inner-color) !important;
+            }
+
+            .custom-select{
+                color: var(--sidebar-bg-color) !important;
+            }
+
+            .modal-content .modal-body .btn-group .btn-secondary{
+                background-color: var(--home-btn-color) !important;
+                border-color: var(--home-btn-color) !important;
+                color: var(--grey-color-button) !important;
+            }
+    }
+
+    .saved-fav,
+    #setReport .modal-xl .modal-content,
+    .grid-layout-section .grid-down,
+    .admin-sidebar .card .adminConfig .card-header {
+        background-color: var(--primary-bg-color) !important;
+    }
+
+  
+
+    #legend{
+
+        .select-wrapper{
+            .toggleLegend{
+                background-color: var(--footer-components-color) !important;
+                border-color: var(--footer-components-color) !important;
+                color: var(--sidebar-bg-color) !important;
+        
+               
+            }
+        }
+        .select-wrapper:after{
+            color: var(--sidebar-bg-color) !important;
+
+        }
+    }
+
+
+    .legend-map .legend-plot,
+    #myModalEdit .vue-treeselect__multi-value-item, 
+    #createModuleModal .vue-treeselect__multi-value-item,
+    .vue-treeselect__multi-value-item,
+    #createModuleModal .custom-select,
+    .report-dialog .custom-select,
+    #dataEntry .vue-treeselect__single-value,
+    .bg-faint-grey .custom-select,
+    .md_nested_tabs .vue-treeselect__multi-value-item,
+    .select-wrapper:after,
+    .dashboardchart-container label,
+    .datamappingtopcar .md_nested_tabs,
+    .md_nested_tabs .custom-select,
+    .ql-snow .ql-picker-label,
+    .v-step,
+    .fav-page .custom-select,
+    .vue-color .vue-treeselect__single-value,
+    .vue-color .custom-select,
+    .summary-view-more-btn,
+    .modal .custom-select,
+    .text-white,
+    .list-of-cards .card .actionBtn button,
+    .list-of-cards .card .location,
+    .integratedFamilyWrap .highcharts-data-labels span,
+    .globalconfigcontainer .col-form-label, .globalconfigcontainer .form-control, .appconfing-selectmodulecontainer p{
+        color: var(--sidebar-maincolor) !important;
+    }
+
+   
+    .mapDropdown.custom-select{
+        color: var(--sidebar-bg-color) !important;
+    }
+
+    .map-collapse-btndiv{
+
+        .color-white{
+            color: var(--sidebar-bg-color) !important;
+    
+        }
+    }
+    
+    .saved-Fav-page{
+            background-color: var(--primary-bg-color) !important;
+    }
+
+    .saved-fav-cards .saved-fav-card{
+            border-color: transparent !important;
+    }   
+
+    .saved-report-card-border .card-header{
+        color: var(--bg-main-color) !important;
+    }
+
+    .typeDropdown,
+    .modal .nav-tabs .nav-link.active{
+        color: var(--sidebar-bg-color) !important;
+    }
+
+    .vue-treeselect__single-value,
+    .vue-treeselect svg,
+    #myModalEdit .modal-body .card-header,
+    .bottom_toolbar_wrap .input-select-items .form-group, .bottom_toolbar_wrap .select-wrapper:after{
+        color: var(--primary-color-button) !important;
+    }
+
+    .bottom-tabbar{
+        .vue-treeselect__single-value,
+        .mx-input,
+        .btn-secondary,
+        .mx-icon-calendar,
+        .color-white
+        {
+            color: var(--bg-main-color) !important;
+        }
+
+        .vue-treeselect__option--highlight {
+            background: var(--home-btn-color) !important;
+        }
+
+       
+        .vue-treeselect__option--selected:hover,
+        .vue-treeselect__option--highlight:hover{
+            background: var(--bg-inner-color) !important;
+        }
+      
+    }
+
+    .mx-calendar-content .cell:hover,  
+    .mx-calendar-content .cell.active{
+        color: var(--bg-main-color) !important;
+    }
+
+    .bottom_toolbar_wrap label,
+    .views-btn-footer.onclick-btn-footer
+    {
+        color: var(--fonts-white-shade) !important;
+    }
+
+    .footer-row,.bottom_toolbar_wrap{ 
+        
+        .vue-treeselect svg{
+            fill: var(--bg-main-color) !important;
+        }
+
+
+        .custom-control-label::before{
+            border: 1px solid var(--bg-inner-color) !important;
+        }
+
+        .custom-radio .custom-control-label::before{
+            border: 1px solid var(--text-color) !important;
+        }
+
+
+        .vue-treeselect--open svg{
+            fill: var(--text-color) !important;
+        }
+
+        .mx-icon-clear{
+            color: var(--sidebar-bg-color) !important;
+        }
+    }
+
+    
+    .footer-body{
+        box-shadow: 0px 3px 7px #000000cc !important;
+    }
+
+    .footer-col{
+        .vue-treeselect__single-value,
+        .mx-input,
+        .custom-control-label,
+        .mx-icon-calendar{
+            color: var(--bg-main-color) !important;
+        }
+
+        .timeFrequenncyDropdown .custom-control-label{
+            color: var(--home-main-color) !important;
+        }       
+    }
+
+  
+    .explore-col .dropdown-menu .dropdown-item, .explore-col .dropdown-menu .dropdown-item:hover, .explore-col .dropdown-menu .dropdown-item:focus, .explore-col .dropdown-menu:hover .dropdown-item, .explore-col .dropdown-menu:hover .dropdown-item:hover, .explore-col .dropdown-menu:hover .dropdown-item:focus, .explore-col .dropdown-menu:focus .dropdown-item, .explore-col .dropdown-menu:focus .dropdown-item:hover, .explore-col .dropdown-menu:focus .dropdown-item:focus, .explore-col:hover .dropdown-menu .dropdown-item, .explore-col:hover .dropdown-menu .dropdown-item:hover, .explore-col:hover .dropdown-menu .dropdown-item:focus, .explore-col:hover .dropdown-menu:hover .dropdown-item, .explore-col:hover .dropdown-menu:hover .dropdown-item:hover, .explore-col:hover .dropdown-menu:hover .dropdown-item:focus, .explore-col:hover .dropdown-menu:focus .dropdown-item, .explore-col:hover .dropdown-menu:focus .dropdown-item:hover, .explore-col:hover .dropdown-menu:focus .dropdown-item:focus, .explore-col:focus .dropdown-menu .dropdown-item, .explore-col:focus .dropdown-menu .dropdown-item:hover, .explore-col:focus .dropdown-menu .dropdown-item:focus, .explore-col:focus .dropdown-menu:hover .dropdown-item, .explore-col:focus .dropdown-menu:hover .dropdown-item:hover, .explore-col:focus .dropdown-menu:hover .dropdown-item:focus, .explore-col:focus .dropdown-menu:focus .dropdown-item, .explore-col:focus .dropdown-menu:focus .dropdown-item:hover, .explore-col:focus .dropdown-menu:focus .dropdown-item:focus, .explore-col:hover .dropdown-menu:focus, .explore-col:focus .dropdown-menu, .explore-col:focus .dropdown-menu:hover, .explore-col:focus .dropdown-menu:focus,.explore-col .dropdown-menu{
+        background-color: var(--bg-inner-color) !important;
+    }
+
+    .explore-col .bg-head:not(.v-tour__target--highlighted), .explore-col .bg-fav:not(.v-tour__target--highlighted){
+        box-shadow: 0px 3px 4px rgba(0, 0, 0, 0.0784313725) !important;
+    }
+
+    .new-gradbtn:hover{
+        color: var(--main-font-color) !important;
+    }
+
+    //blue button
+
+        .modal-footer .btn-primary,
+       .addgrpBtn,
+       .black-btn.save-emubtn,
+       .newbtn-theme1,
+       .v-tour .v-step__button.v-step__button-next,
+       .v-tour .v-step__button.v-step__button-stop,
+       .black-btn.save-btn,
+       .black-btn.blue-btn ,
+       .btn-dark.blue-btn,
+       .blue-btn,
+       .modal-content .modal-body .btn-secondary.blue-btn,
+       .integratedFamilyWrap .transparentDiv .purple-btn,
+       .purple-btn,
+       .map-admin .btn-dark.blue-btn,
+       .summary-dqr-page .overview-card .dqr-card-body .blue-btn,
+       .md_nested_tabs .black-btn.blue-btn,
+       .btn-dark.bluetheme-btn,
+       .subgrpBtn,
+       .indiBtn,
+       .md_nested_tabs .black-btn.save-btn,
+       .swal2-styled.swal2-confirm, .modal-content .modal-body .btn-secondary.addgrey-report,
+       .modal-footer .btn-secondary.blue-btn,
+       .modal-content .modal-body .btn-secondary.regenerate-btn
+       {
+           background-color: var(--sidebar-border-left) !important;
+           border-color: var(--sidebar-border-left) !important;
+           color: var(--bg-main-color) !important;
+       }
+
+       // white theme button 
+
+       #createModuleModal .reset-create,
+       .v-step__button ,
+       .v-step__button-skip,
+       .canbtn, .canbtn:disabled,
+       .modal-content .modal-body .new-resetbtn,
+       .map-admin .btn-dark,
+       .deleteBtn,
+       .admindelete-icon.btn-dark,
+       .greycolor-btn,
+       .swal2-styled.swal2-cancel,
+       .top-date-page-div span,
+       .dqr-border .btn-secondary,
+       .black-btn.new-btn1,
+       .modal-footer .btn-secondary,
+       .top-date-page-div span:hover,
+       .modal-content .modal-body .btn-secondary.cancelgrey-report,
+       .modal-footer .btn-primary.drill-newbtn,
+       .modal-footer .btn-primary.cancel-newbtn{
+        background-color: var(--home-btn-color) !important;
+        border-color: var(--home-btn-color) !important;
+        color: var(--bg-main-color) !important;
+       }
+
+       // modal
+       .modal-header,
+       .v-step__header,
+       .saved-fav-cards .saved-fav-card .card-header,
+       #createModuleModal .modal-header,
+       #setReport .modal-header,
+       .accordion-header,     
+       .admin-sidebar .md_nested_tabs .card .card-header.accordion-header1,
+       .admin-sidebar .md_nested_tabs .card .card-header.map-header,
+       .admin-sidebar .md_nested_tabs .card .md_tabs .card-header,
+       .table thead th, .userMappingTable .table .thead-dark th,
+       .groupCreationtable .table .thead-dark th,
+       .table .thead-dark th,
+       #methodmapping .card-header, .admin-sidebar .md_nested_tabs .card .card-header.method-header, .admin-sidebar .md_nested_tabs .card.basic-header .card-header, .admin-sidebar .md_nested_tabs .module-spacing .card .card-header.sub-header, .admin-sidebar .md_nested_tabs .card .card-header.accordion-header2
+      {
+        background-color: var(--home-btn-color) !important;
+        border-color: var(--home-btn-color) !important;
+        color: var(--sidebar-bg-color) !important;
+       }
+
+       .modal-title,
+       .modal-header .close,
+       .accordion-header .color-white ,
+       .dashboardchart-container .card .card-header .btn-link.color-white:hover,
+       .map-header .color-white,
+       .datamappingtopcar  .map-header .btn-link.color-white,
+       .map-header .btn-info, .btn-info:hover{
+        color: var(--sidebar-bg-color) !important;
+       }
+
+       .modal-content,     
+       .v-step{
+        background-color: var(--sidebar-bg-color) !important;
+       }
+
+       .v-step__button.v-step__button-previous{
+        background-color: var(--tour-prevbtn-color) !important;
+        border-color: var(--tour-prevbtn-color) !important;
+    }
+
+       .modal-content .form-control,
+       .scrollToTopDiv .scrollToTopBtn{
+         background-color: var(--sidebar-main-active-color) !important;
+         border-color:var(--sidebar-main-active-color) !important
+       }
+
+       #setReport .modal-xl .modal-content,
+       #addSection .vue-grid-item .card,
+       .report-theme{
+        background-color: var(--bg-inner-color) !important;
+       }
+       .myDivToPrint {
+        .report-theme {
+            span{
+                color: var(--text-color) !important;
+            }
+        }
+    }
+
+      
+
+.not-emu {
+    #sidebar-backdrop .b-sidebar-body,
+    .signoff-modal-content .dsl .title,
+    .signoff-modal-content .dsl .decleration{
+        background-color: var(--bg-inner-color) !important;
+    }
+
+    .signoff-heading col{
+        color: var(--primary-bg-color) !important;
+    }
+
+    .signoff-modal-content .dsl .rangeSlider{
+        background-color: var(--bg-main-color) !important;
+        padding: 2%;
+    }
+}
+
+.not-emu .signoff-modal-content .list-of-questions{
+    background-color: var(--bg-main-color) !important;
+}
+
+.emu-tablehighlight{
+    background-color: var(--sidebar-main-active-color) !important;
+}
+
+#sidebar-backdrop .b-sidebar-body .signoff-modal-content .signoff-modal-header{
+    background-color: var(--bg-inner-color) !important;
+}
+
+.bottom-tabbar{
+  
+    .form-control.tabbarselect option{
+        color: var(--text-color) !important;
+        background-color: var(--bg-main-color) !important;
+    }
+}
+
+
+.decleration .custom-control-input:checked ~ .custom-control-label::before{
+    background-color: var(--home-btn-color) !important;
+}
+
+.pie-title{
+    fill: var(--home-main-color) !important;
+}
+
+#benchmarking-fpemuoutput table thead th,
+#benchmarking-fpemuoutput table td{
+    border: 1px solid var(--border-grey-color) !important;
+}
+
+#exampleFormControlSelect1{
+    color: var(--text-color) !important;
+}
+
+#exampleModalScrollable,
+#exampleModalScrollable2,
+#exampleModalScrollable3{
+
+    .color-white{
+    color: var(--sidebar-bg-color) !important;
+    }
+}
+
+.appCongigtabSub a.nav-link, #barrier-sub-tab li.nav-item a, #benchmarking-sub-tab li.nav-item a, #comclient-sub-tab li.nav-item a, #comfacilities-sub-tab li.nav-item a, #fpvisits-sub-tab li.nav-item a, #fpusers-sub-tab li.nav-item a, #fpemuoutput-sub-tab li.nav-item a, #cause-sub-tab li.nav-item a, #prog-sub-tab li.nav-item a, .analytical-tab-links{
+    color: var(--sidebar-maincolor) !important;
+}
+
+#barrier-sub-tab li.nav-item a.active, #benchmarking-sub-tab li.nav-item a.active, #cause-sub-tab li.nav-item a.active, #prog-sub-tab li.nav-item a.active{
+    color: var(--sidebar-activecolor) !important;
+}
+
+
+.bg-data .card{
+    background-color: var(--signoff-bottom-card) !important;
+}
+
+.sumVolume{
+    
+     .multiselect__input,
+     .multiselect__tags,
+     .multiselect__single,
+     .multiselect__content-wrapper{
+        background-color: var(--sidebar-main-active-color) !important;
+        border: 1px solid var(--sidebar-main-active-color) !important;
+        color: var(--sidebar-maincolor) !important;
+    }
+
+    .multiselect__option--highlight{
+        background-color: var(--bg-inner-color) !important;
+        color: var(--sidebar-maincolor) !important;
+    }
+}
+
+
+#dqrModal_data_element{
+    .multiselect__input,
+    .multiselect__tags,
+    .multiselect__single,
+    .multiselect__content-wrapper{
+       background-color: var(--sidebar-main-active-color) !important;
+       border: 1px solid var(--sidebar-main-active-color) !important;
+       color: var(--sidebar-maincolor) !important;
+   }
+
+   .multiselect__option--highlight{
+       background-color: var(--bg-inner-color) !important;
+       color: var(--sidebar-maincolor) !important;
+   }
+
+}
+
+.charts-tabs{
+    .nav-tabs .nav-link.active{
+        background-color: var(--bg-inner-color) !important;
+    }
+}
+
+.mapIndiBg{ 
+    .dashboardchart-container.mapheight .card .btn-secondary{
+    background-color: var(--home-btn-color) !important;
+    border-color: var(--home-btn-color) !important;
+    color: var(--grey-color-button) !important;
+    }
+
+    .dashboardchart-container.mapheight .card .map-dropdown .btn-secondary{
+    background-color: transparent !important;
+    border-color: transparent !important;
+   
+    }
+
+    .dashboardchart-container.mapheight .card .btn-light.btn-secondary{
+        color: var(--text-color) !important;
+    }
+
+}
+   
+.totalicons .icontoggle .arrow-btn{
+    background-color: var(--home-btn-color) !important;
+    border-color: var(--home-btn-color) !important;
+    color: var(--grey-color-button) !important;
+
+    i{
+        color: var(--grey-color-button) !important;
+    }
+}
+
+
+.leaflet-control-fullscreen a,
+.map-container .map .l-map .leaflet-control-fullscreen a {
+    background     :  url(../images/icons/map-zoom.svg) no-repeat 0 0 !important;
+    background-size: 16px 16px !important;
+    background-position: center !important;
+    background-color: var(--sidebar-main-active-color) !important;
+   
+ }
+
+#addTextPopup{
+    background-color: transparent !important;
+}
+
+#accordion-demu1 , #accordion-chat1{ 
+    .btn-link{
+    color: var(--sidebar-bg-color) !important;
+}
+}
+
+.page-link{
+background-color: var(--bg-main-color) !important;
+}
+
+.page-item.active .page-link{
+background-color: var(--sidebar-maincolor) !important;
+color: var(--sidebar-bg-color) !important;
+}
+
+.paginaionWrap .paginaionDiv .pagination .page-item.active .page-link{
+color: var(--sidebar-bg-color) !important;
+}
+
+#accordionfp-fpIndex .vue-treeselect__single-value,
+#show-btn,#show-btn-start,
+.loader_text,
+.footer-row .b-dropdown button,
+.active-btn,
+#icon-profile,
+.sectionReportDiv .topSRDiv,
+#icon-profile .btn-secondary 
+{
+    color: var(--sidebar-bg-color) !important;
+}
+
+ // seperate interactive white theme css
+
+       .interactive-page{
+        background-color: var(--bg-main-color);
+            .interactive{
+            background-color: var(--bg-main-color);
+            }
+            .interactive-card{
+                background-color: var(--bg-inner-color);
+
+
+                .layout-info{
+                    background-color: var(--chat-user-receiver-bg-color) !important;
+                }
+
+                .period .btn{
+                    color: var(--primary-bg-color) !important;
+                }
+            }
+
+            .interactive .interactive-card .indi .dropdown-menu .dropdown-item,
+            .interactive .interactive-card .period .dropdown-menu .dropdown-item{
+                background-color: transparent !important;
+                border-color: transparent !important;
+                border-bottom: 1px solid var(--subborder-grey-color) !important;
+            }
+
+            .indi {
+                .btn-secondary{
+                    color: var(--primary-bg-color) !important;
+                }
+            }
+        }
+
+        .move-btn{ .rounded-pill{
+            background-color: var(--footer-components-color) !important;
+            border-color: var(--footer-components-color) !important;
+            color: var(--primary-bg-color) !important;
+            }
+        }
+
+        .interactive-section{
+            .interactive-main{
+
+                .card{
+                    background-color: var(--bg-inner-color);
+                }
+
+                .card-header{
+                    background-color: var(--bg-main-color) !important;
+                    border-color: var(--bg-main-color) !important;
+                }
+             }
+
+             .collapse{
+                border: 1px solid transparent !important;
+               
+            }
+        
+
+            //  .layout-info{
+            //     background-color: var(--chat-user-receiver-bg-color) !important;
+            // }
+
+            .period .btn{
+                color: var(--primary-bg-color) !important;
+            }
+
+            .layout-item{
+                background-color: var(--bg-inner-color) !important;
+            }
+
+            .btn-info, .btn-info:hover{
+                color: var(--text-color) !important;
+              background: transparent !important;
+              border-color: transparent;
+              }
+
+              #accordion-4 .search-unit .vue-treeselect__menu{
+               
+                color: var(--text-color) !important;
+            }
+        }
+
+
+// admin white theme css
+
+
+       .datamappingtopcar{ .btn-link{
+            color: var(--text-color) !important;
+
+           
+            } 
+
+            .card-border1{
+                .btn-link{
+                    color: var(--sidebar-bg-color) !important;
+        
+                   
+                    } 
+
+            }
+        
+        }
+
+       .admin-sidebar{ 
+        
+                .card .card-header.adminConfigInner,
+                .md_nested_tabs .card .card-header.adminConfigInner{
+                    background-color: transparent !important;
+                }
+
+                .md_nested_tabs .card .card-header.nav-pills{
+                    background-color: var(--primary-bg-color) !important;
+                }
+
+                .md_nested_tabs .card .adminConfig .card-header{
+                    background-color: var(--primary-bg-color) !important;
+                }
+
+         }
+     
+
+        .admin-side .dashboardchart-container .card,
+        .toolbarDropdown .dropdown-menu
+        {
+            background-color: var(--bg-main-color) !important;
+        }
+
+       .adminConfig .nav-tabs .nav-link.active,
+       .adminConfig .nav-tabs .nav-link:hover,
+       .mdgridviewpage-bg .adminConfig .nav-tabs .nav-link.active,
+       .mdgridviewpage-bg .adminConfig .nav-tabs .nav-link.hover,
+       .datamappingtopcar .md_nested_tabs .md_tabs .card-header.nav-pills li a.active
+        {
+        background-color: var(--sidebar-bg-color) !important;
+       }
+         
+       .adminConfig .nav-tabs .nav-link:hover .main-tabs,
+       .mdgridviewpage-bg,
+       .mdgridviewpage-bg .md_tabs .default-emu .nav-tabs .nav-link.active{
+        background-color: var(--bg-inner-color) !important;
+       }
+
+       .mdgridviewpage-bg.link-module{
+            background-color: var(--bg-main-color) !important;
+            color: var(--text-color) !important;
+    
+            .vue-treeselect__multi-value-item,
+            .bottom_toolbar_wrap .input-select-items .form-group .form-control,
+            .color-white{
+                color: var(--sidebar-bg-color) !important;
+            }
+
+            .chart-dd-menu{
+                .color-white{
+                    color: var(--text-color) !important;
+        
+                }
+            }
+        }
+
+            
+        .md_nested_tabs {
+                #accordion-emu1,#accordion-1{
+                    .black-btn{
+                    color: var(--sidebar-bg-color) !important;
+                    }
+                
+                }
+
+                .btn-info,.btn-info:hover{
+                    color: var(--sidebar-bg-color) !important;
+                }
+
+                .black-btn{
+                    background-color: var(--home-btn-color) !important;
+                    border-color: var(--home-btn-color) !important;
+                    color: var(--bg-main-color) !important;
+                }
+
+                .bgbtn-theme.black-btn{
+                    color: var(--text-color) !important;
+                }
+        }
+
+      
+       .adminConfigInner .nav-tabs .nav-link.active{
+        background-color: var(--bg-inner-color) !important;
+        }
+
+       .globalconfigcontainer .border-adminmain .form-control.search-control, .globalconfigcontainer .border-adminmain .form-control.search-control
+       {
+        background-color: var(--sidebar-main-active-color) !important;
+        border-color: var(--sidebar-main-active-color) !important;
+       }
+
+     
+        .multiselect__tags,
+        .multiselect__input, .multiselect__single{
+            background-color: var(--sidebar-main-active-color) !important;
+            border-color: var(--sidebar-main-active-color) !important;
+        }
+       
+        .multiselect__input, .multiselect__single
+        {
+            background-color: transparent !important;
+        }
+
+        .sumVolume .multiselect__placeholder{
+            color: var(--text-color) !important;
+        }
+   
+        .admin-theme .vue-treeselect__single-value{
+            color: var(--sidebar-maincolor) !important;
+        }
+        
+        .admindelete-icon.btn-dark,
+        .map-admin .btn-dark.editBtn,
+        .map-admin .deleteBtn,
+        .not-emu .signoff-modal-content .signoff-modal-header .subheading .location,
+        .leaflet-bar a:hover,
+        .leaflet-bar a {
+            color: var(--text-color) !important;
+        }
+
+        .groupCreationtable .table td,
+        .userMappingTable table tbody td{
+            border-top: 1px solid var(--subborder-grey-color) !important;
+            border-right-color: var(--subborder-grey-color) !important;
+        }
+
+        .userMappingTable table tbody td,
+        .card-body .table-responsive.groupCreationtable .table{
+            border: 1px solid var(--subborder-grey-color) !important;
+        }
+
+
+        .pagination-map .page-item.disabled .page-link,
+        .page-link{
+            color: var(--text-color) !important;
+        }
+  
+}
+
+
+

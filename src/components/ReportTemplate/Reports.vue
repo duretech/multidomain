@@ -1,105 +1,144 @@
 <template>
-  <div class="report mt-5 mb-0">
+  <div class="report mb-0 mt-5">
     <div class="report-container p-4">
-      <b-collapse
-        class="saved-fav-accordian mt-3"
-        id="accordion-1"
-        v-model="savedTemplatesVisible"
-      >
-        <div class="saved-report-card-border mb-3">
-          <div class="title-report-card fs-19-1920">Saved Reports</div>
-          <b-row class="py-3" v-if="reportTemplates.length > 0">
-            <b-col
-              sm="4"
-              class="mb-3"
-              v-for="template in reportTemplates"
-              :key="template.templateId"
-              ><div class="saved-report-card p-2">
-                <div class="img-title-flex mt-1">
-                  <div class="saved-report-card-img-container">
-                    <img
-                      alt="img"
-                      :src="require(`@/assets/img/home/report.png`)"
-                    />
-                  </div>
-                  <div class="saved-report-card-title fs-17-1920">
-                    <span> {{ template.templateName }}</span>
-                  </div>
-                </div>
-                <div
-                  class="saved-report-card-opt"
-                  v-if="template.createdByID === $store.state.loggedInUserId"
-                >
-                  <div
-                    class="saved-report-card-opt-img fs-14-1920 cursor-pointer"
-                    @click.prevent.stop="viewModule(template)"
-                  >
-                    <img
-                      :src="require('@/assets/images/icons/preview  hover.png')"
-                    /><span>{{ $t("view") }}</span>
-                  </div>
-                  <div
-                    class="saved-report-card-opt-img fs-14-1920 cursor-pointer"
-                    @click.prevent.stop="editModule(template)"
-                  >
-                    <img
-                      :src="
-                        require('@/assets/images/edit_new_active_white.png')
+      <div class="">
+        <b-collapse
+          class="saved-fav-accordian mt-3"
+          id="accordion-1"
+          v-model="savedTemplatesVisible"
+        >
+          <div class="saved-report-card-border mb-3">
+            <div class="saved-fav-heading fa-19-1920">{{ $t("reports") }}</div>
+            <b-row class="py-3" v-if="reportTemplates.length > 0">
+              <b-col
+                sm="4"
+                class="mb-3"
+                v-for="template in reportTemplates"
+                :key="template.templateId"
+              >
+                <b-card header-tag="header" class="saved-fav-card">
+                  <template #header>
+                    <h6 class="mb-0 fs-17-2920 mb-0">
+                      {{ template.templateName }}
+                    </h6>
+                  </template>
+                  <div class="saved-report-card p-2">
+                    <div class="img-title-flex mt-1">
+                      <div class="saved-report-card-img-container">
+                        <img
+                          alt="img"
+                          :style="{ filter: filterColor }"
+                          :src="require(`@/assets/images/icons/report.svg`)"
+                        />
+                      </div>
+                      <div class="saved-report-card-title fs-17-1920">
+                        <!-- <span> {{ template.templateName }}</span> -->
+                        <b-row class="card-details fs-17-2920"
+                          ><b>{{ $t("userName") }}:&nbsp;</b> 
+                        <span class="fw-400"> {{ template.createdBy }} </span> 
+                        </b-row>
+                        <b-row class="card-details fs-17-2920">
+                          <b
+                            >{{ $t("created") }}:&nbsp;
+                            </b
+                          >
+                          <span class="fw-400">  {{ template.createdAt }}</span>
+                        </b-row>
+                        <b-row class="card-details fs-17-2920">
+                          <b
+                            >{{ $t("lastUpdated") }}:&nbsp;
+                           </b
+                          > 
+                          <span class="fw-400">  {{ template.updatedAt }} </span>
+                        </b-row>
+                      </div>
+                    </div>
+                    <div
+                      class="saved-report-card-opt"
+                      v-if="
+                        template.createdByID === $store.state.loggedInUserId
                       "
-                    /><span>{{ $t("edit") }}</span>
+                    >
+                      <div
+                        class="saved-report-card-opt-img fs-14-1920 cursor-pointer"
+                        @click.prevent.stop="viewModule(template)"
+                      >
+                        <img
+                          :src="
+                            require('@/assets/images/icons/previewActive.svg')
+                          "
+                          :style="{ filter: filterColor }"
+                          class="mb-1"
+                        /><span>{{ $t("View") }}</span>
+                      </div>
+                      <div
+                        class="saved-report-card-opt-img fs-14-1920 cursor-pointer"
+                        @click.prevent.stop="editModule(template)"
+                      >
+                        <img
+                          :src="require('@/assets/images/icons/editActive.svg')"
+                          :style="{ filter: filterColor }"
+                          class="mb-1"
+                        /><span>{{ $t("edit") }}</span>
+                      </div>
+                      <div
+                        class="saved-report-card-opt-img fs-14-1920 cursor-pointer"
+                        @click.prevent.stop="editModule(template, true)"
+                      >
+                        <img
+                          :src="require('@/assets/images/icons/editActive.svg')"
+                          :style="{ filter: filterColor }"
+                          class="mb-1"
+                        /><span>{{ $t("clone") }}</span>
+                      </div>
+                      <div
+                        class="saved-report-card-opt-img fs-14-1920 cursor-pointer mb-md-0"
+                        @click.prevent.stop="deleteModule(template.templateId)"
+                      >
+                        <img
+                          :src="
+                            require('@/assets/images/icons/deleteActive.svg')
+                          "
+                          :style="{ filter: filterColor }"
+                        /><span class="mt-1">{{ $t("deletebtn") }}</span>
+                      </div>
+                    </div>
+                    <div class="saved-report-card-opt" v-else>
+                      {{ $t("notOwnerReport") }}
+
+                      {{ $t("notOwner") }}
+                    </div>
                   </div>
-                  <div
-                    class="saved-report-card-opt-img fs-14-1920 cursor-pointer"
-                    @click.prevent.stop="editModule(template, true)"
-                  >
-                    <img
-                      :src="
-                        require('@/assets/images/edit_new_active_white.png')
-                      "
-                    /><span>{{ $t("clone") }}</span>
-                  </div>
-                  <div
-                    class="saved-report-card-opt-img fs-14-1920 cursor-pointer"
-                    @click.prevent.stop="deleteModule(template.templateId)"
-                  >
-                    <img
-                      :src="require('@/assets/images/icons/delete hover.png')"
-                    /><span>{{ $t("deletebtn") }}</span>
-                  </div>
-                </div>
-                <div class="saved-report-card-opt" v-else>
-                  You are not owner of this report
-                </div>
-              </div></b-col
-            >
-          </b-row>
-          <b-row class="py-3" v-else>
-            <b-col>
-              <b-alert variant="info" show>{{ $t("noReports") }}</b-alert>
-            </b-col>
-          </b-row>
-        </div>
-      </b-collapse>
+                </b-card>
+              </b-col>
+            </b-row>
+            <b-row class="py-3" v-else>
+              <b-col class="text-center">
+                <b-alert variant="info" show>{{ $t("noReports") }}</b-alert>
+              </b-col>
+            </b-row>
+          </div>
+        </b-collapse>
+      </div>
       <div
-        class="
-          title-report-card
-          fs-19-1920
-          pb-2
-          d-flex
-          justify-content-between
-          align-items-center
-        "
+        class="title-report-card fs-19-1920 pb-2 d-flex justify-content-between align-items-center"
         v-if="reportTemplates.length && isReportGenerated"
       >
-        Selected Location Report
+        {{ $t("selectedLocation") }}
         <button
           type="button"
-          class="btn btn-primary black-btn ml-3"
+          class="btn btn-primary black-btn blue-btn ml-3 generate-greybtn"
           @click.prevent.stop="downloadReport('myDivToPrint')"
           style="border: 2px solid #fff"
           :disabled="isGenerating"
         >
-          {{ isGenerating ? $t("scorecardGenerating") : $t("generatePDF") }}
+          <img
+            :src="require('@/assets/images/icons/generateReport.svg')"
+            class="img-fluid mt-xl-n1"
+          />
+          <span class="mx-1">
+            {{ isGenerating ? $t("scorecardGenerating") : $t("exportbtn") }}
+          </span>
         </button>
       </div>
       <div
@@ -126,6 +165,7 @@
               margin: 'auto',
               color: '#d9d6d6',
             }"
+            class="report-theme"
             configKey="selectedCharts"
             :otherChartObj="otherChartObj"
             :layout.sync="selectedTemplateObj"
@@ -151,7 +191,7 @@
     >
       <div class="row">
         <div class="col-12">
-          <div class="form-group row">
+          <div class="form-group row vue-color">
             <label class="col-sm-6 col-form-label">
               {{ $t("location") }}
             </label>
@@ -169,7 +209,7 @@
             </div>
           </div>
           <div
-            class="form-group row"
+            class="form-group row vue-color"
             v-if="selectedLocation && filteredReportList.length"
           >
             <label class="col-sm-6 col-form-label">
@@ -231,7 +271,7 @@
         <div class="col-12 pt-3 text-right">
           <button
             type="button"
-            class="btn btn-primary new-btn black-btn ml-3"
+            class="btn btn-primary blue-btn black-btn ml-3"
             @click.prevent.stop="generateReport"
             style="border: 2px solid #fff"
             :disabled="
@@ -240,7 +280,13 @@
                 selectedTemplateTempObj.selectedCharts.length === 0)
             "
           >
-            {{ $t("exportbtn") }}
+            <span class="">
+              <!-- <img
+              :src="require('@/assets/images/icons/generateReport.svg')"
+              class="img-fluid mt-xl-n1"
+            />  -->
+            </span>
+            <span class="mx-1"> {{ $t("exportbtn") }} </span>
           </button>
         </div>
       </div>
@@ -259,7 +305,7 @@
       body-class="p-0"
       no-close-on-backdrop
     >
-      <div class="row m-0 py-3 position-relative">
+      <div class="row m-0 py-3 position-relative report-dialog">
         <loader class="cardLoader" v-if="createReportLoader" />
         <div class="col-12 text-right pb-3">
           <small
@@ -328,19 +374,18 @@
         <div class="col-12 pt-3 text-right">
           <button
             type="button"
-            class="btn btn-primary new-btndisable black-btn ml-3"
-            @click.prevent.stop="createReport"
-            style="border: 2px solid #fff"
-            :disabled="!createReportDisabled"
-          >
-            {{ $t("submitbtn") }}
-          </button>
-          <button
-            type="button"
-            class="btn btn-secondary new-resetbtn ml-3"
+            class="btn new-resetbtn ml-3"
             @click.prevent="resetValues"
           >
             {{ $t("resetbtn") }}
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary blue-btn ml-3"
+            @click.prevent.stop="createReport"
+            :disabled="!createReportDisabled"
+          >
+            {{ $t("submitbtn") }}
           </button>
         </div>
       </div>
@@ -356,11 +401,12 @@
 <script>
 import service from "@/service";
 import html2pdf from "html2pdf.js";
-import { randomString } from "@/components/Common/commonFunctions";
-import loadLocChildMixin from "@/helpers/LoadLocationChildMixin";
 import Treeselect from "@riophae/vue-treeselect";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
-
+import DynamicImageMixin from "@/helpers/DynamicImageMixin";
+import ReFetchConfigMixin from "@/helpers/ReFetchConfigMixin";
+import loadLocChildMixin from "@/helpers/LoadLocationChildMixin";
+import { randomString } from "@/components/Common/commonFunctions";
 const originalTemplateObj = {
   templateId: "",
   templateName: "",
@@ -411,13 +457,11 @@ export default {
       templateObj: { ...originalTemplateObj },
     };
   },
-  mixins: [loadLocChildMixin],
+  mixins: [loadLocChildMixin, DynamicImageMixin, ReFetchConfigMixin],
   components: {
     Treeselect,
     ReportTemplateModals: () =>
-      import(
-        /* webpackChunkName: "ReportTemplate_ReportTemplateModals"*/ "./ReportTemplateModals"
-      ),
+      import(/* webpackChunkName: "RT_RTModals"*/ "./ReportTemplateModals"),
     gridLayout: () =>
       import(
         /*webpackChunkName: 'GridLayoutComponent'*/ "@/components/ReportTemplate/GridLayoutComponent"
@@ -523,7 +567,9 @@ export default {
           '"/>',
         focusConfirm: true,
         showCancelButton: true,
+        reverseButtons: true,
         confirmButtonText: this.$i18n.t("exportbtn"),
+        cancelButtonText: this.$i18n.t("cancelbtn"),
         preConfirm: () => {
           return [document.getElementById("fileName").value];
         },
@@ -582,8 +628,10 @@ export default {
       this.selectedTemplateObj.selectedCharts.forEach((m) => {
         if (m.selectedModule) {
           let splitM = m.selectedModule.split("-");
-          if (moduleKeys.indexOf(splitM[0]) === -1) {
-            moduleKeys.push(splitM[0]);
+          if (
+            moduleKeys.indexOf(`${splitM[0]}/${m.selectedDashboard}`) === -1
+          ) {
+            moduleKeys.push(`${splitM[0]}/${m.selectedDashboard}`);
             if (m.selectedModule.includes("interactive")) {
               nameSpaces.push("");
             } else {
@@ -604,9 +652,11 @@ export default {
           }
         }
       });
-      let nPromises = [];
+      let nPromises = [],
+        aNamespaces = [];
       nameSpaces.forEach((n, i) => {
         if (Object.keys(this.$store.getters.getGlobalFactors(n)).length === 0) {
+          aNamespaces.push(nameSpaces[i]);
           let key = this.generateKey("globalFactors");
           nPromises.push(service.getSavedConfig(key, false, nameSpaces[i]));
         }
@@ -616,19 +666,19 @@ export default {
           if (response.status === "fulfilled") {
             this.$store.commit("setGlobalFactors", {
               payload: response.value.data,
-              namespace: nameSpaces[i],
+              namespace: aNamespaces[i],
             });
           }
         });
       });
       let promises = [];
       moduleKeys.forEach((m, i) => {
-        let configKey = m;
+        let configKey = m.split("/")[0];
         if (m === "emu_monthly") {
-          configKey = "monthlyEMU";
+          configKey = `monthlyEMU_${this.$i18n.locale}`;
         }
         if (m === "emu") {
-          configKey = "annualEMU";
+          configKey = `annualEMU_${this.$i18n.locale}`;
         }
         let key = this.generateKey(configKey);
         promises.push(service.getSavedConfig(key, false, nameSpaces[i]));
@@ -654,10 +704,13 @@ export default {
         this.$store.getters.getUserDetails.dataViewOrganisationUnits[0].level;
       if (
         filterLevel <
-        this.$store.getters.getApplicationModule(true).defaultLevelID
+        this.$store.getters.getApplicationModule(
+          this.$store.getters.getIsMultiProgram
+        ).defaultLevelID
       ) {
-        filterLevel =
-          this.$store.getters.getApplicationModule(true).defaultLevelID;
+        filterLevel = this.$store.getters.getApplicationModule(
+          this.$store.getters.getIsMultiProgram
+        ).defaultLevelID;
       }
       if (!this.orgUnitList.length) {
         service.getOrganisationUnitLevels().then((orgList) => {
@@ -695,6 +748,8 @@ export default {
       this.templateObj.details = this.templateObj.details
         ? this.templateObj.details
         : originalTemplateObj.details;
+      this.templateObj.locale = this.$i18n.locale;
+
       let key = this.generateKey("reportTemplates");
       service
         .getSavedConfig(key)
@@ -709,7 +764,9 @@ export default {
             reportTemplates = [...res.data, this.templateObj];
           }
           service.updateConfig(reportTemplates, key).then((response) => {
-            this.reportTemplates = reportTemplates;
+            this.reportTemplates = reportTemplates.filter(
+              (r) => r.locale === this.$i18n.locale
+            );
             this.handleResponse(response);
           });
         })
@@ -725,7 +782,7 @@ export default {
       this.createReportPopup = false;
       this.resetValues();
       if (response.data.status === "OK") {
-        this.$swal({
+        this.sweetAlert({
           title: this.$i18n.t("data_saved_successfully"),
         });
         if (this.editReport) {
@@ -736,7 +793,7 @@ export default {
         }
         this.$store.state.loading = false;
       } else {
-        this.$swal({
+        this.sweetAlert({
           title: this.$i18n.t("error"),
           text: `${response.data.message}`,
         });
@@ -748,14 +805,16 @@ export default {
       this.templateObj = { ...originalTemplateObj };
       this.templateObj.orgUnitLevel = this.orgUnitList[0]?.value;
     },
-    getReportTemplates(isFirstLoad = false) {
+    getConfigData(isFirstLoad = false) {
       this.$store.commit("setLoading", true);
       this.reportTemplates = [];
       let key = this.generateKey("reportTemplates");
       service
         .getSavedConfig(key)
         .then((res) => {
-          this.reportTemplates = res.data;
+          this.reportTemplates = res.data.filter(
+            (r) => r.locale === this.$i18n.locale
+          );
           if (
             !this.selectReportPopup &&
             isFirstLoad &&
@@ -771,16 +830,17 @@ export default {
           //   });
           // });
           // if (this.reportTemplates.length === 0) {
-          //   this.loadingText = this.$i18n.t("reportTemplate.noReports");
+          //   this.loadingText = this.$i18n.t("noReports");
           // } else {
-          //   this.loadingText = this.$i18n.t("reportTemplate.selectReport");
+          //   this.loadingText = this.$i18n.t("selectReport");
           // }
           this.$store.commit("setLoading", false);
         })
-        .catch(() => {
+        .catch((err) => {
           this.loadingText = this.$i18n.t("noReports");
           console.log("Report templates not found...");
           this.$store.commit("setLoading", false);
+          this.reFetchConfig(err);
         });
     },
     updateModule(template) {
@@ -819,7 +879,9 @@ export default {
         title: this.$i18n.t("areyousure"),
         text: this.$i18n.t("youablerevertthis"),
         showCancelButton: true,
+        reverseButtons: true,
         confirmButtonText: this.$i18n.t("yes_delete_it"),
+        cancelButtonText: this.$i18n.t("cancelbtn"),
       }).then((result) => {
         if (result.value) {
           this.$store.state.loading = true;
@@ -830,7 +892,9 @@ export default {
               let reportTemplates = res.data.filter((t) => t.templateId != id);
               service.updateConfig(reportTemplates, key).then((response) => {
                 this.handleResponse(response);
-                this.reportTemplates = reportTemplates;
+                this.reportTemplates = reportTemplates.filter(
+                  (r) => r.locale === this.$i18n.locale
+                );
                 if (
                   this.selectedTemplateObj &&
                   this.selectedTemplateObj.templateId === id
@@ -875,7 +939,7 @@ export default {
         value: i,
       });
     }
-    this.getReportTemplates(true);
+    this.getConfigData(true);
   },
 };
 </script>
@@ -884,23 +948,25 @@ export default {
   width: 790px;
   margin: auto;
 
+  .card {
+    background-color: transparent !important;
+    border: 1px solid var(--border-grey-color) !important;
+    padding: 2%;
+  }
+
   .card-header {
-    background-color: #222143 !important;
+    background-color: transparent !important;
+    border-color: transparent !important;
     border-top-left-radius: 3px !important;
     border-top-right-radius: 3px !important;
   }
 
   .card-body {
-    background-color: #181735 !important;
+    background-color: transparent !important;
   }
 
   .b-overlay .bg-light {
     display: none;
   }
-}
-
-.new-btndisable {
-  background-color: #64648d !important;
-  border-color: #64648d !important;
 }
 </style>

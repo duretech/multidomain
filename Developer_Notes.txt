@@ -1,0 +1,216 @@
+Multidomain Documents
+
+https://duretechnology-my.sharepoint.com/:f:/r/personal/dure_central_duretechnologies_com/Documents/Avenir_Generic/Documents?csf=1&web=1&e=JOfrw8
+--------------------------------------------------------------------------------
+
+".env.local" file from Project
+
+VUE_APP_BASEURL = URL_HERE
+VUE_APP_BASIC_AUTH = BASIC_AUTH_HERE
+
+Note: 
+
+1) The file is used only for the development
+2) Please update the value(s) as per need
+
+Description:
+
+-> VUE_APP_BASEURL
+
+  This is the base URL of DHIS2 instance.
+
+-> VUE_APP_BASIC_AUTH
+
+  This is the basic auth to communicate with the DHIS2 instance.
+--------------------------------------------------------------------------------
+
+"index.html" file from Project
+
+const settings = {
+  "tableName": "multi_program",
+}
+
+Note:
+
+1) Please update the value(s) as per need
+
+Description:
+
+-> tableName
+
+  This is the namespace name.
+  All config files are stored in this namespace.
+--------------------------------------------------------------------------------
+
+"appSettings" file from dataStore
+
+{
+  "tableName": "multi_program", //This is kept for future use
+  "country": true, //This is kept for future use
+  "countryName": "", //This is kept for future use
+  "languageSupport": false,
+  "langList": ["en"],
+  "modulesList": ["mnch","fp"],
+  "defaultLocale": "en",
+  "financialYear": ["April"],
+  "isAppHub": true,
+  "commentSchema": "old",
+  "mapSchema": 4,
+  "ga": "",
+  "adminUserRole": ["Superuser", "AvenirAppAdmin", "CountryAdminUser", "Track20"],
+  "nonAdminUserRole": ["appUser", "AvenirAppUser"]
+}
+
+Description:
+
+-> tableName [String]
+
+  This is the namespace name.
+  All config files are stored in this namespace.
+  By changing this field we can deploy multiple application on same server.
+
+-> country [Boolean]
+
+  This is used for switching between the apps.
+  e.g. If set to "true", the app will act like Country Embed app
+       If set to "false", the app will act like Sandbox app
+
+-> countryName [String]
+
+  This is used to set any special condition for the country.
+
+-> languageSupport [Boolean]
+
+  This is used to enable/disable the language support from the app.
+
+-> langList [Array of String]
+
+  This is used to handle languages in the project.
+
+-> modulesList [Array of String]
+
+  This is used to handle programs in the project.
+
+-> defaultLocale [String]
+
+  This is used to set the default language of the project.
+
+-> financialYear [Array of String]
+
+  This is used to set the financial years in the project.
+
+-> isAppHub [Boolean]
+
+  This is used to enable/disable the DHIS2 header in the project.
+
+-> commentSchema [String]
+
+  This is used to set the API URLs [Old vs New API URLs].
+  The API URLs are used to create the chart in DHIS2.
+  The API URLs are also used to Add & Get the comments on the chart.
+
+-> mapSchema [Number]
+
+  This is used to load the map.
+  Used to read the coordinates array.
+
+-> ga [String]
+
+  This is used to add the Google Analytics tracking ID.
+
+-> adminUserRole [Array of String]
+
+  This is to identify the Admin Users of the app.
+
+-> nonAdminUserRole [Array of String]
+
+  This is to identify the non-admin Users of the app.
+  
+
+--------------------------------------------------------------------------------
+
+Instance Wise settings [To be updated in appSettings dataStore file]
+
+Note: 
+
+1) "tableName" field is getting used from "index.html" file stored in project 
+    to fetch the "appSettings" dataStore file
+2) Create/update the "appSettings" file in the dataStore with below object.
+
+-> Avenir Training instance [Standard App] [English & French] [Local]
+  
+  URL => https://avenirtraining.duredemos.com/multidomain_service/ 
+
+  Build Package Name => Multidomain_{Version}_{Date} 
+  Version - should be taken from manifest file
+  Date - format DDMMYYYY 
+
+{
+  "tableName": "multi_program",
+  "country": true,
+  "countryName": "",
+  "languageSupport": true,
+  "langList": ["en", "fr"],
+  "modulesList": ["mnch","fp"],
+  "defaultLocale": "en",
+  "financialYear": ["April"],
+  "isAppHub": true,
+  "commentSchema": "old",
+  "mapSchema": 4,
+  "ga": "",
+  "adminUserRole": ["Superuser", "AvenirAppAdmin", "CountryAdminUser", "Track20"],
+  "nonAdminUserRole": ["appUser", "AvenirAppUser"]
+}
+--------------------------------------------------------------------------------
+
+-> Kenya instance [Standard App] [English] [Local]
+
+  URL => https://avenirtraining.duredemos.com/multidomain_kenya_service/ 
+  
+  Build Package Name => Multidomain_{Version}_{Date}
+  Version - should be taken from manifest file
+  Date - format DDMMYYYY 
+  
+{
+  "tableName": "multi_program",
+  "country": true,
+  "countryName": "",
+  "languageSupport": false,
+  "langList": ["en"],
+  "modulesList": ["mnch","fp"],
+  "defaultLocale": "en",
+  "financialYear": ["April"],
+  "isAppHub": true,
+  "commentSchema": "old",
+  "mapSchema": 4,
+  "ga": "",
+  "adminUserRole": ["Superuser","AvenirAppAdmin","CountryAdminUser","Track20"],
+  "nonAdminUserRole": ["appUser","AvenirAppUser"]
+}
+--------------------------------------------------------------------------------
+
+-> FPTraining instance [Standard App] [English & French] [Local]
+
+  URL => https://fptraining.duredemos.com/service/
+  
+  Build Package Name => Multidomain_{Version}_{Date}
+  Version - should be taken from manifest file
+  Date - format DDMMYYYY 
+  
+{
+  "tableName": "multi_program",
+  "country": true,
+  "countryName": "",
+  "languageSupport": true,
+  "langList": ["en", "fr"],
+  "modulesList": ["mnch","fp"],
+  "defaultLocale": "en",
+  "financialYear": ["April"],
+  "isAppHub": true,
+  "commentSchema": "new",
+  "mapSchema": 3,
+  "ga": "",
+  "adminUserRole": ["Superuser","AvenirAppAdmin","CountryAdminUser","Track20"],
+  "nonAdminUserRole": ["appUser","AvenirAppUser"]
+}
+--------------------------------------------------------------------------------

@@ -1,17 +1,29 @@
 <template>
-  <div class="mt-3">
-    <div class="map-header mb-3" v-show="isJsonFetched">
-      <div v-if="locationPeriod">
-        <h6 class="map-title pt-1">
-          {{ locationPeriod.locationName }}
-        </h6>
-      </div>
-      <div class="ml-2" v-if="indList.length > 0">
-        <b-form-select
-          class="mapDropdown"
-          v-model="selectedInd"
-          :options="indList"
-        ></b-form-select>
+  <div class="">
+    <div class="map-header mb-3">
+      <div class="row map-section">
+        <div class="col-3">
+          <div v-if="locationPeriod">
+            <h6 class="map-title pt-0">
+              {{ locationPeriod.locationName }}
+            </h6>
+          </div>
+        </div>
+        <div class="col-9">
+          <div
+            class="ml-2"
+            v-if="indList.length > 0"
+            :style="{
+              visibility: isJsonFetched && dataFetched ? 'visible' : 'hidden',
+            }"
+          >
+            <b-form-select
+              class="mapDropdown"
+              v-model="selectedInd"
+              :options="indList"
+            ></b-form-select>
+          </div>
+        </div>
       </div>
     </div>
     <MapComponent
@@ -19,14 +31,16 @@
       :hideYears="true"
       :showScales="true"
       :chartData="chartData"
-      @getGeoJson="getGeoJson"
       :allGeoJson="allGeoJson"
       :selectedInd="selectedInd"
       :locationPeriod="locationPeriod"
       :mapConfigData="subTab.mapSetting[0].chartOptions"
       @isJsonFetched="isJsonFetched = true"
     />
-    <div class="text-center" v-else>
+    <div
+      class="align-items-center d-flex justify-content-center h-400px"
+      v-else
+    >
       <b-spinner type="grow" label="Spinning"></b-spinner>
     </div>
   </div>
@@ -34,14 +48,15 @@
 <script>
 import service from "@/service";
 import {
+  getChild,
   getDateRange,
   generateChart,
   translateDate,
 } from "@/components/Common/commonFunctions";
-import basicChartConfig from "@/config/basicChartConfig.js";
+import { commonChartConfig } from "@/config/basicChartConfig";
 
 export default {
-  props: ["subTab", "emuData", "allGeoJson", "locationPeriod"],
+  props: ["subTab", "emuData", "allGeoJson", "preFetchData", "locationPeriod"],
   components: {
     MapComponent: () =>
       import(
@@ -54,17 +69,51 @@ export default {
       selectedInd: "",
       dataFetched: false,
       isJsonFetched: false,
-      chartData: JSON.parse(JSON.stringify(basicChartConfig)),
+      abortController: null,
+      chartData: JSON.parse(JSON.stringify(commonChartConfig)),
     };
   },
+  computed: {
+    isChart() {
+      let chart = false;
+      if (
+        !this.dataFetched &&
+        this.$store.getters.getActiveTab.includes(this.subTab.id)
+      ) {
+        chart = true;
+      }
+      return chart;
+    },
+  },
   watch: {
+    isChart(newValue) {
+      if (newValue) {
+        this.$nextTick(() => {
+          if (!this.subTab.mapSetting[0].chartOptions.isSavedData) {
+            this.getCharts();
+          } else {
+            if (
+              this.emuData[
+                `${this.locationPeriod.periodType}_${this.$i18n.locale}`
+              ]
+            ) {
+              this.getEMUChart();
+            }
+          }
+        });
+      }
+    },
     emuData: {
-      handler() {
+      handler(data) {
         if (this.subTab.mapSetting[0].chartOptions.isSavedData) {
           this.dataFetched = false;
           this.selectedInd = "";
-          this.chartData = JSON.parse(JSON.stringify(basicChartConfig));
-          this.getEMUChart();
+          this.chartData = JSON.parse(JSON.stringify(commonChartConfig));
+          this.$nextTick(() => {
+            if (this.isChart) {
+              this.getEMUChart();
+            }
+          });
         }
       },
       deep: true,
@@ -73,15 +122,8 @@ export default {
       handler() {
         this.dataFetched = false;
         this.selectedInd = "";
-        this.chartData = JSON.parse(JSON.stringify(basicChartConfig));
-        if (!this.subTab.mapSetting[0].chartOptions.isSavedData) {
-          this.getCharts();
-        } else {
-          //Useful when user changes tab and comes back
-          if (this.emuData) {
-            this.getEMUChart();
-          }
-        }
+        this.indList = [];
+        this.chartData = JSON.parse(JSON.stringify(commonChartConfig));
       },
       deep: true,
     },
@@ -89,20 +131,32 @@ export default {
   methods: {
     async getEMUChart() {
       let emuResponse = JSON.parse(JSON.stringify(this.emuData));
-      emuResponse = emuResponse[this.locationPeriod.periodType];
+      emuResponse =
+        emuResponse[`${this.locationPeriod.periodType}_${this.$i18n.locale}`];
       if (emuResponse) {
         let locationID = this.locationPeriod.location.split("/");
-        let children = await service.getChildOrganisation(locationID[1]),
-          emuModule = { ...emuResponse },
+        let children = [];
+        if (this.preFetchData?.orgList?.length) {
+          children = getChild({
+            locationList: this.preFetchData.orgList,
+            location: locationID[1],
+          });
+        } else {
+          try {
+            let response = await service.getChildOrganisation(locationID[1]);
+            children = response?.data?.children || [];
+          } catch (err) {
+            console.log("err", err);
+          }
+        }
+        let emuModule = { ...emuResponse },
           period = translateDate({
             rawDate: this.locationPeriod.period,
             periodType: this.locationPeriod.periodType,
             monthlyFormat: "MMM YYYY",
           });
 
-        let categories = {},
-          series = [],
-          catIds = [];
+        let series = [];
         let totalLegend = this.$i18n.t("total-EMU");
         this.selectedInd = totalLegend;
         let totalSeriesObj = {
@@ -111,60 +165,58 @@ export default {
           visible: true,
           color: null,
         };
-        let dataKey = {};
+        let data = {};
         if (this.locationPeriod.periodType === "yearly") {
           if (emuModule.compEMU) {
-            dataKey = JSON.parse(JSON.stringify(emuModule.compEMU));
-            dataKey = JSON.parse(dataKey);
+            data = JSON.parse(JSON.stringify(emuModule.compEMU));
+            data = JSON.parse(data);
           }
         } else {
-          dataKey =
+          data =
             typeof emuModule.totalEMU === "string"
               ? JSON.parse(emuModule.totalEMU)
               : emuModule.totalEMU;
         }
-        Object.keys(dataKey).forEach((ids) => {
-          children.data.children.forEach((child) => {
-            if (child.id == ids && dataKey[ids] != null) {
-              if (!categories[child.id]) {
-                categories[child.id] = child.name;
-                catIds.push(child.id);
-              }
+        children.forEach((cat) => {
+          if (data[cat.id]) {
+            let catKey = "saveCategories";
+            let dataKey = "saveData";
+            if (this.locationPeriod.periodType === "yearly") {
+              catKey = "categories";
+              dataKey = "data";
             }
-          });
-        });
-        let idArr = [];
-        catIds.forEach((cat) => {
-          Object.keys(dataKey).forEach((ids) => {
-            if (cat == ids && dataKey[ids] != null) {
-              idArr.push(ids);
-              if (this.locationPeriod.periodType === "yearly") {
-                let index = dataKey[ids]["categories"].indexOf(period);
-                dataKey[ids]["data"].forEach((data) => {
-                  if (data.name == dataKey[ids]["source"]) {
-                    totalSeriesObj.data.push({
-                      locationID: ids,
-                      y: data["data"][index],
-                      originalY: data["data"][index],
-                      name: categories[ids] || "Name Error",
-                    });
-                  }
-                });
-              } else {
-                let index = dataKey[ids]["saveCategories"].indexOf(period);
-                dataKey[ids]["saveData"].forEach((data) => {
-                  if (data.name == this.$i18n.t("EMU")) {
-                    totalSeriesObj.data.push({
-                      locationID: ids,
-                      y: data["data"][index],
-                      originalY: data["data"][index],
-                      name: categories[ids] || "Name Error",
-                    });
-                  }
-                });
-              }
+            if (data[cat.id]?.[catKey]?.length) {
+              let index = data[cat.id][catKey].indexOf(period);
+              data[cat.id][dataKey].forEach((data) => {
+                let compKey = this.$i18n.t("EMU");
+                if (this.locationPeriod.periodType === "yearly") {
+                  compKey = data[cat.id]["source"];
+                }
+                if (data.name == compKey) {
+                  let y = data["data"][index]
+                    ? data["data"][index].toFixed(2) * 1
+                    : null;
+                  totalSeriesObj.data.push({
+                    locationID: cat.id,
+                    y: y,
+                    originalY: y,
+                    name:
+                      cat.name ||
+                      `${this.$i18n.t("name") + " " + this.$i18n.t("error")}`,
+                  });
+                }
+              });
             }
-          });
+          } else {
+            totalSeriesObj.data.push({
+              locationID: cat.id,
+              y: null,
+              originalY: null,
+              name:
+                cat.name ||
+                `${this.$i18n.t("name") + " " + this.$i18n.t("error")}`,
+            });
+          }
         });
         series.push(totalSeriesObj);
         this.chartData.series = series;
@@ -172,9 +224,6 @@ export default {
       } else {
         this.dataFetched = true;
       }
-    },
-    getGeoJson(loc, obj) {
-      this.$emit("getGeoJson", loc, obj);
     },
     getMapping() {
       let catArray = [],
@@ -200,7 +249,7 @@ export default {
       if (rMapping.length) {
         rMapping.forEach((element, i) => {
           let mapObj = {
-            name: element.indicator.name,
+            name: element.indicator.name[this.$i18n.locale],
             color: element.indicator.color,
             visible: !element.indicator.disable,
             dx: [],
@@ -214,11 +263,11 @@ export default {
             });
           });
           this.indList.push({
-            value: element.indicator.name,
-            text: element.indicator.name,
+            value: element.indicator.name[this.$i18n.locale],
+            text: element.indicator.name[this.$i18n.locale],
           });
           if (i === 0) {
-            this.selectedInd = element.indicator.name;
+            this.selectedInd = element.indicator.name[this.$i18n.locale];
           }
           catArray.push(mapObj);
         });
@@ -230,6 +279,10 @@ export default {
       };
     },
     getCharts() {
+      if (this.abortController) {
+        this.abortController.abort();
+      }
+      this.abortController = new AbortController();
       let loc = this.locationPeriod.location;
       let location = loc.split("/")[1];
       let levelID = loc.split("/")[0] * 1;
@@ -244,8 +297,19 @@ export default {
       let periodArr = period;
       period = period.reverse().join(";");
       if (de) {
+        const signal = this.abortController.signal;
         service
-          .getIndicatorData(de, levels, location, period)
+          .getIndicatorData(
+            de,
+            levels,
+            location,
+            period,
+            null,
+            null,
+            null,
+            null,
+            signal
+          )
           .then((response) => {
             if (response.data.rows.length) {
               let { cObj } = generateChart({
@@ -263,9 +327,13 @@ export default {
               // errorMsg: "No Data to Display",
             }
             this.dataFetched = true;
+            this.abortController = null;
           })
-          .catch(() => {
-            this.dataFetched = true;
+          .catch((res) => {
+            if (res.message !== "canceled" || !signal.aborted) {
+              this.dataFetched = true;
+            }
+            this.abortController = null;
             // errorMsg: "Error in fetching data",
           });
       } else {
@@ -275,13 +343,15 @@ export default {
     },
   },
   created() {
-    if (!this.subTab.mapSetting[0].chartOptions.isSavedData) {
-      this.getCharts();
-    } else {
-      //Useful when user changes tab and comes back
-      if (this.emuData) {
-        this.dataFetched = false;
-        this.getEMUChart();
+    if (this.isChart) {
+      if (!this.subTab.mapSetting[0].chartOptions.isSavedData) {
+        this.getCharts();
+      } else {
+        //Useful when user changes tab and comes back
+        if (this.emuData) {
+          this.dataFetched = false;
+          this.getEMUChart();
+        }
       }
     }
   },

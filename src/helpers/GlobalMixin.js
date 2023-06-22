@@ -5,10 +5,8 @@ import i18n from "@/i18n";
 import store from "@/store";
 
 export default {
-  data(){
-    return{
-      current_page : ""
-    }
+  data() {
+    return {};
   },
   methods: {
     consoleLog(msg, params = []) {
@@ -24,12 +22,15 @@ export default {
     // By default, the value of 'i18n.locale' is set in the 'i18n.js' file using the 'defaultLocale' key from the 'index.html' file.
     generateKey(
       key,
-      isLocale = true,
+      isLocale = false,
       isAppUserId = true,
       locale = i18n.locale
     ) {
       let innerKey = isLocale ? `${key}_${locale}` : `${key}`;
-      if (!settings.country) {
+      if (
+        Object.keys(store.getters.getAppSettings).length !== 0 &&
+        !store.getters.getAppSettings.country
+      ) {
         let appId = store.state.appId ? store.state.appId : "",
           appUserId = store.state.appUserId ? store.state.appUserId : "";
         if (appId && appUserId) {
@@ -46,22 +47,48 @@ export default {
     /**
      * In the case of 'Sandbox' instance, this is used to show the missing app ID error popup.
      */
-     showLocalStorageError(loader = "showLoader") {
-      this.$swal({
-        title: i18n.t('oops'),
-        text: "We lost app ID. Please login again."
+    showLocalStorageError(loader = "showLoader") {
+      this.sweetAlert({
+        title: i18n.t("oops"),
+        text: i18n.t("noAppID"),
       });
       this[loader] = false;
     },
-    genericAlert(title = null, text = null) {
-      let alertObj = {};
+    sweetAlert({
+      title = null,
+      text = null,
+      html = null,
+      confirmButtonText = null,
+      cancelButtonText = null,
+      showCancelButton = false,
+      reverseButtons = false,
+    }) {
+      let alertObj = {
+        confirmButtonText: confirmButtonText || this.$i18n.t("ok"),
+        cancelButtonText: cancelButtonText || this.$i18n.t("cancelbtn"),
+      };
+      if (showCancelButton) {
+        alertObj.showCancelButton = showCancelButton;
+      }
+      if (reverseButtons) {
+        alertObj.reverseButtons = reverseButtons;
+      }
       if (title) {
         alertObj.title = title;
       }
       if (text) {
         alertObj.text = text;
       }
+      if (html) {
+        alertObj.html = html;
+      }
       this.$swal(alertObj);
-    }
+    },
   },
-}
+  beforeRouteLeave: function (to, from, next) {
+    if (this.$tours["myTour"]) {
+      this.$tours["myTour"].skip();
+    }
+    next();
+  },
+};

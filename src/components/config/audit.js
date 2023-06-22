@@ -41,8 +41,8 @@ const showLocalStorageError= ()=> {
   Vue.swal({
     title: "Oops...",
     text: "We lost app ID.",
-    type: "error"
-  })
+    confirmButtonText: this.$i18n.t("ok"),
+  });
 }
 export default {
   configAudit: (originalConfig, updatedConfig) => {
@@ -149,21 +149,24 @@ export default {
             response.then(response => {
               if (response.data.status === "OK") {
                 Vue.swal({
-                  title: i18n.t('auditSuccess')
-                })
+                  title: i18n.t("auditSuccess"),
+                  confirmButtonText: this.$i18n.t("ok"),
+                });
                 store.commit('setLoading', false)
               } else {
                 Vue.swal({
-                  title: i18n.t('error'),
-                  text: `${response.data.message}`
-                })
+                  title: i18n.t("error"),
+                  text: `${response.data.message}`,
+                  confirmButtonText: this.$i18n.t("ok"),
+                });
                 store.commit('setLoading', false)
                 return;
               }
             }).catch(error => {
               Vue.swal({
-                title: i18n.t('error')
-              })
+                title: i18n.t("error"),
+                confirmButtonText: this.$i18n.t("ok"),
+              });
               store.commit('setLoading', false)
               return;
             })
@@ -190,8 +193,9 @@ export default {
           response.then(response => {
             store.commit('setLoading', false)
             Vue.swal({
-              title: i18n.t('auditSuccess')
-            })
+              title: i18n.t("auditSuccess"),
+              confirmButtonText: this.$i18n.t("ok"),
+            });
           })
         }
       }).catch(() => {
@@ -216,8 +220,9 @@ export default {
         response.then(response => {
           store.commit('setLoading', false)
           Vue.swal({
-            title: i18n.t('auditSuccess')
-          })
+            title: i18n.t("auditSuccess"),
+            confirmButtonText: this.$i18n.t("ok"),
+          });
         })
       })
     })
@@ -255,12 +260,13 @@ export default {
     let allDataKeys = [];
     moduleName.forEach(modName => {
       let locale = i18n.locale, key = `${modName}_${locale}`
-      if (!settings.country) {
-      let appId = store.state.appId ? store.state.appId : "", appUserId = store.state.appUserId ? store.state.appUserId : ""
-        if(appId && appUserId) {
-          key = `${appUserId}_${appId}_${modName}_${locale}`
+      if (!this.$store.getters.getAppSettings.country) {
+        let appId = store.state.appId ? store.state.appId : "",
+          appUserId = store.state.appUserId ? store.state.appUserId : "";
+        if (appId && appUserId) {
+          key = `${appUserId}_${appId}_${modName}_${locale}`;
         } else {
-          showLocalStorageError()
+          showLocalStorageError();
           return;
         }
       }
@@ -288,17 +294,19 @@ export default {
           }
         }).catch(() => {
           Vue.swal({
-            title: i18n.t('oops'),
-            text: i18n.t('somethingwentwrong')
-          })
+            title: i18n.t("oops"),
+            text: i18n.t("somethingwentwrong"),
+            confirmButtonText: this.$i18n.t("ok"),
+          });
           store.state.loading = false
         })
       })
     } else {
       Vue.swal({
-        title: i18n.t('oops'),
-        text: i18n.t('no_data_to_display')
-      })
+        title: i18n.t("oops"),
+        text: i18n.t("no_data_to_display"),
+        confirmButtonText: this.$i18n.t("ok"),
+      });
       store.state.loading = false
     }
   }

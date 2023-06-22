@@ -11,19 +11,31 @@
         dashboardLogo: true,
       }"
       v-if="!isFromAdmin"
+      :displayPage="displayPage"
       @langChange="langChange"
       @reload="reload"
       @activateTour="activateTour"
     >
     </Header>
     <template v-if="displayPage">
-      <b-row class="home-content mx-5 d-flex justify-content-center">
+      <b-row
+        class="home-content mx-5 d-flex justify-content-center position-relative"
+      >
         <b-col class="text-right" sm="12" v-if="isFromAdmin">
-          <b-button v-b-modal.modal-bgImg class="black-btn m-1">{{
-            $t("changeBackgroundImage")
-          }}</b-button>
+          <b-button v-b-modal.modal-bgImg class="black-btn bgbtn-theme m-1">
+            <img
+              src="@/assets/images/icons/admin-editicon.svg"
+              :style="{ filter: filterColor }"
+              class="text-white cursor-pointer mx-2"
+            />
+            {{ $t("changeBackgroundImage") }}</b-button
+          >
 
-          <b-modal id="modal-bgImg" :title="$t('uploadBackgroundImage')">
+          <b-modal
+            id="modal-bgImg"
+            centered
+            :title="$t('uploadBackgroundImage')"
+          >
             <div class="row">
               <div class="col-lg-12">
                 <form>
@@ -60,16 +72,25 @@
           <div :class="isFromAdmin ? 'position-relative' : ''" class="">
             <b-button
               v-b-modal.modal-logo
-              class="black-btn"
+              class="black-btn bgbtn-theme"
               style="position: absolute; top: -50px; left: 50%"
               v-if="isFromAdmin"
-              ><i
-                class="fa fa-edit text-white cursor-pointer"
-                title="Edit Icon"
-            /></b-button>
+            >
+              <!-- <i
+                class="fa fa-edit text-white cursor-pointer mx-2"
+                :title="$t('clicktoedit')" /> -->
+              <img
+                src="@/assets/images/icons/admin-editicon.svg"
+                :style="{ filter: filterColor }"
+                class="text-white cursor-pointer mx-1"
+                :title="$t('clicktoedit')"
+              />
+              {{ $t("change_logo") }}</b-button
+            >
             <b-modal
               v-if="isFromAdmin"
               id="modal-logo"
+              centered
               :title="$t('uploadApplicationLogo')"
             >
               <div class="row">
@@ -105,33 +126,47 @@
             </b-modal>
             <img class="logo-img" :src="appData.landingPageLogo" />
           </div>
-          <input
-            style="background: transparent; border: none; font-size: 1.5rem"
-            class="form-control text-white"
-            :title="$t('clicktoedit')"
-            v-if="isFromAdmin"
-            v-model="appData.landingPageTitle"
-          />
+          <b-input-group v-if="isFromAdmin">
+            <b-form-input
+              style="background: transparent; border: none; font-size: 1rem"
+              class="form-control text-white"
+              :title="$t('clicktoedit')"
+              type="text"
+              v-model="appData.landingPageTitle[$i18n.locale]"
+              disabled
+            ></b-form-input>
+            <b-input-group-append is-text>
+              <Translations :transText.sync="appData.landingPageTitle" />
+            </b-input-group-append>
+          </b-input-group>
+          <!-- v-model="appData.landingPageTitle" -->
           <h2 class="fs-22-1920 headingText my-5" v-else>
-            {{ appData.landingPageTitle }}
+            <!-- {{ appData.landingPageTitle }} -->
+            {{ appData.landingPageTitle[$i18n.locale] || $t("noData") }}
           </h2>
-          <textarea
-            v-if="isFromAdmin"
-            :title="$t('clicktoedit')"
-            style="background: transparent; border: none; font-size: 1rem"
-            maxlength="450"
-            rows="4"
-            class="form-control text-white"
-            v-model="appData.landingPageDesc"
-          />
+          <b-input-group v-if="isFromAdmin">
+            <textarea
+              :title="$t('clicktoedit')"
+              style="background: transparent; border: none; font-size: 1rem"
+              maxlength="450"
+              rows="4"
+              class="form-control text-white"
+              v-model="appData.landingPageDesc[$i18n.locale]"
+              disabled
+            />
+            <b-input-group-append is-text>
+              <Translations :transText.sync="appData.landingPageDesc" />
+            </b-input-group-append>
+          </b-input-group>
+          <!-- v-model="appData.landingPageDesc" -->
           <p
             class="mr-5 pr-5 dashboardSummaryText fs-17-1920"
             data-v-step="2"
             v-else
           >
-            {{ appData.landingPageDesc }}
+            {{ appData.landingPageDesc[$i18n.locale] || $t("noData") }}
           </p>
-          <div>
+          <div class="mt-4">
             <b-dropdown
               id="dropdown-1"
               :text="$t('selectDashboard')"
@@ -166,7 +201,7 @@
             <div class="dqr-content">
               <div class="img-dqr v-step-1 p-3">
                 <img
-                  src="@/assets/img/home-pie.png"
+                  src="@/assets/images/home-pie.png"
                   class="d-block m-auto intImg w-100"
                 />
                 <div class="mt-5 d-flex justify-content-center">
@@ -186,7 +221,7 @@
             <div class="sum-content">
               <div class="sumry-content mt-4">
                 <img
-                  src="@/assets/img/home-chart.png"
+                  src="@/assets/images/home-chart.png"
                   class="d-block m-auto mb-lg-n2 w-100"
                 />
                 <div class="mt-5 d-flex justify-content-center">
@@ -212,44 +247,17 @@
             <b-row>
               <b-col sm="3" class="pl-0">
                 <div
-                  class="
-                    footer-img-div
-                    d-flex
-                    justify-content-center
-                    align-items-center
-                  "
+                  class="footer-img-div d-flex justify-content-center align-items-center"
                 >
-                  <!-- <img
-										class="img-fluid footer-home-icon pr-2"
-										src="@/assets/images/track-20.png"
-									/>
-									<img
-										class="img-fluid footer-home-icon pr-2"
-										src="@/assets/images/avenir_health.png"
-									/>
-									<img
-										class="img-fluid footer-home-icon"
-										src="@/assets/images/DT-logo1.png"
-									/> -->
                   <img
-                    class="img-fluid w-90"
+                    class="img-fluid w-75"
                     src="@/assets/images/footer-logo.png"
                   />
                 </div>
               </b-col>
-              <b-col sm="5" class="">
+              <b-col sm="5">
                 <p
-                  class="
-                    align-items-end
-                    text-white
-                    d-flex
-                    h-100
-                    justify-content-center
-                    mb-0
-                    mt-2
-                    small
-                    version-details
-                  "
+                  class="align-items-end text-white d-flex h-100 justify-content-center mb-0 mt-2 small version-details d-none"
                   v-if="$store.getters.getAppVersion"
                 >
                   {{ $store.getters.getAppVersion }}
@@ -264,23 +272,32 @@
   </div>
 </template>
 <script>
-/*global settings*/
 /*eslint no-undef: "error"*/
 import service from "@/service";
+import { loadLanguage } from "@/i18n";
 import config from "@/config/config.js";
 import NavigationMixin from "@/helpers/NavigationMixin";
 import ChangeImageMixin from "@/helpers/ChangeImageMixin";
+import DynamicImageMixin from "@/helpers/DynamicImageMixin";
+import DashboardListMixin from "@/helpers/DashboardListMixin";
 import DocumentTitleMixin from "@/helpers/DocumentTitleMixin";
 import LanguageChangeMixin from "@/helpers/LanguageChangeMixin";
 import EmitTourCallbackMixin from "@/helpers/EmitTourCallbackMixin";
 
 export default {
   name: "Integrated-Dashboard",
-  props: ["isFromAdmin"],
-  components: {},
+  props: ["isFromAdmin", "updatedData"],
+  components: {
+    Translations: () =>
+      import(
+        /*webpackChunkName: 'translations'*/ "@/components/config/Common/Translations"
+      ),
+  },
   mixins: [
     NavigationMixin,
     ChangeImageMixin,
+    DynamicImageMixin,
+    DashboardListMixin,
     DocumentTitleMixin,
     LanguageChangeMixin,
     EmitTourCallbackMixin,
@@ -300,53 +317,18 @@ export default {
       },
       deep: true,
     },
-  },
-  computed: {
-    dashboards() {
-      let d = [],
-        programs = [];
-      if (this.$store.getters.getIsAdmin) {
-        programs = ["mnch", "fp"];
-      } else {
-        programs = this.$store.getters.getUserPermissions?.dashboards || [];
-      }
-
-      if (programs.includes("mnch")) {
-        d.push({
-          module: "mnch-dashboard",
-          setNamespace: true,
-          routeName: "mnch-dashboard",
-          icon: "RMNCHdashsmall.png",
-          text: this.$i18n.t("maternal_newborn_and_child_health"),
-        });
-      }
-      if (programs.includes("fp")) {
-        d.push({
-          module: "fp-dashboard",
-          setNamespace: true,
-          routeName: "fp-dashboard",
-          icon: "maternal_healthicon.png",
-          text: this.$i18n.t("family_planning"),
-        });
-      }
-
-      return d;
+    updatedData: {
+      handler(newValue) {
+        if (newValue) {
+          this.appData = newValue;
+        }
+      },
+      deep: true,
     },
   },
   methods: {
     reload() {
       this.getUserDetails();
-    },
-    getBaseURLFromManifest() {
-      fetch("./manifest.webapp")
-        .then((response) => response.json())
-        .then((json) => {
-          this.$store.commit("setBaseURL", json.activities.dhis.href); //Save the baseURL store
-          this.$nextTick(() => {
-            this.getUserDetails();
-            this.$store.commit("setAppVersion", json.version); //Save the application version
-          });
-        });
     },
     async getUserDetails() {
       this.$store.commit("setLoading", true);
@@ -367,8 +349,9 @@ export default {
           this.$store.commit("setIsAdmin", false); //for safer side
           for (let i = 0; i < rolesLength; i++) {
             if (
-              settings.userRole.includes(roles[i].name) ||
-              ["appAdmin"].includes(roles[i].name)
+              this.$store.getters.getAppSettings.adminUserRole.includes(
+                roles[i].name
+              )
             ) {
               this.$store.commit("setIsAdmin", true);
               break;
@@ -376,7 +359,7 @@ export default {
           }
           this.checkDataStore();
         } catch (e) {
-          this.genericAlert("Failed in getUserDetails()...");
+          this.sweetAlert({ title: "Failed in getUserDetails()..." });
           this.$store.commit("setLoading", false);
         }
       } else {
@@ -387,6 +370,15 @@ export default {
      * Check for the dataStore is present or not. DataStore contains all the configurations files. If not present, show appropriate popup message to set the configurations with the Admin link.
      */
     checkDataStore() {
+      if (this.dashboards.length === 1) {
+        this.$store.commit("setIsMultiProgram", false); //Setting isMultiProgram variable in a store. This is used in Toolbar to show appropriate location
+        this.goTo({
+          module: this.dashboards[0].module,
+          setNamespace: this.dashboards[0].setNamespace,
+          routeName: this.dashboards[0].routeName,
+        });
+        return;
+      }
       if (Object.keys(this.$store.getters.getDataStoreKeys).length === 0) {
         if (!this.isFromAdmin) {
           this.$store.commit(
@@ -411,10 +403,12 @@ export default {
               if (this.$store.getters.getIsAdmin) {
                 // Popup message to set the configurations
                 this.$swal({
-                  title: this.$i18n.t("noConfiguration"),
-                  text: this.$i18n.t("setConfiguration"),
+                  title: this.$i18n.t("configurationnotavailable"),
+                  text: this.$i18n.t("pleasesetyourconfiguration"),
                   showCancelButton: true,
+                  reverseButtons: true,
                   confirmButtonText: this.$i18n.t("configureNow"),
+                  cancelButtonText: this.$i18n.t("cancelbtn"),
                 }).then((result) => {
                   if (result.value) {
                     this.$router.push("/admin");
@@ -422,8 +416,8 @@ export default {
                 });
               } else {
                 // Popup message to contact admin for the configurations
-                this.$swal({
-                  title: this.$i18n.t("noConfiguration"),
+                this.sweetAlert({
+                  title: this.$i18n.t("configurationnotavailable"),
                   text: this.$i18n.t("contactAdmin"),
                 });
               }
@@ -460,65 +454,36 @@ export default {
      * To set the default locale/language for the application.
      */
     setLocale() {
-      let appData =
-        Object.keys(this.$store.getters.getApplicationModule()).length === 0;
-
       if (
-        (appData && !this.$store.getters.getLangChanged) ||
-        (!appData && this.$store.getters.getLangChanged) ||
-        (appData && this.$store.getters.getLangChanged)
+        Object.keys(this.$store.getters.getApplicationModule()).length === 0
       ) {
         if (!this.isFromAdmin) {
           this.$store.commit(
             "setLoadingText",
-            this.$i18n.t("defaultLangLoadText")
+            this.$i18n.t("applicationLoadText")
           );
         }
         // This is to generate the key format of the configurations files for the Sandbox/standard app.
         // The "generateKey" function is coming from "@/helpers/GlobalMixin.js" file.
         let key = this.generateKey("applicationModule");
         // By default, we are calling the 'applicationSetup' config file using the local/language set in the 'this.$i18n.locale' global variable.
-        let isLangSame = false;
-        /* Variable to decide whether to call the 'applicationSetup' config file using the different local/language available in the 'applicationSetup' config file itself in the 'defaultLanguageLocale' key.
-        E.g. Default value of 'this.$i18n.locale' is 'en' (as set in the 'index.html' file), we are calling 'applicationSetup_en' config file based on the 'this.$i18n.locale' value. In the 'applicationSetup_en' config file we found that the 'defaultLanguageLocale' is set as 'fr' (French), this means that we need to load the app in the French language. In this case we need to again call the 'applicationSetup' config file using the 'fr' locale.*/
         service
           .getSavedConfig(key)
-          .then((response) => {
-            // Compare the locale
-            if (this.$i18n.locale === response.data.defaultLanguageLocale) {
-              // If the local is same
-              isLangSame = true;
-              this.setApplicationDetails(response); // Set the 'applicationSetup' config file response in the store
-            } else {
-              // If the locale is not same
-              // Check if the user has changed the language from the landing page. Check the 'langChange()' function.
-              if (!this.$store.state.isLangChanged) {
-                // Set the 'this.$i18n.locale' based on the 'defaultLanguageLocale'
-                this.$i18n.locale = response.data.defaultLanguageLocale;
-              } else {
-                this.setApplicationDetails(response); // Set the 'applicationSetup' config file response in the store
-              }
+          .then(async (response) => {
+            if (this.$i18n.locale !== response.data.defaultLanguageLocale) {
+              this.$i18n.locale = response.data.defaultLanguageLocale;
+              await loadLanguage(response.data.defaultLanguageLocale);
+              this.setDocumentTitle();
             }
+            this.setApplicationDetails(response); // Set the 'applicationSetup' config file response in the store
           })
           .then(() => {
-            if (isLangSame) {
-              // Call the next set of config files
-              // this.getGlobalDynamicData();
-              this.getLocationList();
-            } else {
-              // Check if the user has changed the language from the landing page. Check the 'langChange()' function.
-              if (!this.$store.state.isLangChanged) {
-                // Again call the 'applicationSetup' config file using the other locale as set above.
-                this.getApplicationModuleDetails();
-              } else {
-                // this.getGlobalDynamicData();
-                this.getLocationList();
-              }
-            }
+            // Call the next set of config files
+            this.getLocationList();
           })
           .catch(() => {
             this.$store.commit("setLoading", false);
-            this.genericAlert("Failed in set locale...");
+            this.sweetAlert({ title: "Failed in set locale..." });
           });
       } else {
         this.appData = this.$store.getters.getApplicationModule();
@@ -535,17 +500,23 @@ export default {
         }
         // Get the locationID & levelID from the 'getAllowedLocation()' function available in 'service.js' file.
         let { locationID, levelID } = service.getAllowedLocation();
-        // Fetch all available locations based on the locationID & levelID. We will get the nested location list.
-        let response = await service.getOrganisationChildren(
-          locationID,
-          levelID
-        );
-        // Convert the location list in the 'vue-treeselect' format
-        const renamedObj = service.renameKeys(response.data);
-        this.$store.commit("setLocationList", [renamedObj]); // Set the location list in store
+        try {
+          // Fetch all available locations based on the locationID & levelID. We will get the nested location list.
+          let response = await service.getOrganisationChildren(
+            locationID,
+            levelID
+          );
+          // Convert the location list in the 'vue-treeselect' format
+          const renamedObj = service.renameKeys(response.data);
+          this.$store.commit("setLocationList", [renamedObj]); // Set the location list in store
+        } catch (err) {
+          console.log("Error in fetching location list...", err);
+        }
       }
       this.getOrgLevels();
       this.getGlobalFactors();
+      // Set the theme on hot-reload
+      service.applyTheme();
     },
     /**
      * Get Org levels
@@ -576,7 +547,9 @@ export default {
               payload: response.data,
             }); // Set the global factors in store
             this.$store.commit("setLoadingText", "");
-            this.$store.commit("setLoading", false);
+            if (!this.isFromAdmin) {
+              this.$store.commit("setLoading", false);
+            }
             this.checkRedirection();
           })
           .catch(() => {
@@ -586,54 +559,36 @@ export default {
           });
       } else {
         this.$store.commit("setLoadingText", "");
-        if (!this.isFromAdmin) {
-          this.$store.commit("setLoading", false);
-        }
         this.checkRedirection();
       }
     },
     /**
-     * Check redirection to specific module for non-admin user
+     * Check redirection to specific module
      */
     checkRedirection() {
-      if (this.$store.getters.getIsAdmin || this.dashboards.length > 1) {
+      if (!this.isFromAdmin) {
+        this.$store.commit("setLoading", false);
+      }
+      if (this.dashboards.length > 1) {
         this.displayPage = true;
+        this.$store.commit("setIsMultiProgram", true); //Setting isMultiProgram variable in a store. This is used in Toolbar to show appropriate location
       } else {
+        this.redirect();
+      }
+    },
+    /**
+     * Redirect to the specific module
+     */
+    redirect() {
+      if (this.dashboards.length === 1) {
+        this.$store.commit("setIsMultiProgram", false); //Setting isMultiProgram variable in a store. This is used in Toolbar to show appropriate location
         this.goTo({
           module: this.dashboards[0].module,
           setNamespace: this.dashboards[0].setNamespace,
           routeName: this.dashboards[0].routeName,
         });
+        return;
       }
-    },
-    /**
-     * This functions executes in the below conditions,
-     * 1) When the default local/language set in the 'defaultLocale' of the 'index.html' file and the local/language set in the 'applicationModule' config file is not matching.
-     * 2) When the language is changes from the landing page and is not matching with the local/language set in the 'applicationModule' config file.
-     */
-    getApplicationModuleDetails() {
-      if (!this.isFromAdmin) {
-        this.$store.commit(
-          "setLoadingText",
-          this.$i18n.t("applicationLoadText")
-        );
-      }
-      let key = this.generateKey("applicationModule");
-
-      service
-        .getSavedConfig(key)
-        .then((response) => {
-          this.setApplicationDetails(response); // Set the 'applicationSetup' config file response in the store
-        })
-        .then(() => {
-          // Call the next set of config files
-          // this.getGlobalDynamicData();
-          this.getLocationList();
-        })
-        .catch(() => {
-          this.genericAlert("Failed in getApplicationModuleDetails()...");
-          this.$store.state.loading = false;
-        });
     },
     /**
      * To set the applicationSetup config in the store.
@@ -645,6 +600,7 @@ export default {
       // Set locale/language for the moment library
       this.$moment.locale(this.$i18n.locale);
       this.$store.commit("setTheme", response.data.defaultColorTheme); // Set the theme in to store
+      this.$store.commit("setLocalLang", response.data.defaultLanguageLocale); // Set the defaultLanguageLocale in to store
       // Set the theme
       service.applyTheme();
     },
@@ -655,13 +611,7 @@ export default {
     if (!this.isFromAdmin) {
       this.$store.commit("setLoadingText", this.$i18n.t("loadText")); //Setting loading text in store
     }
-    this.$store.commit("setFinancialYear", settings.financialYear); //Setting financialYear variable defined in index.html file in a store. This is used in Toolbar to show appropriate period type
-    if (process.env.NODE_ENV !== "production") {
-      this.$store.commit("setBaseURL", settings.baseURL); //Save the baseURL store
-      this.getUserDetails();
-    } else {
-      this.getBaseURLFromManifest();
-    }
+    this.getUserDetails();
   },
 };
 </script>

@@ -97,10 +97,10 @@ export default {
 	methods: {
 		setValue() {
 			this.chartOptions.series[0].data[0] =
-				this.score === "N/A" ? 0 : this.score;
+				this.score === this.$i18n.t("NA") ? 0 : this.score;
 			let score =
-				this.score === "N/A" ? `${this.score}` : `{y}/${this.scoreLimit}`;
-				if(score === "N/A"){
+				this.score === this.$i18n.t("NA") ? `${this.score}` : `{y}/${this.scoreLimit}`;
+				if(score === this.$i18n.t("NA")){
 					this.chartOptions.pane.background.innerRadius = "0%"
 					this.chartOptions.pane.background.outerRadius = "0%"
 				}

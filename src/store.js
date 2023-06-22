@@ -19,7 +19,8 @@ const defaultState = {
   emuColors: null,
   orgLevels: null,
   loadingText: "",
-  currentTheme: "",
+  appSettings: {},
+  localLang: false,
   baseFontSize: 16,
   dataStoreKeys: {},
   globalFactors: {},
@@ -30,12 +31,12 @@ const defaultState = {
   isClearCache: false,
   defaultFontSize: 16,
   userPermissions: {},
+  isMultiProgram: true,
   loggedInUserId: null,
-  isLangChanged: false,
   applicationModule: {},
   defaultViewType: "grid",
   defaultColorTheme: null,
-  namespace: settings.tableName,
+  namespace: settings.tableName || "multi_program",
 };
 
 export default new Vuex.Store({
@@ -54,6 +55,9 @@ export default new Vuex.Store({
     },
     setBaseURL(state, payload) {
       state.baseURL = payload;
+    },
+    setNamespace(state, payload) {
+      state.namespace = payload;
     },
     setAppUserId(state, payload) {
       state.appUserId = payload;
@@ -77,6 +81,12 @@ export default new Vuex.Store({
     setLoadingText(state, payload) {
       state.loadingText = payload;
     },
+    setAppSettings(state, payload) {
+      state.appSettings = payload;
+    },
+    setLocalLang(state, payload) {
+      state.localLang = payload;
+    },
     setEMUColors(state, payload) {
       state.emuColors = payload;
     },
@@ -89,9 +99,6 @@ export default new Vuex.Store({
     setBaseFontSize(state, payload) {
       state.baseFontSize = payload;
     },
-    setCurrentTheme(state, payload) {
-      state.currentTheme = payload;
-    },
     setDataStoreKeys(state, payload) {
       let payloadData =
         process.env.NODE_ENV !== "production"
@@ -102,8 +109,6 @@ export default new Vuex.Store({
     setGlobalFactors(state, { payload, namespace = "" }) {
       let n = namespace !== "" ? `_${namespace}` : "";
       let key = `${state.namespace}${n}`;
-      console.log("namespace", namespace);
-      console.log("key", key);
       let payloadData =
         process.env.NODE_ENV !== "production"
           ? payload
@@ -140,11 +145,11 @@ export default new Vuex.Store({
           ? payload
           : LZString.compressToUTF16(JSON.stringify(payload));
     },
+    setIsMultiProgram(state, payload) {
+      state.isMultiProgram = payload;
+    },
     setLoggedInUserId(state, payload) {
       state.loggedInUserId = payload;
-    },
-    setLangChanged(state, payload) {
-      state.isLangChanged = payload;
     },
     setApplicationModule(state, payload) {
       let payloadData =
@@ -159,16 +164,12 @@ export default new Vuex.Store({
     setTheme(state, payload) {
       state.defaultColorTheme = payload;
     },
-    setNamespace(state, payload) {
-      state.namespace = payload;
-    },
     //Keep at last only, any new mutation should be before this
     setStoreValues(state) {
       // Merge rather than replace so we don't lose observers
       // https://github.com/vuejs/vuex/issues/1118
       Object.assign(state, {
         ...state,
-        // userDetails: null,
         dataStoreKeys: {},
         globalFactors: {},
         userPermissions: {},
@@ -178,11 +179,15 @@ export default new Vuex.Store({
     },
   },
   getters: {
+    // Getters functions to get the state value
     getAppId(state) {
       return state.appId;
     },
     getBaseURL(state) {
       return state.baseURL;
+    },
+    getNamespace(state) {
+      return state.namespace;
     },
     getAppUserId(state) {
       return state.appUserId;
@@ -205,6 +210,12 @@ export default new Vuex.Store({
     getLoadingText(state) {
       return state.loadingText;
     },
+    getAppSettings(state) {
+      return state.appSettings;
+    },
+    getLocalLang(state) {
+      return state.localLang;
+    },
     getEMUColors(state) {
       return state.emuColors;
     },
@@ -217,9 +228,6 @@ export default new Vuex.Store({
     },
     getBaseFontSize(state) {
       return state.baseFontSize;
-    },
-    getCurrentTheme(state) {
-      return state.currentTheme;
     },
     getDataStoreKeys(state) {
       return state.dataStoreKeys[state.namespace]
@@ -274,16 +282,16 @@ export default new Vuex.Store({
           : JSON.parse(LZString.decompressFromUTF16(state.userPermissions))
         : {};
     },
+    getIsMultiProgram(state) {
+      return state.isMultiProgram;
+    },
     getLoggedInUserId(state) {
       return state.loggedInUserId;
-    },
-    getLangChanged(state) {
-      return state.isLangChanged;
     },
     getApplicationModule:
       (state) =>
       (isFromDefault = false) => {
-        let key = isFromDefault ? settings.tableName : state.namespace;
+        let key = isFromDefault ? state.appSettings.tableName : state.namespace;
         return state.applicationModule[key]
           ? process.env.NODE_ENV !== "production"
             ? state.applicationModule[key]
@@ -297,9 +305,6 @@ export default new Vuex.Store({
     },
     getTheme(state) {
       return state.defaultColorTheme;
-    },
-    getNamespace(state) {
-      return state.namespace;
     },
   },
   actions: {},

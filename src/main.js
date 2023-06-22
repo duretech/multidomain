@@ -1,14 +1,17 @@
 /*global settings*/
 /*eslint no-undef: "error"*/
+
+//Import required packages
 import Vue from "vue";
 import App from "./App.vue";
+//eslint-disable-next-line
 import bootstrap from "bootstrap";
 import { BootstrapVue } from "bootstrap-vue";
 import router from "./router";
 //eslint-disable-next-line
 import GlobalMixin from "./helpers/GlobalMixin";
 import VueSweetalert2 from "vue-sweetalert2";
-import { initI18n } from "./i18n";
+import i18n from "./i18n";
 import store from "./store.js";
 import VueFullscreen from "vue-fullscreen";
 import VueGtag from "vue-gtag";
@@ -24,21 +27,21 @@ import loadDrilldown from "highcharts/modules/drilldown.js";
 import loader from "@/components/Common/Loader"; //please keep the Loader L capital as per project guidelines
 import VueTour from "vue-tour";
 import sidebar from "@/components/Common/Sidebar";
-//import sidebar from "@/components/Sidebar";
-import chatbot from "@/components/Common/Chatbot";
 import header from "@/components/Common/Header";
-import footer from "@/components/Common/Footer";
 import D2Header from "@/components/Common/D2Header";
+import footer from "@/components/Common/Footer";
 import JsonCSV from "vue-json-csv";
 import service from "@/service";
+import VuePapaParse from "vue-papa-parse";
 
+//Import required CSS
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap-vue/dist/bootstrap-vue.css";
 import "sweetalert2/dist/sweetalert2.min.css";
-
 require("vue-tour/dist/vue-tour.css");
 require("@/assets/scss/custom.scss"); //Don't change this position, this should be at last only.
 
+//Add packages to Highcharts
 Exporting(Highcharts);
 loadGantt(Highcharts);
 loadDrilldown(Highcharts);
@@ -46,31 +49,31 @@ highchartsMore(Highcharts);
 solidGauge(Highcharts);
 noData(Highcharts);
 
-Vue.component("D2Header", D2Header);
+//Global component registration
 Vue.component("Loader", loader);
 Vue.component("sidebar", sidebar);
-Vue.component("Chatbot", chatbot);
 Vue.component("Header", header);
+Vue.component("D2Header", D2Header);
 Vue.component("Footer", footer);
 Vue.component("downloadCsv", JsonCSV);
 
+//Global mixin registration
 Vue.mixin(GlobalMixin);
 
+//Global plugin registration
 Vue.use(VueFullscreen);
 Vue.use(BootstrapVue);
-// Vue.use(Highcharts);
 Vue.use(HighchartsVue);
+Vue.use(VuePapaParse);
 Vue.use(VueTour);
+
 // Google Analytics. Tracking ID is coming from the 'index.html' file.
-// The analytics will be auto captured for all the pages using the 'router'. For other events we need to add respective code.
+// The analytics will be auto captured for all the pages using the 'router'.
+// For other events we need to add respective code.
 Vue.use(
   VueGtag,
   {
-    config: {
-      id: settings.ga,
-    },
-    appName: "Multidomain", // appName to capture screenview event
-    pageTrackerScreenviewEnabled: true, // By default captures page route, this allows to capture the page title
+    bootstrap: false,
   },
   router
 );
@@ -145,48 +148,45 @@ Highcharts.seriesType(
 );
 
 Vue.prototype.$moment = moment;
-Vue.prototype.current_page = "Summary_dqr";
-Vue.prototype.current_height = "620";
 Vue.config.productionTip = false;
 
-initI18n().then((i18n) => {
-  //Set default options for Highcharts
-  Highcharts.setOptions({
-    lang: {
-      thousandsSep: ",",
-      noData: i18n.t("no_data_to_display"),
-      drillUpText: i18n.t("backTo") + " {series.name}",
-    },
-  });
+//Set default options for Highcharts
+Highcharts.setOptions({
+  lang: {
+    thousandsSep: ",",
+  },
+});
 
-  //Sweetalert2 global options
-  const options = {
-    confirmButtonColor: "#3085d6",
-    cancelButtonColor: "#d33",
-    confirmButtonText: i18n.t("ok"),
-    cancelButtonText: i18n.t("cancelbtn"),
-    allowOutsideClick: false,
-  };
-  Vue.use(VueSweetalert2, options);
+//Sweetalert2 global options
+const options = {
+  confirmButtonColor: "#3085d6",
+  cancelButtonColor: "#d33",
+  allowOutsideClick: false,
+};
+Vue.use(VueSweetalert2, options);
 
-  // Create instance of the Vue and rendering it to the 'index.html' page
-  const app = new Vue({
-    i18n, // Inject the localization [i18n] library for the translations
-    store, // Inject the vuex store to manage the state values
-    router, // Inject router
-    render: (h) => h(App), // Render the app
-  }).$mount("#app");
+// Create instance of the Vue and rendering it to the 'index.html' page
+const app = new Vue({
+  i18n, // Inject the localization [i18n] library for the translations
+  store, // Inject the vuex store to manage the state values
+  router, // Inject router
+  render: (h) => h(App), // Render the app
+}).$mount("#app");
 
-  // Executes before entering to the actual route [page], to check the required permissions and allowed modules
-  router.beforeEach((to, from, next) => {
-    store.commit("setLoading", true);
-    // Check if user accidentally clears the sessionStorage which contains the store needed for the project
+// Executes before entering to the actual route [page], to check the required permissions and allowed modules
+router.beforeEach((to, from, next) => {
+  store.commit("setLoading", true);
+  // Check if user accidentally clears the sessionStorage which contains the store needed for the project
+  if (store.getters.getIsClearCache) {
+    next();
+  } else {
+    //Check for the base url
     if (!store.getters.getBaseURL) {
       next("/");
       store.commit("setLoading", false);
       app.$swal({
         title: i18n.t("noBaseURL"),
-        showCloseButton: true,
+        confirmButtonText: i18n.t("ok"),
       });
     } else {
       // Check for the user details
@@ -195,7 +195,7 @@ initI18n().then((i18n) => {
         store.commit("setLoading", false);
         app.$swal({
           title: i18n.t("noUserDetails"),
-          showCloseButton: true,
+          confirmButtonText: i18n.t("ok"),
         });
       } else {
         // Check for the user role
@@ -204,30 +204,30 @@ initI18n().then((i18n) => {
           next();
         } else {
           // For the Non-admin users, we need to check the allowed routes from the 'store'.
-          if (
-            store.getters.getIsClearCache ||
-            store.getters.getUserPermissions.routes.includes(to.name)
-          ) {
+          if (store.getters.getUserPermissions.routes.includes(to.name)) {
             next();
           } else {
             next("/");
             store.commit("setLoading", false);
             app.$swal({
               title: i18n.t("noModules"),
-              showCloseButton: true,
+              confirmButtonText: i18n.t("ok"),
             });
           }
         }
       }
     } //end of else
-  });
+  }
+});
 
-  // Executes after entering to the actual route [page], just to close the loader
-  router.afterEach((to) => {
-    if (to.name === "Dashboard") {
-      store.commit("setNamespace", settings.tableName);
-    }
-    service.applyTheme();
-    store.commit("setLoading", false);
-  });
+// Executes after entering to the actual route [page], just to close the loader
+router.afterEach((to) => {
+  if (to.name === "Dashboard") {
+    store.commit(
+      "setNamespace",
+      store.getters.getAppSettings.tableName || settings.tableName
+    );
+  }
+  service.applyTheme();
+  store.commit("setLoading", false);
 });

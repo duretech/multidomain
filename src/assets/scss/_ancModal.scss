@@ -1,5 +1,8 @@
-#modal-anc,#modalfp{
+#modal-anc{
 
+    padding-top: 36px;
+    background-color: var(--bg-main-color) !important;
+   
     .modal-title {
         font-size: var(--font-size-sub-heading);
     }
@@ -8,13 +11,15 @@
         border-bottom: 1px solid var(--modal-header-color);
 
         .close {
-            color: var(--color-white);
+            color: var(--text-color);
         }
     }
 
     .modal-content {
-        background-color: var(--primary-bg-color);
+        background-color: var(--bg-main-color);
         color           : var(--fonts-white-shade);
+        border-right: 1px solid transparent !important;
+        border-radius: 0 !important;
 
         .table-heading {
 
@@ -71,115 +76,6 @@
         display: none !important;
     }
 
-    #dropdownanc {
-        .btn {
-            background-color: transparent !important;
-            border          : 0;
-            border-bottom   : 1px solid var(--fonts-white-shade);
-            border-radius   : 0;
-            font-size       : var(--font-size-p-small-text);
-            padding-left    : 0;
-            padding-right   : 0;
-            color           : var(--fonts-white-shade);
-
-            &:hover,
-            &:active,
-            &:focus,
-            &.focus,
-            &:checked {
-                color           : var(--fonts-white-shade);
-                background-color: transparent !important;
-
-                box-shadow: none !important;
-            }
-        }
-
-        .dropdown-menu {
-            font-size       : var(--font-size-p-small-text);
-            background-color: var(--dropdown-bg-color);
-            border          : 1px solid var(--dropdown-border-color);
-            width: 100%;
-            border-radius: 10px;
-            margin: 0;
-
-            .dropdown-item {
-                background-color: var(--dropdown-item-bg);
-                z-index: 999;
-                color  : var(--fonts-white-shade) !important;
-                width: 80%;
-                margin: 0 auto;
-                border:1px solid var(--dropdown-border-color);
-                padding: 5px 5px;
-
-            }
-
-            // .dropdown-item:hover {
-
-            //     background-color: var(--chart-container-color);
-            // }
-        }
-
-        .dropdown-toggle::after {
-
-            margin-left: 1.5em;
-
-        }
-    }
-
-    #dropdownvisit {
-        .btn {
-            background-color: transparent !important;
-            border          : 0;
-            border-bottom   : 1px solid var(--fonts-white-shade);
-            border-radius   : 0;
-            font-size       : var(--font-size-p-small-text);
-            padding-left    : 0;
-            padding-right   : 0;
-            color           : var(--fonts-white-shade);
-
-            &:hover,
-            &:active,
-            &:focus,
-            &.focus,
-            &:checked {
-                color           : var(--fonts-white-shade);
-                background-color: transparent !important;
-                box-shadow      : none !important;
-            }
-        }
-
-        .dropdown-menu {
-            font-size       : var(--font-size-p-small-text);
-            background-color: var(--dropdown-bg-color);
-            border          : 1px solid var(--dropdown-border-color);
-            width: 120%;
-            border-radius: 10px;
-            margin: 0;
-            z-index         : 1999;
-
-            .dropdown-item {
-                color  : var(--fonts-white-shade) !important;
-                width: 90%;
-                background-color: var(--dropdown-item-bg);
-                margin: 0 auto; 
-                border:1px solid var(--dropdown-border-color);
-                padding: 5px 5px;
-            }
-
-            // .dropdown-item:hover {
-
-            //     background-color: var(--chart-container-color);
-            // }
-
-        }
-
-        .dropdown-toggle::after {
-
-            margin-left: 1em;
-
-        }
-    }
-
     .anchor-map {
         .l-map {
             height          : calc(100vh - 402px);
@@ -207,13 +103,13 @@
             }
 
             .leaflet-control-fullscreen a {
-                // background-image   : url('../images/icons/mapfull.png') !important;
-                background-size: 22px 46px;
+                background-size: 16px 16px !important;
+                background-position: center !important;
                 // padding-right: 29px;
                 // padding-bottom: 29px;
                 // padding-left: 0px;
-                background     :  url(../images/zoom.png) no-repeat 0 0 !important;
-                background-color: #2f2d55 !important;
+                background     :  url(../images/icons/map-full.png) no-repeat 0 0 !important;
+                background-color: var(--sidebar-main-active-color) !important;
             }
 
             #legend {
@@ -229,14 +125,11 @@
                     border-bottom : 1px solid var(--border-color);
                     width: 100%;
                     position: relative;
-                    padding: 3px 6px;
+                    padding: 4px 8px;
                     border-radius: 6px
                    
                 }
-                .select-wrapper:after{
-                    top: 0px;
-                    right: 4px;
-                }
+               
                 .descVal {
                     &:hover {
                         cursor          : pointer;
@@ -359,7 +252,7 @@
       .mapDivLegend ul {
         list-style: none;
         padding-left: 0;
-        margin-top: 3%;
+        // margin-top: 3%;
         margin-bottom: 2%;
       }
       .mapDivLegend li a {
@@ -393,27 +286,134 @@
 
 
    }
- 
-   
-
-
         }
+
+
+        p {
+            font-size: 0.9rem;
+        }
+                    
 
              
 }
+
+#modal-anc___BV_modal_outer_ {
+	z-index: 9999 !important;
+}
+
+#modal-newanc {
+
+    
+          
+    .border-modal {
+        border: 1px solid var(--border-grey-color) !important;
+        border-radius: 5px;
+        padding: 1.2rem;
+        height: 580px;
+        overflow-y: auto;
+    }
+
+    .border-map{
+        border: 1px solid var(--border-grey-color) !important;
+        padding: 1.2rem;
+        border-radius: 5px;
+        height: 580px;
+        overflow-y: auto;
+    }
+
+    .border-greyright{
+       border: 1px solid var(--border-grey-color) !important;
+       border-radius: 5px;
+       height: 515px;
+         overflow-y: auto;
+
+       .border-bottom{
+        border-bottom: 1px solid transparent !important;
+       }
+
+       .summary-highchart1-header{
+        background-color: transparent !important;
+       }
+    }
+
+    
+
+       .anchor-map{
+        height: 450px !important;
+     }
+       .summary-highchart1-header{
+        background-color: transparent !important;
+       }
+
+       #legend{
+        margin-bottom: 22px;
+    }   
+
+    .modal-content{
+        background-color: var(--bg-main-color) !important;
+    }
+
+    .modal-content .modal-body .btn-secondary {
+        background-color: var(--sidebar-main-active-color) !important;
+        border-color: var(--sidebar-main-active-color) !important;
+    } 
+    
+    .leaflet-control .select-wrapper .form-control{
+        background-color: var(--sidebar-main-active-color) !important;
+        border-color: var(--sidebar-main-active-color) !important;
+    }
+}
+
+.modal-newac {
+
+    .border-greytheme{
+        height: 97% !important;
+        overflow-y: auto;
+        margin-bottom: 15px !important;
+    }
+
+    .analytic-charts{
+        height: 97% !important;
+        overflow-y: auto;
+    }
+
+    .anc-indicatormap .anchor-map{
+        height: 400px !important;
+        padding-top: 20px;
+    }
+   
+    .border-bottom
+    {
+        border-bottom: 1px solid transparent !important;
+    }
+    
+    .anc-charts{
+        border: 1px solid transparent !important;
+    }
+
+    .borderGrey{
+        border-bottom: 1px solid transparent !important;
+        border-radius: 0 !important;
+       }
+       .totalicons{
+        bottom: 10px !important;
+       }   
+} 
          
 .modal-title {
     font-size: var(--font-size-sub-heading);
-    color: #E5E5E5 !important;
+    color: var(--main-font-color) !important;
 }
 
-.fpchart-body{
-    background-color: var(--chart-container-color) !important;
+.bg-map {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    font-size: var(--font-size-chart-sidebar-heading);
 }
 
-.fphighcharts{
-    background-color: var(--primary-bg-color) !important;
-}
+
+// responsive css
 
 @media only screen and (min-width: 1920px) {
 
@@ -421,8 +421,6 @@
         max-width: 1100px !important;
     }
 }
-
-
 
 @media only screen 
 and (min-device-width: 768px) 
@@ -442,8 +440,3 @@ and (-webkit-min-device-pixel-ratio: 1) {
 }
 
 
-.bg-map {
-    background-color: var(--chart-container-color) !important;
-    color: var(--fonts-white-shade);
-    font-size: var(--font-size-chart-sidebar-heading);
-}

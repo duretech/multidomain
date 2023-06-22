@@ -26,7 +26,7 @@
           class="form-group pr-3"
           v-if="recentActiveTab == 'output' || recentActiveTab == 'emu'"
         >
-          <label class="text-capitalize">{{ $t("year") }}</label>
+          <label class="text-capitalize text-center">{{ $t("year") }}</label>
           <select
             class="form-control tabbarselect"
             v-model="emuYear"
@@ -53,7 +53,7 @@
           <b-button
             small
             @click.prevent.stop="viewEMU"
-            class="position-relative mt-3 viewemuBtn"
+            class="position-relative mt-3 viewemuBtn blue-btn"
             v-else-if="autoSaveSource"
           >
             <span class="small"> {{ $t("viewEmu") }}</span>
@@ -103,6 +103,7 @@
       centered
       size="xl"
       :title="EMU"
+      :ok-title="$t('ok')"
       no-close-on-backdrop
     >
       <div class="row">
@@ -117,9 +118,20 @@
         <!-- <div class="col-4">
 
           </div> -->
-        <div class="col-8">
+        <div class="col-3">
+          <div class="text-right small pb-3">
+            <input
+              type="text"
+              class="form-control"
+              id="inputScorecardSearch"
+              :placeholder="$t('search')"
+              v-model="emuSearch"
+            />
+          </div>
+        </div>
+        <div class="col-9">
           <div class="d-flex justify-content-end pb-3 text-right">
-            <div class="small w-50">
+            <div class="small w-50 mx-3">
               <treeselect
                 name="Locations"
                 :multiple="true"
@@ -135,25 +147,15 @@
             <b-button
               small
               @click.prevent.stop="generateEMU"
-              class="position-relative mx-4"
+              class="position-relative blue-btn h-50"
               :disabled="selectedEMULocation.length === 0"
             >
               <span class="small">Regenerate EMU</span>
             </b-button>
           </div>
         </div>
-        <div class="col-3 offset-9">
-          <div class="text-right small pb-3">
-            <input
-              type="text"
-              class="form-control"
-              id="inputScorecardSearch"
-              :placeholder="$t('search')"
-              v-model="emuSearch"
-            />
-          </div>
-        </div>
-        <div class="col-12">
+
+        <div class="col-12 table-annual">
           <b-table
             head-variant="light"
             responsive
@@ -202,8 +204,7 @@ import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 import loadLocChildMixin from "@/helpers/LoadLocationChildMixin";
 export default {
   props: [
-    "defaultYear",
-    "emuYears",
+    // "emuYears",
     "locationValue",
     "showToolbarOnTablet",
     "recentActiveTab",
@@ -239,9 +240,9 @@ export default {
       defaultExpandLevel: 1,
       options: [],
       value: null,
-      firstTime: true,
+      firstTime: false,
       selected: "",
-      emuYear: this.defaultYear,
+      emuYear: null,
     };
   },
   mixins: [loadLocChildMixin],
@@ -261,21 +262,21 @@ export default {
     recentActiveTab(vale) {
       //console.log(vale)
     },
-    defaultYear(newValue) {
-      if (newValue) {
-        console.log(newValue);
-      }
-    },
+
     emuYear(newValue) {
+      console.log("emuYear watch", newValue);
       if (newValue) {
         this.$emit("emuYear", newValue);
+
+        // this.$nextTick(() => {
+        // });
       }
     },
-    locationValue(newValue) {
-      if (newValue) {
-        this.value = newValue;
-      }
-    },
+    // locationValue(newValue) {
+    //   if (newValue) {
+    //     this.value = newValue;
+    //   }
+    // },
     value(newValue) {
       if (!this.firstTime) {
         this.$emit("location", newValue);
@@ -316,20 +317,7 @@ export default {
           isRowHeader: true,
         },
       ];
-      let locale = this.$i18n.locale,
-        key = `autoSaveEMUAnnual_${locale}`;
-      if (!settings.country) {
-        let appId = this.$store.state.appId ? this.$store.state.appId : "",
-          appUserId = this.$store.state.appUserId
-            ? this.$store.state.appUserId
-            : "";
-        if (appId && appUserId) {
-          key = `${appUserId}_${appId}_autoSaveEMUAnnual_${locale}`;
-        } else {
-          this.showLocalStorageError();
-          return;
-        }
-      }
+      let key = this.generateKey(`autoSaveEMUAnnual_${this.$i18n.locale}`);
       service
         .getSavedConfig(key)
         .then((res) => {
@@ -362,7 +350,8 @@ export default {
       this.options = JSON.parse(
         JSON.stringify(this.$store.getters.getLocationList)
       );
-      this.value = this.locationValue;
+      this.value = this.options[0].id;
+      this.$emit("defLevel", this.value.split("/")[0]);
       this.emuYear =
         this.dqrResponse.emu["Background_Data"]["SSDataRecentYear"];
     },
@@ -373,6 +362,26 @@ export default {
         s[this.$i18n.t("location")].toLowerCase().includes(this.emuSearch)
       );
       return filterdData;
+    },
+    emuYears() {
+      let aKeys = [],
+        nStart = this.dqrResponse.emu["Background_Data"]["startingYear"] * 1,
+        nEnd = this.dqrResponse.emu["Background_Data"]["SSDataRecentYear"] * 1;
+      //let aKeys = [],nStart = this.sourceStartYear * 1,nEnd = this.sourceEndYear * 1;
+      if (!(isNaN(nStart) || isNaN(nEnd))) {
+        while (nStart <= nEnd) {
+          aKeys.push(nStart);
+          nStart++;
+        }
+      }
+      let i,
+        nLen = aKeys.length,
+        aFinalList = [];
+      for (i = 0; i < nLen; i++) {
+        let oTemp = { val: aKeys[i], label: aKeys[i] };
+        aFinalList.push(oTemp);
+      }
+      return aFinalList;
     },
   },
   mounted() {
