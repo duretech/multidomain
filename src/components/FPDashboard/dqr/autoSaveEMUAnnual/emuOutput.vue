@@ -291,12 +291,14 @@
                         <p class="m-0px">
                           <span>
                             <img
-                            :src="require('@/assets/images/icons/downloadActive.svg')"
-                            class="w-auto mx-1 mt-lg-n1"
-                            :style="{ filter: filterColor }"
-                          />
+                              :src="
+                                require('@/assets/images/icons/downloadActive.svg')
+                              "
+                              class="w-auto mx-1 mt-lg-n1"
+                              :style="{ filter: filterColor }"
+                            />
                           </span>
-                        <span class="mx-1">  {{ $t("csv") }} </span>
+                          <span class="mx-1"> {{ $t("csv") }} </span>
                         </p>
                       </div>
                     </div>
@@ -361,7 +363,7 @@ export default {
     "emuOuputFinalEMu",
     "initialYear",
   ],
-  mixins: [DynamicImageMixin,StaticColorMixin],
+  mixins: [DynamicImageMixin, StaticColorMixin],
   components: {
     cardComponent,
     selectDD,
@@ -406,7 +408,7 @@ export default {
     this.drawAnnualAvgComparision();
     this.drawComparisionofUsersByMethods();
     this.drawUserBymethods(true);
-    this.getMethodData();
+    //this.getMethodData();
     this.saveFinalEMU();
   },
   methods: {
@@ -430,33 +432,55 @@ export default {
         this.$store.getters.getIsAdmin ||
         this.$store.getters.getUserPermissions.canComment;
     },
-    getOtherChartDetails(obj,index,chartType){
- obj.xTitle =
-        typeof this.data["Output"]["derivedCharts"][index]["chartOptions"]["xAxis"][
-          "text"
-        ] =="object" ? this.data["Output"]["derivedCharts"][index]["chartOptions"]["xAxis"][
-          "text"
-        ][this.$i18n.locale]:this.data["Output"]["derivedCharts"][index]["chartOptions"]["xAxis"][
-          "text"
-        ];
+    getOtherChartDetails(obj, index, chartType) {
+      obj.xTitle =
+        typeof this.data["Output"]["derivedCharts"][index]["chartOptions"][
+          "xAxis"
+        ]["text"] == "object"
+          ? this.data["Output"]["derivedCharts"][index]["chartOptions"][
+              "xAxis"
+            ]["text"][this.$i18n.locale]
+          : this.data["Output"]["derivedCharts"][index]["chartOptions"][
+              "xAxis"
+            ]["text"];
       obj.yTitle =
-        typeof this.data["Output"]["derivedCharts"][index]["chartOptions"]["yAxis"][
-          "text"
-        ] =='object' ? this.data["Output"]["derivedCharts"][index]["chartOptions"]["yAxis"][
-          "text"
-        ][this.$i18n.locale]:this.data["Output"]["derivedCharts"][index]["chartOptions"]["yAxis"][
-          "text"
-        ];
+        typeof this.data["Output"]["derivedCharts"][index]["chartOptions"][
+          "yAxis"
+        ]["text"] == "object"
+          ? this.data["Output"]["derivedCharts"][index]["chartOptions"][
+              "yAxis"
+            ]["text"][this.$i18n.locale]
+          : this.data["Output"]["derivedCharts"][index]["chartOptions"][
+              "yAxis"
+            ]["text"];
       obj.type = chartType;
       obj.title =
-        typeof this.data["Output"]["derivedCharts"][index]["chartOptions"]["chartName"]=='object' ? this.data["Output"]["derivedCharts"][index]["chartOptions"]["chartName"][this.$i18n.locale]:this.data["Output"]["derivedCharts"][index]["chartOptions"]["chartName"] ;
+        typeof this.data["Output"]["derivedCharts"][index]["chartOptions"][
+          "chartName"
+        ] == "object"
+          ? this.data["Output"]["derivedCharts"][index]["chartOptions"][
+              "chartName"
+            ][this.$i18n.locale]
+          : this.data["Output"]["derivedCharts"][index]["chartOptions"][
+              "chartName"
+            ];
       obj.disable =
-        this.data["Output"]["derivedCharts"][index]["chartOptions"]["disableChart"];
+        this.data["Output"]["derivedCharts"][index]["chartOptions"][
+          "disableChart"
+        ];
       obj.chartInfo =
-        typeof this.data["Output"]["derivedCharts"][index]["chartOptions"]["chartInfo"] == 'object' ? this.data["Output"]["derivedCharts"][index]["chartOptions"]["chartInfo"][this.$i18n.locale]:this.data["Output"]["derivedCharts"][index]["chartOptions"]["chartInfo"];
+        typeof this.data["Output"]["derivedCharts"][index]["chartOptions"][
+          "chartInfo"
+        ] == "object"
+          ? this.data["Output"]["derivedCharts"][index]["chartOptions"][
+              "chartInfo"
+            ][this.$i18n.locale]
+          : this.data["Output"]["derivedCharts"][index]["chartOptions"][
+              "chartInfo"
+            ];
       obj.cid =
         this.data["Output"]["derivedCharts"][index]["chartOptions"]["cid"];
-return obj;
+      return obj;
     },
     drawComparisionofEmuMcpr() {
       this.options = [];
@@ -528,9 +552,9 @@ return obj;
       // let oResponse =  dataM.getEMUOPCompChart(this.outputData, this.filter);
       //oResponse.title = this.bAllWomen ? "Comparing EMUs and mCPR (AWRA)" : 'Comparing EMUs and mCPR (MWRA)';
       oResponse.source = this.category;
-     
+
       //oResponse.data = [...oResponse.data,...aPMC,...aMICS];
-      oResponse = this.getOtherChartDetails(oResponse,0,"line")
+      oResponse = this.getOtherChartDetails(oResponse, 0, "line");
       oResponse.data = [...oResponse.data, ...aMICS];
       oResponse.fields = [];
       oResponse.tableData = [];
@@ -558,7 +582,7 @@ return obj;
     },
     drawAnnualAvgComparision() {
       let oResponse = dataM.getSlopData(this.emuMcprComparisionChart);
-     oResponse = this.getOtherChartDetails(oResponse,1,"bar")
+      oResponse = this.getOtherChartDetails(oResponse, 1, "bar");
       this.annualAvgComparisionChart = oResponse;
       this.saveAnnualAvgComp.categories = oResponse.categories;
       this.saveAnnualAvgComp.data = oResponse.data;
@@ -585,7 +609,7 @@ return obj;
         tableData: oRet.tableData,
         fields: oRet.fields,
       };
-      oResponse = this.getOtherChartDetails(oResponse,2,"bar")
+      oResponse = this.getOtherChartDetails(oResponse, 2, "bar");
       this.annualComparisionOfMethods = oResponse;
       this.saveCompareMethods.categories = oResponse.categories;
       this.saveCompareMethods.data = oResponse.data;
@@ -610,6 +634,8 @@ return obj;
       this.saveuserTrendsByMethods.type = "line";
       this.saveuserTrendsByMethods.reportChartType = "line";
       this.saveuserTrendsByMethods.isPeriodChart = true;
+      this.saveuserTrendsByMethods.cid =
+        this.data["Output"]["derivedCharts"][3]["chartOptions"]["cid"];
       this.userMethodList = aCategories;
       if (p_bFlag) {
         this.selectedUserMethod = 0;
@@ -625,9 +651,17 @@ return obj;
           tableData: oRet[sMethod].tableData,
           //fields: oRet[sMethod].fields
         };
-        this.annualuserTrendsDataByMethods = this.getOtherChartDetails(this.annualuserTrendsDataByMethods,3,"line")
+        this.annualuserTrendsDataByMethods = this.getOtherChartDetails(
+          this.annualuserTrendsDataByMethods,
+          3,
+          "line"
+        );
       }
-      console.log(this.saveuserTrendsByMethods);
+      console.log(
+        this.saveuserTrendsByMethods,
+        this.saveuserTrendsByMethods,
+        "----"
+      );
     },
     getMethodData() {
       localStorage.setItem("methodCategory", this.category);
@@ -807,7 +841,6 @@ return obj;
               this.$store.commit("setEMUMethodTable", null);
               this.$store.commit("setEMUColors", null);
               this.$emit("saveEMUAuto", this.location);
-             
             });
 
             // this.saveLocalStorage(key, this.emuMcprComparisionChart, 'compEMU')
@@ -846,7 +879,6 @@ return obj;
             this.$store.commit("setEMUMethodTable", null);
             this.$store.commit("setEMUColors", null);
             this.$emit("saveEMUAuto", this.location);
-           
           });
         }
       });
@@ -915,7 +947,4 @@ return obj;
     border-color: var(--new-footer-component-color);
   }
 }
-
-
 </style>
-

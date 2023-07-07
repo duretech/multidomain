@@ -178,7 +178,6 @@
           style="
             height: 38px;
             margin-top: 21px;
-            background-color: var(--subinner-bg-color);
             border: none;
           "
           @click.prevent.stop="sendDetails"

@@ -43,6 +43,9 @@
     >
       <b-spinner type="grow" label="Spinning"></b-spinner>
     </div>
+    <div v-if="dataFetched">
+      {{ locationPeriod.locationName }}: {{ locValue }}
+    </div>
   </div>
 </template>
 <script>
@@ -83,6 +86,21 @@ export default {
         chart = true;
       }
       return chart;
+    },
+    locValue() {
+      let val = this.$i18n.t("NA");
+      let isSeries = this.chartData.series.find(
+        (s) => s.name === this.selectedInd
+      );
+      if (isSeries) {
+        let isData = isSeries.data.find(
+          (d) => d.locationID === this.locationPeriod.location.split("/")[1]
+        );
+        if (isData) {
+          val = isData.y;
+        }
+      }
+      return val;
     },
   },
   watch: {
@@ -149,6 +167,14 @@ export default {
             console.log("err", err);
           }
         }
+        let obj = {
+          displayName: this.locationPeriod.locationName,
+          id: this.locationPeriod.location.split("/")[1],
+          level: this.locationPeriod.location.split("/")[0],
+          name: this.locationPeriod.locationName,
+          parent: null,
+        };
+        children.unshift(obj);
         let emuModule = { ...emuResponse },
           period = translateDate({
             rawDate: this.locationPeriod.period,
@@ -187,14 +213,14 @@ export default {
             }
             if (data[cat.id]?.[catKey]?.length) {
               let index = data[cat.id][catKey].indexOf(period);
-              data[cat.id][dataKey].forEach((data) => {
+              data[cat.id][dataKey].forEach((innerdata) => {
                 let compKey = this.$i18n.t("EMU");
                 if (this.locationPeriod.periodType === "yearly") {
                   compKey = data[cat.id]["source"];
                 }
-                if (data.name == compKey) {
-                  let y = data["data"][index]
-                    ? data["data"][index].toFixed(2) * 1
+                if (innerdata.name == compKey) {
+                  let y = innerdata["data"][index]
+                    ? innerdata["data"][index].toFixed(2) * 1
                     : null;
                   totalSeriesObj.data.push({
                     locationID: cat.id,
@@ -287,7 +313,7 @@ export default {
       let location = loc.split("/")[1];
       let levelID = loc.split("/")[0] * 1;
       let subLevelID = levelID + 1;
-      let levels = [subLevelID];
+      let levels = [levelID, subLevelID];
       let { de, catArray } = this.getMapping();
       let period = getDateRange({
         sendPeriod: this.locationPeriod.period,
@@ -320,11 +346,13 @@ export default {
                 periodArr: periodArr,
                 currentPeriod: periodArr[0],
                 periodType: this.locationPeriod.periodType,
-                cData: { chartCategory: "regional", isSingleSource: true },
+                cData: {
+                  chartCategory: "regional",
+                  isSingleSource: true,
+                  isHigherLoc: true,
+                },
               });
               this.chartData = cObj;
-            } else {
-              // errorMsg: "No Data to Display",
             }
             this.dataFetched = true;
             this.abortController = null;

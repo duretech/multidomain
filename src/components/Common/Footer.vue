@@ -493,7 +493,6 @@
           style="
             height: 38px;
             margin-top: 21px;
-            background-color: var(--subinner-bg-color);
             border: none;
           "
           @click.prevent.stop="sendDetails"
@@ -514,7 +513,10 @@ import NavigationMixin from "@/helpers/NavigationMixin";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 import DynamicImageMixin from "@/helpers/DynamicImageMixin";
 import loadLocChildMixin from "@/helpers/LoadLocationChildMixin";
-import { getLocationName } from "@/components/Common/commonFunctions";
+import {
+  excludeName,
+  getLocationName,
+} from "@/components/Common/commonFunctions";
 export default {
   props: [
     "showTrend",
@@ -733,7 +735,7 @@ export default {
             };
         const { locName } = getLocationName(obj);
         if (locName) {
-          obj.locationName = locName;
+          obj.locationName = excludeName(locName);
         }
         // this.$emit("getLocationPeriod", obj);
       }
@@ -750,7 +752,7 @@ export default {
             };
         const { locName } = getLocationName(obj);
         if (locName) {
-          obj.locationName = locName;
+          obj.locationName = excludeName(locName);
         }
         // this.$emit("getLocationPeriod", obj);
         if (
@@ -811,7 +813,7 @@ export default {
         };
         const { locName } = getLocationName(obj);
         if (locName) {
-          obj.locationName = locName;
+          obj.locationName = excludeName(locName);
         }
         this.$emit("getLocationPeriod", obj);
       } else {
@@ -820,7 +822,7 @@ export default {
             this.allowedFinalDate
           } ${this.$i18n.t("toSmall")} ${this.allowedStartDate}]`,
         }).then((result) => {
-          if (result) {
+          if (result && this.$store.getters.getIsMultiProgram) {
             this.goTo({
               setNamespace: true,
               routeName: "integrated-dashboard",

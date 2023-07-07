@@ -834,12 +834,10 @@ export default {
     newQuestion: "Add a new question using the",
     NA: "N/A",
     MNCHPerformance:
-      "This section is designed to highlight priority indicators that show how the MCH program is performing. Indicators are compared to the prior month to show whether there has been",
-    understandingInd:
-      "Understanding what indicators are changing can help point to areas of strong performance as well as areas that need greater attention. Select the indicators below to see more details on their performance at a national and subnational level and over time.",
-    positive5: " positive growth (of +5% or more),",
-    decline5: " declines (-5% or more), ",
-    limited5: "or limited change (+/- 5%).",
+      "This section is designed to highlight priority indicators that show how the MCH program is performing. Indicators are compared to the prior month to show whether there has been {positive5}, {decline5}, or {limited5}. Understanding what indicators are changing can help point to areas of strong performance as well as areas that need greater attention. Select the indicators below to see more details on their performance at a national and subnational level and over time.",
+    positive5: "Positive Growth (> 5%)",
+    decline5: "Declines (< -5%)",
+    limited5: "Limited Change (+/- 5%)",
     per_change_from: "% change from",
     trendsKeyInd: "Trends in key indicators",
     noMap: "No Mapping Available",
@@ -1084,6 +1082,8 @@ export default {
     rr_text8: "Reporting Rate >= Benchmark",
     rr_text9: "Reporting Rate < Benchmark",
     rr_text11: "and ( Average - Reporting Rate ) > Substantial change",
+    cngPtPos: "+ve Change",
+    cngPtNeg: "-ve Change",
   },
   fr: {
     backTo: "ᐊ Retour à", //checked
@@ -1936,12 +1936,10 @@ export default {
     newQuestion: "Ajouter une nouvelle question à l'aide de", //checked
     NA: "N/A", //checked
     MNCHPerformance:
-      "Cette section est conçue pour mettre en évidence les indicateurs prioritaires qui montrent la performance du programme SMI. Les indicateurs sont comparés au mois précédent pour montrer s'il y en a eu", //checked
-    understandingInd:
-      "Comprendre quels indicateurs changent peut aider à mettre en évidence les domaines de forte performance ainsi que les domaines qui nécessitent une plus grande attention. Sélectionnez les indicateurs ci-dessous pour voir plus de détails sur leur performance aux niveaux national et infranational et au fil du temps.", //checked
-    positive5: "une croissance positive (de +5% ou plus),", //checked
-    decline5: "diminue (-5 % ou plus),", //checked
-    limited5: "ou changement limité (+/- 5%).", //checked
+      "Cette section est conçue pour mettre en évidence les indicateurs prioritaires qui montrent la performance du programme SMI. Les indicateurs sont comparés au mois précédent pour montrer s'il y en a eu {positive5}, {decline5}, ou {limited5}. Comprendre quels indicateurs changent peut aider à mettre en évidence les domaines de forte performance ainsi que les domaines qui nécessitent une plus grande attention. Sélectionnez les indicateurs ci-dessous pour voir plus de détails sur leur performance aux niveaux national et infranational et au fil du temps.", //checked
+    positive5: "une croissance positive (> 5%),", //checked
+    decline5: "diminue (< -5 %),", //checked
+    limited5: "changement limité (+/- 5%).", //checked
     per_change_from: "% de variation de", //checked
     trendsKeyInd: "Tendances des indicateurs clés", //checked
     noMap: "Aucune cartographie disponible", //checked
@@ -2190,5 +2188,7 @@ export default {
     rr_text8: "Reporting Rate >= Benchmark",
     rr_text9: "Reporting Rate < Benchmark",
     rr_text11: "and ( Average - Reporting Rate ) > Substantial change",
+    cngPtPos: "+ve Change",
+    cngPtNeg: "-ve Change",
   },
 };

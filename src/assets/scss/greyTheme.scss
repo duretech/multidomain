@@ -19,13 +19,6 @@ body[data-theme~="grey"] {
         fill: var(--maindropdown-bg-color) !important;
     }
 
-    
-    .highcharts-legend-item-hidden text{
-        color: var(--legend-inactive-color) !important;
-        fill: var(--legend-inactive-color) !important;
-        font-weight: normal !important;
-
-    }
 
     .border-none {
         border: 1px solid transparent !important;
@@ -270,18 +263,18 @@ body[data-theme~="grey"] {
             background: var(--main-header-color) !important;
      }    
  
-     .summary-dqr{
-        background-color: var(--bg-main-color) !important;
+    //  .summary-dqr{
+    //     // background-color: var(--bg-main-color) !important;
 
-        .dqr-summary-btn:focus.collapsed{
-            background-color: transparent !important;
-            border-color: transparent !important;
-          }
-     }
+    //     .dqr-summary-btn:focus.collapsed{
+    //         background-color: transparent !important;
+    //         border-color: transparent !important;
+    //       }
+    //  }
    
 
      
-     .summary,
+    
      .dqr-section2{
          background-color: var(--bg-main-color) !important;
      }
@@ -298,9 +291,6 @@ body[data-theme~="grey"] {
          border: 3px solid var(--footer-components-color) !important;
      }
  
-     .summary-highchart1-header {
-        background-color: transparent !important;
-    }
    
     .summary-dot {
         background-color: var(--light-purple-color);
@@ -317,22 +307,12 @@ body[data-theme~="grey"] {
            background-color: var(--signoff-bg-color) !important;
        }
 
-       .dqr-summary-btn.not-collapsed,
        .summary-btn:hover,
        .summary-btn:focus{
         background-color: transparent !important;
         border: 1px solid var(--border-grey-color) !important;
        }
 
-       .summarydashboard-page .indicatorCardBody{
-        border: 1px solid transparent !important;
-    }
-
-
-    .analytic-charts{
-        border: 1px solid var(--border-grey-color) !important;
-       
-    }
 
     .analytic{ 
         
@@ -351,13 +331,6 @@ body[data-theme~="grey"] {
             background-color: transparent !important;
             border: transparent !important;
         }
-        .card-header:first-child,
-        .card-footer:last-child{
-            background-color: transparent !important;
-            border: transparent !important;
-            color: var(--text-color) !important;
-        }
-
        
         #benchmarking-sub-tabContent .fullContainer{
             // border-right: 1px solid var(--primary-bg-color) !important;
@@ -376,18 +349,6 @@ body[data-theme~="grey"] {
 
     }
 
-
-
-     #modal-anc {
-       
-
-    .modal-content{
-    background-color: var(--bg-main-color) !important;
-   
-    }
-
-   
-    }
 
     #modal-newanc {
     
@@ -491,13 +452,6 @@ body[data-theme~="grey"] {
 
              
         }    
-
-
-        .dqr-summary-collapse{
-            background-color: transparent !important;
-            border: 1px solid var(--border-grey-color) !important;
-        }
-
                 
         .dqr-table .thead-light th{
             border-color: var(--border-grey-color) !important;
@@ -535,34 +489,19 @@ body[data-theme~="grey"] {
             border-color: var(--signoff-top-card) !important;
            }
 
-           .indicatorSectionWrap .mainHeader h6,
+         
            .dqr-charts .summary-highchart1-header 
            {
                border-top: 1px solid transparent !important; 
            }  
            
-           .indicatorSectionWrap .mainHeader{
-            background-color: transparent !important;
-            border-bottom: transparent !important;
-            
-            }
-           
-        .emu-dqr .card,
-        .emu-dqr1 .card {
-          border: 1px solid var(--border-grey-color) !important;
-          border-radius: 5px !important;
-          background-color: transparent;
-        }
+        
 
           .emu-dqr .card-header,
           .emu-dqr1 .card-header {
-          border-color: transparent !important;
+         
           background-color: transparent !important;
           }
-
-        .border-dqrleft{
-          border-left: 1px solid var(--border-grey-color) !important;
-        }
 
         .dqr-scoreboard .card{
             background-color: var(--bg-main-color ) !important;
@@ -1254,17 +1193,6 @@ body[data-theme~="grey"] {
 
         }
 
-        .fullContainer{
-            border: 1px solid var(--border-grey-color) !important;
-            border-radius: 5px;
-        }
-
-        .card-header{
-            background-color: transparent !important;
-            border: transparent;
-        }
-
-      
     }
 
     .right_menu .fa{
@@ -1366,6 +1294,9 @@ body[data-theme~="grey"] {
         background-color: var(--maindropdown-bg-color) !important;
     }
 
+    .chart-dd-menu .list-group-item a:hover{
+        background-color: var(--bg-main-color) !important;
+    }
     #dropdownChartExportOptions{
         background-color: var(--bg-main-color) !important;
     }
@@ -1399,12 +1330,18 @@ body[data-theme~="grey"] {
         }
 
         .modal-content .form-control,
+        #createModuleModal .upload-logo .input-group,
         .report-dialog .custom-select,
         .vue-color .custom-select,
         #createModuleModal .custom-select
         {
             background-color: var(--signoff-bg-color ) !important;
             border: 1px solid var(--signoff-bg-color)!important;
+        }
+
+        #createModuleModal .dropdown-item.upload-item,
+        #createModuleModal .dropdown-item.upload-item:hover{
+            background-color: transparent !important;
         }
 
       
@@ -1794,6 +1731,7 @@ body[data-theme~="grey"] {
 
 .question-answer .form-control:disabled{
     background-color: var(--signoff-bg-color) !important;
+    border-color: var(--signoff-bg-color) !important;
 }
 
 }

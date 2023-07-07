@@ -156,10 +156,10 @@
                               <span>
                                 <img
                                   :src="
-                                    require('@/assets/images/icons/downloadActive.svg')
+                                    require('@/assets/images/icons/downloadcsvActive.svg')
                                   "
                                   class="w-auto mx-1 mt-lg-n1"
-                                  :style="{ filter: filterColor }"
+                                 
                                 />
                               </span>
                               <span class="mx-1"> {{ $t("csv") }} </span>
@@ -698,6 +698,7 @@ import {
   getOrg,
   getChild,
   getParent,
+  excludeName,
   translateDate,
   formatSingleDate,
 } from "@/components/Common/commonFunctions";
@@ -911,17 +912,19 @@ export default {
       if (box.length) {
         box = box.map((b) => ({
           ...b,
-          subTabs: b.subTabs.map((st) => {
-            let isFound = this.scores.findIndex((s) => s.id === st.id);
-            st.navLink = `${tab.group}-${tab.id}-${b.id}-${st.id}`;
-            if (isFound >= 0) {
-              st = {
-                ...st,
-                scoreDetails: this.scores[isFound],
-              };
-            }
-            return st;
-          }),
+          subTabs: b.subTabs
+            .filter((st) => st.isSummary)
+            .map((st) => {
+              let isFound = this.scores.findIndex((s) => s.id === st.id);
+              st.navLink = `${tab.group}-${tab.id}-${b.id}-${st.id}`;
+              if (isFound >= 0) {
+                st = {
+                  ...st,
+                  scoreDetails: this.scores[isFound],
+                };
+              }
+              return st;
+            }),
         }));
       }
       return box;
@@ -1250,16 +1253,16 @@ export default {
       ];
       scorecardDetails.forEach((s) => {
         let innerItem = {
-            [this.$i18n.t("location")]: s.name,
-            [this.$i18n.t("parent")]: s.parent?.name || "-",
+            [this.$i18n.t("location")]: excludeName(s.name),
+            [this.$i18n.t("parent")]: excludeName(s.parent?.name || "-"),
             scoreDetails: [],
             _cellVariants: {},
           },
           innerItemDownload = {
             [this.$i18n.t("group")]:
               this.$store.getters.getActiveTab.split("-")[0],
-            [this.$i18n.t("location")]: s.name,
-            [this.$i18n.t("parent")]: s.parent?.name || "-",
+            [this.$i18n.t("location")]: excludeName(s.name),
+            [this.$i18n.t("parent")]: excludeName(s.parent?.name || "-"),
           };
         let positiveScore = 0,
           totalScore = 0,

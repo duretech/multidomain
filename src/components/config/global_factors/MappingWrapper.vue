@@ -215,7 +215,8 @@
 import service from "@/service";
 import DynamicImageMixin from "@/helpers/DynamicImageMixin";
 import ReFetchConfigMixin from "@/helpers/ReFetchConfigMixin";
-import { randomString } from "@/components/Common/commonFunctions";
+import { getColor, randomString } from "@/components/Common/commonFunctions";
+const c = getColor();
 const indicatorConfig = {
   indicator: {
     id: null,
@@ -223,7 +224,7 @@ const indicatorConfig = {
     disable: false,
     static_name: "",
     subIndicator: [],
-    color: "#000000",
+    color: c,
   },
 };
 const subIndicatorConfig = {
@@ -231,7 +232,7 @@ const subIndicatorConfig = {
   name: {},
   selectedDE: [],
   static_name: "",
-  color: "#000000",
+  color: c,
   type: "indicator",
 };
 

@@ -101,7 +101,10 @@
                   </div></b-col
                 >
                 <b-col cols="2" class="px-10px">
-                  <div class="summary-dot fs-17-1920" :class="sDetails.color">
+                  <div
+                    class="summary-dot fs-17-1920"
+                    :style="{ backgroundColor: sDetails.color }"
+                  >
                     {{ sDetails.change === null ? $t("NA") : sDetails.change }}
                   </div></b-col
                 >
@@ -146,7 +149,10 @@
                   ><p class="fs-17-1920">{{ sDetails.indicatorName }}</p></b-col
                 >
                 <b-col cols="4"
-                  ><div class="summary-dot fs-17-1920" :class="sDetails.aColor">
+                  ><div
+                    class="summary-dot fs-17-1920"
+                    :style="{ backgroundColor: sDetails.aColor }"
+                  >
                     {{
                       sDetails.aBenchmark === null
                         ? $t("NA")
@@ -155,7 +161,10 @@
                   </div></b-col
                 >
                 <b-col cols="4"
-                  ><div class="summary-dot fs-17-1920" :class="sDetails.bColor">
+                  ><div
+                    class="summary-dot fs-17-1920"
+                    :style="{ backgroundColor: sDetails.bColor }"
+                  >
                     {{
                       sDetails.bBenchmark === null
                         ? $t("NA")
@@ -273,6 +282,7 @@ export default {
       dqrResponse: null,
       regionCountList: [],
       configData: this.selectedData,
+      isDataSet: false,
     };
   },
   computed: {
@@ -469,15 +479,17 @@ export default {
       this.dqrResponse = val;
     },
     async getEMUData(periodType = this.locationPeriod.periodType) {
+      let pData = null;
+      let pe = this.locationPeriod.period;
+      let loc = this.locationPeriod.location;
+      let location = loc.split("/")[1];
+      let levelID = loc.split("/")[0] * 1;
+      let subLevelID = levelID + 1;
+      let aLevel = [levelID, subLevelID];
+
       if (!this.population && ["yearly"].includes(periodType)) {
-        let pe = this.locationPeriod.period;
-        let loc = this.locationPeriod.location;
-        let location = loc.split("/")[1];
-        let levelID = loc.split("/")[0] * 1;
-        let subLevelID = levelID + 1;
         let key = this.generateKey("dqrModule");
 
-        let aLevel = [levelID, subLevelID];
         await service.getSavedConfig(key).then(async (dqrModule) => {
           let isDataStore =
             dqrModule.data["emu"]["Background_Data"]["backgroundIndicators"][0]
@@ -486,7 +498,7 @@ export default {
             dqrModule.data["emu"][
               "Background_Data"
             ].FPWomenPopulation.toLowerCase();
-          let pData = null;
+
           if (isDataStore) {
             try {
               pData = await service.getSavedConfig(
@@ -499,6 +511,7 @@ export default {
                       rows: decompress(JSON.parse(pData.data.rows)),
                     }
                   : pData.data;
+              //pData.rows = pData.rows.filter((obj) => obj[1] == pe);
             } catch {
               console.log(
                 `Population data not found for population_${typeKey}_${levelID}...`
@@ -512,6 +525,7 @@ export default {
                 typeof pData1.data.rows == "string"
                   ? decompress(JSON.parse(pData1.data.rows))
                   : pData1.data.rows;
+              //pData1 = pData1.filter((obj) => obj[1] == pe);
               pData.rows = pData.rows.concat(pData1);
             } catch {
               console.log(
@@ -519,18 +533,34 @@ export default {
               );
             }
           } else {
-            let id =
-              dqrModule.data["emu"]["Background_Data"][
-                "backgroundIndicators"
-              ][0]["subIndicators"][0]["selectedDE"][0]["id"];
-            pData = await service.getIndicatorData(id, aLevel, location, pe);
-            pData = pData.data;
-          }
-          if (pData) {
-            this.population = pData;
+            this.isDataSet = true;
           }
         });
       }
+      if (this.isDataSet) {
+        let perArray = [];
+        for (let i = 0; i < 10; i++) {
+          let newPe = pe - i;
+          if (!perArray.includes(newPe)) {
+            perArray.push(newPe);
+          }
+        }
+        let id =
+          dqrModule.data["emu"]["Background_Data"]["backgroundIndicators"][0][
+            "subIndicators"
+          ][0]["selectedDE"][0]["id"];
+        pData = await service.getIndicatorData(
+          id,
+          aLevel,
+          location,
+          perArray.join(";")
+        );
+        pData = pData.data;
+      }
+      if (pData) {
+        this.population = pData;
+      }
+      console.log(this.population, "pop data");
       if (
         this.preFetchData &&
         this.preFetchData[`${periodType}_${this.$i18n.locale}`]

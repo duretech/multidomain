@@ -129,7 +129,9 @@ export const methodChartConfig = {
     enabled: true,
   },
   tooltip: {
-    shared: true,
+    headerFormat: "<b>{point.name}</b><br/>",
+    pointFormat: "<b>{series.name}</b> X: {point.x}, Y: {point.y}",
+    // shared: true,
     useHTML: true,
   },
   plotOptions: {
@@ -645,7 +647,7 @@ export const integratedChartConfig = {
 export const methodMixChartConfig = {
   chart: {
     type: "packedbubble",
-    height: "95%",
+    // height: "95%",
   },
   title: {
     text: "",

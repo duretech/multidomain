@@ -548,7 +548,7 @@ export default {
       newBaseLineUsers: null,
       cypFactors: null,
       AdjudtedValues: null,
-      NonAdjudtedValues: null,
+      // NonAdjudtedValues: null,
       outPutTrendsChart: null,
       comparisionEstimateData: null,
       MordernUsersByMethodsData: null,
@@ -930,6 +930,8 @@ export default {
       this.methodSeq = oRet.methodSeq;
       this.tableMethodSeq = oRet.tableMethodSeq;
       this.emuColors = oRet.emuColors;
+      this.$store.commit("setEMUColors", oRet.emuColors);
+
       if (this.globalConfig.chartArr.length) {
         if (this.byPassRepoRate == false) {
           this.getReportingRate(this.emuSaveType === "Indicator_Calculator");
@@ -1068,6 +1070,8 @@ export default {
       let p_loc = this.location.split("/")[1],
         p_pe = dataM.getYearFormated(this.sourceStartYear, this.sourceEndYear);
       let yearArray = p_pe.split(";");
+
+      this.sYearArray = p_pe.split(";");
       if (ICFlag === false) {
         service
           .getAnalyticalIndicatorData(this.reportingRateDe, p_loc, p_pe)
@@ -1098,6 +1102,7 @@ export default {
           .then((resp) => {
             if (resp && resp.data) {
               let annualCharts = resp.data;
+              this.finalAnnualCharts = annualCharts;
               let aFinalCharts = annualCharts[this.location.split("/")[1]]
                 ? annualCharts[this.location.split("/")[1]][this.contName]
                   ? annualCharts[this.location.split("/")[1]][this.contName][
@@ -1119,6 +1124,36 @@ export default {
               //   "typeof aFinalCharts",
               //   aFinalCharts
               // );
+              let savedfinalObj = annualCharts[this.location.split("/")[1]]
+                ? annualCharts[this.location.split("/")[1]][this.contName]
+                  ? annualCharts[this.location.split("/")[1]][this.contName][
+                      "outputCharts"
+                    ]
+                    ? typeof annualCharts[this.location.split("/")[1]][
+                        this.contName
+                      ]["outputCharts"] == "string"
+                      ? decompress(
+                          JSON.parse(
+                            annualCharts[this.location.split("/")[1]][
+                              this.contName
+                            ]["outputCharts"]
+                          )
+                        )
+                      : annualCharts[this.location.split("/")[1]][
+                          this.contName
+                        ]["outputCharts"]
+                    : []
+                  : []
+                : [];
+              console.log(
+                " this.savedfinalObj",
+                savedfinalObj,
+                "in finalinputcharts"
+              );
+              this.isEMUSaved = true;
+              this.dhisDataFetched = true;
+              this.bshowLoader = false;
+              this.finalDHIS2Obj = savedfinalObj["allMethodsAdjusted"];
               this.repoRate = aFinalCharts;
               this.reportingRateChart(aFinalCharts);
             }
@@ -1218,7 +1253,7 @@ export default {
      * @return {Array} 'aFinalInputData'
      */
     async getFinalChartsdata(customCal) {
-      // console.log("Calling getfinalchartsdata", customCal);
+      console.log("Calling getfinalchartsdata", customCal);
       let aFinalCharts = [];
 
       if (customCal) {
@@ -1248,41 +1283,52 @@ export default {
         this.aFinalInputData = aFinalCharts;
         dataM.saveChartColors(aFinalCharts, this.tabName);
       } else {
-        let key = this.generateKey(`annualCharts_${this.$i18n.locale}`);
-        await service
-          .getSavedConfig(key)
-          .then((resp) => {
-            if (resp && resp.data) {
-              let annualCharts = resp.data;
-              aFinalCharts = annualCharts[this.location.split("/")[1]]
-                ? annualCharts[this.location.split("/")[1]][this.contName]
-                  ? annualCharts[this.location.split("/")[1]][this.contName][
-                      "inputCharts"
-                    ]
-                    ? annualCharts[this.location.split("/")[1]][this.contName][
-                        "inputCharts"
-                      ]
-                    : []
-                  : []
-                : [];
-              // console.log(aFinalCharts);
-              aFinalCharts =
-                typeof aFinalCharts == "string"
-                  ? decompress(JSON.parse(aFinalCharts))
-                  : aFinalCharts;
-              this.aFinalInputData = aFinalCharts;
-              // console.log(this.aFinalInputData, "final inputcharts");
+        if (!this.finalAnnualCharts) {
+          let key = this.generateKey(`annualCharts_${this.$i18n.locale}`);
+          await service
+            .getSavedConfig(key)
+            .then((resp) => {
+              if (resp && resp.data) {
+                let annualCharts = resp.data;
+                this.finalAnnualCharts = annualCharts;
+              }
+            })
+            .catch((err) => {
+              this.aFinalInputData = null;
+              this.bshowLoader = false;
+              if (this.getData) {
+                this.getData(
+                  this.tabName,
+                  null,
+                  "whole_data_empty",
+                  this.filter
+                );
+              }
+            });
+        }
+        if (this.finalAnnualCharts) {
+          let annualCharts = this.finalAnnualCharts;
+          aFinalCharts = annualCharts[this.location.split("/")[1]]
+            ? annualCharts[this.location.split("/")[1]][this.contName]
+              ? annualCharts[this.location.split("/")[1]][this.contName][
+                  "inputCharts"
+                ]
+                ? annualCharts[this.location.split("/")[1]][this.contName][
+                    "inputCharts"
+                  ]
+                : []
+              : []
+            : [];
+          // console.log(aFinalCharts);
+          aFinalCharts =
+            typeof aFinalCharts == "string"
+              ? decompress(JSON.parse(aFinalCharts))
+              : aFinalCharts;
+          this.aFinalInputData = aFinalCharts;
+          console.log(this.aFinalInputData, "final inputcharts", annualCharts);
 
-              dataM.saveChartColors(aFinalCharts, this.tabName);
-            }
-          })
-          .catch((err) => {
-            this.aFinalInputData = null;
-            this.bshowLoader = false;
-            if (this.getData) {
-              this.getData(this.tabName, null, "whole_data_empty", this.filter);
-            }
-          });
+          dataM.saveChartColors(aFinalCharts, this.tabName);
+        }
       }
       // console.log(this.aFinalInputData, "fnal inutcharts");
     },
@@ -1302,11 +1348,11 @@ export default {
           oAdjustmentFactors,
           this.byPassRepoRate
         );
-        // console.log(
-        //   this.contName,
-        //   "Short term methods calculation",
-        //   oSTMAdjusment
-        // );
+        console.log(
+          this.contName,
+          "Short term methods calculation",
+          oSTMAdjusment
+        );
         // console.log(
         //   "Continuation factor ",
         //   this.bgData.continuation[this.contName]
@@ -1366,9 +1412,9 @@ export default {
       this.AdjudtedValues = dataM.calculateNewAdjustedVals(
         allMethodsAdjusted.adjusted
       );
-      this.NonAdjudtedValues = dataM.calculateNewAdjustedVals(
-        allMethodsAdjusted.nonAdjusted
-      );
+      // this.NonAdjudtedValues = dataM.calculateNewAdjustedVals(
+      //   allMethodsAdjusted.nonAdjusted
+      // );
       // console.log(this.AdjudtedValues, this.NonAdjudtedValues);
 
       let adjNonAdjData = dataM.getFinaladjNonAdjData(
@@ -1376,7 +1422,7 @@ export default {
         allMethodsAdjusted
       );
       // console.log("adjNonAdjData", adjNonAdjData);
-      // console.log("this.newBaseLineUsers", this.newBaseLineUsers);
+      console.log("this.newBaseLineUsers", this.newBaseLineUsers);
 
       this.generateAdjNonadjTable("adjusted", allMethodsAdjusted);
       let methodWiseAdjObject = adjNonAdjData.adjusted;
@@ -1832,8 +1878,8 @@ export default {
   },
   created() {
     // console.log(this.contName);
-    if (this.emuSaveType === "Indicator_Calculator")
-      this.getSavedDataElemenet("fromcreated");
+    // if (this.emuSaveType === "Indicator_Calculator")
+    // this.getSavedDataElemenet("fromcreated");
     this.getGlobalConfig();
   },
   updated() {},
@@ -1879,8 +1925,8 @@ export default {
       if (newVal) {
         this.bRequestFlag = false;
         this.bshowLoader = false;
-        if (this.emuSaveType === "Indicator_Calculator")
-          this.getSavedDataElemenet("onlocationchange");
+        // if (this.emuSaveType === "Indicator_Calculator")
+        // this.getSavedDataElemenet("onlocationchange");
         this.getGlobalConfig();
       }
     },
@@ -1908,8 +1954,8 @@ export default {
 
       this.bRequestFlag = false;
       this.bshowLoader = true;
-      if (this.emuSaveType === "Indicator_Calculator")
-        this.getSavedDataElemenet("onsignoff");
+      // if (this.emuSaveType === "Indicator_Calculator")
+      // this.getSavedDataElemenet("onsignoff");
       this.getGlobalConfig();
     },
   },

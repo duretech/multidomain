@@ -18,7 +18,7 @@
         <div class="col-lg-1 col-md-5 text-right">
           <div class="row no-gutters">
             <div class="col-lg-11 col-md-11 text-right">
-              <download-csv v-if="rows" :data="rows">
+              <download-csv v-if="rows" :fields="fields" :data="rows">
                 <img
                   :src="require('@/assets/images/icons/downloadActive.svg')"
                   class="img cursor-pointer"
@@ -88,7 +88,7 @@ export default {
       let methodSeq = this.methodSeq;
       let i,
         oData = this.newData,
-        aFinalCats = undefined,
+        aFinalCats = [],
         oFinalData = {},
         newData = {};
       methodSeq.forEach((v, i) => {
@@ -99,20 +99,28 @@ export default {
         });
       });
       let oAllMethods = dataM.getTableFormatedData(newData, this.methodSeq);
+
       for (i in newData) {
         let aCats = Object.keys(newData[i]);
-        if (!aFinalCats) {
-          aFinalCats = aCats;
-        }
+        aCats.forEach((year) => {
+          if (aFinalCats.indexOf(" " + year + " ") == -1) {
+            aFinalCats.push(" " + year + " ");
+          }
+        });
+        // aFinalCats = aCats;
+        //}
       }
       if (aFinalCats && aFinalCats.length) {
         this.fields = [
-          this.$i18n.t("methods"),
-          this.$i18n.t("sub_method"),
+          " " + this.$i18n.t("methods") + " ",
+          " " + this.$i18n.t("sub_method") + " ",
           ...aFinalCats,
         ];
       } else {
-        this.fields = [this.$i18n.t("methods"), this.$i18n.t("sub_method")];
+        this.fields = [
+          " " + this.$i18n.t("methods") + " ",
+          " " + this.$i18n.t("sub_method") + " ",
+        ];
       }
 
       this.rows = [];
@@ -124,8 +132,8 @@ export default {
 
           for (let l in oAllMethods[k]) {
             let oRow = {
-                [this.$i18n.t("methods")]: k.toUpperCase(),
-                [this.$i18n.t("sub_method")]: l,
+                [" " + this.$i18n.t("methods") + " "]: k.toUpperCase(),
+                [" " + this.$i18n.t("sub_method") + " "]: l,
               },
               bIsCon =
                 k.toLowerCase() === "condom" ||
@@ -135,7 +143,9 @@ export default {
               oAllMethods[k][l][m] = oAllMethods[k][l][m]
                 ? oAllMethods[k][l][m]
                 : 0;
-              oRow[m] = Math.round(oAllMethods[k][l][m]).toLocaleString();
+              oRow[" " + m + " "] = Math.round(
+                oAllMethods[k][l][m]
+              ).toLocaleString();
               oSumModernUsers[m] =
                 (oSumModernUsers[m] || 0) + oAllMethods[k][l][m];
               //if(!bIsCon){
@@ -149,26 +159,30 @@ export default {
           }
         }
       }
-
       let oRows1 = {
-          [this.$i18n.t("methods")]: this.$i18n.t("estimated_modern_users"),
-          [this.$i18n.t("sub_method")]: "",
+          [" " + this.$i18n.t("methods") + " "]: this.$i18n.t(
+            "estimated_modern_users"
+          ),
+          [" " + this.$i18n.t("sub_method") + " "]: "",
           _rowVariant: "customclass",
         },
         oRows2 = {
-          [this.$i18n.t("methods")]: this.$i18n.t(
+          [" " + this.$i18n.t("methods") + " "]: this.$i18n.t(
             "estimated_modern_users_excon"
           ),
-          [this.$i18n.t("sub_method")]: "",
+          [" " + this.$i18n.t("sub_method") + " "]: "",
           _rowVariant: "customclass",
         };
       for (let x in oSumModernUsersexCon) {
-        oRows1[x] = Math.round(oSumModernUsers[x]).toLocaleString();
-        oRows2[x] = Math.round(oSumModernUsersexCon[x]).toLocaleString();
+        oRows1[" " + x + " "] = Math.round(oSumModernUsers[x]).toLocaleString();
+        oRows2[" " + x + " "] = Math.round(
+          oSumModernUsersexCon[x]
+        ).toLocaleString();
       }
 
       this.rows.push(oRows1);
       this.rows.push(oRows2);
+      console.log(this.rows, "final o/p table in in/op tab");
       let aSource = {
         [this.$i18n.t("emu_output_5")]: "Commodities_Client",
         [this.$i18n.t("emu_output_7")]: "Visits",
@@ -192,7 +206,6 @@ export default {
 };
 </script>
 <style>
-
 .table-bordered th,
 .table-bordered td {
   border: 1px solid var(--border-grey-color);

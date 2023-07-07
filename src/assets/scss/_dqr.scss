@@ -67,7 +67,12 @@
 .dqr-charts {
   max-width     : 100%;
   padding-bottom: 50px !important;
-  overflow-y: auto;
+  // overflow-y: auto;
+}
+
+.fp-users{
+  display: flex;
+  flex-direction: column;
 }
 
 .dqr-summary-btn {
@@ -206,6 +211,13 @@
   .dqr-page {
     .dqr {
       margin-left: 250px;
+      margin-top: 60px;
+    }
+  }
+
+  .dqr-page .dqr{
+    #scrollTop{
+      margin-top: 0% !important;
     }
   }
 }

@@ -341,7 +341,30 @@ export const capitalize = (string) => {
     ? string.charAt(0).toUpperCase() + string.slice(1).toLowerCase()
     : "";
 };
-export const generateException = ({ response, ou, m1, m1Obj, m2, m2Obj }) => {
+
+export const excludeName = (str) => {
+  let appSet = store.getters.getAppSettings;
+  if (appSet?.exLocNames?.length) {
+    appSet.exLocNames.sort((a, b) => b.level - a.level);
+    appSet.exLocNames.forEach((l) => {
+      let lastIndex = str.lastIndexOf(l.text);
+      if (lastIndex >= 0) {
+        str = str.substring(0, lastIndex).trim();
+      }
+    });
+  }
+  return str;
+};
+
+export const generateException = ({
+  response,
+  ou,
+  m1,
+  m1Obj,
+  m2,
+  m2Obj,
+  currentPeriod = null,
+}) => {
   let exceptionTable = [];
   let xException = Object.keys(m1Obj).filter(
     (val) => !Object.keys(m2Obj).includes(val)
@@ -358,7 +381,7 @@ export const generateException = ({ response, ou, m1, m1Obj, m2, m2Obj }) => {
   noDataRegions.forEach((val) => {
     let name = null;
     if (response.data.metaData.items[val]) {
-      name = response.data.metaData.items[val].name;
+      name = excludeName(response.data.metaData.items[val].name);
     }
     if (xException.includes(val)) {
       Object.keys(m1Obj).forEach((x) => {
@@ -366,7 +389,7 @@ export const generateException = ({ response, ou, m1, m1Obj, m2, m2Obj }) => {
           exceptionTable.push({
             [i18n.t("location")]: name,
             [m2]: "",
-            [m1]: m1Obj[x] * 1,
+            [m1]: currentPeriod ? m1Obj[x][currentPeriod] * 1 : m1Obj[x] * 1,
           });
         }
       });
@@ -375,7 +398,7 @@ export const generateException = ({ response, ou, m1, m1Obj, m2, m2Obj }) => {
         if (x === val) {
           exceptionTable.push({
             [i18n.t("location")]: name,
-            [m2]: m2Obj[x] * 1,
+            [m2]: currentPeriod ? m2Obj[x][currentPeriod] * 1 : m2Obj[x] * 1,
             [m1]: "",
           });
         }
@@ -410,14 +433,15 @@ export const generateChart = ({
   qualityThreshold,
 }) => {
   let pe = response.data.metaData.dimensions.pe;
-  let ou = [
-    "PERIOD_DIFF",
-    "PERIOD_DIFF_CYP",
-    "OTHER_MATRIX_TABLE",
-    "OTHER_MATRIX_TABLE_CYP",
-  ].includes(cData.chartCalculation)
-    ? response.data.metaData.dimensions.ou
-    : response.data.metaData.dimensions.ou.filter((o) => o !== location);
+  let ou =
+    [
+      "PERIOD_DIFF",
+      "PERIOD_DIFF_CYP",
+      "OTHER_MATRIX_TABLE",
+      "OTHER_MATRIX_TABLE_CYP",
+    ].includes(cData.chartCalculation) || cData.isHigherLoc
+      ? response.data.metaData.dimensions.ou
+      : response.data.metaData.dimensions.ou.filter((o) => o !== location);
   let benchmarkValue = null,
     exceptionTable = [];
   let valueIndex = 0,
@@ -661,7 +685,7 @@ export const generateChart = ({
         if (Object.keys(rData).length === 0) {
           let name = dx.name
             ? dx.name
-            : response.data.metaData.items[location].name;
+            : excludeName(response.data.metaData.items[location].name);
           let color = dx.color;
           let visible = dx.visible;
 
@@ -679,7 +703,7 @@ export const generateChart = ({
           if (d === location) {
             let name = dx.name
               ? dx.name
-              : response.data.metaData.items[location].name;
+              : excludeName(response.data.metaData.items[location].name);
             let color = dx.color ? dx.color : getColor();
             let visible = dx.visible;
 
@@ -743,7 +767,8 @@ export const generateChart = ({
               data: [],
             };
             Object.keys(rData).forEach((d) => {
-              let name = response.data.metaData.items[d].name || null;
+              let name =
+                excludeName(response.data.metaData.items[d].name) || null;
 
               if (d !== location) {
                 if (Object.keys(rData[d]).includes(rt.pe)) {
@@ -774,8 +799,8 @@ export const generateChart = ({
                     cData.drillCalculation !== "PERIOD_DIFF"
                       ? rt.drillColor
                       : y > 0
-                      ? "#5BD282"
-                      : "#FE8081";
+                      ? cData.cngPtPos || "#5BD282"
+                      : cData.cngPtNeg || "#FE8081";
                   obj.data.push({
                     name,
                     y,
@@ -823,10 +848,11 @@ export const generateChart = ({
         avgData = [],
         accessData = [],
         cat = [],
-        regressionData = [];
+        regressionData = [],
+        natData = [];
 
       Object.keys(sData[method1]).forEach((x) => {
-        let name = response.data.metaData.items[x].name || "";
+        let name = excludeName(response.data.metaData.items[x].name) || "";
         let locID = location;
         if (childArr && childArr.length === 0) {
           locID = "";
@@ -891,7 +917,19 @@ export const generateChart = ({
             }
           });
         }
+        if (x === locID) {
+          Object.keys(sData[method2]).forEach((y) => {
+            if (x === y) {
+              natData.push({
+                name,
+                x: sData[method1][x][currentPeriod] * 1,
+                y: sData[method2][y][currentPeriod] * 1,
+              });
+            }
+          });
+        }
       });
+
       if (ratioData.length && cData.chartCalculation === "SOURCE_AVG") {
         ratioData.sort((a, b) => {
           return a.y < b.y ? 1 : a.y == b.y ? 0 : -1;
@@ -1000,6 +1038,7 @@ export const generateChart = ({
           m1Obj: sData[method1],
           m2: method2,
           m2Obj: sData[method2],
+          currentPeriod,
         });
         cObj.series.push({
           name: `${method1} ${i18n.t("vs")} ${method2}`,
@@ -1055,6 +1094,7 @@ export const generateChart = ({
         };
         cObj.series.push(regressionLine);
         r2 = result.r2 ? result.r2 : 0;
+        cObj.natData = natData;
       }
     } else {
       if (["PERIOD_DIFF", "PERIOD_DIFF_CYP"].includes(cData.chartCalculation)) {
@@ -1089,8 +1129,11 @@ export const generateChart = ({
               y: y,
               locationID: o,
               originalY: y,
-              name: response.data.metaData.items[o].name || "NA",
-              color: y > 0 ? "#5ab276" : "#e8bb69", //y > 0 ? "#5BD282" : "#FE8081"
+              name: excludeName(response.data.metaData.items[o].name) || "NA",
+              color:
+                y > 0
+                  ? cData.cngPtPos || "#5ab276"
+                  : cData.cngPtNeg || "#e8bb69",
             });
           });
           cObj.series.push(obj);
@@ -1171,9 +1214,8 @@ export const generateChart = ({
               y: y,
               locationID: o,
               originalY: y,
-              name: response.data.metaData.items[o].name || "NA",
+              name: excludeName(response.data.metaData.items[o].name) || "NA",
             });
-            // color: y > 0 ? "#5ab276" : "#e8bb69", //y > 0 ? "#5BD282" : "#FE8081"
           });
           cObj.series.push(obj);
         });
@@ -1192,7 +1234,7 @@ export const generateChart = ({
               if (!oFinalData[r[ouIndex]]) {
                 oFinalData[r[ouIndex]] = {};
                 aTotalCypCats.push(
-                  response.data.metaData.items[r[ouIndex]].name
+                  excludeName(response.data.metaData.items[r[ouIndex]].name)
                 );
               }
               if (!rData[r[dxIndex]]) {
@@ -1220,7 +1262,7 @@ export const generateChart = ({
             oMethodFinalRegPeriod[sMethod] = {};
           }
           for (let n in rData[m]) {
-            let sRegion = response.data.metaData.items[n].name;
+            let sRegion = excludeName(response.data.metaData.items[n].name);
             if (!oMethodFinalRegPeriod[sMethod][sRegion]) {
               oMethodFinalRegPeriod[sMethod][sRegion] = {};
             }
@@ -1248,7 +1290,9 @@ export const generateChart = ({
             });
           }
         }
-        let oUpdated = ou.map((o) => response.data.metaData.items[o].name);
+        let oUpdated = ou.map((o) =>
+          excludeName(response.data.metaData.items[o].name)
+        );
         oUpdated.splice(0, 0, locationName);
         cObj.categories = oUpdated;
         cObj.avgAnnualGrowthData = oMethodFinalRegPeriod;
@@ -1300,17 +1344,14 @@ export const generateChart = ({
           count: periodLength * 1 - 1,
           periodType: pType,
         });
-        let chartXLegend = cData.xAxis.visible
-          ? cData.xAxis.text
-            ? cData.xAxis.text
-            : xLegend
-          : xLegend;
-        let chartYLegend = cData.yAxis.visible
-          ? cData.yAxis.text
-            ? cData.yAxis.text
-            : formattedPeriod
-          : formattedPeriod;
-
+        let chartXLegend =
+          cData.xAxis.visible && cData.xAxis?.text?.[i18n.locale]
+            ? cData.xAxis.text[i18n.locale]
+            : xLegend;
+        let chartYLegend =
+          cData.yAxis.visible && cData.yAxis?.text?.[i18n.locale]
+            ? cData.yAxis.text[i18n.locale]
+            : formattedPeriod;
         exceptionTable = generateException({
           response,
           ou,
@@ -1326,19 +1367,17 @@ export const generateChart = ({
 
         let data = [],
           regressionData = [],
-          xArr = [];
+          xArr = [],
+          natData = [];
 
         Object.keys(xAxisData).forEach((x) => {
           let locID = location;
+          let name = excludeName(response.data.metaData.items[x].name) || "";
           if (childArr && childArr.length === 0) {
             locID = "";
           }
           if (x !== locID) {
             xArr.push(xAxisData[x]);
-            let name = "";
-            if (response.data.metaData.items[x]) {
-              name = response.data.metaData.items[x].name;
-            }
 
             Object.keys(yAxisData).forEach((y) => {
               if (x === y) {
@@ -1358,6 +1397,17 @@ export const generateChart = ({
                     ? backgroundData?.outliersColor || cData.color
                     : cData.color,
                   outlier: outlier,
+                });
+              }
+            });
+          }
+          if (x === locID) {
+            Object.keys(yAxisData).forEach((y) => {
+              if (x === y) {
+                natData.push({
+                  name,
+                  x: xAxisData[x] * 1,
+                  y: yAxisData[y] * 1,
                 });
               }
             });
@@ -1466,6 +1516,7 @@ export const generateChart = ({
           };
           cObj.series.push(regressionLine);
           r2 = result.r2 ? result.r2 : 0;
+          cObj.natData = natData;
         }
       } else if (
         ["CYP", "DEFAULT"].includes(cData.chartCalculation) &&
@@ -1481,7 +1532,7 @@ export const generateChart = ({
               if (!oFinalData[r[ouIndex]]) {
                 oFinalData[r[ouIndex]] = {};
                 aTotalCypCats.push(
-                  response.data.metaData.items[r[ouIndex]].name
+                  excludeName(response.data.metaData.items[r[ouIndex]].name)
                 );
               }
               if (!rData[r[dxIndex]]) {
@@ -1512,7 +1563,7 @@ export const generateChart = ({
               oMethodCyp[sName].data[ind].toFixed(2) * 1;
             if (!oBubbleMethods[sName].data[ind]) {
               oBubbleMethods[sName].data[ind] = {
-                name: response.data.metaData.items[ele].name,
+                name: excludeName(response.data.metaData.items[ele].name),
                 value: 0,
                 id: ele,
               };
@@ -1601,7 +1652,8 @@ export const generateChart = ({
               if (rData[d][o]) {
                 obj.data.push({
                   locationID: o,
-                  name: response.data.metaData.items[o].name || "NA",
+                  name:
+                    excludeName(response.data.metaData.items[o].name) || "NA",
                   y: (rData[d][o] * 1).toFixed(2) * 1,
                   originalY: (rData[d][o] * 1).toFixed(2) * 1,
                 });
@@ -1610,7 +1662,8 @@ export const generateChart = ({
                   y: null,
                   locationID: o,
                   originalY: null,
-                  name: response.data.metaData.items[o].name || "NA",
+                  name:
+                    excludeName(response.data.metaData.items[o].name) || "NA",
                 });
               }
             });
@@ -1640,7 +1693,7 @@ export const generateChart = ({
         data: [],
       };
       Object.keys(rData).forEach((d, i) => {
-        let name = response.data.metaData.items[d].name || null;
+        let name = excludeName(response.data.metaData.items[d].name) || null;
 
         obj = {
           name,

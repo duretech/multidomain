@@ -403,9 +403,9 @@
                                   <b-col sm="4">
                                     <p
                                       class="locationName fs-17-1920"
-                                      v-if="selectedLocation"
+                                      v-if="locationPeriod.locationName"
                                     >
-                                      {{ selectedLocation }}
+                                      {{ locationPeriod.locationName }}
                                     </p>
                                   </b-col>
                                   <b-col sm="4" class="position-relative">
@@ -502,7 +502,6 @@ import EmitTourCallbackMixin from "@/helpers/EmitTourCallbackMixin";
 import {
   getChild,
   getDateRange,
-  getLocationName,
   formatSingleDate,
 } from "@/components/Common/commonFunctions";
 
@@ -536,7 +535,6 @@ export default {
       locationPeriod: {},
       mnchScorecard: null,
       globalPeriodData: null,
-      selectedLocation: null,
       emuValueColor: "#B83C6D",
       chartData: JSON.parse(JSON.stringify(integratedChartConfig)),
       mapData: null,
@@ -828,8 +826,6 @@ export default {
     },
     getLocationPeriod(locPeObj) {
       let oldData = JSON.parse(JSON.stringify(this.locationPeriod));
-      const { locName } = getLocationName(locPeObj);
-      this.selectedLocation = locName;
       this.locationPeriod = locPeObj;
       let isLocationChanges = oldData.location !== locPeObj.location;
       this.resetValues(isLocationChanges);

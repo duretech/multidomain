@@ -231,16 +231,23 @@ export default {
           if (this.chartName == "monthSpecific") {
             // this.chartdata.max = this.chartdata.agreCategories.length - 1
             // this.chartdata.categories = this.chartdata.agreCategories;
+            this.chartOptions = this.reInitilaizeData(
+              this.chartdata,
+              "agreData",
+              "agreTableData",
+              "agreCategories"
+            );
           }
           // this.chartdata.data = this.chartdata.agreData
           // this.chartdata.tableData = this.chartdata.agreTableData
-
-          this.chartOptions = this.reInitilaizeData(
-            this.chartdata,
-            "agreData",
-            "agreTableData",
-            "agreCategories"
-          );
+          else {
+            this.chartOptions = this.reInitilaizeData(
+              this.chartdata,
+              "agreData",
+              "agreTableData"
+              // "agreCategories"
+            );
+          }
           // "agreCategories"
         }
       });

@@ -34,9 +34,9 @@
                 :mapView="isMap"
                 :sorting="sorting"
                 :trendTable="items"
+                :viewType="viewType"
                 @dataSort="dataSort"
                 fullScreenKey="cObj"
-                :isRRChart="isRRChart"
                 :drillDown="drillDown"
                 @showTable="showTable"
                 :defaultSort="defaultSort"
@@ -75,7 +75,6 @@
                   'align-items-center d-flex justify-content-center h-400px':
                     cObj.series.length === 0 || (isMap && !geoJson),
                 }"
-                v-if="viewType !== 'table'"
               >
                 <template v-if="isError">
                   <div class="text-center small">
@@ -89,64 +88,81 @@
                   </div>
                 </template>
                 <template v-else>
-                  <template
-                    v-if="dataFetched && (!isMap || (isMap && geoJson))"
-                  >
-                    <Maps
-                      v-if="geoJson && viewType === 'map'"
-                      :geoJson="geoJson"
-                      :mapData="mapData"
-                      :mapScales="mapScales"
-                      :showIcons="true"
-                      :isAnalytical="true"
-                      ref="map"
-                    />
-                    <highcharts
-                      class="maincharts w-100"
-                      v-if="viewType === 'chart'"
-                      :options="cObj"
-                      ref="barCharts"
-                    ></highcharts>
+                  <template v-if="viewType !== 'table'">
+                    <template
+                      v-if="dataFetched && (!isMap || (isMap && geoJson))"
+                    >
+                      <Maps
+                        v-if="geoJson && viewType === 'map'"
+                        :geoJson="geoJson"
+                        :mapData="mapData"
+                        :mapScales="mapScales"
+                        :showIcons="true"
+                        :isAnalytical="true"
+                        ref="map"
+                      />
+                      <highcharts
+                        class="maincharts w-100"
+                        v-if="viewType === 'chart'"
+                        :options="cObj"
+                        ref="barCharts"
+                      ></highcharts>
+                    </template>
+                    <b-spinner type="grow" label="Spinning" v-else></b-spinner>
                   </template>
-                  <b-spinner type="grow" label="Spinning" v-else></b-spinner>
+                  <template v-if="viewType === 'table'">
+                    <div class="tables">
+                      <template v-if="dataFetched">
+                        <b-table
+                          :items="items"
+                          :fields="fields"
+                          bordered
+                          sticky-header="385px"
+                        >
+                        </b-table>
+                        <div v-if="isRRChart">
+                          <b-row>
+                            <b-col>
+                              <i
+                                class="fa fa-circle mr-1"
+                                style="color: #7bcdb7; font-size: 0.9375rem"
+                              ></i>
+                              {{ $t("rr_text8") }} ({{ bValue }}%)
+                            </b-col>
+                            <b-col>
+                              <i
+                                class="fa fa-circle mr-1"
+                                style="color: #f7927e; font-size: 0.9375rem"
+                              ></i>
+                              {{ $t("rr_text9") }} ({{ bValue }}%)
+                            </b-col>
+                          </b-row>
+                          <b-row>
+                            <b-col>
+                              <i
+                                class="fa fa-circle mr-1"
+                                style="color: #f8775a; font-size: 0.9375rem"
+                              ></i>
+                              {{ $t("rr_text8") }} ({{ bValue }}%)
+                              {{ $t("rr_text11") }} ({{ subChange }}%)
+                            </b-col>
+                          </b-row>
+                        </div>
+                      </template>
+                      <b-spinner
+                        type="grow"
+                        label="Spinning"
+                        v-else
+                      ></b-spinner>
+                      <div
+                        class="small"
+                        v-if="dataFetched && cObj.series.length === 0"
+                      >
+                        {{ $t("no_data_to_display") }}
+                      </div>
+                    </div>
+                  </template>
                 </template>
-              </div>
-              <div class="tables" v-if="viewType === 'table'">
-                <b-table
-                  :items="items"
-                  :fields="fields"
-                  bordered
-                  sticky-header="385px"
-                >
-                </b-table>
-                <div v-if="isRRChart">
-                  <b-row>
-                    <b-col>
-                      <i
-                        class="fa fa-circle mr-1"
-                        style="color: #7bcdb7; font-size: 0.9375rem"
-                      ></i>
-                      {{ $t("rr_text8") }} ({{ bValue }}%)
-                    </b-col>
-                    <b-col>
-                      <i
-                        class="fa fa-circle mr-1"
-                        style="color: #f7927e; font-size: 0.9375rem"
-                      ></i>
-                      {{ $t("rr_text9") }} ({{ bValue }}%)
-                    </b-col>
-                  </b-row>
-                  <b-row>
-                    <b-col>
-                      <i
-                        class="fa fa-circle mr-1"
-                        style="color: #f8775a; font-size: 0.9375rem"
-                      ></i>
-                      {{ $t("rr_text8") }} ({{ bValue }}%)
-                      {{ $t("rr_text11") }} ({{ subChange }}%)
-                    </b-col>
-                  </b-row>
-                </div>
               </div>
             </b-col>
             <b-col
@@ -240,7 +256,11 @@
             </b-col>
           </b-row>
           <b-row class="small" v-if="source || isOutlier || isPOutlier">
-            <b-col v-if="isOutlier || isPOutlier">
+            <b-col
+              v-if="
+                (isOutlier || isPOutlier) && dataFetched && cObj.series.length
+              "
+            >
               <span v-if="isOutlier"
                 ><i
                   class="mr-2 fa fa-circle"
@@ -249,11 +269,21 @@
                 >{{ $t("outlier") }}</span
               >
               <span v-if="isPOutlier">
-                <i class="mx-2 fa fa-circle" :style="{ color: '#5ab276' }"></i
+                <i
+                  class="mx-2 fa fa-circle"
+                  :style="{
+                    color: chartConfigData?.chartOptions?.cngPtPos || '#5ab276',
+                  }"
+                ></i
                 >{{ $t("outlierPlus") }}
               </span>
               <span v-if="isPOutlier">
-                <i class="mx-2 fa fa-circle" :style="{ color: '#e8bb69' }"></i
+                <i
+                  class="mx-2 fa fa-circle"
+                  :style="{
+                    color: chartConfigData?.chartOptions?.cngPtNeg || '#e8bb69',
+                  }"
+                ></i
                 >{{ $t("outlierMinus") }}
               </span>
               <template v-if="exceptionTable && exceptionTable.length">
@@ -346,9 +376,9 @@ export default {
   data() {
     return {
       items: [],
-      vType: "",
       fields: [],
       updateDOM: 0,
+      viewType: "",
       chartName: "",
       geoJson: null,
       plotType: null,
@@ -365,7 +395,7 @@ export default {
   },
   computed: {
     isMap() {
-      return this.cObj.chart.type === "packedbubble";
+      return this.chartConfigData?.chartOptions?.chartDefaultView === "map";
     },
     mapData() {
       let mArr = [];
@@ -402,7 +432,17 @@ export default {
     },
     outliersArr() {
       let key = this.selectedMethod ? this.selectedMethod : "default";
-      return this.outliers && this.outliers[key] ? this.outliers[key] : [];
+      let o = [];
+      if (this.outliers?.[key]) {
+        //Add slice() to avoid mutation
+        o = this.outliers[key].slice().sort(function (x, y) {
+          // true values first
+          return x.secondary === y.secondary ? 0 : x.secondary ? -1 : 1;
+          // false values first
+          // return x.secondary === y.secondary ? 0 : x.secondary ? 1 : -1;
+        });
+      }
+      return o;
     },
     plotOptions: function () {
       return function (type) {
@@ -495,18 +535,6 @@ export default {
       }
       return color;
     },
-    viewType() {
-      let v =
-        this.cObj.chart.type === "packedbubble"
-          ? "map"
-          : this.isRRChart
-          ? "table"
-          : "chart";
-      if (this.vType) {
-        v = this.vType;
-      }
-      return v;
-    },
     isRRChart() {
       let isRRChart = false;
       if (
@@ -541,6 +569,11 @@ export default {
       }
       return sChange;
     },
+    generateTable() {
+      return (
+        this.cObj.series.length && this.dataFetched && this.viewType === "table"
+      );
+    },
   },
   watch: {
     chartData: {
@@ -562,6 +595,9 @@ export default {
         }
         if (this.cObj.chart.type === "packedbubble") {
           this.getGeoJson();
+        }
+        if (this.cObj.series.length) {
+          this.showTable(this.viewType);
         }
       },
       deep: true,
@@ -594,6 +630,25 @@ export default {
     isRRChart(newValue) {
       if (newValue) {
         this.showTable("table");
+      }
+    },
+    locationPeriod: {
+      handler(newValue, oldValue) {
+        if (
+          oldValue &&
+          (newValue.location !== oldValue.location ||
+            newValue.periodType !== oldValue.periodType ||
+            newValue.period !== oldValue.period)
+        ) {
+          this.fields = [];
+          this.items = [];
+        }
+      },
+      deep: true,
+    },
+    generateTable(newValue) {
+      if (newValue) {
+        this.showTable(this.viewType);
       }
     },
   },
@@ -629,6 +684,10 @@ export default {
           this.cObj.chart.type = value.includes("bar") ? "bar" : "column";
         });
       } else {
+        if (value.includes("scatter")) {
+          this.cObj.tooltip.pointFormat =
+            '<span>{point.name}</span><br/><span style="color:{series.color}">{series.name}</span>: <b>X: {point.x}</b>, <b>Y: {point.y}</b><br/>';
+        }
         this.cObj.plotOptions.series.stacking = "";
         this.$nextTick(() => {
           this.cObj.chart.type = value.toLowerCase();
@@ -728,6 +787,19 @@ export default {
                     });
                   }
                 });
+                if (this.cObj?.natData?.length) {
+                  let d = this.cObj.natData[0];
+                  tableData.unshift({
+                    [tableKey]: d.name,
+                    [s.xMethod]: d.x,
+                    [s.yMethod]: d.y,
+                    _cellVariants: {
+                      [tableKey]: "info",
+                      [s.xMethod]: "info",
+                      [s.yMethod]: "info",
+                    },
+                  });
+                }
               } else {
                 this.fields.push(n);
                 s.data.forEach((d, i) => {
@@ -826,7 +898,7 @@ export default {
         this.items = tableData;
       }
       this.$nextTick(() => {
-        this.vType = val;
+        this.viewType = val;
       });
     },
     exportChart(type) {
@@ -870,7 +942,10 @@ export default {
       return plotValue * 1 > dataMax * 1 ? plotValue * 1 + 5 : dataMax;
     },
     getMin(plotValue, dataMin) {
-      let m = plotValue * 1 < dataMin * 1 ? plotValue * 1 - 5 : dataMin;
+      let m =
+        plotValue * 1 < dataMin * 1 && plotValue * 1 - 5 > 0
+          ? plotValue * 1 - 5
+          : dataMin;
       return m < 0 ? m : 0;
     },
     addEvents() {
@@ -903,7 +978,7 @@ export default {
                     min: _this.getMin(plotLines.options.value, yAxis.dataMin),
                   });
                 }
-                if (_this.drillPointBenchmark) {
+                if (_this.chartConfigData.chartOptions.chartDrillDown) {
                   yAxis.update({
                     max: _this.getMax(_this.drillDownPoint, yAxis.dataMax),
                     min: _this.getMin(_this.drillDownPoint, yAxis.dataMin),
@@ -1183,6 +1258,8 @@ export default {
     },
   },
   created() {
+    this.viewType =
+      this.chartConfigData?.chartOptions?.chartDefaultView || "chart";
     if (this.cObj.chart.type === "packedbubble") {
       this.getGeoJson();
     }

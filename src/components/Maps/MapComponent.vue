@@ -151,7 +151,7 @@ import * as LocationModes from "leaflet-dvf";
 import LControlFullscreen from "vue2-leaflet-fullscreen";
 import "leaflet/dist/leaflet.css";
 import YearSlider from "@/components/Common/YearSliderNew.vue";
-import { isNumber } from "@/components/Common/commonFunctions";
+import { isNumber, excludeName } from "@/components/Common/commonFunctions";
 import DynamicImageMixin from "@/helpers/DynamicImageMixin";
 delete L.Icon.Default.prototype._getIconUrl;
 
@@ -533,7 +533,7 @@ export default {
       let value = this.getFeatureValue(locationISO);
       let content =
         '<div style="max-width:180px;"><div style="font-weight: 600;"> ' +
-        locationName +
+        excludeName(locationName) +
         " : " +
         value +
         "</div></div>";
@@ -666,10 +666,10 @@ export default {
           }
           if (findId) {
             nameControlObj = {
-              name: this.geoJson.features[i]["properties"].name,
+              name: excludeName(this.geoJson.features[i]["properties"].name),
               lat: mapCentroid.lat,
               lng: mapCentroid.lng,
-              value: this.geoJson.features[i]["properties"].name + ": " + value,
+              value: excludeName(this.geoJson.features[i]["properties"].name) + ": " + value,
               period: this.updatedYearSliderValue,
             };
           }

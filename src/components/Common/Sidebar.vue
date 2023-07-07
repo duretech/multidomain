@@ -1142,6 +1142,17 @@ export default {
                     c.chartOptions.dataMapping.length)) &&
                 !c.chartOptions.disable
             );
+            let isSummary = false,
+              len = t.chartSetting.length;
+            for (let i = 0; i < len; i++) {
+              if (
+                t.chartSetting[i].chartOptions.generateSummary &&
+                !t.chartSetting[i].chartOptions.disable
+              ) {
+                isSummary = true;
+                break;
+              }
+            }
             if (isMapping) {
               if (c.showGroups) {
                 let group = t.group.split("-")[1];
@@ -1151,6 +1162,7 @@ export default {
                     id: t.id,
                     tabName: t.tabName[this.$i18n.locale],
                     group: t.group,
+                    isSummary,
                   });
                 } else {
                   let gName = "";
@@ -1174,6 +1186,7 @@ export default {
                         id: t.id,
                         tabName: t.tabName[this.$i18n.locale],
                         group: t.group,
+                        isSummary,
                       },
                     ],
                   });

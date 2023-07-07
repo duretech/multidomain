@@ -1,20 +1,28 @@
 <template>
-  <div class="summary-page-container" id="scrollTop" ref="printPDF">
+  <div
+    class="summary-page-container summary-dash-section"
+    id="scrollTop"
+    ref="printPDF"
+  >
     <div
       class="mr-0 p-4 summary-page"
       id="summary"
       v-show="$store.getters.getActiveTab === 'sd-summary'"
     >
-      <b-row>
+      <b-row class="summary-content">
         <b-col :sm="!isGenerating ? '10' : '11'"
-          ><div class="pb-4 summary-title fs-17-1920">
-            {{ $t("MNCHPerformance") }}
-            <span class="green fs-17-1920">{{ $t("positive5") }}</span>
-            <span class="red fs-17-1920">{{ $t("decline5") }}</span>
-            <span class="orange fs-17-1920">{{ $t("limited5") }}</span>
-            {{ $t("understandingInd") }}
-          </div></b-col
-        >
+          ><i18n path="MNCHPerformance" tag="div" class="pb-4">
+            <template v-slot:positive5>
+              <b>{{ $t("positive5") }}</b>
+            </template>
+            <template v-slot:decline5>
+              <b>{{ $t("decline5") }}</b>
+            </template>
+            <template v-slot:limited5>
+              <b>{{ $t("limited5") }}</b>
+            </template>
+          </i18n>
+        </b-col>
         <b-col sm="2" v-if="!isGenerating"
           ><div class="text-right mb-3">
             <button
@@ -51,7 +59,9 @@
                       v-b-tooltip:hover
                       :title="summary.summaryDetails[0].currValue"
                       class="summary-dot"
-                      :class="summary.summaryDetails[0].colorLastMn"
+                      :style="{
+                        backgroundColor: summary.summaryDetails[0].colorLastMn,
+                      }"
                     >
                       <p
                         class="mb-0 fs-25-1920"
@@ -195,7 +205,7 @@
       </div>
     </template>
     <div class="summary-section">
-      <div v-show="showTrend" id="trendCharts" class="pt-5">
+      <div v-show="showTrend" id="trendCharts">
         <b-card-group
           deck
           class="indicatorSectionWrap"

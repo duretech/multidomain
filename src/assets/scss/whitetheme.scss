@@ -71,7 +71,6 @@ body[data-theme~="white"]{
         box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.0784313725) !important;
     }
     
-    .follow-us,
     .leaflet-control-layers-expanded {
         color: var(--text-color) !important;
     }
@@ -413,7 +412,8 @@ body[data-theme~="white"]{
     }
 
        .modal-content .form-control,
-       .scrollToTopDiv .scrollToTopBtn{
+       .scrollToTopDiv .scrollToTopBtn,
+       #createModuleModal .upload-logo .input-group{
          background-color: var(--sidebar-main-active-color) !important;
          border-color:var(--sidebar-main-active-color) !important
        }

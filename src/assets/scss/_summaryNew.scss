@@ -1,7 +1,12 @@
 .summary-page-container {
   background-color: var(--bg-main-color);
   min-height: calc(100vh - 120px);
+
+  // .summary-content{
+  //   margin-top: 9% !important;
+  // }
 }
+
 
 .summary-title {
   font-size: var(--font-small);
@@ -128,7 +133,7 @@ span {
 }
 
 .indicatorSectionWrap {
-  margin-top: -70px !important;
+  margin-top: -77px !important;
   .card {
     border: 1px solid transparent !important;
     background: transparent !important;
@@ -158,10 +163,13 @@ span {
 }
 
 .summary-section{
+ 
+
   .text-center.no-data-error-msg{
     border-color: transparent !important;
   }
 }
+
 
 .summarypage-nomap .text-center{
   color: var(-sidebar-maincolor) !important;

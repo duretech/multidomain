@@ -1323,8 +1323,8 @@ export default {
       this.setData(oEMUData);
       this.chartData = tempObj;
       this.newUsersChart(methodCategories);
-      let reversedCat = saveMethodCategories.reverse();
-      this.methodTable(saveSeries, reversedCat);
+      let reversedCat = saveMethodCategories;
+      this.methodTable(saveSeries, reversedCat.reverse());
     },
     getOtherChartsDetails(chartObj, index, chartType = "line") {
       // chartObj = {
@@ -1860,6 +1860,20 @@ export default {
         tableData: oneMonthEMU.tableData,
         agreCategories: oneMonthEMU.agreCategories,
       };
+      this.saveTrendsChartData = JSON.parse(
+        JSON.stringify(this.saveTrendsChartData)
+      );
+      console.log(
+        JSON.parse(JSON.stringify(this.saveTrendsChartData)),
+        "trend emuTrned"
+      );
+      this.saveOneMonthEMUChartData = JSON.parse(
+        JSON.stringify(this.saveOneMonthEMUChartData)
+      );
+      console.log(
+        JSON.parse(JSON.stringify(this.saveOneMonthEMUChartData)),
+        "saveOneMonthEMUChartData onemonthemu"
+      );
     },
     methodTrendByMethod(
       series,
@@ -1975,6 +1989,13 @@ export default {
         //agreTableData : tempObj.agreTableData,
         source: this.source,
       };
+      console.log(
+        JSON.parse(JSON.stringify(this.saveMethodTrendsChartData)),
+        "this.saveMethodTrendsChartData"
+      );
+      this.saveMethodTrendsChartData = JSON.parse(
+        JSON.stringify(this.saveMethodTrendsChartData)
+      );
     },
     calculateTotalEMU() {
       delete this.totalUsers["undefined"];

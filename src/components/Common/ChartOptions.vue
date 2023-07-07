@@ -345,9 +345,8 @@ export default {
     "isTable",
     "mapView",
     "sorting",
+    "viewType",
     "chartKey",
-    "isRRChart",
-    "trendType",
     "drillDown",
     "trendTable",
     "defaultSort",
@@ -360,7 +359,7 @@ export default {
       return {
         name: "",
         chartData: "",
-        visible: true,
+        visible: this.$store.getters?.getAppSettings?.enableChartOpt || false,
         modalShow: false,
         sortType: this.defaultSort,
         sortingOptions: {
@@ -372,14 +371,8 @@ export default {
           type6: ["A-Z", "Z-A", "JAN-DEC", "DEC-JAN"],
           type7: ["0-1", "1-0", "A-Z", "Z-A", "JAN-DEC", "DEC-JAN"],
         },
-        activeIcon: this.mapView ? "map" : this.isRRChart ? "table" : "chart",
-        tType: this.trendType
-          ? this.trendType
-          : this.mapView
-          ? "map"
-          : this.isRRChart
-          ? "table"
-          : "chart",
+        activeIcon: this.viewType,
+        tType: this.viewType,
       };
     }
   },
@@ -470,7 +463,7 @@ export default {
     },
   },
   watch: {
-    trendType(newValue) {
+    viewType(newValue) {
       this.tType = newValue;
     },
     modalShow(newValue) {
@@ -492,7 +485,7 @@ export default {
     },
     getActive(val) {
       this.activeIcon = val;
-      if (val === "chart" || val === "table" || val === "map") {
+      if (["chart", "table", "map"].includes(val)) {
         this.tType = val;
         this.$emit("showTable", val, this.chartKey);
       }

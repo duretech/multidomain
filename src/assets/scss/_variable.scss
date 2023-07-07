@@ -132,7 +132,7 @@
 
      --border-grey-color: #4A5768; //mainBorderColor
      --border-blue-color:#6C7787;
-     --border-color     : #212041;
+     --border-color     : transparent;
 
      --legend-inactive-color:  #848F9A; //legendColor
      --legend-bg-color : rgb(57 56 86 / 93%); //legendBGColor
@@ -148,7 +148,7 @@
      --black-btn-color: #5E57B3;
      --btn-text-color:#6e6e70;
      --scroll-color:#474665;
-    --bg-active-color: #2f2d55;
+      --bg-active-color: #2f2d55;
      --fa-color:#676767;
      --fa-sub-color: #a6a6a6;
      --fa-subfirst-color: #bfbfc4 ;
@@ -383,7 +383,7 @@
      --footer-components-color : #4A5768; //modalcontent
 
      --border-grey-color: #4A5768;  //mainBorderColor
-     --border-color                      : #212041;
+     --border-color                      : transparent;
 
      --custom-select-color:#479a67; //customColor
     --legend-inactive-color:  #848F9A; //legendColor

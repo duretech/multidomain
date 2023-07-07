@@ -88,7 +88,13 @@
           />
           {{ $t("backup_config") }}
         </button>
-        <template v-if="$store.getters.getNamespace === `${tableName}`">
+        <template
+          v-if="
+            ($store.getters.getIsMultiProgram &&
+              $store.getters.getNamespace === `${tableName}`) ||
+            !$store.getters.getIsMultiProgram
+          "
+        >
           <button
             type="button"
             class="btn btn-primary black-btn btn-sm new-gradbtn mr-2"
@@ -158,10 +164,13 @@
                       />
                     </p>
                     <div class="text-right d-flex justify-content-end">
-                    <b-button class="mt-2 blue-btn w-25" block @click="readFile()">{{
-                      $t("submitbtn")
-                    }}</b-button>
-                  </div>
+                      <b-button
+                        class="mt-2 blue-btn w-25"
+                        block
+                        @click="readFile()"
+                        >{{ $t("submitbtn") }}</b-button
+                      >
+                    </div>
                   </b-modal>
                 </div>
                 <div class="row mx-0">
@@ -572,7 +581,7 @@ export default {
         mergedData = staticData.default || {},
         proceed = true;
       await service
-        .getSavedConfig(`translations`)
+        .getSavedConfig(`translations`, false, "", true)
         .then(async (results) => {
           mergedData = merge(staticData.default, results.data);
         })
@@ -637,7 +646,7 @@ export default {
         });
       }
       service
-        .getSavedConfig(`translations`)
+        .getSavedConfig(`translations`, false, "", true)
         .then((results) => {
           let data = results.data;
           if (translationArray) {
@@ -663,7 +672,7 @@ export default {
             });
           }
           service
-            .updateConfig(data, `translations`)
+            .updateConfig(data, `translations`, false, "", true)
             .then((res) => {
               this.$store.state.loading = false;
               this.$swal({

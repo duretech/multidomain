@@ -328,7 +328,7 @@
       :title="$t('showSteps')"
       no-close-on-backdrop
     >
-      <div class="row p-3">
+      <div class="row p-3 fp-users">
         <!-- Population
       <b-table hover v-if="finalCalculatedTable && finalCalculatedTable.population" :items="finalCalculatedTable.population.items" bordered :fields="finalCalculatedTable.population.fields" responsive class="methodsTable" /> -->
         <!-- <strong>{{$t('sumOfCont')}} </strong>
@@ -1465,8 +1465,8 @@ export default {
       this.setData(oEMUData);
       this.chartData = tempObj;
       this.newUsersChart(methodCategories);
-      let reversedCat = saveMethodCategories.reverse();
-      this.methodTable(saveSeries, reversedCat);
+      let reversedCat = JSON.parse(JSON.stringify(saveMethodCategories));
+      this.methodTable(saveSeries, reversedCat.reverse());
     },
     getOtherChartsDetails(chartObj, index, chartType = "line") {
       // chartObj = {
@@ -1681,25 +1681,25 @@ export default {
     },
     getPopulation() {
       let oPopulation = {};
-      Object.keys(this.population).forEach((key) => {
-        let oContVal = {};
-        let len = Object.keys(this.population).length;
-        let keys = Object.keys(this.population);
-        for (let i = 0; i < len; i++) {
-          var last = i != len - 1 ? this.population[keys[i + 1]] : 0;
-          if (last != 0) {
-            let value = (this.population[keys[i]] - last) / 12;
-            oContVal[keys[i]] = 0 - value;
-          }
+      // Object.keys(this.population).forEach((key) => {
+      let oContVal = {};
+      let len = Object.keys(this.population).length;
+      let keys = Object.keys(this.population);
+      for (let i = 0; i < len; i++) {
+        var last = i != len - 1 ? this.population[keys[i + 1]] : "NA";
+        if (last != "NA") {
+          let value = (this.population[keys[i]] - last) / 12;
+          oContVal[keys[i]] = 0 - value;
         }
-        oPopulation = oContVal;
-      });
+      }
+      oPopulation = oContVal;
+      // });
       let oMonthPopulation = {};
       Object.keys(this.population).forEach((key) => {
         var count;
         //let len = Object.keys(this.population).length;
         // for (let i = 0; i <= len; i++) {
-        if (oPopulation[key]) {
+        if (oPopulation[key] != null) {
           for (let month = 1; month <= 12; month++) {
             if (month == 1) {
               count = this.population[key];
@@ -2098,6 +2098,20 @@ export default {
         tableData: oneMonthEMU.tableData,
         agreCategories: oneMonthEMU.agreCategories,
       };
+      this.saveTrendsChartData = JSON.parse(
+        JSON.stringify(this.saveTrendsChartData)
+      );
+      console.log(
+        JSON.parse(JSON.stringify(this.saveTrendsChartData)),
+        "trend emuTrned"
+      );
+      this.saveOneMonthEMUChartData = JSON.parse(
+        JSON.stringify(this.saveOneMonthEMUChartData)
+      );
+      console.log(
+        JSON.parse(JSON.stringify(this.saveOneMonthEMUChartData)),
+        "saveOneMonthEMUChartData onemonthemu"
+      );
     },
     methodTrendByMethod(
       series,
@@ -2213,6 +2227,13 @@ export default {
         //agreTableData : tempObj.agreTableData,
         source: this.source,
       };
+      console.log(
+        JSON.parse(JSON.stringify(this.saveMethodTrendsChartData)),
+        "this.saveMethodTrendsChartData"
+      );
+      this.saveMethodTrendsChartData = JSON.parse(
+        JSON.stringify(this.saveMethodTrendsChartData)
+      );
     },
     calculateTotalEMU() {
       delete this.totalUsers["undefined"];

@@ -617,6 +617,7 @@ export default {
       this.methodSeq = oRet.methodSeq;
       this.tableMethodSeq = oRet.tableMethodSeq;
       this.emuColors = oRet.emuColors;
+      this.$store.commit("setEMUColors", oRet.emuColors);
       if (this.globalConfig.chartArr.length) {
         this.getReportingRate();
 

@@ -48,7 +48,6 @@ export default {
     "deList",
     "defaultType",
     "dataElementList",
-    "EMULocation",
     "categoryOptionID",
     "methodCatId",
     "finalCount",
@@ -67,6 +66,7 @@ export default {
       annaulEMUChartsUpdated: false,
       monthlyEMUChartsSaved: false,
       mainmethodSeq: [],
+      tableMethodSeq: [],
       monthlyMethodSeq: [],
       sYearArray: [],
       totalCyp: null,
@@ -185,7 +185,7 @@ export default {
         let configData = this.dqrConfig,
           defaultType = this.defaultType;
         let sStartYear = configData.emu_monthly[defaultType]["initialYear"];
-        let popYear =
+        let populationYear =
           configData.emu_monthly.Background_Data.SSDataRecentYear * 1 + 1;
         this.startYearM = sStartYear;
         let curr_date = this.$moment().format("YYYY-MM");
@@ -212,7 +212,12 @@ export default {
         let sYearMonthly = monthsArr.join(";");
         this.sYearMonthly = sYearMonthly;
         this.monthContinuation(this.globeData, sStartYear, lYear, defaultType);
-        this.getPopulationData(configData, this.loc, sStartYear, popYear);
+        this.getPopulationData(
+          configData,
+          this.loc,
+          sStartYear,
+          populationYear
+        );
       }
     },
 
@@ -782,19 +787,19 @@ export default {
         }
         console.log(popObj, "popObj");
         let oPopulation = {};
-        Object.keys(popObj).forEach((key) => {
-          let oContVal = {};
-          let len = Object.keys(popObj).length;
-          let keys = Object.keys(popObj);
-          for (let i = 0; i < len; i++) {
-            var last = i !== len - 1 ? popObj[keys[i + 1]] : 0;
-            if (last !== 0) {
-              let value = (popObj[keys[i]] - last) / 12;
-              oContVal[keys[i]] = 0 - value;
-            }
+        // Object.keys(popObj).forEach((key) => {
+        let oContVal = {};
+        let len = Object.keys(popObj).length;
+        let keys = Object.keys(popObj);
+        for (let i = 0; i < len; i++) {
+          var last = i !== len - 1 ? popObj[keys[i + 1]] : 0;
+          if (last !== 0) {
+            let value = (popObj[keys[i]] - last) / 12;
+            oContVal[keys[i]] = 0 - value;
           }
-          oPopulation = oContVal;
-        });
+        }
+        oPopulation = oContVal;
+        // });
         let oMonthPopulation = {};
         Object.keys(popObj).forEach((key) => {
           var count;
@@ -838,23 +843,24 @@ export default {
           popObj = this.population;
         }
         let oPopulation = {};
-        Object.keys(popObj).forEach((key) => {
-          let oContVal = {};
-          let len = Object.keys(popObj).length;
-          let keys = Object.keys(popObj);
-          for (let i = 0; i < len; i++) {
-            var last = i !== len - 1 ? popObj[keys[i + 1]] : 0;
-            if (last !== 0) {
-              let value = (popObj[keys[i]] - last) / 12;
-              oContVal[keys[i]] = 0 - value;
-            }
+        // Object.keys(popObj).forEach((key) => {
+        let oContVal = {};
+        let len = Object.keys(popObj).length;
+        let keys = Object.keys(popObj);
+        for (let i = 0; i < len; i++) {
+          var last = i !== len - 1 ? popObj[keys[i + 1]] : "NA";
+          if (last !== "NA") {
+            let value = (popObj[keys[i]] - last) / 12;
+            oContVal[keys[i]] = 0 - value;
           }
-          oPopulation = oContVal;
-        });
+        }
+        oPopulation = oContVal;
+        // });
+
         let oMonthPopulation = {};
         Object.keys(popObj).forEach((key) => {
           var count;
-          if (oPopulation[key]) {
+          if (oPopulation[key] != null) {
             for (let month = 1; month <= 12; month++) {
               if (month === 1) {
                 count = popObj[key];
@@ -1061,7 +1067,10 @@ export default {
       this.finalMethodArr = oRet.finalMethodArr;
       this.methodSeq = oRet.methodSeq;
       this.mainmethodSeq = oRet.mainmethodSeq;
+      this.tableMethodSeq = oRet.tableMethodSeq;
       this.monthlyMethodSeq = oRet.monthlyMethodSeq;
+      this.$store.commit("setEMUColors", oRet.emuColors);
+
       this.gConfig = globalConfig;
       if (globalConfig.chartArr.length) {
         this.isGlobalConfig = true;
@@ -1276,7 +1285,11 @@ export default {
         oAdjustmentFactors,
         this.disableChart
       );
-
+      console.log(
+        this.defaultType,
+        "Short term methods calculation",
+        oSTMAdjusment
+      );
       let aSumOfCont = dataM.getSumOfCont(bgData.continuation[type]);
       let continuation = {};
       Object.keys(bgData.continuation[type]).forEach((cont) => {
@@ -1393,7 +1406,7 @@ export default {
 
       //comparison estimate chart calculation
       let combinedComparisonEstimateChart = dataM.combinedComparisonEstimate(
-        this.currentYear,
+        this.endYear,
         [...this.finalMethodArr],
         this.sYearArray,
         methodWiseAdjObject,
@@ -1409,7 +1422,7 @@ export default {
 
       //Column chart for comparison estimate chart
       let MordernUsersByMethodsData = dataM.comarisonEstimateColumnChart(
-        this.currentYear,
+        this.endYear,
         this.finalMethodArr,
         this.sYearArray,
         methodWiseAdjObject,
@@ -1440,7 +1453,7 @@ export default {
       outputChartObj["lineAdNonAdChartData"] = lineAdNonAdChartData;
 
       let adjNonAdjBarChart = dataM.getadjNonAdjBarChart(
-        this.currentYear,
+        this.endYear,
         this.sYearArray,
         [...this.finalMethodArr],
         adjNonAdjData,
@@ -1455,7 +1468,7 @@ export default {
       outputChartObj["adNonadChartData"] = adNonadChartData;
 
       let methodMixService = dataM.getMethodMixServicePie(
-        this.currentYear,
+        this.endYear,
         this.finalMethodArr,
         this.sYearArray,
         methodWiseAdjObject,
@@ -1509,6 +1522,7 @@ export default {
       outputChartObj["comparisionSlope"] = comparisionSlope;
       outputChartObj["methodWiseAdjObject"] = methodWiseAdjObject;
       outputChartObj["userTrendsbyEmu"] = userTrendsbyEmu;
+      outputChartObj["allMethodsAdjusted"] = allMethodsAdjusted;
 
       chartObj.push(outputChartObj);
       trimUndefinedRecursively(outputChartObj);
@@ -1694,14 +1708,14 @@ export default {
                     this.dqrConfig.emu.Background_Data.defaultDataType;
                   if (selectedTypesArray.length > 0) {
                     //first chart of emu o/p
-                    let obj = {
-                      commoditiesToClients: this.$i18n.t("Commodities_Client"),
-                      commoditiesToFacilities: this.$i18n.t(
-                        "Commodities_Facilities"
-                      ),
-                      fp_visits: this.$i18n.t("visits"),
-                      fp_users: this.$i18n.t("users"),
-                    };
+                    // let obj = {
+                    //   commoditiesToClients: this.$i18n.t("Commodities_Client"),
+                    //   commoditiesToFacilities: this.$i18n.t(
+                    //     "Commodities_Facilities"
+                    //   ),
+                    //   fp_visits: this.$i18n.t("visits"),
+                    //   fp_users: this.$i18n.t("users"),
+                    // };
                     let aMICS = [];
                     aMICS = [
                       {
@@ -1754,6 +1768,7 @@ export default {
                     let userTrendsData = {},
                       surveyData = {},
                       finalMethodArr = {}; //for 3rd chart
+                    let adjustedValues = {}; //for method table
                     selectedTypesArray.forEach((dttype) => {
                       if (
                         outputCharts[dttype] &&
@@ -1771,6 +1786,9 @@ export default {
                           opChartData["methodWiseAdjObject"];
                         surveyData[dttype] = opChartData["surveyData"];
                         finalMethodArr[dttype] = opChartData["finalMethodArr"];
+                        adjustedValues[dttype] = dataM.calculateNewAdjustedVals(
+                          opChartData["allMethodsAdjusted"].adjusted
+                        );
                       }
                     });
                     let oResponse = dataM.getemuComparisonData(
@@ -1882,11 +1900,129 @@ export default {
                     saveuserTrendsByMethods.reportChartType = "line";
                     saveuserTrendsByMethods.isPeriodChart = true;
                     //end of fourth chart
+                    //logic for methodtable
 
+                    let methodSeq = this.tableMethodSeq;
+                    console.log(
+                      methodSeq,
+                      adjustedValues,
+                      emufromDQR,
+                      "methodSeq----------------"
+                    );
+                    let i,
+                      oData = adjustedValues[emufromDQR],
+                      aFinalCats = [],
+                      oFinalData = {},
+                      tableData = {};
+                    methodSeq.forEach((v, i) => {
+                      Object.keys(oData).forEach((m) => {
+                        if (m == v) {
+                          tableData[methodSeq[i]] = oData[m];
+                        }
+                      });
+                    });
+                    let oAllMethods = dataM.getTableFormatedData(
+                      tableData,
+                      this.tableMethodSeq
+                    );
+
+                    for (i in tableData) {
+                      let aCats = Object.keys(tableData[i]);
+                      aCats.forEach((year) => {
+                        if (aFinalCats.indexOf(" " + year + " ") == -1) {
+                          aFinalCats.push(" " + year + " ");
+                        }
+                      });
+                      // aFinalCats = aCats;
+                      //}
+                    }
+                    if (aFinalCats && aFinalCats.length) {
+                      this.fields = [
+                        " " + this.$i18n.t("methods") + " ",
+                        " " + this.$i18n.t("sub_method") + " ",
+                        ...aFinalCats,
+                      ];
+                    } else {
+                      this.fields = [
+                        " " + this.$i18n.t("methods") + " ",
+                        " " + this.$i18n.t("sub_method") + " ",
+                      ];
+                    }
+                    let tableRows = [];
+                    let oSumModernUsers = {},
+                      oSumModernUsersexCon = {};
+                    if (Object.keys(oAllMethods).length > 0) {
+                      for (let k in oAllMethods) {
+                        // let bFlag = true;
+                        for (let l in oAllMethods[k]) {
+                          let oRow = {
+                              [" " + this.$i18n.t("methods") + " "]:
+                                k.toUpperCase(),
+                              [" " + this.$i18n.t("sub_method") + " "]: l,
+                            },
+                            bIsCon =
+                              k.toLowerCase() === "condom" ||
+                              k.toLowerCase === "préservatifs";
+                          //let oRow = {[this.$i18n.t('methods')]:bFlag ? k.toUpperCase() : '',[this.$i18n.t('sub_method')]:l},bIsCon = k.toLowerCase() === 'condom';
+                          for (let m in oAllMethods[k][l]) {
+                            oAllMethods[k][l][m] = oAllMethods[k][l][m]
+                              ? oAllMethods[k][l][m]
+                              : 0;
+                            oRow[" " + m + " "] = Math.round(
+                              oAllMethods[k][l][m]
+                            ).toLocaleString();
+                            oSumModernUsers[m] =
+                              (oSumModernUsers[m] || 0) + oAllMethods[k][l][m];
+                            //if(!bIsCon){
+                            if (
+                              k.toLowerCase() !=
+                              this.$i18n.t("condom").toLowerCase()
+                            ) {
+                              oSumModernUsersexCon[m] =
+                                (oSumModernUsersexCon[m] || 0) +
+                                oAllMethods[k][l][m];
+                            }
+                          }
+                          // bFlag = false;
+                          tableRows.push(oRow);
+                        }
+                      }
+                    }
+                    let oRows1 = {
+                        [" " + this.$i18n.t("methods") + " "]: this.$i18n.t(
+                          "estimated_modern_users"
+                        ),
+                        [" " + this.$i18n.t("sub_method") + " "]: "",
+                        _rowVariant: "customclass",
+                      },
+                      oRows2 = {
+                        [" " + this.$i18n.t("methods") + " "]: this.$i18n.t(
+                          "estimated_modern_users_excon"
+                        ),
+                        [" " + this.$i18n.t("sub_method") + " "]: "",
+                        _rowVariant: "customclass",
+                      };
+                    for (let x in oSumModernUsersexCon) {
+                      oRows1[" " + x + " "] = Math.round(
+                        oSumModernUsers[x]
+                      ).toLocaleString();
+                      oRows2[" " + x + " "] = Math.round(
+                        oSumModernUsersexCon[x]
+                      ).toLocaleString();
+                    }
+
+                    tableRows.push(oRows1);
+                    tableRows.push(oRows2);
+                    console.log(tableRows, "final o/p table in in/op tab");
+
+                    console.log(this.defaultType, emufromDQR, "last if");
+                    let methodTable = { [this.loc.split("/")[1]]: tableRows };
+
+                    //methodTable logic end here
                     //save final emu process started
-                    finalEMUComparisonData.source = this.category;
-                    annualAvgComarisonChart.source = this.category;
-                    annualComparisionOfMethods.source = this.category;
+                    finalEMUComparisonData.source = this.emufromDQR;
+                    annualAvgComarisonChart.source = this.emufromDQR;
+                    annualComparisionOfMethods.source = this.emufromDQR;
                     // this.userTrendsDataByMethods.source = this.category
                     let dataStore = {};
                     let key = this.generateKey(
@@ -1988,33 +2124,19 @@ export default {
                             oResponse["methodTable"][this.loc.split("/")[1]]
                           ) {
                             oResponse["methodTable"][this.loc.split("/")[1]] =
-                              this.$store.state.methodTable
-                                ? this.$store.state.methodTable[
-                                    this.loc.split("/")[1]
-                                  ]
-                                : null;
+                              methodTable;
                           } else {
                             oResponse["methodTable"] = {
                               ...oResponse["methodTable"],
-                              [this.loc.split("/")[1]]: this.$store.state
-                                .methodTable
-                                ? this.$store.state.methodTable[
-                                    this.loc.split("/")[1]
-                                  ]
-                                : null,
+                              [this.loc.split("/")[1]]: methodTable,
                             };
                           }
                         } else {
                           oResponse["methodTable"] = {
-                            [this.loc.split("/")[1]]: this.$store.state
-                              .methodTable
-                              ? this.$store.state.methodTable[
-                                  this.loc.split("/")[1]
-                                ]
-                              : null,
+                            [this.loc.split("/")[1]]: methodTable,
                           };
                         }
-                        //methodtable is not sure where get used
+                        //methodtable is used in geoprogress tab
                         //if(oResponse['methodTable']){
                         //    oResponse['methodTable'] = this.$store.state.methodTable
                         //}
@@ -2060,12 +2182,7 @@ export default {
                           [this.loc.split("/")[1]]: saveuserTrendsByMethods,
                         },
                         methodTable = {
-                          [this.loc.split("/")[1]]: this.$store.state
-                            .methodTable
-                            ? this.$store.state.methodTable[
-                                this.loc.split("/")[1]
-                              ]
-                            : null,
+                          [this.loc.split("/")[1]]: methodTable,
                         };
 
                       dataStore = {
@@ -2545,7 +2662,7 @@ export default {
 
         last24Cat.forEach((year) => {
           let oTable = {};
-          oTable[this.$i18n.t("Period")] = this.$moment(year, "YYYYMM").format(
+          oTable[this.$i18n.t("period")] = this.$moment(year, "YYYYMM").format(
             "MMM YYYY"
           );
           if (this.backgroundData != null) {
@@ -2583,8 +2700,9 @@ export default {
             });
           }
           oTable[this.$i18n.t("EMU")] = this.totalEMUByMethod[method][year];
-          oMethodSaveTable["name"] = this.totalEMUByMethod[method]["subname"];
-          oMethodSaveTable["trans_name"] = method + " " + this.$i18n.t("EMU");
+          oMethodSaveTable["name"] = method + " " + this.$i18n.t("EMU");
+          oMethodSaveTable["trans_name"] =
+            this.totalEMUByMethod[method]["subname"];
           //taking subname as transname
           oMethodSaveTable["mName"] =
             this.totalEMUByMethod[method]["mTransname"];
@@ -3740,6 +3858,7 @@ export default {
           ocontdata = dataM.getComputedContFact(
             JSON.parse(JSON.stringify(globData.continuation))
           );
+        console.log(oTemp, "bgdata from DM");
         this.population = oTemp["Population (MWRA)"] || oTemp.Population;
         let oBgdata = {
           population: oTemp["Population (MWRA)"] || oTemp.Population,

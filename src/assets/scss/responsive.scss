@@ -338,16 +338,16 @@
         .sidebar-newbody #sidebar-2 .sidebar{
             height: calc(100vh - 220px) !important;
         }
-        .summary{
-            margin-top: 100px !important;
-        }
+        // .summary{
+        //     margin-top: 100px !important;
+        // }
         .summary-page-container{
-            margin-top: 92px !important;
+            margin-top: 0% !important;
         }
 
-        .summary-dqr{
-            padding-top: 26px !important;
-        }
+        // .summary-dqr{
+        //     padding-top: 26px !important;
+        // }
 
         .integratedFamilyWrap .integratedPlanningText{
             padding-top: 94px !important;
@@ -477,7 +477,21 @@
               
                 padding-top: 96px !important;
             }
-        }   
+        } 
+        
+       .summary-page-container.summary-dash-section{
+          
+                padding-top: 117px !important;
+
+                .summary-dqr{
+                    margin-bottom: 1% !important;
+                }
+
+                .summary-section{
+                    padding-top: 50px;
+                }
+            
+        }
         
         .fav-newsidebar{
 

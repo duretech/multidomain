@@ -305,7 +305,7 @@ input[type="range"]::-webkit-slider-runnable-track {
 
 	.custom-control-label::before {
 		background-color: var(--signoff-bottom-card);
-		border: 3px solid var(--primary-bg-color);
+		border: 2px solid var(--border-grey-color);
 	}
 }
 
@@ -449,9 +449,16 @@ input[type="range"]::-webkit-slider-runnable-track {
 	height: auto !important;
 }
 
-.question-answer .form-control:disabled{
+.question-answer{ 
+	
+	.form-control:disabled{
 	background-color: var(--sidebar-main-active-color) !important;
 	border-color: var( --sidebar-main-active-color) !important;
+}
+   .comment-area{
+	color: var(--text-color) !important;
+   }
+
 }
 
 .not-emu {
@@ -538,6 +545,10 @@ input[type="range"]::-webkit-slider-runnable-track {
 				textarea {
 					background-color: var(--signoff-dropdown-color) !important;
 					border-color: var(--signoff-dropdown-color) !important;
+					color: var(--text-color) !important;
+				}
+
+				.comment-area{
 					color: var(--text-color) !important;
 				}
 			}

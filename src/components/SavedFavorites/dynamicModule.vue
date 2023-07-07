@@ -208,7 +208,7 @@
               <div class="col-4">
                 <label for="logo">{{ $t("logo") }}</label>
               </div>
-              <div class="col-8">
+              <div class="col-8 upload-logo">
                 <div class="input-group">
                   <input
                     type="text"
@@ -220,8 +220,8 @@
                     required
                     readonly
                   />
-                  <div class="input-group-prepend">
-                    <div class="dropdown logoSelect-dropdown">
+                  <div class="input-group-prepend upload-btn cursor-pointer">
+                    <!-- <div class="dropdown logoSelect-dropdown">
                       <button
                         type="button"
                         class="btn bg-white btn-block blue-btn form-control"
@@ -229,7 +229,28 @@
                         {{ $t("browse") }}
                         <i class="fa fa-caret-down pl-2" aria-hidden="true"></i>
                       </button>
-                    </div>
+                    </div> -->
+                    <a class="dropdown-item upload-item" href="javascript:void(0)">
+                      <div
+                        class="file btn uploadIcondiv cursor-pointer"
+                        v-b-tooltip.hover
+                        :title="$t('uploadImage')"
+                      >
+                        <img
+                          alt="img"
+                          :src="require('@/assets/images/icons/plus.svg')"
+                          style="width: 10px"
+                          class="cursor-pointer"
+                          :style="{ filter: filterColor }"
+                        />
+                        <input
+                          type="file"
+                          name="file"
+                          class="uploadIconinput cursor-pointer"
+                          @change="addImage"
+                        />
+                      </div>
+                    </a>
                   </div>
                 </div>
               </div>
@@ -292,25 +313,7 @@
                       /></a>
                     </div>
                     <div class="col-4">
-                      <a class="dropdown-item" href="javascript:void(0)">
-                        <div
-                          class="file btn uploadIcondiv"
-                          v-b-tooltip.hover
-                          :title="$t('uploadImage')"
-                        >
-                          <img
-                            alt="img"
-                            :src="require('@/assets/images/icons/plus.svg')"
-                            style="width: 90px"
-                          />
-                          <input
-                            type="file"
-                            name="file"
-                            class="uploadIconinput"
-                            @change="addImage"
-                          />
-                        </div>
-                      </a>
+                     
                     </div>
                   </div>
                 </div>
@@ -454,6 +457,13 @@
             <div class="col-4"></div>
             <div class="col-8">
               <button
+              type="button"
+              class="btn btn-secondary resetbtn submitbtn reset-create"
+              @click.prevent.stop="reset"
+            >
+              {{ $t("resetbtn") }}
+            </button>
+              <button
                 type="button"
                 class="btn btn-primary blue-btn"
                 :disabled="submitDisabled"
@@ -461,13 +471,7 @@
               >
                 {{ isEdit ? $t("update") : $t("submitbtn") }}
               </button>
-              <button
-                type="button"
-                class="btn btn-secondary resetbtn submitbtn reset-create"
-                @click.prevent.stop="reset"
-              >
-                {{ $t("resetbtn") }}
-              </button>
+             
             </div>
           </div>
         </div>
@@ -1437,7 +1441,21 @@ select:invalid {
 .uploadIcondiv {
   position: relative;
   overflow: hidden;
+  
 }
+
+.upload-btn{
+  height: 34px;
+}
+
+.upload-item,
+.upload-item:hover {
+  background-color:transparent !important;
+  border-color: transparent !important;
+  cursor:pointer;
+}
+
+
 .uploadIconinput {
   position: absolute;
   font-size: 3.125rem;

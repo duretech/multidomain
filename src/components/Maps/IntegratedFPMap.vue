@@ -1,7 +1,7 @@
 <template>
   <div>
-    <div class="map-container fp-map p-0">
-      <div class="map fp-map p-0">
+    <div class="fp-map p-0">
+      <div class="fp-map p-0">
         <div>
           <b-row class="map-row" id="int_map">
             <b-col cols="12">
@@ -121,12 +121,12 @@
                 <l-control
                   v-if="showIcons && !exportingPdf && !isExporting"
                   position="topright"
+                  class="reset-map"
                 >
                   <a
                     href="javascript:void(0)"
-                    class="mapactionbtn"
+                    class=""
                     @click.prevent.stop="reCenterMap"
-                    style="padding: 4px"
                     :title="$t('resetMap')"
                     data-html2canvas-ignore="true"
                   >
@@ -154,7 +154,7 @@ import "leaflet/dist/leaflet.css";
 import domtoimage from "dom-to-image";
 import { featureGroup } from "leaflet";
 import DynamicImageMixin from "@/helpers/DynamicImageMixin";
-import { isNumber } from "@/components/Common/commonFunctions";
+import { isNumber, excludeName } from "@/components/Common/commonFunctions";
 
 delete L.Icon.Default.prototype._getIconUrl;
 
@@ -376,11 +376,11 @@ export default {
           let nameControlObj = {};
           if (findId.length > 0) {
             nameControlObj = {
-              name: this.geoJson.features[i]["properties"].name,
+              name: excludeName(this.geoJson.features[i]["properties"].name),
               lat: mapCentroid.lat,
               lng: mapCentroid.lng,
               value:
-                this.geoJson.features[i]["properties"].name +
+                excludeName(this.geoJson.features[i]["properties"].name) +
                 ": " +
                 findId[0]["data"],
             };
@@ -464,7 +464,7 @@ export default {
       let value = this.getFeatureValue(locationISO);
       let content =
         '<div style="max-width:180px;"><div style="font-weight: 600;"> ' +
-        locationName +
+        excludeName(locationName) +
         " : " +
         value +
         "</div></div>";
@@ -546,4 +546,13 @@ export default {
   },
 };
 </script>
-<style scoped></style>
+<style scoped>
+.reset-map {
+  border: 1px solid var(--sidebar-main-active-color) !important;
+  padding: 4px;
+  border-radius: 5px;
+  background-color: var(--sidebar-main-active-color) !important;
+  color: var(--text-font-color) !important;
+  cursor: pointer;
+}
+</style>

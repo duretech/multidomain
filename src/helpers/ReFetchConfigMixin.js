@@ -1,8 +1,17 @@
 export default {
+  data() {
+    return {
+      errCount: 0,
+    };
+  },
   methods: {
     reFetchConfig(err = null) {
       console.log("err", err);
-      if (err === null || !err.message.includes("404")) {
+      if (
+        err.response.status >= 500 &&
+        err.response.status < 600 &&
+        this.errCount < 3
+      ) {
         this.$swal({
           title: this.$i18n.t("errorInData"),
           confirmButtonText: this.$i18n.t("refreshBtn"),
@@ -11,6 +20,7 @@ export default {
           reverseButtons: true,
         }).then((result) => {
           if (result.value) {
+            this.errCount++;
             this.getConfigData();
           }
         });

@@ -6,6 +6,17 @@
 
   }
 
+  .upload-logo{
+    .input-group{
+      background-color: var(--sidebar-bg-color) !important;
+    }
+
+    input{
+      border-top-right-radius: 0px !important;
+      border-bottom-right-radius: 0px !important;
+    }
+  }
+
   .btn-primary.submitbtn.submit-create{
     background-color: var(--black-btn-color) !important;
     border-color: var(--black-btn-color) !important;

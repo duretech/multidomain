@@ -163,10 +163,11 @@
   }
 }
 
-.new-gradbtn {
+.new-gradbtn,
+.new-gradbtn.focus,
+.new-gradbtn:focus {
     letter-spacing: 0.6px;
-    color: var(--main-font-color);
-    opacity: 1;
+    color: var(--main-font-color) !important;
     background: var(--main-header-color) !important;
     opacity: 1;
     border: none !important;

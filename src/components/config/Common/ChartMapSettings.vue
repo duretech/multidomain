@@ -420,12 +420,12 @@
                   </b-col>
                   <b-col sm="12" lg="6" class="mb-3">
                     <b-row>
-                      <b-col sm="6">
+                      <b-col sm="5">
                         <label :for="`chartType-${configKey}-${i}-${j}-${c}`"
                           >{{ $t("chart") }} {{ $t("type") }}</label
                         >
                       </b-col>
-                      <b-col sm="6">
+                      <b-col sm="7">
                         <b-form-select
                           :id="`chartType-${configKey}-${i}-${j}-${c}`"
                           :disabled="chart.chartOptions.type === 'map'"
@@ -469,6 +469,28 @@
                               chart.chartOptions.isSingleSource
                             )
                           "
+                        ></b-form-select>
+                      </b-col>
+                    </b-row>
+                  </b-col>
+                  <b-col
+                    sm="12"
+                    lg="6"
+                    class="mb-3"
+                    v-if="chart.chartOptions.type !== 'map'"
+                  >
+                    <b-row>
+                      <b-col sm="5"
+                        ><label
+                          :for="`chartDefaultView-${configKey}-${i}-${j}-${c}`"
+                          >{{ $t("default") }} {{ $t("View") }}</label
+                        >
+                      </b-col>
+                      <b-col sm="7">
+                        <b-form-select
+                          :id="`chartDefaultView-${configKey}-${i}-${j}-${c}`"
+                          v-model="chart.chartOptions.chartDefaultView"
+                          :options="defaultView(chart.chartOptions.type)"
                         ></b-form-select>
                       </b-col>
                     </b-row>
@@ -625,6 +647,74 @@
                         </b-col>
                       </b-row>
                     </b-col>
+                    <template
+                      v-if="
+                        chart.chartOptions.type !== 'map' &&
+                        ((chart.chartOptions.chartCategory === 'trend' &&
+                          chart.chartOptions.chartDrillDown &&
+                          ['PERIOD_DIFF'].includes(
+                            chart.chartOptions.drillCalculation
+                          )) ||
+                          ['PERIOD_DIFF', 'PERIOD_DIFF_CYP'].includes(
+                            chart.chartOptions.chartCalculation
+                          ))
+                      "
+                    >
+                      <b-col sm="12" lg="6" class="mb-3">
+                        <b-row>
+                          <b-col sm="5">
+                            <label
+                              :for="`cngPtPos-${configKey}-${i}-${j}-${c}`"
+                              >{{ $t("cngPtPos") }}</label
+                            >
+                          </b-col>
+                          <b-col sm="7">
+                            <b-input-group
+                              :id="`cngPtPos-${configKey}-${i}-${j}-${c}`"
+                            >
+                              <b-form-input
+                                type="text"
+                                v-model="chart.chartOptions.cngPtPos"
+                              ></b-form-input>
+                              <b-input-group-append>
+                                <b-form-input
+                                  type="color"
+                                  class="w-40px"
+                                  v-model="chart.chartOptions.cngPtPos"
+                                ></b-form-input>
+                              </b-input-group-append>
+                            </b-input-group>
+                          </b-col>
+                        </b-row>
+                      </b-col>
+                      <b-col sm="12" lg="6" class="mb-3">
+                        <b-row>
+                          <b-col sm="5">
+                            <label
+                              :for="`cngPtNeg-${configKey}-${i}-${j}-${c}`"
+                              >{{ $t("cngPtNeg") }}</label
+                            >
+                          </b-col>
+                          <b-col sm="7">
+                            <b-input-group
+                              :id="`cngPtNeg-${configKey}-${i}-${j}-${c}`"
+                            >
+                              <b-form-input
+                                type="text"
+                                v-model="chart.chartOptions.cngPtNeg"
+                              ></b-form-input>
+                              <b-input-group-append>
+                                <b-form-input
+                                  type="color"
+                                  class="w-40px"
+                                  v-model="chart.chartOptions.cngPtNeg"
+                                ></b-form-input>
+                              </b-input-group-append>
+                            </b-input-group>
+                          </b-col>
+                        </b-row>
+                      </b-col>
+                    </template>
                     <b-col
                       sm="12"
                       lg="6"
@@ -1164,14 +1254,14 @@
                     </b-col>
                     <b-col sm="12" lg="6" class="mb-3">
                       <b-row>
-                        <b-col sm="6">
+                        <b-col sm="5">
                           <label
                             class=""
                             :for="`chartSource-${configKey}-${i}-${j}-${c}`"
                             >{{ $t("source") }}</label
                           >
                         </b-col>
-                        <b-col sm="6">
+                        <b-col sm="7">
                           <b-input-group
                             :id="`chartSource-${configKey}-${i}-${j}-${c}`"
                           >
@@ -1266,6 +1356,98 @@
                         </b-col>
                       </b-row>
                     </b-col>
+                    <template
+                      v-if="
+                        chart.chartOptions.type !== 'map' &&
+                        chart.chartOptions.generateSummary &&
+                        moduleKey !== 'dqrDashboard' &&
+                        !['PERIOD_DIFF', 'PERIOD_DIFF_CYP'].includes(
+                          chart.chartOptions.chartCalculation
+                        )
+                      "
+                    >
+                      <b-col sm="12" lg="6" class="mb-3">
+                        <b-row>
+                          <b-col sm="5">
+                            <label
+                              :for="`cngSumPos-${configKey}-${i}-${j}-${c}`"
+                              >{{ $t("positive5") }}</label
+                            >
+                          </b-col>
+                          <b-col sm="7">
+                            <b-input-group
+                              :id="`cngSumPos-${configKey}-${i}-${j}-${c}`"
+                            >
+                              <b-form-input
+                                type="text"
+                                v-model="chart.chartOptions.cngSumPos"
+                              ></b-form-input>
+                              <b-input-group-append>
+                                <b-form-input
+                                  type="color"
+                                  class="w-40px"
+                                  v-model="chart.chartOptions.cngSumPos"
+                                ></b-form-input>
+                              </b-input-group-append>
+                            </b-input-group>
+                          </b-col>
+                        </b-row>
+                      </b-col>
+                      <b-col sm="12" lg="6" class="mb-3">
+                        <b-row>
+                          <b-col sm="5">
+                            <label
+                              :for="`cngSumNeg-${configKey}-${i}-${j}-${c}`"
+                              >{{ $t("decline5") }}</label
+                            >
+                          </b-col>
+                          <b-col sm="7">
+                            <b-input-group
+                              :id="`cngSumNeg-${configKey}-${i}-${j}-${c}`"
+                            >
+                              <b-form-input
+                                type="text"
+                                v-model="chart.chartOptions.cngSumNeg"
+                              ></b-form-input>
+                              <b-input-group-append>
+                                <b-form-input
+                                  type="color"
+                                  class="w-40px"
+                                  v-model="chart.chartOptions.cngSumNeg"
+                                ></b-form-input>
+                              </b-input-group-append>
+                            </b-input-group>
+                          </b-col>
+                        </b-row>
+                      </b-col>
+                      <b-col sm="12" lg="6" class="mb-3">
+                        <b-row>
+                          <b-col sm="5">
+                            <label
+                              :for="`cngSumEq-${configKey}-${i}-${j}-${c}`"
+                              >{{ $t("limited5") }}</label
+                            >
+                          </b-col>
+                          <b-col sm="7">
+                            <b-input-group
+                              :id="`cngSumEq-${configKey}-${i}-${j}-${c}`"
+                            >
+                              <b-form-input
+                                type="text"
+                                v-model="chart.chartOptions.cngSumEq"
+                              ></b-form-input>
+                              <b-input-group-append>
+                                <b-form-input
+                                  type="color"
+                                  class="w-40px"
+                                  v-model="chart.chartOptions.cngSumEq"
+                                ></b-form-input>
+                              </b-input-group-append>
+                            </b-input-group>
+                          </b-col>
+                        </b-row>
+                      </b-col>
+                    </template>
                     <b-col
                       sm="12"
                       lg="6"
@@ -2252,6 +2434,26 @@ export default {
           value: "DEFAULT",
         });
         return calc;
+      };
+    },
+    defaultView: function () {
+      return function (type) {
+        let view = [];
+        view.push({
+          text: this.$i18n.t("chart"),
+          value: "chart",
+        });
+        view.push({
+          text: this.$i18n.t("table"),
+          value: "table",
+        });
+        if (type === "packedbubble") {
+          view.push({
+            text: this.$i18n.t("map"),
+            value: "map",
+          });
+        }
+        return view;
       };
     },
     benchmarks: function () {

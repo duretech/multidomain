@@ -539,6 +539,7 @@ export default {
               : p_adjF[sSubM.split("/")[0]]
               ? p_adjF[sSubM.split("/")[0]]
               : 1;
+
             oAdjusted[method][j][sSubM] =
               oNonAdjusted[method][j][sSubM] * adjustmentFact;
             oAdjusted[method][j][sSubM] =
@@ -550,7 +551,7 @@ export default {
         nCounter++;
       }
     }
-    // console.log("Baseline users ", JSON.parse(JSON.stringify(oBU)));
+    console.log("Baseline users ", JSON.parse(JSON.stringify(oBU)));
     return {
       scalling: scalling,
       baseline: oBU,
@@ -1466,7 +1467,6 @@ export default {
           });
         } else {
           //for other methods like popumlation,fpet
-          finalBG[methodName] = {};
           let dataRows = p_data.rows;
           let statName, dispName;
           console.log(methodDE, "methodDE");
@@ -1475,19 +1475,21 @@ export default {
               (statName = methodDE[0].split("/")[0]),
                 (dispName = methodDE[0].split("/")[1]);
             } else {
-              (statName = methodDE), (dispName = methodDE);
+              (statName = methodDE[0]), (dispName = methodDE[0]);
             }
+
+          finalBG[dispName] = {};
+
           for (let index = 0; index < p_year.length; index++) {
             let eachYear = p_year[index];
             let iFound = false;
             iFound = dataRows.find((rowArray) => {
-              if (rowArray[0] == methodDE && rowArray[1] == eachYear) {
-                finalBG[methodName][eachYear] =
-                  (rowArray[3] * 1).toFixed(3) * 1;
+              if (rowArray[0] == statName && rowArray[1] == eachYear) {
+                finalBG[dispName][eachYear] = (rowArray[3] * 1).toFixed(3) * 1;
                 return true;
               }
             });
-            if (!iFound) finalBG[methodName][eachYear] = 0;
+            if (!iFound) finalBG[dispName][eachYear] = 0;
           }
         }
       }

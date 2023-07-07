@@ -12,14 +12,16 @@
         background-color: var(--bg-main-color);
       
 
-        #scrollTop {
-            margin-top: 55px !important;
+        // #scrollTop {
+        //     margin-top: 55px !important;
 
-        }
+        // }
 
        
 
     }
+
+    
 }
 
 .analytic 
@@ -80,6 +82,12 @@
             margin-top : 5px;
         }
 
+     
+
+    }
+
+    .d2-header .analytic-page .summary-dqr{
+        padding-top: 0% !important;
     }
 
     .summary,

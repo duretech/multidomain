@@ -55,6 +55,7 @@ import {
 import {
   getChild,
   capitalize,
+  excludeName,
   getDateRange,
   generateChart,
   subtractNDate,
@@ -115,6 +116,9 @@ export default {
     };
   },
   computed: {
+    isScatter() {
+      return true;
+    },
     matrixType() {
       let type = "EMU";
       if (
@@ -169,7 +173,10 @@ export default {
     sorting() {
       let sortOpt = null;
       if (
-        !["packedbubble", "scatter"].includes(this.chartData.chartOptions.type)
+        !["packedbubble", "scatter"].includes(
+          this.chartData.chartOptions.type
+        ) &&
+        !["SOURCE_DIFF"].includes(this.chartData.chartOptions.chartCalculation)
       ) {
         if (
           ["seasonal", "regional"].includes(
@@ -256,6 +263,7 @@ export default {
             newValue.periodType !== oldValue.periodType ||
             newValue.period !== oldValue.period)
         ) {
+          this.exceptionTable = null;
           this.dataFetched = false;
           this.$nextTick(() => {
             this.matrixData = {};
@@ -370,11 +378,19 @@ export default {
       }
       return chartData;
     },
-    updateOutliersList({ name, value, header, outliers, method = "default" }) {
+    updateOutliersList({
+      name,
+      value,
+      header,
+      outliers,
+      method = "default",
+      secondary = false,
+    }) {
       if (!outliers[method]) {
         outliers[method] = [
           {
             header,
+            secondary,
             outlierList: [],
           },
         ];
@@ -385,17 +401,27 @@ export default {
           (o) => o.name === name
         );
         if (isFound >= 0) {
-          outliers[method][isMIndex].outlierList[isFound].outliers.push(value);
+          if (value) {
+            outliers[method][isMIndex].outlierList[isFound].outliers.push(
+              value
+            );
+          }
         } else {
           outliers[method][isMIndex].outlierList.push({
             name: name,
-            outliers: [value],
+            outliers: value ? [value] : [],
           });
         }
       } else {
         outliers[method].push({
           header,
-          outlierList: [],
+          secondary,
+          outlierList: [
+            {
+              name: name,
+              outliers: value ? [value] : [],
+            },
+          ],
         });
       }
       return outliers;
@@ -480,15 +506,18 @@ export default {
         return updatedM;
       };
       const setOutliers = (data, s, m = "default") => {
+        let isOut = false;
+        let obj = {
+          header,
+          outliers,
+          name: s,
+          value: null,
+        };
         let updatedData = data.map((d) => {
-          if (d.y !== null && d.y < benchmarkValue) {
+          if (d.y < benchmarkValue || (d.y === null && benchmarkValue === 0)) {
+            isOut = true;
             d.color = "#FE8081";
-            let obj = {
-              header,
-              outliers,
-              name: s,
-              value: `${d.name} (${d.y}%)`,
-            };
+            obj.value = `${d.name} (${d.y}${d.y ? "%" : ""})`;
             if (m !== "default") {
               obj.method = m;
             }
@@ -496,6 +525,9 @@ export default {
           }
           return d;
         });
+        if (!isOut) {
+          outliers = this.updateOutliersList(obj);
+        }
         return updatedData;
       };
       let outliers = {},
@@ -519,9 +551,11 @@ export default {
           cObj.series = cObj.series.map((s) => {
             if (substantialChange) {
               let { avg } = getAvg(s.data);
-              let substantialChangeAvg = avg.toFixed(2);
+              let substantialChangeAvg = avg.toFixed(2),
+                isOut = false;
               s.data.map((d) => {
                 if (avg - d.y * 1 < -substantialChange) {
+                  isOut = true;
                   outliers = this.updateOutliersList({
                     header: `${this.$i18n.t("rr_text2", {
                       substantialChange: substantialChange,
@@ -532,9 +566,24 @@ export default {
                     outliers,
                     name: s.name,
                     value: `${d.name} (${(avg - d.y * 1).toFixed(2)}%)`,
+                    secondary: true,
                   });
                 }
               });
+              if (!isOut) {
+                outliers = this.updateOutliersList({
+                  header: `${this.$i18n.t("rr_text2", {
+                    substantialChange: substantialChange,
+                    substantialChangeAvg: substantialChangeAvg
+                      ? `(${substantialChangeAvg})%`
+                      : "",
+                  })}`,
+                  outliers,
+                  name: s.name,
+                  value: null,
+                  secondary: true,
+                });
+              }
             }
             return {
               ...s,
@@ -1077,7 +1126,9 @@ export default {
             this.abortController = null;
           })
           .catch((res) => {
-            this.isError = true;
+            if (res.response.status >= 500 && res.response.status < 600) {
+              this.isError = true;
+            }
             if (res.message !== "canceled" || !signal.aborted) {
               this.dataFetched = true;
             }
@@ -1471,11 +1522,15 @@ export default {
             percentage
           );
 
-          let { compare: compLastMn, color: colorLastMn } =
-            this.getRangeColor(change);
+          let { compare: compLastMn, color: colorLastMn } = this.getRangeColor(
+            change,
+            cData
+          );
 
-          let { compare: compLastYr, color: colorLastYr } =
-            this.getRangeColor(lastChange);
+          let { compare: compLastYr, color: colorLastYr } = this.getRangeColor(
+            lastChange,
+            cData
+          );
 
           let indicatorName = s.name;
 
@@ -1552,8 +1607,8 @@ export default {
           }
           s.data.forEach((d) => {
             if (nationalValue > 0) {
-              aColor = "green";
-              bColor = "orange";
+              aColor = cData.cngPtPos || "#5ab276";
+              bColor = cData.cngPtNeg || "#d97276";
               if (d.y * 1 < 0) {
                 bBenchmark++;
               }
@@ -1562,8 +1617,8 @@ export default {
               }
             }
             if (nationalValue < 0) {
-              aColor = "orange";
-              bColor = "green";
+              aColor = cData.cngPtNeg || "#d97276";
+              bColor = cData.cngPtPos || "#5ab276";
               if (d.y * 1 < 0) {
                 aBenchmark++;
               }
@@ -1618,7 +1673,7 @@ export default {
 
             let { change } = this.getPercentChange(d[1], d[0], percentage);
 
-            let { color } = this.getRangeColor(change);
+            let { color } = this.getRangeColor(change, cData);
 
             let indicatorName = s.name;
             let benchmark = null;
@@ -1977,7 +2032,9 @@ export default {
               "PERIOD_DIFF_CYP",
               "OTHER_MATRIX_TABLE",
               "OTHER_MATRIX_TABLE_CYP",
-            ].includes(cData.chartCalculation) || isBenchmark
+            ].includes(cData.chartCalculation) ||
+            isBenchmark ||
+            cData.type === "scatter"
           ? [levelID, subLevelID]
           : [subLevelID];
       }
@@ -2023,7 +2080,7 @@ export default {
           locID.push(l.id);
           locIDLabels.push({
             id: l.id,
-            label: l.displayName,
+            label: excludeName(l.displayName),
           });
         });
       }
@@ -2184,8 +2241,8 @@ export default {
                         let color =
                           cData.drillCalculation === "PERIOD_DIFF"
                             ? y > 0
-                              ? "#5BD282"
-                              : "#FE8081"
+                              ? cData.cngPtPos || "#5BD282"
+                              : cData.cngPtNeg || "#FE8081"
                             : cData.color;
                         drillObj.data.push({
                           y,
@@ -2351,7 +2408,7 @@ export default {
         },
         methodSeriesObj = {},
         methodColorsObj = {};
-      categories.push(parentName);
+      categories.push(excludeName(parentName));
       catIds.push(loc);
       let dataKey = {};
       if (this.locationPeriod.periodType === "yearly") {
@@ -2369,8 +2426,8 @@ export default {
       Object.keys(dataKey).forEach((ids) => {
         children.forEach((child) => {
           if (child.id == ids && dataKey[ids] != null) {
-            if (categories.indexOf(child.name) == -1) {
-              categories.push(child.name);
+            if (categories.indexOf(excludeName(child.name)) == -1) {
+              categories.push(excludeName(child.name));
               catIds.push(child.id);
             }
           }
@@ -2392,6 +2449,7 @@ export default {
               let methodTable = JSON.parse(
                 JSON.stringify(emuModule.methodTable)
               );
+              //we can use compUsers key from emuannaul
               methodTable = JSON.parse(methodTable);
               if (methodTable[ids]) {
                 methodTable[ids] = methodTable[ids].slice(
@@ -2404,40 +2462,51 @@ export default {
                     : JSON.parse(localStorage.getItem("emuColors")),
                   val = 0;
 
-                this.population.rows.forEach((row) => {
-                  if (row[2] == ids) {
-                    methodTable[ids].forEach((y) => {
-                      newName =
-                        y[this.$i18n.t("sub_method")] +
-                        "__" +
-                        y[this.$i18n.t("methods")];
-                      if (this.calType == "aggregate") {
-                        let mName = y[this.$i18n.t("methods")];
-                        if (mName != [this.$i18n.t("IUD")]) {
-                          mName = capitalize(mName);
-                        }
-                        methodColorsObj[mName] = emuColors[mName];
-                      } else {
-                        methodColorsObj[y[this.$i18n.t("sub_method")]] =
-                          emuColors[y[this.$i18n.t("sub_method")]];
-                      }
-                      //methodColorsObj[newName] = emuColors[y[this.$i18n.t('sub_method')]]
-                      Object.keys(y).forEach((yr) => {
-                        if (yr == period) {
-                          y[yr] = y[yr].split(",").join("");
-                          val = ((y[yr] / Number(row[3])) * 100).toFixed(2) * 1;
-                        }
-                        if (!methodSeriesObj[newName]) {
-                          methodSeriesObj[newName] = [];
-                        }
-                      });
-                      methodSeriesObj[newName].push({
-                        name: categories[i],
-                        value: val,
-                      });
-                    });
+                // computePop.forEach((row) => {
+                //   if (row[2] == ids) {
+                methodTable[ids].forEach((y) => {
+                  //as methodtable is changed for srting columns issue in dqr dashboard
+                  let subMName = y[this.$i18n.t("sub_method")]
+                    ? y[this.$i18n.t("sub_method")]
+                    : y[" " + this.$i18n.t("sub_method") + " "];
+                  let mainMethodName = y[this.$i18n.t("methods")]
+                    ? y[this.$i18n.t("methods")]
+                    : y[" " + this.$i18n.t("methods") + " "];
+                  newName = subMName + "__" + mainMethodName;
+                  if (this.calType == "aggregate") {
+                    let mName = mainMethodName;
+                    if (mName != [this.$i18n.t("IUD")]) {
+                      mName = capitalize(mName);
+                    }
+                    methodColorsObj[mName] = emuColors[mName];
+                  } else {
+                    methodColorsObj[subMName] = emuColors[subMName];
                   }
+                  //methodColorsObj[newName] = emuColors[y[this.$i18n.t('sub_method')]]
+                  Object.keys(y).forEach((yr) => {
+                    yr = yr.trim();
+                    let computePop = this.population.rows.find(
+                      (obj) => obj[1] == yr && obj[2] == ids
+                    );
+                    if (yr == period) {
+                      y[yr] = y[yr]
+                        ? y[yr].split(",").join("")
+                        : y[" " + yr + " "].split(",").join("");
+                      val = computePop[3]
+                        ? ((y[yr] / Number(computePop[3])) * 100).toFixed(2) * 1
+                        : 0;
+                    }
+                    if (!methodSeriesObj[newName]) {
+                      methodSeriesObj[newName] = [];
+                    }
+                  });
+                  methodSeriesObj[newName].push({
+                    name: categories[i],
+                    value: val,
+                  });
                 });
+                //   }
+                // });
               }
             } else {
               let index = dataKey[ids]["saveCategories"].indexOf(period);
@@ -2491,7 +2560,7 @@ export default {
 
           for (let j = 0; j < methodSeriesObj[i].length; j++) {
             let sName = methodSeriesObj[i][j].name,
-              nIndex = categories.indexOf(sName);
+              nIndex = categories.indexOf(excludeName(sName));
             oFinalAgrEMU[sMethod][nIndex] =
               oFinalAgrEMU[sMethod][nIndex] + methodSeriesObj[i][j].value;
             oFinalAgrEMU[sMethod][nIndex] =
@@ -2510,7 +2579,7 @@ export default {
           });
           for (let j = 0; j < methodSeriesObj[i].length; j++) {
             let sName = methodSeriesObj[i][j].name,
-              nIndex = categories.indexOf(sName);
+              nIndex = categories.indexOf(excludeName(sName));
             oFinalAgrEMU[sMethod][nIndex] = methodSeriesObj[i][j].value
               ? methodSeriesObj[i][j].value
               : 0;
@@ -2691,46 +2760,57 @@ export default {
                 ? emuModule.emuColors
                 : JSON.parse(localStorage.getItem("emuColors"));
 
-            this.population.rows.forEach((row) => {
-              if (row[2] == loc) {
-                methodTable[loc].forEach((y) => {
-                  let val = null;
-                  newName =
-                    y[this.$i18n.t("sub_method")] +
-                    "__" +
-                    y[this.$i18n.t("methods")];
-                  if (this.calType == "aggregate") {
-                    let mName = y[this.$i18n.t("methods")];
-                    if (mName != [this.$i18n.t("IUD")]) {
-                      mName = capitalize(mName);
-                    }
-                    methodColorsObj[mName] = emuColors[mName];
-                  } else {
-                    methodColorsObj[y[this.$i18n.t("sub_method")]] =
-                      emuColors[y[this.$i18n.t("sub_method")]];
-                  }
-                  categories.forEach((cat) => {
-                    Object.keys(y).forEach((yr) => {
-                      if (!methodSeriesObj[newName]) {
-                        methodSeriesObj[newName] = [];
-                      }
-                      if (
-                        yr != [this.$i18n.t("sub_method")] &&
-                        yr != [this.$i18n.t("methods")]
-                      ) {
-                        if (cat == yr) {
-                          val = y[yr].split(",").join("");
-                          val =
-                            ((Number(val) / Number(row[3])) * 100).toFixed(2) *
-                            1;
-                        }
-                      }
-                    });
-                    methodSeriesObj[newName].push(val);
-                  });
-                });
+            // computePop.forEach((row) => {
+            //   if (row[2] == loc) {
+            methodTable[loc].forEach((y) => {
+              //as methodtable is changed for srting columns issue in dqr dashboard
+              let subMName = y[this.$i18n.t("sub_method")]
+                ? y[this.$i18n.t("sub_method")]
+                : y[" " + this.$i18n.t("sub_method") + " "];
+              let mainMethodName = y[this.$i18n.t("methods")]
+                ? y[this.$i18n.t("methods")]
+                : y[" " + this.$i18n.t("methods") + " "];
+              let val = null;
+              newName = subMName + "__" + mainMethodName;
+              if (this.calType == "aggregate") {
+                let mName = mainMethodName;
+                if (mName != [this.$i18n.t("IUD")]) {
+                  mName = capitalize(mName);
+                }
+                methodColorsObj[mName] = emuColors[mName];
+              } else {
+                methodColorsObj[subMName] = emuColors[subMName];
               }
+              categories.forEach((cat) => {
+                Object.keys(y).forEach((yr) => {
+                  if (!methodSeriesObj[newName]) {
+                    methodSeriesObj[newName] = [];
+                  }
+                  if (
+                    yr != [" " + this.$i18n.t("sub_method") + " "] &&
+                    yr != [" " + this.$i18n.t("methods") + " "]
+                  ) {
+                    yr = yr.trim();
+                    let computePop = this.population.rows.find(
+                      (obj) => obj[1] == yr && obj[2] == loc
+                    );
+                    if (cat == yr) {
+                      val = y[yr]
+                        ? y[yr].split(",").join("")
+                        : y[" " + yr + " "].split(",").join("");
+                      val = computePop[3]
+                        ? ((Number(val) / Number(computePop[3])) * 100).toFixed(
+                            2
+                          ) * 1
+                        : 0;
+                    }
+                  }
+                });
+                methodSeriesObj[newName].push(val);
+              });
             });
+            //   }
+            // });
           }
         } else {
           let index = dataKey[loc]["saveCategories"].indexOf(period);
@@ -2743,7 +2823,7 @@ export default {
 
           let tIndex = emuModuleData[loc]["saveCategories"].indexOf(period);
           tIndex = tIndex < 0 ? 0 : tIndex;
-          let tFirstIndex = tIndex + 23;
+          let tFirstIndex = tIndex - 23;
           tFirstIndex = tFirstIndex < 0 ? 0 : tFirstIndex;
           categories = dataKey[loc]["saveCategories"].slice(
             firstIndex,
@@ -2766,14 +2846,11 @@ export default {
             } else {
               methodColorsObj[data.trans_name] = data.color;
             }
-            if (tIndex == 0) {
-              methodSeriesObj[newName] = data.data.slice(tIndex, tFirstIndex);
-            } else {
-              methodSeriesObj[newName] = data.data.slice(
-                tIndex - 1,
-                tFirstIndex
-              );
-            }
+            // if (tIndex == 0) {
+            //   methodSeriesObj[newName] = data.data.slice(tIndex, tFirstIndex);
+            // } else {
+            methodSeriesObj[newName] = data.data.slice(tFirstIndex, tIndex + 1);
+            //}
           });
         }
       }
@@ -2863,7 +2940,6 @@ export default {
           periodType: this.locationPeriod.periodType,
           monthlyFormat: "MMM YYYY",
         });
-
       let dataKey = {};
       if (this.locationPeriod.periodType === "yearly") {
         if (emuModule.compEMU) {
@@ -2890,17 +2966,17 @@ export default {
         },
         methodSeriesObj = {},
         methodColorsObj = {};
-      categories.push(parentName);
+      categories.push(excludeName(parentName));
       catIds.push(loc);
 
       Object.keys(dataKey).forEach((ids) => {
         children.forEach((child) => {
           if (child.id == ids && dataKey[ids] != null) {
             if (
-              categories.indexOf(child.name) == -1 ||
+              categories.indexOf(excludeName(child.name)) == -1 ||
               categories.indexOf(loc) == -1
             ) {
-              categories.push(child.name);
+              categories.push(excludeName(child.name));
               catIds.push(child.id);
             }
           }
@@ -2934,45 +3010,58 @@ export default {
                     : JSON.parse(localStorage.getItem("emuColors")),
                   val = 0;
 
-                this.population.rows.forEach((row) => {
-                  if (row[2] == ids) {
-                    methodTable[ids].forEach((y) => {
-                      newName =
-                        y[this.$i18n.t("sub_method")] +
-                        "__" +
-                        y[this.$i18n.t("methods")];
-                      if (this.calType == "aggregate") {
-                        let mName = y[this.$i18n.t("methods")];
-                        if (mName != [this.$i18n.t("IUD")]) {
-                          mName = capitalize(mName);
-                        }
-                        methodColorsObj[mName] = emuColors[mName];
-                      } else {
-                        methodColorsObj[y[this.$i18n.t("sub_method")]] =
-                          emuColors[y[this.$i18n.t("sub_method")]];
-                      }
-                      Object.keys(y).forEach((yr) => {
-                        if (!methodSeriesObj[newName]) {
-                          methodSeriesObj[newName] = [];
-                        }
-                        if (
-                          yr != [this.$i18n.t("sub_method")] &&
-                          yr != [this.$i18n.t("methods")] &&
-                          yr == period
-                        ) {
-                          val = y[yr].split(",").join("");
-                          val =
-                            ((Number(val) / Number(row[3])) * 100).toFixed(2) *
-                            1;
-                        }
-                      });
-                      methodSeriesObj[newName].push({
-                        name: categories[i],
-                        value: val,
-                      });
-                    });
+                // computePop.forEach((row) => {
+                //   if (row[2] == ids) {
+                methodTable[ids].forEach((y) => {
+                  //as methodtable is changed for srting columns issue in dqr dashboard
+                  let subMName = y[this.$i18n.t("sub_method")]
+                    ? y[this.$i18n.t("sub_method")]
+                    : y[" " + this.$i18n.t("sub_method") + " "];
+                  let mainMethodName = y[this.$i18n.t("methods")]
+                    ? y[this.$i18n.t("methods")]
+                    : y[" " + this.$i18n.t("methods") + " "];
+                  newName = subMName + "__" + mainMethodName;
+                  if (this.calType == "aggregate") {
+                    let mName = mainMethodName;
+                    if (mName != [this.$i18n.t("IUD")]) {
+                      mName = capitalize(mName);
+                    }
+                    methodColorsObj[mName] = emuColors[mName];
+                  } else {
+                    methodColorsObj[subMName] = emuColors[subMName];
                   }
+                  Object.keys(y).forEach((yr) => {
+                    yr = yr.trim();
+
+                    if (!methodSeriesObj[newName]) {
+                      methodSeriesObj[newName] = [];
+                    }
+                    let computePop = this.population.rows.find(
+                      (obj) => obj[1] == yr && obj[2] == ids
+                    );
+                    if (
+                      yr != [" " + this.$i18n.t("sub_method") + " "] &&
+                      yr != [" " + this.$i18n.t("methods") + " "] &&
+                      yr == period
+                    ) {
+                      val = y[yr]
+                        ? y[yr].split(",").join("")
+                        : y[" " + yr + " "].split(",").join("");
+
+                      val = computePop[3]
+                        ? ((Number(val) / Number(computePop[3])) * 100).toFixed(
+                            2
+                          ) * 1
+                        : 0;
+                    }
+                  });
+                  methodSeriesObj[newName].push({
+                    name: categories[i],
+                    value: val,
+                  });
                 });
+                //   }
+                // });
               }
             } else {
               let index = dataKey[ids]["saveCategories"].indexOf(period);
@@ -3033,10 +3122,10 @@ export default {
 
           for (let j = 0; j < methodSeriesObj[i].length; j++) {
             let sName = methodSeriesObj[i][j].name,
-              nIndex = categories.indexOf(sName);
+              nIndex = categories.indexOf(excludeName(sName));
             oFinalAgrEMU[sMethod][nIndex] =
               (oFinalAgrEMU[sMethod][nIndex] || 0) +
-              methodSeriesObj[i][j].value;
+              (methodSeriesObj[i][j].value || 0);
             oFinalAgrEMU[sMethod][nIndex] =
               oFinalAgrEMU[sMethod][nIndex].toFixed(6) * 1;
           }
@@ -3053,7 +3142,7 @@ export default {
           });
           for (let j = 0; j < methodSeriesObj[i].length; j++) {
             let sName = methodSeriesObj[i][j].name,
-              nIndex = categories.indexOf(sName);
+              nIndex = categories.indexOf(excludeName(sName));
             oFinalAgrEMU[sMethod][nIndex] = methodSeriesObj[i][j].value;
             oFinalAgrEMU[sMethod][nIndex] =
               oFinalAgrEMU[sMethod][nIndex].toFixed(6) * 1;
@@ -3127,7 +3216,7 @@ export default {
         },
         methodSeriesObj = {},
         methodColorsObj = {};
-      categories.push(parentName);
+      categories.push(excludeName(parentName));
       catIds.push(loc);
       let dataKey = {};
       if (this.locationPeriod.periodType === "yearly") {
@@ -3145,8 +3234,8 @@ export default {
       Object.keys(dataKey).forEach((ids) => {
         children.forEach((child) => {
           if (child.id == ids && dataKey[ids] != null) {
-            if (categories.indexOf(child.name) == -1) {
-              categories.push(child.name);
+            if (categories.indexOf(excludeName(child.name)) == -1) {
+              categories.push(excludeName(child.name));
               catIds.push(child.id);
             }
           }
@@ -3169,6 +3258,7 @@ export default {
                 JSON.stringify(emuModule.methodTable)
               );
               methodTable = JSON.parse(methodTable);
+              console.log(methodTable, ids);
               if (methodTable[ids]) {
                 methodTable[ids] = methodTable[ids].slice(
                   0,
@@ -3180,40 +3270,51 @@ export default {
                     : JSON.parse(localStorage.getItem("emuColors")),
                   val = 0;
 
-                this.population.rows.forEach((row) => {
-                  if (row[2] == ids) {
-                    methodTable[ids].forEach((y) => {
-                      newName =
-                        y[this.$i18n.t("sub_method")] +
-                        "__" +
-                        y[this.$i18n.t("methods")];
-                      if (this.calType == "aggregate") {
-                        let mName = y[this.$i18n.t("methods")];
-                        if (mName != [this.$i18n.t("IUD")]) {
-                          mName = capitalize(mName);
-                        }
-                        methodColorsObj[mName] = emuColors[mName];
-                      } else {
-                        methodColorsObj[y[this.$i18n.t("sub_method")]] =
-                          emuColors[y[this.$i18n.t("sub_method")]];
-                      }
-                      //methodColorsObj[newName] = emuColors[y[this.$i18n.t('sub_method')]]
-                      Object.keys(y).forEach((yr) => {
-                        if (yr == period) {
-                          y[yr] = y[yr].split(",").join("");
-                          val = ((y[yr] / Number(row[3])) * 100).toFixed(2) * 1;
-                        }
-                        if (!methodSeriesObj[newName]) {
-                          methodSeriesObj[newName] = [];
-                        }
-                      });
-                      methodSeriesObj[newName].push({
-                        name: categories[i],
-                        value: val,
-                      });
-                    });
+                // computePop.forEach((row) => {
+                //   if (row[2] == ids) {
+                methodTable[ids].forEach((y) => {
+                  //as methodtable is changed for srting columns issue in dqr dashboard
+                  let subMName = y[this.$i18n.t("sub_method")]
+                    ? y[this.$i18n.t("sub_method")]
+                    : y[" " + this.$i18n.t("sub_method") + " "];
+                  let mainMethodName = y[this.$i18n.t("methods")]
+                    ? y[this.$i18n.t("methods")]
+                    : y[" " + this.$i18n.t("methods") + " "];
+                  newName = subMName + "__" + mainMethodName;
+                  if (this.calType == "aggregate") {
+                    let mName = mainMethodName;
+                    if (mName != [this.$i18n.t("IUD")]) {
+                      mName = capitalize(mName);
+                    }
+                    methodColorsObj[mName] = emuColors[mName];
+                  } else {
+                    methodColorsObj[subMName] = emuColors[subMName];
                   }
+                  //methodColorsObj[newName] = emuColors[y[this.$i18n.t('sub_method')]]
+                  Object.keys(y).forEach((yr) => {
+                    yr = yr.trim();
+                    let computePop = this.population.rows.find(
+                      (obj) => obj[1] == yr && obj[2] == ids
+                    );
+                    if (yr == period) {
+                      y[yr] = y[yr]
+                        ? y[yr].split(",").join("")
+                        : y[" " + yr + " "].split(",").join("");
+                      val = computePop[3]
+                        ? ((y[yr] / Number(computePop[3])) * 100).toFixed(2) * 1
+                        : 0;
+                    }
+                    if (!methodSeriesObj[newName]) {
+                      methodSeriesObj[newName] = [];
+                    }
+                  });
+                  methodSeriesObj[newName].push({
+                    name: categories[i],
+                    value: val,
+                  });
                 });
+                //   }
+                // });
               }
             } else {
               let index = dataKey[ids]["saveCategories"].indexOf(period);
@@ -3267,7 +3368,7 @@ export default {
 
           for (let j = 0; j < methodSeriesObj[i].length; j++) {
             let sName = methodSeriesObj[i][j].name,
-              nIndex = categories.indexOf(sName);
+              nIndex = categories.indexOf(excludeName(sName));
             oFinalAgrEMU[sMethod][nIndex] =
               oFinalAgrEMU[sMethod][nIndex] + methodSeriesObj[i][j].value;
             oFinalAgrEMU[sMethod][nIndex] =
@@ -3286,7 +3387,7 @@ export default {
           });
           for (let j = 0; j < methodSeriesObj[i].length; j++) {
             let sName = methodSeriesObj[i][j].name,
-              nIndex = categories.indexOf(sName);
+              nIndex = categories.indexOf(excludeName(sName));
             oFinalAgrEMU[sMethod][nIndex] = methodSeriesObj[i][j].value
               ? methodSeriesObj[i][j].value
               : 0;
@@ -3512,17 +3613,17 @@ export default {
         methodSeriesObj = {},
         methodColorsObj = {},
         sumVal = {};
-      categories.push(parentName);
+      categories.push(excludeName(parentName));
       catIds.push(loc);
 
       Object.keys(dataKey).forEach((ids) => {
         children.forEach((child) => {
           if (child.id == ids && dataKey[ids] != null) {
             if (
-              categories.indexOf(child.name) == -1 ||
+              categories.indexOf(excludeName(child.name)) == -1 ||
               categories.indexOf(loc) == -1
             ) {
-              categories.push(child.name);
+              categories.push(excludeName(child.name));
               catIds.push(child.id);
             }
           }
@@ -3535,67 +3636,86 @@ export default {
               dataKey[ids] = dataKey[ids].slice(0, dataKey[ids].length - 2);
               sumVal[ids] = 0;
 
-              this.population.rows.forEach((row) => {
-                if (row[2] == ids) {
-                  dataKey[ids].forEach((y) => {
-                    Object.keys(y).forEach((yr) => {
-                      if (yr == period && ids == row[2]) {
-                        y[yr] = y[yr].toString().split(",").join("");
-                        y[yr] = ((y[yr] / Number(row[3])) * 100).toFixed(2) * 1;
-                        sumVal[ids] += y[yr];
-                      }
-                    });
-                  });
-                  let newName = "",
-                    emuColors = emuModule.emuColors
-                      ? emuModule.emuColors
-                      : JSON.parse(localStorage.getItem("emuColors")),
-                    val = 0;
-                  dataKey[ids].forEach((y) => {
-                    if (this.calType == "aggregate") {
-                      newName =
-                        y[this.$i18n.t("sub_method")] +
-                        "__" +
-                        y[this.$i18n.t("methods")];
-                      let mName = y[this.$i18n.t("methods")];
-                      if (mName != [this.$i18n.t("IUD")]) {
-                        mName = capitalize(mName);
-                      }
-                      methodColorsObj[mName] = emuColors[mName];
-                    } else {
-                      newName = y[this.$i18n.t("sub_method")];
-                      methodColorsObj[y[this.$i18n.t("sub_method")]] =
-                        emuColors[y[this.$i18n.t("sub_method")]];
-                    }
-                    Object.keys(y).forEach((yr) => {
-                      if (yr == period) {
-                        val = y[yr];
-                      }
-
-                      if (!methodSeriesObj[newName]) {
-                        methodSeriesObj[newName] = [];
-                      }
-                    });
-                    let calval =
-                      val > 0 && sumVal[ids] > 0
-                        ? ((val / sumVal[ids]) * 100).toFixed(2) * 1
-                        : 0;
-
-                    methodSeriesObj[newName].push({
-                      name: categories[catIndex],
-                      y: calval,
-                    });
-                  });
-                }
+              // computePop.forEach((row) => {
+              //   if (row[2] == ids) {
+              dataKey[ids].forEach((y) => {
+                Object.keys(y).forEach((yr) => {
+                  yr = yr.trim();
+                  let computePop = this.population.rows.find(
+                    (obj) => obj[1] == yr && obj[2] == ids
+                  );
+                  if (yr == period && ids == computePop[2]) {
+                    let innerval = y[yr]
+                      ? y[yr].toString().split(",").join("")
+                      : y[" " + yr + " "].toString().split(",").join("");
+                    let val =
+                      ((innerval / Number(computePop[3])) * 100).toFixed(2) * 1;
+                    sumVal[ids] += val;
+                  }
+                });
               });
+              let newName = "",
+                emuColors = emuModule.emuColors
+                  ? emuModule.emuColors
+                  : JSON.parse(localStorage.getItem("emuColors")),
+                val = 0;
+              dataKey[ids].forEach((y) => {
+                //as methodtable is changed for srting columns issue in dqr dashboard
+                let subMName = y[this.$i18n.t("sub_method")]
+                  ? y[this.$i18n.t("sub_method")]
+                  : y[" " + this.$i18n.t("sub_method") + " "];
+                let mainMethodName = y[this.$i18n.t("methods")]
+                  ? y[this.$i18n.t("methods")]
+                  : y[" " + this.$i18n.t("methods") + " "];
+                if (this.calType == "aggregate") {
+                  newName = subMName + "__" + mainMethodName;
+                  let mName = mainMethodName;
+                  if (mName != [this.$i18n.t("IUD")]) {
+                    mName = capitalize(mName);
+                  }
+                  methodColorsObj[mName] = emuColors[mName];
+                } else {
+                  newName = subMName;
+                  methodColorsObj[subMName] = emuColors[subMName];
+                }
+                Object.keys(y).forEach((yr) => {
+                  yr = yr.trim();
+                  let computePop = this.population.rows.find(
+                    (obj) => obj[1] == yr && obj[2] == ids
+                  );
+                  if (yr == period) {
+                    val = y[yr]
+                      ? y[yr].toString().split(",").join("")
+                      : y[" " + yr + " "].toString().split(",").join("");
+                    val = computePop[3]
+                      ? ((val / Number(computePop[3])) * 100).toFixed(2) * 1
+                      : 0;
+                  }
+
+                  if (!methodSeriesObj[newName]) {
+                    methodSeriesObj[newName] = [];
+                  }
+                });
+                let calval =
+                  val > 0 && sumVal[ids] > 0
+                    ? ((val / sumVal[ids]) * 100).toFixed(2) * 1
+                    : 0;
+
+                methodSeriesObj[newName].push({
+                  name: categories[catIndex],
+                  y: calval,
+                });
+              });
+              //   }
+              // });
             } else {
               let index = dataKey[ids]["saveCategories"].indexOf(period);
               //saveAgreData
               if (this.calType == "aggregate" && dataKey[ids]["agreData"]) {
                 sumVal[ids] = 0;
                 dataKey[ids]["agreData"].forEach((data) => {
-                  let dataArr = data.data.reverse();
-                  let datVal = dataArr[index] ? dataArr[index] : 0;
+                  // let dataArr = data.data.reverse();
+                  let datVal = data.data[index] ? data.data[index] : 0;
                   sumVal[ids] += datVal;
                 });
                 dataKey[ids]["agreData"].forEach((data) => {
@@ -3656,7 +3776,7 @@ export default {
           }
           for (let j = 0; j < methodSeriesObj[i].length; j++) {
             let sName = methodSeriesObj[i][j].name,
-              nIndex = categories.indexOf(sName);
+              nIndex = categories.indexOf(excludeName(sName));
             oFinal[sMethod][nIndex].y =
               (oFinal[sMethod][nIndex].y || 0) + methodSeriesObj[i][j].y;
             oFinal[sMethod][nIndex].y =
@@ -3738,15 +3858,15 @@ export default {
         categories = [],
         catIds = [],
         dataObj = {};
-      categories.push(parentName);
+      categories.push(excludeName(parentName));
       catIds.push(loc);
       children.forEach((child) => {
         if (dataKey[child.id]) {
           if (
-            categories.indexOf(child.name) == -1 ||
+            categories.indexOf(excludeName(child.name)) == -1 ||
             categories.indexOf(loc) == -1
           ) {
-            categories.push(child.name);
+            categories.push(excludeName(child.name));
             catIds.push(child.id);
           }
         }
@@ -3762,21 +3882,31 @@ export default {
                 dataObj[ids] = {};
               }
               dataKey[ids].forEach((id) => {
-                let method =
-                  id[this.$i18n.t("sub_method")] +
-                  "__" +
-                  id[this.$i18n.t("methods")];
+                let subMName = id[this.$i18n.t("sub_method")]
+                  ? id[this.$i18n.t("sub_method")]
+                  : id[" " + this.$i18n.t("sub_method") + " "];
+                let mainMethodName = id[this.$i18n.t("methods")]
+                  ? id[this.$i18n.t("methods")]
+                  : id[" " + this.$i18n.t("methods") + " "];
+                let method = subMName + "__" + mainMethodName;
                 if (!dataObj[ids][method]) {
                   dataObj[ids][method] = {};
                 }
                 Object.keys(id).forEach((key) => {
                   if (
-                    key != [this.$i18n.t("sub_method")] &&
-                    key != [this.$i18n.t("methods")]
+                    key != [" " + this.$i18n.t("sub_method") + " "] &&
+                    key != [" " + this.$i18n.t("methods") + " "]
                   ) {
-                    this.population.rows.forEach((row) => {
+                    key = key.trim();
+                    let computePop = this.population.rows.find(
+                      (obj) => obj[1] == key && obj[2] == ids
+                    );
+
+                    computePop.forEach((row) => {
                       if (row[2] == ids) {
-                        id[key] = id[key].toString().split(",").join("");
+                        id[key] = id[key]
+                          ? id[key].toString().split(",").join("")
+                          : id[" " + key + " "].toString().split(",").join("");
                         id[key] =
                           ((Number(id[key]) / Number(row[3])) * 100).toFixed(
                             2
@@ -3860,6 +3990,7 @@ export default {
       this.matrixData.source = so;
       this.matrixData["categories"] = categories;
       this.matrixData["avgAnnualGrowthData"] = seriesObj;
+      console.log(this.matrixData, "this.matrixData");
       this.dataFetched = true;
     },
     getEMUChart(isFilter = false) {

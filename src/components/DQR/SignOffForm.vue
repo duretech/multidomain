@@ -25,16 +25,18 @@
           >
           <b-row class="px-3">
             <b-col class="form-check-inline">
-              <label class="pt-1 mr-3">Ans:</label>
+              <label class="pt-2 mr-3">Ans:</label>
               <b-form-radio-group
                 :disabled="isViewForm"
                 v-model="question.answer"
                 plain
+                class="d-flex align-item-center"
               >
                 <b-form-radio
                   :value="opt.value"
                   v-for="opt in question.options"
                   :key="'opt' + opt.value"
+                  :data-selected="opt.value === question.answer"
                   >{{ opt.text[$i18n.locale] }}</b-form-radio
                 >
                
@@ -53,7 +55,7 @@
           </b-row>
           <textarea
             placeholder="Comment (Optional)"
-            class="form-control"
+            class="form-control comment-area"
             v-model="question.comment[$i18n.locale]"
             :disabled="isViewForm"
           ></textarea>

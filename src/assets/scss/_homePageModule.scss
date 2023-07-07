@@ -409,22 +409,12 @@
 @media only screen and (min-width: 1366px) {
   .home-modules-div .module-name {
     font-size     : var(--font-medium);
-    text-transform: uppercase;
-    color         : var(--home-main-color);
-    text-align    : center;
-    margin-top    : 10px;
-    font-weight   : normal;
   }
 }
 
 @media only screen and (min-width: 1536px) {
   .home-modules-div .module-name {
     font-size     : var(--font-p);
-    text-transform: uppercase;
-    color         : var(--home-main-color);
-    text-align    : center;
-    margin-top    : 20px;
-    font-weight   : normal;
   }
 
   .module-div-sect {
@@ -462,11 +452,6 @@
 @media only screen and (min-width: 1920px) {
   .home-modules-div .module-name {
     font-size     : var(--font-home-module);
-    text-transform: uppercase;
-    color         : var(--home-main-color);
-    text-align    : center;
-    margin-top    : 20px;
-    font-weight   : normal;
   }
 
   .module-div-sect {

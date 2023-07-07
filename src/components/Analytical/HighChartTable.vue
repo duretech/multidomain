@@ -4,14 +4,7 @@
       <div class="row no-gutters">
         <div class="col-lg-10 col-md-10 p-t-4px summary-chart-title">
           <i
-            class="
-              fa fa-info-circle
-              color-white
-              cursor-pointer
-              chart-info
-              p-t-5px
-              mr-2
-            "
+            class="fa fa-info-circle color-white cursor-pointer chart-info p-t-5px mr-2"
             aria-hidden="true"
             v-b-popover.hover.rightbottom="{
               variant: 'info',
@@ -222,7 +215,7 @@ export default {
             oChartTable,
             this.matrixPData.categories
           );
-
+        console.log(oChartTable, aHighChartTable, "oChartTable in matrx table");
         this.tableChartMethods = oChartTable.methods;
         this.tableChartData = aHighChartTable;
       }

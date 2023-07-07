@@ -103,7 +103,6 @@
           :appResponse="appResponse"
           :userDetails="userDetails"
           :defaultLevel="defaultLevelID"
-          @yearFilterList="yearVal"
         />
       </div>
     </div>
@@ -666,7 +665,13 @@
               </div>
             </div>
             <emuOutput
-              v-if="bShowEmu && outputData && slopeData && userTrendsData"
+              v-if="
+                bShowEmu &&
+                outputData &&
+                slopeData &&
+                userTrendsData &&
+                finalMethodArr
+              "
               :bShowEmu="bShowEmu"
               :outputData="outputData"
               :filter="filter"
@@ -702,11 +707,9 @@
     </div>
 
     <toolbarComponent
-      v-if="emuYears"
       :recentActiveTab="recentActiveTab"
       @location="getLocation"
       @defLevel="defLevel"
-      :emuYears="emuYears"
       @emuYear="getEmuYear"
       @closeToolbar="closeToolbar"
       :dqrResponse="dqrResponse"
@@ -754,32 +757,12 @@ export default {
   ],
   computed: {
     emuOuputRender() {
-      console.log(
-        this.$store.state.methodTable,
-        this.$store.state.methodTable ? true : false
-      );
+      // console.log(
+      //   this.$store.state.methodTable,
+      //   this.$store.state.methodTable ? true : false
+      // );
 
       return this.$store.state.methodTable ? true : false;
-    },
-    emuYears() {
-      let aKeys = [],
-        nStart = this.dqrResponse.emu["Background_Data"]["startingYear"] * 1,
-        nEnd = this.dqrResponse.emu["Background_Data"]["SSDataRecentYear"] * 1;
-      //let aKeys = [],nStart = this.sourceStartYear * 1,nEnd = this.sourceEndYear * 1;
-      if (!(isNaN(nStart) || isNaN(nEnd))) {
-        while (nStart <= nEnd) {
-          aKeys.push(nStart);
-          nStart++;
-        }
-      }
-      let i,
-        nLen = aKeys.length,
-        aFinalList = [];
-      for (i = 0; i < nLen; i++) {
-        let oTemp = { val: aKeys[i], label: aKeys[i] };
-        aFinalList.push(oTemp);
-      }
-      return aFinalList;
     },
   },
   methods: {
@@ -845,14 +828,15 @@ export default {
       this.newLocVal = newLocation;
       //this.getConfigAccess();
     },
-    yearVal(value) {
-      this.emuYears = value;
-    },
     // getFilter(p) {
     //   //console.log(p);
     // },
     getEmuYear(p) {
-      this.filterYear = p;
+      console.log("watch in bench tab getEmuYear", p);
+
+      setTimeout(() => {
+        this.filterYear = p;
+      }, 10);
     },
     /**
      * This is get banchmarking configuration.
@@ -866,8 +850,8 @@ export default {
         return;
       }
       if (newVal) {
-        ////console.log(this.bShowLoader)
-        this.bShowLoader = false;
+        //console.log(this.bShowLoader)
+        //this.bShowLoader = true;
         this.getConfigAccess();
       }
     },
@@ -1016,11 +1000,11 @@ export default {
                 ? ele.static_displayName[this.$i18n.locale]
                 : ele.static_displayName;
 
-            // if (statDispName) {
-            //   return ele.id + "/" + statDispName;
-            // } else {
-            return ele.id;
-            //  }
+            if (statDispName) {
+              return ele.id + "/" + statDispName;
+            } else {
+              return ele.id;
+            }
           });
           oBackgroundColor[this.$i18n.t(`${sName}`)] = aSubInd[j].color;
           oBackgroundColor[sName] = aSubInd[j].color;
@@ -1047,7 +1031,6 @@ export default {
               return;
             }
           }
-          console.log(key);
           promises.push(service.getSavedConfig(key));
         } else {
           let aSubInd = aBackgorundIndicators[i].subIndicators,
@@ -1109,6 +1092,13 @@ export default {
             this.showAlert();
           });
       }
+      console.log(
+        response,
+        oBackground,
+        aYear,
+        locationID,
+        "background data for autosave emu"
+      );
       if (response) {
         let oFinalData = dataM.getFormatedBackGroundData(
             response,
@@ -1272,7 +1262,9 @@ export default {
         Object.keys(this.userTrendsData).length === count
       ) {
         this.bShowEmu = true;
-        this.bShowLoader = false;
+        this.$nextTick(() => {
+          this.bShowLoader = false;
+        });
       }
     },
     showAlert() {
@@ -1401,7 +1393,7 @@ export default {
     signOffActive() {
       this.bShowEmu = false;
       // this.newSignOff = newVal
-      // //console.log(this.newSignOff)
+      // console.log(this.newSignOff)
       this.outputData = null;
       this.slopeData = null;
       this.userTrendsData = null;

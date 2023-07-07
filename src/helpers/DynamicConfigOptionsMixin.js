@@ -1,10 +1,12 @@
+import { getColor } from "@/components/Common/commonFunctions";
+
 export default {
   data() {
     return {
       indicatorConfig: {
         indicator: {
           name: this.$i18n.t("default"),
-          color: "#000000",
+          color: getColor(),
           disable: false,
           subIndicator: [],
           static_name: "",
@@ -13,7 +15,7 @@ export default {
       subIndicatorConfig: {
         name: this.$i18n.t("default"),
         selectedDE: [],
-        color: "#000000",
+        color: getColor(),
         type: "indicator",
         static_name: "",
       },
@@ -47,7 +49,7 @@ export default {
             visible: false,
           },
           dataLabels: false,
-          color: "#000000",
+          color: getColor(),
           isSingleSource: true,
           isSavedData: false,
           dataMapping: [],
@@ -68,15 +70,21 @@ export default {
           sumLegend2: "",
           generateOutliers: false,
           generateSummary: false,
+          cngSumEq: "#e8bb69",
+          cngSumPos: "#5ab276",
+          cngSumNeg: "#d97276",
           priorityIndicator: false,
           chartCalculation: "DEFAULT",
           generateTotal: false,
           totalLegend: "",
-          totalColor: "#000000",
+          totalColor: getColor(),
           totalPosition: "FIRST",
           generateFlag: false,
           compareFlag: false,
           priorityFlagIndicator: null,
+          chartDefaultView: "chart",
+          cngPtPos: "#5ab276",
+          cngPtNeg: "#d97276",
         },
       },
       mapSettingConfig: {

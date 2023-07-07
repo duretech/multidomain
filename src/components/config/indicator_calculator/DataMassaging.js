@@ -1581,20 +1581,29 @@ export default {
             }
           });
         } else {
-          //for other methods like popumlation,fpet
-          finalBG[methodName] = {};
+          //for other methods like population,fpet
+          // finalBG[methodName] = {};
           let dataRows = p_data.rows;
+          let statName, dispName;
+          if (methodDE.length > 0)
+            if (methodDE[0].split("/").length == 2) {
+              (statName = methodDE[0].split("/")[0]),
+                (dispName = methodDE[0].split("/")[1]);
+            } else {
+              (statName = methodDE[0]), (dispName = methodDE[0]);
+            }
+          finalBG[dispName] = {};
+
           for (let index = 0; index < p_year.length; index++) {
             let eachYear = p_year[index];
             let iFound = false;
             iFound = dataRows.find((rowArray) => {
-              if (rowArray[0] == methodDE && rowArray[1] == eachYear) {
-                finalBG[methodName][eachYear] =
-                  (rowArray[3] * 1).toFixed(3) * 1;
+              if (rowArray[0] == statName && rowArray[1] == eachYear) {
+                finalBG[dispName][eachYear] = (rowArray[3] * 1).toFixed(3) * 1;
                 return true;
               }
             });
-            if (!iFound) finalBG[methodName][eachYear] = 0;
+            if (!iFound) finalBG[dispName][eachYear] = 0;
           }
         }
       }
@@ -1680,5 +1689,32 @@ export default {
     }
     //console.log(aData)
     return { aData, combinedObj };
+  },
+  getTableFormatedData: (newData, methodSeq) => {
+    let oMethods = {};
+    for (let methodind in Object.keys(newData)) {
+      let method = Object.keys(newData)[methodind];
+      methodSeq.forEach((methodName) => {
+        if (methodName == method) {
+          let methodname = method.split("__")[0].split("/")[0],
+            sSubMethod = method.split("__")[1].split("/")[0];
+          if (!oMethods[methodname]) oMethods[methodname] = {};
+          oMethods[methodname][sSubMethod] = {};
+          let aCats = Object.keys(newData[method]);
+          for (let j in aCats) {
+            let yr = aCats[j];
+            let val =
+              newData[method][yr] &&
+              newData[method][yr] &&
+              newData[method][yr] != 0
+                ? newData[method][yr]
+                : null;
+            oMethods[methodname][sSubMethod][yr] = val;
+          }
+        }
+      });
+    }
+
+    return oMethods;
   },
 };

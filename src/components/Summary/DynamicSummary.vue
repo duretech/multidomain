@@ -40,7 +40,10 @@
             </div></b-col
           >
           <b-col cols="2">
-            <div class="summary-dot" :class="sDetails.colorLastMn">
+            <div
+              class="summary-dot"
+              :style="{ backgroundColor: sDetails.colorLastMn }"
+            >
               {{ sDetails.change === null ? $t("NA") : sDetails.change }}
             </div></b-col
           >
