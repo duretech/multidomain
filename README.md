@@ -2,8 +2,7 @@
 
 ## Documentation
 ```
-<a href="[doc:introduction](https://duretechnology-my.sharepoint.com/:b:/r/personal/dure_central_duretechnologies_com/Documents/Avenir_Generic/DHIS2%20App%20Store/Documents/Deployment%20Guide_FP%20Data%20Pro_V1.pdf?csf=1&web=1&e=hai66a)" target="_blank">Refer the Documentation</a>
-
+Refer the [Documentation](https://duretechnology-my.sharepoint.com/:b:/r/personal/dure_central_duretechnologies_com/Documents/Avenir_Generic/DHIS2%20App%20Store/Documents/Deployment%20Guide_FP%20Data%20Pro_V1.pdf?csf=1&web=1&e=hai66a)
 ```
 
 ## Project setup
