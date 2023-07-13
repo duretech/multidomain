@@ -2,6 +2,8 @@
 
 ## Configuration files
 
+The very first asset you will require after running the application is the configuration files.
+
 Refer the [Configuration Files](https://duretechnology-my.sharepoint.com/:f:/g/personal/dure_central_duretechnologies_com/EtntfF4kuplBjfUL4EjkJUQBXt3rcS7ManSDF5RARtMlOQ?e=UYWscR) 
 
 ## Documentation
