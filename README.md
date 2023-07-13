@@ -2,7 +2,7 @@
 
 ## Documentation
 ```
-Refer the [Documentation](https://duretechnology-my.sharepoint.com/:b:/r/personal/dure_central_duretechnologies_com/Documents/Avenir_Generic/DHIS2%20App%20Store/Documents/Deployment%20Guide_FP%20Data%20Pro_V1.pdf?csf=1&web=1&e=hai66a)
+Refer the [Documentation](https://duretechnology-my.sharepoint.com/:b:/g/personal/dure_central_duretechnologies_com/EW8TcuxCsH1FgHWnATtyXlsB8_rKRovBZnaZl5i2nrbsQQ?e=G2LhGH)
 ```
 
 ## Project setup
