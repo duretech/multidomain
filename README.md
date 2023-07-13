@@ -1,8 +1,14 @@
 # multidomain
 
+## Configuration files
+
+Refer the [Configuration Files](https://duretechnology-my.sharepoint.com/:f:/g/personal/dure_central_duretechnologies_com/EtntfF4kuplBjfUL4EjkJUQBXt3rcS7ManSDF5RARtMlOQ?e=UYWscR) 
+
 ## Documentation
 
-Refer the [Documentation](https://duretechnology-my.sharepoint.com/:b:/g/personal/dure_central_duretechnologies_com/EW8TcuxCsH1FgHWnATtyXlsB8_rKRovBZnaZl5i2nrbsQQ?e=G2LhGH)
+[Deployment Guide]([https://duretechnology-my.sharepoint.com/:b:/g/personal/dure_central_duretechnologies_com/EW8TcuxCsH1FgHWnATtyXlsB8_rKRovBZnaZl5i2nrbsQQ?e=G2LhGH](https://duretechnology-my.sharepoint.com/:b:/g/personal/dure_central_duretechnologies_com/EW8TcuxCsH1FgHWnATtyXlsB8_rKRovBZnaZl5i2nrbsQQ?e=DyJzbN))
+
+[FP DataPro Handbook](https://duretechnology-my.sharepoint.com/:b:/g/personal/dure_central_duretechnologies_com/EQ5Ly-M-T7xPkJGXI_YLwVABhVeMsfFs6pOymEcrSEOIqA?e=bdtnuw)
 
 ## Project setup
 ```
