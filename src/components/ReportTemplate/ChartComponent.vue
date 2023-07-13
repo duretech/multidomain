@@ -124,7 +124,10 @@ export default {
           dashboards: [],
           modules: [],
         };
-        if (this.$store.getters.getIsAdmin) {
+        if (
+          this.$store.getters.getIsAdmin ||
+          this.$store.getters.getAppSettings.bypassUser
+        ) {
           permissions.dashboards =
             this.$store.getters.getAppSettings.modulesList;
         } else {
@@ -208,7 +211,8 @@ export default {
             (!this.$store.getters.getIsAdmin &&
               !permissions.modules.includes(
                 `summary_dashboard-${selectedDashboard[0]}`
-              ))
+              ) &&
+              !this.$store.getters.getAppSettings.bypassUser)
           ) {
             this.showLoader = false;
             this.chartName = c.name;
@@ -236,7 +240,8 @@ export default {
             (!this.$store.getters.getIsAdmin &&
               !permissions.modules.includes(
                 `analytical_dashboard-${selectedDashboard[0]}`
-              ))
+              ) &&
+              !this.$store.getters.getAppSettings.bypassUser)
           ) {
             this.showLoader = false;
             this.chartName = c.name;
@@ -261,7 +266,8 @@ export default {
             newValue[`dqrDashboard/${c.selectedDashboard}`] === "error" ||
             !permissions.dashboards.includes(selectedDashboard[0]) ||
             (!this.$store.getters.getIsAdmin &&
-              !permissions.modules.includes(`DQR-${selectedDashboard[0]}`))
+              !permissions.modules.includes(`DQR-${selectedDashboard[0]}`) &&
+              !this.$store.getters.getAppSettings.bypassUser)
           ) {
             this.showLoader = false;
             this.chartName = c.name;

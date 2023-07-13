@@ -1524,7 +1524,6 @@ a:hover {
   opacity: 1;
   letter-spacing: 0.7px;
   color: var(--text-color) !important;
-  opacity: 1;
 }
 
 .download-btn {

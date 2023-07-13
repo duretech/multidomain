@@ -341,6 +341,7 @@ export default {
     this.loggedInUserId = this.userDetails.id;
     this.canComment =
       this.$store.getters.getIsAdmin ||
+        this.$store.getters.getAppSettings.bypassUser ||
       this.$store.getters.getUserPermissions.canComment;
   },
   methods: {
@@ -742,11 +743,11 @@ export default {
                   aChart[nI].charts = {};
                 }
 
-                let pe = response.data.metaData.dimensions.pe,
-                  sSubMethod = aChart[nI].dataElems[nJ].static_name;
-                pe.forEach((key) => {
-                  aChart[nI].charts[key] = aChart[nI].charts[key] || {};
-                });
+                // let pe = response.data.metaData.dimensions.pe,
+                //   sSubMethod = aChart[nI].dataElems[nJ].static_name;
+                // pe.forEach((key) => {
+                //   aChart[nI].charts[key] = aChart[nI].charts[key] || {};
+                // });
 
                 aChart[nI].charts = dataM.getChartFormatedData(
                   response.data,

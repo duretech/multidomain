@@ -204,7 +204,10 @@ router.beforeEach((to, from, next) => {
           next();
         } else {
           // For the Non-admin users, we need to check the allowed routes from the 'store'.
-          if (store.getters.getUserPermissions.routes.includes(to.name)) {
+          if (
+            (store.getters.getAppSettings.bypassUser && to.name !== "admin") ||
+            store.getters.getUserPermissions.routes.includes(to.name)
+          ) {
             next();
           } else {
             next("/");

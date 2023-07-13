@@ -412,6 +412,7 @@ export default {
     this.loggedInUserId = this.userDetails.id;
     this.canComment =
       this.$store.getters.getIsAdmin ||
+      this.$store.getters.getAppSettings.bypassUser ||
       this.$store.getters.getUserPermissions.canComment;
     let customCal = this.emuSaveType == "Custom";
     if (customCal) {
@@ -827,9 +828,9 @@ export default {
 
                 let pe = response.data.metaData.dimensions.pe,
                   sSubMethod = aChart[nI].dataElems[nJ].static_name;
-                pe.forEach((key) => {
-                  aChart[nI].charts[key] = aChart[nI].charts[key] || {};
-                });
+                // pe.forEach((key) => {
+                //   aChart[nI].charts[key] = aChart[nI].charts[key] || {};
+                // });
 
                 aChart[nI].charts = dataM.getChartFormatedData(
                   response.data,
@@ -1566,7 +1567,7 @@ export default {
         (tempObj.tableData = tableData);
       tempObj.filter = this.options;
       this.newUsersChartData = tempObj;
-      console.log(this.newUsersChartData, this.options);
+      //console.log(this.newUsersChartData, this.options);
     },
     methodTable(emu, cat) {
       let emuObj = {},
@@ -1720,7 +1721,7 @@ export default {
       this.getCalculationSteps();
     },
     getChartsFromDataStore() {
-      console.log("getChartsFromDataStore this.contName", this.contName);
+      //console.log("getChartsFromDataStore this.contName", this.contName);
       let key = this.generateKey(`monthlyCharts_${this.$i18n.locale}`);
       service.getSavedConfig(key).then((resp) => {
         if (resp && resp.data) {
@@ -1763,13 +1764,13 @@ export default {
           this.inputNewUsers = inputChartsData["inputNewUsers"];
           this.totalUsers = inputChartsData["totalUsers"];
           this.monthlyPopulation = inputChartsData["monthlyPopulation"];
-          console.log(
-            inputChartsData["emuByMethod"],
-            this.totalUsers,
-            inputChartsData,
-            "emuByMethod charts from dt",
-            this.contName
-          );
+          // console.log(
+          //   inputChartsData["emuByMethod"],
+          //   this.totalUsers,
+          //   inputChartsData,
+          //   "emuByMethod charts from dt",
+          //   this.contName
+          // );
           let reversedCat =
             inputChartsData["emuByMethod"]["saveCategories"].reverse();
           this.methodTable(
@@ -2101,17 +2102,17 @@ export default {
       this.saveTrendsChartData = JSON.parse(
         JSON.stringify(this.saveTrendsChartData)
       );
-      console.log(
-        JSON.parse(JSON.stringify(this.saveTrendsChartData)),
-        "trend emuTrned"
-      );
+      // console.log(
+      //   JSON.parse(JSON.stringify(this.saveTrendsChartData)),
+      //   "trend emuTrned"
+      // );
       this.saveOneMonthEMUChartData = JSON.parse(
         JSON.stringify(this.saveOneMonthEMUChartData)
       );
-      console.log(
-        JSON.parse(JSON.stringify(this.saveOneMonthEMUChartData)),
-        "saveOneMonthEMUChartData onemonthemu"
-      );
+      // console.log(
+      //   JSON.parse(JSON.stringify(this.saveOneMonthEMUChartData)),
+      //   "saveOneMonthEMUChartData onemonthemu"
+      // );
     },
     methodTrendByMethod(
       series,
@@ -2227,10 +2228,10 @@ export default {
         //agreTableData : tempObj.agreTableData,
         source: this.source,
       };
-      console.log(
-        JSON.parse(JSON.stringify(this.saveMethodTrendsChartData)),
-        "this.saveMethodTrendsChartData"
-      );
+      // console.log(
+      //   JSON.parse(JSON.stringify(this.saveMethodTrendsChartData)),
+      //   "this.saveMethodTrendsChartData"
+      // );
       this.saveMethodTrendsChartData = JSON.parse(
         JSON.stringify(this.saveMethodTrendsChartData)
       );
@@ -2252,7 +2253,7 @@ export default {
           //     (sumTotalCYP[year] || 0) + this.totalCyp[key][year];
         });
       });
-      console.log("this.backgroundData", this.backgroundData);
+      // console.log("this.backgroundData", this.backgroundData);
       if (this.backgroundData) {
         // Object.keys(this.totalUsers).forEach(key => {
         //   let peevVal = 0

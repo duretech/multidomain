@@ -576,7 +576,7 @@ export default {
       if (this.chartComp == "repotingRate") {
         chartNewData.yAxis.plotLines = [
           {
-            color: "#ff0000",
+            color: "#FE8081",
             width: 2,
             value: 80,
             zIndex: 5,
@@ -584,8 +584,8 @@ export default {
               text: "80%",
               align: "right",
               style: {
-                color: "black",
-                fontWeight: "bold",
+                color: "#FE8081",
+                //fontWeight: "bold",
               },
             },
           },

@@ -3,7 +3,10 @@ export default {
     dashboards() {
       let d = [],
         programs = [];
-      if (this.$store.getters.getIsAdmin) {
+      if (
+        this.$store.getters.getIsAdmin ||
+        this.$store.getters.getAppSettings.bypassUser
+      ) {
         programs = this.$store.getters.getAppSettings?.modulesList || [];
       } else {
         programs = this.$store.getters.getUserPermissions?.dashboards || [];

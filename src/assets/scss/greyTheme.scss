@@ -465,8 +465,7 @@ body[data-theme~="grey"] {
             background-color: var(--signoff-bottom-card) !important;
         }
  
-        #benchmarking-sub-tabContent .card,
-        #benchmarking-sub-tabContent .card-header{
+        #benchmarking-sub-tabContent .card{
          background-color: transparent !important;
         }
 
@@ -542,10 +541,6 @@ body[data-theme~="grey"] {
         background: var(--footer-sub-component) !important;
     }
 
-    .searchbox .form-control{
-        background-color: var(--signoff-bottom-card ) !important;
-        border-color: var(--signoff-bottom-card) !important;
-    }
     .map-firstitem{
         background: transparent;
     }
@@ -587,9 +582,6 @@ body[data-theme~="grey"] {
               
            }
 
-           .searchbox{
-           border-bottom: 1px solid var(--border-grey-color) !important;
-           }
 
             #bubblemap .btn-secondary.map-btn1,
             #bubblemap .btn-secondary.map-btn2
@@ -643,11 +635,6 @@ body[data-theme~="grey"] {
       
    }
 
-   .report-container {
-    background-color: var(--bg-main-color) !important;
-    
-
-   }
    
    #createModuleModal {
         
@@ -1094,12 +1081,6 @@ body[data-theme~="grey"] {
             color: var(--text-color) !important;
             }
         
-           .search-input,
-           .right-data,            
-           .left-data, .right-data, .left-year-data, .right-year-data{
-                background-color: var(--primary-bg-color) !important;
-            }
- 
                 .indi .dropdown-menu
                 {
                     background-color: var(--primary-bg-color)!important;
@@ -1112,23 +1093,6 @@ body[data-theme~="grey"] {
                 }
 
 
-
-        }
-
-
-       .secondDivCard.commonCardDiv .card.secCard {
-        background-color: var(--signoff-bottom-card) !important;  
-
-      
-      
-        .card-body.secCardBody{
-            background-color: var(--signoff-bottom-card) !important;  
-            border: 1px solid var(--signoff-bottom-card) !important;
-
-            .text{
-                background-color: var(--signoff-bottom-card) !important;
-            }
-        }
 
         }
         

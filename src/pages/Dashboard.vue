@@ -418,7 +418,10 @@ export default {
   computed: {
     isLinkedModules() {
       let show = false;
-      if (this.$store.getters.getIsAdmin) {
+      if (
+        this.$store.getters.getIsAdmin ||
+        this.$store.getters.getAppSettings.bypassUser
+      ) {
         show = true;
       } else {
         let permission = this.$store.getters.getUserPermissions;
@@ -476,7 +479,10 @@ export default {
             this.setLocale();
             if (
               !this.$store.getters.getIsMultiProgram &&
-              !this.$store.getters.getIsAdmin
+              !(
+                this.$store.getters.getIsAdmin &&
+                this.$store.getters.getAppSettings.bypassUser
+              )
             ) {
               this.setUserPermissions();
             }
@@ -511,7 +517,10 @@ export default {
         this.setLocale();
         if (
           !this.$store.getters.getIsMultiProgram &&
-          !this.$store.getters.getIsAdmin
+          !(
+            this.$store.getters.getIsAdmin &&
+            this.$store.getters.getAppSettings.bypassUser
+          )
         ) {
           this.setUserPermissions();
         }

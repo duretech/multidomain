@@ -359,7 +359,10 @@ export default {
         .then((res) => {
           let programs = [],
             modules = [];
-          if (this.$store.getters.getIsAdmin) {
+          if (
+            this.$store.getters.getIsAdmin ||
+            this.$store.getters.getAppSettings.bypassUser
+          ) {
             programs = this.$store.getters.getAppSettings.modulesList;
           } else {
             programs = this.$store.getters.getUserPermissions?.dashboards || [];
@@ -389,7 +392,10 @@ export default {
           // this.bookmarks = res.data.filter( (d) => d.user === user.data.userCredentials.id);
           this.bookmarks = res.data;
           // this.bookmarks = res.data.filter(d => d.user === 'o1HwG2CXWLf')
-          if (this.$store.getters.getIsAdmin) {
+          if (
+            this.$store.getters.getIsAdmin ||
+            this.$store.getters.getAppSettings.bypassUser
+          ) {
             this.canCreateModule = true;
             this.bookmarksAccess = b.filter((d) => d.adminAccess);
           }

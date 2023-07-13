@@ -19,30 +19,7 @@
             :default-expand-level="defaultExpandLevel"
             :limit="1"
             :load-options="loadOptions"
-          
           />
-        </div>
-        <div class="form-group pr-3 d-none">
-          <label class="text-center">{{ $t("period") }} {{ $t("type") }}</label>
-          <div class="select-wrapper">
-            <select class="form-control tabbarselect" v-model="pType">
-              <option value="monthly">{{ $t("monthly") }}</option>
-              <option value="quarterly">{{ $t("quarterly") }}</option>
-              <option value="yearly">{{ $t("yearly") }}</option>
-              <option
-                value="financialYear"
-                v-if="$store.state.financialYear.includes('April')"
-              >
-                {{ $t("financialYear") }}
-              </option>
-              <option
-                value="financialYearJuly"
-                v-if="$store.state.financialYear.includes('July')"
-              >
-                {{ $t("financialYearJuly") }}
-              </option>
-            </select>
-          </div>
         </div>
         <div class="form-group pr-3 period-dropdown">
           <label class="text-center">{{ $t("periodType") }}</label>
@@ -103,83 +80,9 @@
             </b-dropdown-form>
           </b-dropdown>
         </div>
-        <div class="pr-3 justify-content-center align-items-end d-none">
-          <b-button
-            v-if="$store.state.financialYear.includes('April')"
-            class="views-btn-footer mx-2 fs-17-1920"
-            :class="{ 'onclick-btn-footer': pType === 'financialYear' }"
-            @click="pType = 'financialYear'"
-            v-b-tooltip.hover
-            :title="$t('financialYear')"
-            ><div v-if="pType === 'financialYear'">
-              {{ $t("financialYear") }}
-            </div>
-            <div v-else>{{ $t("FY_Apr") }}</div></b-button
-          >
-          <b-button
-            v-if="$store.state.financialYear.includes('July')"
-            class="views-btn-footer mx-2 fs-17-1920"
-            :class="{ 'onclick-btn-footer': pType === 'financialYearJuly' }"
-            @click="pType = 'financialYearJuly'"
-            v-b-tooltip.hover
-            :title="$t('financialYearJuly')"
-            ><div v-if="pType === 'financialYearJuly'">
-              {{ $t("financialYearJuly") }}
-            </div>
-            <div v-else>{{ $t("FY_Jul") }}</div></b-button
-          >
-          <b-button
-            class="views-btn-footer mx-2 fs-17-1920"
-            :class="{ 'onclick-btn-footer': pType === 'yearly' }"
-            @click="pType = 'yearly'"
-            v-b-tooltip.hover
-            :title="$t('Yearly_view')"
-            ><div v-if="pType === 'yearly'">
-              {{ $t("Yearly_view") }}
-            </div>
-            <div v-else>{{ $t("Y") }}</div></b-button
-          >
-          <b-button
-            class="views-btn-footer mx-2 fs-17-1920"
-            :class="{ 'onclick-btn-footer': pType === 'quarterly' }"
-            @click="pType = 'quarterly'"
-            v-b-tooltip.hover
-            :title="$t('Quaterly_view')"
-            ><div v-if="pType === 'quarterly'">
-              {{ $t("Quaterly_view") }}
-            </div>
-            <div v-else>{{ $t("Q") }}</div></b-button
-          >
-          <b-button
-            class="views-btn-footer mx-2 fs-17-1920"
-            :class="{ 'onclick-btn-footer': pType === 'monthly' }"
-            @click="pType = 'monthly'"
-            v-b-tooltip.hover
-            :title="$t('Monthly_view')"
-            ><div v-if="pType === 'monthly'">
-              {{ $t("Monthly_view") }}
-            </div>
-            <div v-else>{{ $t("M") }}</div></b-button
-          >
-        </div>
-        <div class="form-group pr-3 d-none">
-          <label class="text-capitalize">{{ $t("period") }} </label>
-          <date-picker
-            v-model="monthYear"
-            type="month"
-            value-type="format"
-            format="YYYY-MM"
-            class="form-control"
-            :lang="lang"
-          ></date-picker>
-        </div>
         <b-button
           class="applyBtn blue-btn btn btn-sm"
-          style="
-            height: 38px;
-            margin-top: 21px;
-            border: none;
-          "
+          style="height: 38px; margin-top: 21px; border: none"
           @click.prevent.stop="sendDetails"
           :disabled="value.length === 0 || period.length === 0"
           >{{ $t("apply") }}</b-button
@@ -190,11 +93,12 @@
 </template>
 <script>
 import service from "@/service";
-import loadLocChildMixin from "@/helpers/LoadLocationChildMixin";
+import "vue2-datepicker/index.css";
+import DatePicker from "vue2-datepicker";
 import Treeselect from "@riophae/vue-treeselect";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
-import DatePicker from "vue2-datepicker";
-import "vue2-datepicker/index.css";
+import { pTypeList } from "@/components/Common/commonFunctions";
+import loadLocChildMixin from "@/helpers/LoadLocationChildMixin";
 export default {
   props: ["globalPeriodData", "showToolbarOnTablet"],
   components: {
@@ -203,7 +107,6 @@ export default {
   },
   mixins: [loadLocChildMixin],
   data() {
-    // console.log(this.globalPeriodData)
     let period = this.globalPeriodData;
     return {
       source: "NA",
@@ -261,26 +164,6 @@ export default {
   computed: {
     periodText() {
       return this.period.length + " Selected";
-	  },
-	pTypeOptions() {
-      let pType = [
-        { id: "monthly", label: this.$i18n.t("monthly") },
-        { id: "quarterly", label: this.$i18n.t("quarterly") },
-        { id: "yearly", label: this.$i18n.t("yearly") },
-      ];
-      if (this.$store.state.financialYear.includes("July")) {
-        pType.push({
-          id: "financialYearJuly",
-          label: this.$i18n.t("financialYearJuly"),
-        });
-      }
-      if (this.$store.state.financialYear.includes("April")) {
-        pType.push({
-          id: "financialYear",
-          label: this.$i18n.t("financialYear"),
-        });
-      }
-      return pType;
     },
   },
   watch: {
@@ -398,6 +281,7 @@ export default {
     },
   },
   created() {
+    this.pTypeOptions = pTypeList({});
     if (
       this.$store.state.financialYear.length === 1 &&
       this.$store.state.financialYear.includes("July")

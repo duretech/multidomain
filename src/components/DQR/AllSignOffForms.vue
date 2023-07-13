@@ -39,7 +39,6 @@
               v-if="editOpt"
               @click="updateSignOffForm({ form: form, isEdit: true })"
             >
-              <!-- <i class="fa fa-pencil-square-o" aria-hidden="true"></i> -->
               <img
               :src="require('@/assets/images/icons/editActive.svg')"
               class="img-fluid w-24"
@@ -52,7 +51,6 @@
               v-if="viewOpt"
               @click="updateSignOffForm({ form: form, isView: true })"
             >
-              <!-- <i class="fa fa-eye" aria-hidden="true"></i> -->
               <img
               :src="require('@/assets/images/icons/previewActive.svg')"
               class="img-fluid w-24 mb-1"
@@ -65,7 +63,6 @@
               @click.prevent.stop="deleteForm(form.formID)"
               v-if="deleteOpt && userDetails.id === form.userDetails.id"
             >
-              <!-- <i class="fa fa-trash-o" aria-hidden="true"></i> -->
               <img
               :src="require('@/assets/images/icons/deleteActive.svg')"
               class="img-fluid w-24 mb-1"

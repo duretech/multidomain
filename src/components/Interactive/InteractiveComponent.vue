@@ -96,7 +96,7 @@
                         >
                           <b-dropdown-item-button
                             class="fs-17-1920"
-                            v-for="(pType, index) in periodTypeList"
+                            v-for="(pType, index) in pTypeOptions"
                             :key="pType.value + index"
                             :value="pType.value"
                             @click="changePeriodType(pType)"
@@ -577,7 +577,12 @@ import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 import DynamicImageMixin from "@/helpers/DynamicImageMixin";
 import ReFetchConfigMixin from "@/helpers/ReFetchConfigMixin";
 import loadLocChildMixin from "@/helpers/LoadLocationChildMixin";
-import { chartExport, randomString } from "@/components/Common/commonFunctions";
+import {
+  pTypeList,
+  chartExport,
+  randomString,
+} from "@/components/Common/commonFunctions";
+
 export default {
   components: {
     chartOptions,
@@ -639,6 +644,7 @@ export default {
       indicatorsColors: [],
       facilityListOriginal: [],
       allowedOptions: {},
+      pTypeOptions: [],
     };
   },
   watch: {
@@ -769,7 +775,7 @@ export default {
       });
     },
     periodTypeText() {
-      return this.periodTypeList.find((p) => p.value === this.periodType).text;
+      return this.pTypeOptions.find((p) => p.value === this.periodType).text;
     },
     chartTypeOptions() {
       return [
@@ -834,26 +840,6 @@ export default {
           icon: "tableIA",
         },
       ];
-    },
-    periodTypeList() {
-      let periodTypeList = [
-        { value: "monthly", text: this.$i18n.t("monthly") },
-        { value: "quarterly", text: this.$i18n.t("quarterly") },
-        { value: "yearly", text: this.$i18n.t("yearly") },
-      ];
-      if (this.$store.state.financialYear.includes("April")) {
-        periodTypeList.push({
-          value: "financialYear",
-          text: this.$i18n.t("financialYear"),
-        });
-      }
-      if (this.$store.state.financialYear.includes("July")) {
-        periodTypeList.push({
-          value: "financialYearJuly",
-          text: this.$i18n.t("financialYearJuly"),
-        });
-      }
-      return periodTypeList;
     },
   },
   methods: {
@@ -1799,6 +1785,7 @@ export default {
     },
   },
   created() {
+    this.pTypeOptions = pTypeList({ id: "value", label: "text" });
     this.getConfigData();
     this.periodType = "monthly";
     this.dataCalls();

@@ -77,7 +77,7 @@
           padding: 10px;
           text-align: center;
           border-radius: 5px;
-          border: 1px solid #a7a7a7;
+          border: 1px solid var(--border-grey-color);
           width: fit-content;
           margin: auto;
         "
@@ -215,7 +215,6 @@ export default {
             oChartTable,
             this.matrixPData.categories
           );
-        console.log(oChartTable, aHighChartTable, "oChartTable in matrx table");
         this.tableChartMethods = oChartTable.methods;
         this.tableChartData = aHighChartTable;
       }

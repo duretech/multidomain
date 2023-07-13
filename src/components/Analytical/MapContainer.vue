@@ -43,8 +43,8 @@
     >
       <b-spinner type="grow" label="Spinning"></b-spinner>
     </div>
-    <div v-if="dataFetched">
-      {{ locationPeriod.locationName }}: {{ locValue }}
+    <div v-if="dataFetched" class="text-right">
+      <span> {{ locationPeriod.locationName }}: {{ locValue }} </span>
     </div>
   </div>
 </template>
@@ -96,7 +96,7 @@ export default {
         let isData = isSeries.data.find(
           (d) => d.locationID === this.locationPeriod.location.split("/")[1]
         );
-        if (isData) {
+        if (isData && isData.y) {
           val = isData.y;
         }
       }

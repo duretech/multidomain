@@ -7,7 +7,7 @@ module.exports = {
 	},
 	configureWebpack: {
 		plugins: [
-			new BundleAnalyzerPlugin({ analyzerPort: 8893 }),
+			new BundleAnalyzerPlugin({ analyzerPort: 8894 }),
 			new webpack.ContextReplacementPlugin(/moment[/\\]locale$/, /en|fr/),
 		],
 		// plugins: [new BundleAnalyzerPlugin()],

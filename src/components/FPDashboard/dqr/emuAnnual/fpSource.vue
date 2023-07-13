@@ -219,8 +219,10 @@
                                     v-model="
                                       FPSource['Visits']['governmentHealth']
                                     "
-                                    :disabled="isAdmin"
+                                    :disabled="!$store.getters.getIsAdmin"
                                   >
+                                    <!-- :disabled="isAdmin" -->
+
                                     <option value="Yes">
                                       {{ this.$i18n.t("yes") }}
                                     </option>
@@ -241,6 +243,7 @@
                                   <select
                                     class="form-control"
                                     v-model="FPSource['Visits']['ngo']"
+                                    :disabled="!$store.getters.getIsAdmin"
                                   >
                                     <option value="Yes">
                                       {{ this.$i18n.t("yes") }}
@@ -266,6 +269,7 @@
                                     v-model="
                                       FPSource['Visits']['privateHospital']
                                     "
+                                    :disabled="!$store.getters.getIsAdmin"
                                   >
                                     <option value="Yes">
                                       {{ this.$i18n.t("yes") }}
@@ -287,6 +291,7 @@
                                   <select
                                     class="form-control"
                                     v-model="FPSource['Visits']['pharmacy']"
+                                    :disabled="!$store.getters.getIsAdmin"
                                   >
                                     <option value="Yes">
                                       {{ this.$i18n.t("yes") }}
@@ -312,6 +317,7 @@
                                     v-model="
                                       FPSource['Visits']['shopChurchFriend']
                                     "
+                                    :disabled="!$store.getters.getIsAdmin"
                                   >
                                     <option value="Yes">
                                       {{ this.$i18n.t("yes") }}
@@ -331,6 +337,7 @@
                                   <select
                                     class="form-control"
                                     v-model="FPSource['Visits']['otherSector']"
+                                    :disabled="!$store.getters.getIsAdmin"
                                   >
                                     <option value="Yes">
                                       {{ this.$i18n.t("yes") }}
@@ -392,6 +399,7 @@
                                         'governmentHealth'
                                       ]
                                     "
+                                    :disabled="!$store.getters.getIsAdmin"
                                   >
                                     <option value="Yes">
                                       {{ this.$i18n.t("yes") }}
@@ -415,6 +423,7 @@
                                     v-model="
                                       FPSource['Commodities_Client']['ngo']
                                     "
+                                    :disabled="!$store.getters.getIsAdmin"
                                   >
                                     <option value="Yes">
                                       {{ this.$i18n.t("yes") }}
@@ -442,6 +451,7 @@
                                         'privateHospital'
                                       ]
                                     "
+                                    :disabled="!$store.getters.getIsAdmin"
                                   >
                                     <option value="Yes">
                                       {{ this.$i18n.t("yes") }}
@@ -465,6 +475,7 @@
                                     v-model="
                                       FPSource['Commodities_Client']['pharmacy']
                                     "
+                                    :disabled="!$store.getters.getIsAdmin"
                                   >
                                     <option value="Yes">
                                       {{ this.$i18n.t("yes") }}
@@ -492,6 +503,7 @@
                                         'shopChurchFriend'
                                       ]
                                     "
+                                    :disabled="!$store.getters.getIsAdmin"
                                   >
                                     <option value="Yes">
                                       {{ this.$i18n.t("yes") }}
@@ -515,6 +527,7 @@
                                         'otherSector'
                                       ]
                                     "
+                                    :disabled="!$store.getters.getIsAdmin"
                                   >
                                     <option value="Yes">
                                       {{ this.$i18n.t("yes") }}
@@ -576,6 +589,7 @@
                                         'governmentHealth'
                                       ]
                                     "
+                                    :disabled="!$store.getters.getIsAdmin"
                                   >
                                     <option value="Yes">
                                       {{ this.$i18n.t("yes") }}
@@ -599,6 +613,7 @@
                                     v-model="
                                       FPSource['Commodities_Facilities']['ngo']
                                     "
+                                    :disabled="!$store.getters.getIsAdmin"
                                   >
                                     <option value="Yes">
                                       {{ this.$i18n.t("yes") }}
@@ -626,6 +641,7 @@
                                         'privateHospital'
                                       ]
                                     "
+                                    :disabled="!$store.getters.getIsAdmin"
                                   >
                                     <option value="Yes">
                                       {{ this.$i18n.t("yes") }}
@@ -651,6 +667,7 @@
                                         'pharmacy'
                                       ]
                                     "
+                                    :disabled="!$store.getters.getIsAdmin"
                                   >
                                     <option value="Yes">
                                       {{ this.$i18n.t("yes") }}
@@ -678,6 +695,7 @@
                                         'shopChurchFriend'
                                       ]
                                     "
+                                    :disabled="!$store.getters.getIsAdmin"
                                   >
                                     <option value="Yes">
                                       {{ this.$i18n.t("yes") }}
@@ -701,6 +719,7 @@
                                         'otherSector'
                                       ]
                                     "
+                                    :disabled="!$store.getters.getIsAdmin"
                                   >
                                     <option value="Yes">
                                       {{ this.$i18n.t("yes") }}
@@ -756,6 +775,7 @@
                                     v-model="
                                       FPSource['User']['governmentHealth']
                                     "
+                                    :disabled="!$store.getters.getIsAdmin"
                                   >
                                     <option value="Yes">
                                       {{ this.$i18n.t("yes") }}
@@ -777,6 +797,7 @@
                                   <select
                                     class="form-control"
                                     v-model="FPSource['User']['ngo']"
+                                    :disabled="!$store.getters.getIsAdmin"
                                   >
                                     <option value="Yes">
                                       {{ this.$i18n.t("yes") }}
@@ -802,6 +823,7 @@
                                     v-model="
                                       FPSource['User']['privateHospital']
                                     "
+                                    :disabled="!$store.getters.getIsAdmin"
                                   >
                                     <option value="Yes">
                                       {{ this.$i18n.t("yes") }}
@@ -823,6 +845,7 @@
                                   <select
                                     class="form-control"
                                     v-model="FPSource['User']['pharmacy']"
+                                    :disabled="!$store.getters.getIsAdmin"
                                   >
                                     <option value="Yes">
                                       {{ this.$i18n.t("yes") }}
@@ -848,6 +871,7 @@
                                     v-model="
                                       FPSource['User']['shopChurchFriend']
                                     "
+                                    :disabled="!$store.getters.getIsAdmin"
                                   >
                                     <option value="Yes">
                                       {{ this.$i18n.t("yes") }}
@@ -867,6 +891,7 @@
                                   <select
                                     class="form-control"
                                     v-model="FPSource['User']['otherSector']"
+                                    :disabled="!$store.getters.getIsAdmin"
                                   >
                                     <option value="Yes">
                                       {{ this.$i18n.t("yes") }}
@@ -1014,7 +1039,7 @@ export default {
         "Public and Some Private": "psp",
         "All Public and Private": "app",
       },
-      isAdmin: true,
+      // isAdmin: true,
       fpItems: [],
       fields: [],
       subTablefields: [],
@@ -1173,14 +1198,14 @@ export default {
       });
     },
     async getFPSourceData() {
-      this.userDetails.userCredentials.userRoles.forEach((u) => {
-        if (this.$store.getters.getAppSettings.adminUserRole.includes(u.name)) {
-          //console.log(u.name);
-          if (u.name) {
-            this.isAdmin = false;
-          }
-        }
-      });
+      // this.userDetails.userCredentials.userRoles.forEach((u) => {
+      //   if (this.$store.getters.getAppSettings.adminUserRole.includes(u.name)) {
+      //     //console.log(u.name);
+      //     if (u.name) {
+      //       this.isAdmin = false;
+      //     }
+      //   }
+      // });
 
       let startYear =
         this.dqrResponse.emu["Background_Data"]["startingYear"] * 1;

@@ -560,7 +560,6 @@ export default {
       if (pData) {
         this.population = pData;
       }
-      console.log(this.population, "pop data");
       if (
         this.preFetchData &&
         this.preFetchData[`${periodType}_${this.$i18n.locale}`]

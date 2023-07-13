@@ -297,7 +297,10 @@
                 />
                 <span>{{ $t("tourGuide") }}</span>
               </b-dropdown-item-button>
-              <b-dropdown-item-button class="mx-3 font-14">
+              <b-dropdown-item-button
+                class="mx-3 font-14"
+                @click="showManuals = true"
+              >
                 <img
                   src="@/assets/images/icons/train-icon.svg"
                   class="setImg mr-2"
@@ -370,6 +373,22 @@
         :isDisableFlash="isDisableFlash"
       />
     </template>
+    <b-modal :title="$t('trainings')" v-model="showManuals" hide-footer>
+      <div class="my-3" :class="{ 'text-center': manuals.length === 0 }">
+        <template v-if="manuals.length">
+          <ul>
+            <li v-for="(m, i) in manuals" :key="'manual' + i">
+              <a rel="noreferrer" target="_blank" :href="m.link">{{
+                m.text
+              }}</a>
+            </li>
+          </ul>
+        </template>
+        <template v-else>
+          {{ $t("no_data_to_display") }}
+        </template>
+      </div>
+    </b-modal>
   </div>
 </template>
 <script>
@@ -386,6 +405,7 @@ export default {
       userShow: false,
       showModal: true,
       allFlashData: [],
+      showManuals: false,
     };
   },
   components: {
@@ -404,6 +424,13 @@ export default {
       ),
   },
   computed: {
+    manuals() {
+      let m = [];
+      if (this.$store.getters.getAppSettings?.userManuals?.length) {
+        m = this.$store.getters.getAppSettings.userManuals;
+      }
+      return m;
+    },
     themes() {
       let t = [
         {
@@ -441,7 +468,8 @@ export default {
       return this.$store.getters.getAppSettings.isAppHub;
     },
     isInteractiveModules() {
-      return this.$store.getters.getIsAdmin
+      return this.$store.getters.getIsAdmin ||
+        this.$store.getters.getAppSettings.bypassUser
         ? true
         : this.$store.getters.getUserPermissions?.modules?.includes(
             `interactive-default`

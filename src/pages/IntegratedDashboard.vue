@@ -397,7 +397,7 @@
                                   </b-col>
                                   <b-col sm="2">
                                     <p class="program-name fs-17-1920">
-                                      {{ scoreCard.name }}
+                                      {{ scoreCard.name[$i18n.locale] }}
                                     </p>
                                   </b-col>
                                   <b-col sm="4">
@@ -551,13 +551,15 @@ export default {
   },
   computed: {
     isFPModules() {
-      return this.$store.getters.getIsAdmin
+      return this.$store.getters.getIsAdmin ||
+        this.$store.getters.getAppSettings.bypassUser
         ? true
         : this.$store.getters.getUserPermissions?.dashboards?.includes(`fp`) ||
             false;
     },
     isFPSummaryModules() {
-      return this.$store.getters.getIsAdmin
+      return this.$store.getters.getIsAdmin ||
+        this.$store.getters.getAppSettings.bypassUser
         ? true
         : this.isFPModules
         ? this.$store.getters.getUserPermissions?.modules?.includes(
@@ -566,7 +568,8 @@ export default {
         : false;
     },
     isFPDQRModules() {
-      return this.$store.getters.getIsAdmin
+      return this.$store.getters.getIsAdmin ||
+        this.$store.getters.getAppSettings.bypassUser
         ? true
         : this.isFPModules
         ? this.$store.getters.getUserPermissions?.modules?.includes(`DQR-fp`) ||
@@ -574,14 +577,16 @@ export default {
         : false;
     },
     isMNCHModules() {
-      return this.$store.getters.getIsAdmin
+      return this.$store.getters.getIsAdmin ||
+        this.$store.getters.getAppSettings.bypassUser
         ? true
         : this.$store.getters.getUserPermissions?.dashboards?.includes(
             `mnch`
           ) || false;
     },
     isMNCHSummaryModules() {
-      return this.$store.getters.getIsAdmin
+      return this.$store.getters.getIsAdmin ||
+        this.$store.getters.getAppSettings.bypassUser
         ? true
         : this.isMNCHModules
         ? this.$store.getters.getUserPermissions?.modules?.includes(
@@ -590,7 +595,8 @@ export default {
         : false;
     },
     isMNCHDQRModules() {
-      return this.$store.getters.getIsAdmin
+      return this.$store.getters.getIsAdmin ||
+        this.$store.getters.getAppSettings.bypassUser
         ? true
         : this.isMNCHModules
         ? this.$store.getters.getUserPermissions?.modules?.includes(
@@ -1019,7 +1025,7 @@ export default {
               if (isMapping) {
                 this.dqrScorecard.push({
                   id: s.group,
-                  name: s.tabName[this.$i18n.locale],
+                  name: s.tabName,
                   score: null,
                   scoreLimit: null,
                   createAt: null,
@@ -1057,7 +1063,7 @@ export default {
               if (isMapping) {
                 this.dqrScorecard.push({
                   id: s.group,
-                  name: s.tabName[this.$i18n.locale],
+                  name: s.tabName,
                   score: null,
                   scoreLimit: null,
                   createAt: null,

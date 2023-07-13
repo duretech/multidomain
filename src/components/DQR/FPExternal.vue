@@ -283,6 +283,7 @@ export default {
   created() {
     this.canComment =
       this.$store.getters.getIsAdmin ||
+        this.$store.getters.getAppSettings.bypassUser ||
       this.$store.getters.getUserPermissions.canComment;
     if (this.dqrResponse) {
       this.getMonthlyCharts();

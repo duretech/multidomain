@@ -517,7 +517,8 @@ export default {
           if (d.y < benchmarkValue || (d.y === null && benchmarkValue === 0)) {
             isOut = true;
             d.color = "#FE8081";
-            obj.value = `${d.name} (${d.y}${d.y ? "%" : ""})`;
+            let v = d.y ? `${d.y}%` : this.$i18n.t("noData");
+            obj.value = `${d.name} (${v})`;
             if (m !== "default") {
               obj.method = m;
             }
@@ -556,6 +557,10 @@ export default {
               s.data.map((d) => {
                 if (avg - d.y * 1 < -substantialChange) {
                   isOut = true;
+                  let v =
+                    avg - d.y * 1
+                      ? `${(avg - d.y * 1).toFixed(2)}%`
+                      : this.$i18n.t("noData");
                   outliers = this.updateOutliersList({
                     header: `${this.$i18n.t("rr_text2", {
                       substantialChange: substantialChange,
@@ -565,7 +570,7 @@ export default {
                     })}`,
                     outliers,
                     name: s.name,
-                    value: `${d.name} (${(avg - d.y * 1).toFixed(2)}%)`,
+                    value: `${d.name} (${v})`,
                     secondary: true,
                   });
                 }
@@ -1307,12 +1312,19 @@ export default {
     }) {
       let found = [], // an array to collect the strings that are found
         rxp = /{([^}]+)}/g,
-        summaryText = this.subTab.summary
-          ? typeof this.subTab.summary.summaryText === "object"
-            ? this.subTab.summary.summaryText[this.$i18n.locale] || null
-            : this.subTab.summary.summaryText || null
-          : null,
-        curMatch;
+        curMatch,
+        summaryText = null;
+      if (this.subTab?.summary?.summaryText) {
+        if (typeof this.subTab.summary.summaryText === "string") {
+          summaryText = this.subTab.summary.summaryText || null;
+        }
+        if (typeof this.subTab.summary.summaryText === "object") {
+          summaryText =
+            this.subTab.summary.summaryText?.[this.locationPeriod.periodType]?.[
+              this.$i18n.locale
+            ] || null;
+        }
+      }
       if (summaryText) {
         while ((curMatch = rxp.exec(summaryText))) {
           found.push(curMatch[1]);
@@ -1323,7 +1335,7 @@ export default {
             case "INDICATOR_NAME":
               calculatedValues[f] = indicatorName;
               break;
-            case "COMPARE_LAST_MONTH":
+            case "COMPARE_LAST_PERIOD":
               calculatedValues[f] = compLastMn;
               break;
             case "COMPARE_LAST_YEAR":
@@ -1587,6 +1599,7 @@ export default {
         chartConfigData: cData,
         summaryDetails: details,
         chartCategory: cData.chartCategory,
+        chartInfo: cData.chartInfo,
         compareDone: compareData ? true : false,
       });
     },
@@ -3258,7 +3271,6 @@ export default {
                 JSON.stringify(emuModule.methodTable)
               );
               methodTable = JSON.parse(methodTable);
-              console.log(methodTable, ids);
               if (methodTable[ids]) {
                 methodTable[ids] = methodTable[ids].slice(
                   0,
@@ -3902,21 +3914,16 @@ export default {
                       (obj) => obj[1] == key && obj[2] == ids
                     );
 
-                    computePop.forEach((row) => {
-                      if (row[2] == ids) {
-                        id[key] = id[key]
-                          ? id[key].toString().split(",").join("")
-                          : id[" " + key + " "].toString().split(",").join("");
-                        id[key] =
-                          ((Number(id[key]) / Number(row[3])) * 100).toFixed(
-                            2
-                          ) * 1;
-                        //if(key == period){
-                        //dataObj[ids][method][key] = (id[key]/Number(row[3])*100).toFixed(2) * 1
-                        dataObj[ids][method][key] = id[key];
-                        // }
-                      }
-                    });
+                    id[key] = id[key]
+                      ? id[key].toString().split(",").join("")
+                      : id[" " + key + " "].toString().split(",").join("");
+
+                    id[key] =
+                      ((Number(id[key]) / Number(computePop[3])) * 100).toFixed(
+                        2
+                      ) * 1;
+
+                    dataObj[ids][method][key] = id[key];
                   }
                 });
               });
@@ -3990,7 +3997,6 @@ export default {
       this.matrixData.source = so;
       this.matrixData["categories"] = categories;
       this.matrixData["avgAnnualGrowthData"] = seriesObj;
-      console.log(this.matrixData, "this.matrixData");
       this.dataFetched = true;
     },
     getEMUChart(isFilter = false) {

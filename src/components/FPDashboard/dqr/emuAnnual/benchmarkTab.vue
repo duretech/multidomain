@@ -5,7 +5,10 @@
       <a href="#" id="tabbar-expand"><i class="fas fa-filter"></i></a>
     </div>
     <div class="row dqr-emumonth">
-      <div class="map-collapse-btndiv benchmarkmap-toggle">
+      <div
+        class="map-collapse-btndiv benchmarkmap-toggle"
+        style="padding-left: 10px"
+      >
         <a
           href="#"
           class="color-white btn-sm"
@@ -1191,7 +1194,7 @@ export default {
                 : ele.static_displayName;
 
             if (statDispName) {
-              return ele.id + "/" + statDispName;
+              return ele.id + "/" + statDispName; //need to discuss for static name
             } else {
               return ele.id;
             }

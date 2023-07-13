@@ -204,8 +204,8 @@ export default {
       (years = ["mars", "avril"]), (yearsJuly = ["juin", "juil."]);
     }
     if (periodType === "monthly") {
-      sPrevPer = moment(p_period, "YYYYMM").format("MMM YYYY");
-      sNextPer = moment(p_period, "YYYYMM")
+      sPrevPer = moment(p_period, "MMM YYYY").format("MMM YYYY");
+      sNextPer = moment(p_period, "MMM YYYY")
         .subtract(p_months, "months")
         .format("MMM YYYY");
     }

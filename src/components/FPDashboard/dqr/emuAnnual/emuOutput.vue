@@ -430,6 +430,7 @@ export default {
       this.loggedInUserId = this.userDetails.id;
       this.canComment =
         this.$store.getters.getIsAdmin ||
+        this.$store.getters.getAppSettings.bypassUser ||
         this.$store.getters.getUserPermissions.canComment;
     },
     getOtherChartDetails(obj, index, chartType) {

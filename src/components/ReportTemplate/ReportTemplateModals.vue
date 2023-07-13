@@ -13,14 +13,7 @@
     >
       <template #modal-header="{ close }">
         <div
-          class="
-            report-modal
-            align-items-center
-            d-flex
-            justify-content-between
-            w-100
-            py-2
-          "
+          class="report-modal align-items-center d-flex justify-content-between w-100 py-2"
         >
           <h5 class="m-0">{{ templateObj.templateName }}</h5>
           <span>
@@ -533,7 +526,8 @@ export default {
       let selectedDashboard =
         newValue === "interactive" ? "" : this.selectedDashboard;
       if (this.originalConfigs[`${newValue}_${selectedDashboard}`]) {
-        this.moduleConfig = this.originalConfigs[`${newValue}_${selectedDashboard}`];
+        this.moduleConfig =
+          this.originalConfigs[`${newValue}_${selectedDashboard}`];
         this.$nextTick(() => {
           this.processModuleConfig(newValue);
         });
@@ -544,8 +538,9 @@ export default {
           .getSavedConfig(key, false, selectedDashboard)
           .then((response) => {
             if (response.data) {
-              this.moduleConfig = this.originalConfigs[`${newValue}_${selectedDashboard}`] =
-                response.data;
+              this.moduleConfig = this.originalConfigs[
+                `${newValue}_${selectedDashboard}`
+              ] = response.data;
               this.$nextTick(() => {
                 this.processModuleConfig(newValue);
               });
@@ -838,7 +833,10 @@ export default {
   },
   created() {
     let programs = [];
-    if (this.$store.getters.getIsAdmin) {
+    if (
+      this.$store.getters.getIsAdmin ||
+      this.$store.getters.getAppSettings.bypassUser
+    ) {
       programs = this.$store.getters.getAppSettings.modulesList;
     } else {
       programs = this.$store.getters.getUserPermissions?.dashboards || [];

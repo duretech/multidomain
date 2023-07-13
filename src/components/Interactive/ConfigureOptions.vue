@@ -1,7 +1,10 @@
 <template>
   <div class="text-right">
     <b-button
-      v-if="$store.getters.getIsAdmin"
+      v-if="
+        $store.getters.getIsAdmin ||
+        $store.getters.getAppSettings.bypassUser
+      "
       class="blue-btn mb-2 btn-sm"
       @click="configureBtn = !configureBtn"
       >{{ $t("configure") }}</b-button

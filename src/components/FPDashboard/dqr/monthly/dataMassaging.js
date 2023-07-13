@@ -168,7 +168,7 @@ export default {
       oOptions.cyp = oCyp;
       oData.chartArr.push(oOptions);
     }
-    console.log(methodSeq, "from DM================");
+    //console.log(methodSeq, "from DM================");
     return {
       data: oData,
       totalCYP: oTotalCyp,
@@ -208,9 +208,13 @@ export default {
       //sName = p_data.name;
       for (i = 0; i < nLen; i++) {
         let sYear = mnt[i];
-        let dataFound = p_response.rows.find((obj) => obj[1] == sYear);
-        oTarget[sYear][sName] =
-          (oTarget[sYear][sName] || 0) + (dataFound ? dataFound[3] * 1 : 0);
+        let dataFound = p_response.rows.filter((obj) => obj[1] == sYear);
+        if (!oTarget[sYear]) oTarget[sYear] = {};
+        if (!oTarget[sYear][sName]) oTarget[sYear][sName] = 0;
+        dataFound.forEach((obj) => {
+          oTarget[sYear][sName] =
+            (oTarget[sYear][sName] || 0) + (obj ? obj[3] * 1 : 0);
+        });
       }
     }
     return oTarget;

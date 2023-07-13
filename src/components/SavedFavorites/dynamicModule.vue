@@ -8,9 +8,7 @@
       >
         <div class="row">
           <div class="col-12">
-            <div
-              class="color-white f-w-100 mt-4 pt-5 px-4 save-heading"
-            >
+            <div class="color-white f-w-100 mt-4 pt-5 px-4 save-heading">
               {{ $t("savedModules") }}
             </div>
           </div>
@@ -24,7 +22,6 @@
             >
               <div class="secondDivCard commonCardDiv">
                 <div class="card secCard">
-                  
                   <div class="card-body secCardBody">
                     <div class="row" style="height: 100%">
                       <div class="col-8">
@@ -87,7 +84,8 @@
                         <div
                           class="row"
                           v-if="
-                            $store.getters.getIsAdmin &&
+                            ($store.getters.getIsAdmin ||
+                              $store.getters.getAppSettings.bypassUser) &&
                             module.user === $store.state.loggedInUserId
                           "
                         >
@@ -230,7 +228,10 @@
                         <i class="fa fa-caret-down pl-2" aria-hidden="true"></i>
                       </button>
                     </div> -->
-                    <a class="dropdown-item upload-item" href="javascript:void(0)">
+                    <a
+                      class="dropdown-item upload-item"
+                      href="javascript:void(0)"
+                    >
                       <div
                         class="file btn uploadIcondiv cursor-pointer"
                         v-b-tooltip.hover
@@ -312,9 +313,7 @@
                           :src="require('@/assets/images/home/drug.png')"
                       /></a>
                     </div>
-                    <div class="col-4">
-                     
-                    </div>
+                    <div class="col-4"></div>
                   </div>
                 </div>
               </div>
@@ -457,12 +456,12 @@
             <div class="col-4"></div>
             <div class="col-8">
               <button
-              type="button"
-              class="btn btn-secondary resetbtn submitbtn reset-create"
-              @click.prevent.stop="reset"
-            >
-              {{ $t("resetbtn") }}
-            </button>
+                type="button"
+                class="btn btn-secondary resetbtn submitbtn reset-create"
+                @click.prevent.stop="reset"
+              >
+                {{ $t("resetbtn") }}
+              </button>
               <button
                 type="button"
                 class="btn btn-primary blue-btn"
@@ -471,7 +470,6 @@
               >
                 {{ isEdit ? $t("update") : $t("submitbtn") }}
               </button>
-             
             </div>
           </div>
         </div>
@@ -505,16 +503,14 @@
               class="text-decoration-none mx-3 aBtnactive sideRightTopBtn"
             >
               <h6 class="f-w-100 text-dark pt-2 mr-3">
-                <span class="border-bottom-dark"
-                  >
+                <span class="border-bottom-dark">
                   <!-- <i class="fa fa-pencil-square-o mr-1" aria-hidden="true"></i> -->
                   <img
-                  :src="require('@/assets/images/icons/editActive.svg')"
-                  :style="{ filter: filterColor }"
-                  class="img-fluid w-24 mb-1"
-                 
-                /> 
-                <span class="mx-1">  {{ $t("edit") }} </span></span
+                    :src="require('@/assets/images/icons/editActive.svg')"
+                    :style="{ filter: filterColor }"
+                    class="img-fluid w-24 mb-1"
+                  />
+                  <span class="mx-1"> {{ $t("edit") }} </span></span
                 >
               </h6>
             </a>
@@ -579,7 +575,6 @@
                     <div class="">
                       <treeselect
                         name="demo"
-                     
                         :multiple="treeselect.multiple"
                         :clearable="treeselect.clearable"
                         :searchable="treeselect.searchable"
@@ -647,14 +642,11 @@
         :editorToolbar="customToolbar"
       ></vue-editor>
       <div class="text-right pt-3">
-        <button
-          class="btn btn-sm blue-btn"
-          @click.stop.prevent="addTextarea"
-        >
+        <button class="btn btn-sm blue-btn" @click.stop.prevent="addTextarea">
           {{ editChartText ? $t("update") : $t("addbtn") }}
         </button>
       </div>
-  </b-modal>
+    </b-modal>
   </div>
 </template>
 
@@ -1251,7 +1243,10 @@ export default {
     this.windowWidth = window.innerWidth - 60;
     this.getModuleList();
     let programs = [];
-    if (this.$store.getters.getIsAdmin) {
+    if (
+      this.$store.getters.getIsAdmin ||
+      this.$store.getters.getAppSettings.bypassUser
+    ) {
       programs = this.$store.getters.getAppSettings.modulesList;
     } else {
       programs = this.$store.getters.getUserPermissions?.dashboards || [];
@@ -1307,9 +1302,6 @@ export default {
   }
 }
 .secondDivCard {
-  .card {
-   /* background-color: #212121 !important; */
-  }
   h6 {
     border-bottom: 1px solid var(--border-grey-color);
     padding-bottom: 3%;
@@ -1366,7 +1358,7 @@ export default {
   background: var(--green-darkbg-color);
 }
 .blueDiv {
-  background: var( --blue-bg-color);
+  background: var(--blue-bg-color);
 }
 .greenDiv {
   background: var(--green-bg-color);
@@ -1441,20 +1433,18 @@ select:invalid {
 .uploadIcondiv {
   position: relative;
   overflow: hidden;
-  
 }
 
-.upload-btn{
+.upload-btn {
   height: 34px;
 }
 
 .upload-item,
 .upload-item:hover {
-  background-color:transparent !important;
+  background-color: transparent !important;
   border-color: transparent !important;
-  cursor:pointer;
+  cursor: pointer;
 }
-
 
 .uploadIconinput {
   position: absolute;
@@ -1556,14 +1546,13 @@ select:invalid {
 }
 .dropdown-item:active,
 .dropdown-item:hover {
-
   border: 1px solid rgba(0, 0, 0, 0.1);
 }
 .bg_lightshadegrey {
   background-color: var(--font-text-color);
 }
 .topCardChartName {
-  border-bottom: 1px solid var(--text-subfont-color)!important;
+  border-bottom: 1px solid var(--text-subfont-color) !important;
   background-color: var(--loader-bg-color) !important;
   height: 55px;
 }
@@ -1592,10 +1581,9 @@ select:invalid {
 #createModuleModal {
   .modal-header {
     background: transparent;
-    
+
     padding: 1rem;
     .close {
-    
     }
   }
 }

@@ -34,22 +34,16 @@
                       <div class="saved-report-card-title fs-17-1920">
                         <!-- <span> {{ template.templateName }}</span> -->
                         <b-row class="card-details fs-17-2920"
-                          ><b>{{ $t("userName") }}:&nbsp;</b> 
-                        <span class="fw-400"> {{ template.createdBy }} </span> 
+                          ><b>{{ $t("userName") }}:&nbsp;</b>
+                          <span class="fw-400"> {{ template.createdBy }} </span>
                         </b-row>
                         <b-row class="card-details fs-17-2920">
-                          <b
-                            >{{ $t("created") }}:&nbsp;
-                            </b
-                          >
-                          <span class="fw-400">  {{ template.createdAt }}</span>
+                          <b>{{ $t("created") }}:&nbsp; </b>
+                          <span class="fw-400"> {{ template.createdAt }}</span>
                         </b-row>
                         <b-row class="card-details fs-17-2920">
-                          <b
-                            >{{ $t("lastUpdated") }}:&nbsp;
-                           </b
-                          > 
-                          <span class="fw-400">  {{ template.updatedAt }} </span>
+                          <b>{{ $t("lastUpdated") }}:&nbsp; </b>
+                          <span class="fw-400"> {{ template.updatedAt }} </span>
                         </b-row>
                       </div>
                     </div>
@@ -355,7 +349,7 @@
             <div class="col-sm-6">
               <b-form-select
                 v-model="templateObj.updateFrequencyType"
-                :options="periodTypeList"
+                :options="pTypeOptions"
               ></b-form-select>
             </div>
           </div>
@@ -393,7 +387,7 @@
     <ReportTemplateModals
       ref="setReportTemplate"
       @updateModule="updateModule"
-      :periodTypeList="periodTypeList"
+      :periodTypeList="pTypeOptions"
     />
   </div>
 </template>
@@ -406,7 +400,7 @@ import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 import DynamicImageMixin from "@/helpers/DynamicImageMixin";
 import ReFetchConfigMixin from "@/helpers/ReFetchConfigMixin";
 import loadLocChildMixin from "@/helpers/LoadLocationChildMixin";
-import { randomString } from "@/components/Common/commonFunctions";
+import { pTypeList, randomString } from "@/components/Common/commonFunctions";
 const originalTemplateObj = {
   templateId: "",
   templateName: "",
@@ -438,7 +432,7 @@ export default {
       editReport: false,
       cloneReport: false,
       fileName: "Report",
-      periodTypeList: [],
+      pTypeOptions: [],
       basePeriodList: [],
       reportTemplates: [],
       canvasHeight: 0,
@@ -916,23 +910,8 @@ export default {
     this.options = JSON.parse(
       JSON.stringify(this.$store.getters.getLocationList)
     );
-    this.periodTypeList = [
-      { value: "monthly", text: this.$i18n.t("monthly") },
-      { value: "quarterly", text: this.$i18n.t("quarterly") },
-      { value: "yearly", text: this.$i18n.t("yearly") },
-    ];
-    if (this.$store.state.financialYear.includes("April")) {
-      this.periodTypeList.push({
-        value: "financialYear",
-        text: this.$i18n.t("financialYear"),
-      });
-    }
-    if (this.$store.state.financialYear.includes("July")) {
-      this.periodTypeList.push({
-        value: "financialYearJuly",
-        text: this.$i18n.t("financialYearJuly"),
-      });
-    }
+    this.pTypeOptions = pTypeList({ id: "value", label: "text" });
+
     for (let i = 0; i <= 36; i++) {
       this.basePeriodList.push({
         text: -i,

@@ -132,6 +132,7 @@
                 class="border-bottom-black dropdownComments"
                 v-if="
                   $store.getters.getIsAdmin ||
+                  $store.getters.getAppSettings.bypassUser ||
                   $store.getters.getUserPermissions.canComment
                 "
               >

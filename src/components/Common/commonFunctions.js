@@ -356,6 +356,27 @@ export const excludeName = (str) => {
   return str;
 };
 
+export const pTypeList = ({ id = "id", label = "label" }) => {
+  let pType = [
+    { [id]: "monthly", [label]: i18n.t("monthly") },
+    { [id]: "quarterly", [label]: i18n.t("quarterly") },
+    { [id]: "yearly", [label]: i18n.t("yearly") },
+  ];
+  if (store.state.financialYear.includes("July")) {
+    pType.push({
+      [id]: "financialYearJuly",
+      [label]: i18n.t("financialYearJuly"),
+    });
+  }
+  if (store.state.financialYear.includes("April")) {
+    pType.push({
+      [id]: "financialYear",
+      [label]: i18n.t("financialYear"),
+    });
+  }
+  return pType;
+};
+
 export const generateException = ({
   response,
   ou,
@@ -1293,7 +1314,8 @@ export const generateChart = ({
         let oUpdated = ou.map((o) =>
           excludeName(response.data.metaData.items[o].name)
         );
-        oUpdated.splice(0, 0, locationName);
+        oUpdated = oUpdated.filter((item) => item !== locationName);
+        oUpdated.unshift(locationName);
         cObj.categories = oUpdated;
         cObj.avgAnnualGrowthData = oMethodFinalRegPeriod;
         cObj.avgTotalCypData = oAvgTotalCyp;

@@ -146,69 +146,6 @@
                 </div>
               </div>
             </b-col>
-            <b-col cols="12" class="footer-col pt-1 d-none">
-              <div class="mr-2 d-flex flex-column">
-                <b-button
-                  v-if="$store.state.financialYear.includes('April')"
-                  class="views-btn-footer mx-2 fs-17-1920"
-                  :class="{ 'onclick-btn-footer': pType === 'financialYear' }"
-                  @click="changeview('financialYear')"
-                  v-b-tooltip.hover
-                  :title="$t('financialYear')"
-                  ><div v-if="pType === 'financialYear'">
-                    {{ $t("financialYear") }}
-                  </div>
-                  <div v-else>{{ $t("FY_Apr") }}</div></b-button
-                >
-                <b-button
-                  v-if="$store.state.financialYear.includes('July')"
-                  class="views-btn-footer mx-2 fs-17-1920"
-                  :class="{
-                    'onclick-btn-footer': pType === 'financialYearJuly',
-                  }"
-                  @click="changeview('financialYearJuly')"
-                  v-b-tooltip.hover
-                  :title="$t('financialYearJuly')"
-                  ><div v-if="pType === 'financialYearJuly'">
-                    {{ $t("financialYearJuly") }}
-                  </div>
-                  <div v-else>{{ $t("FY_Jul") }}</div></b-button
-                >
-                <b-button
-                  class="views-btn-footer mx-2 fs-17-1920"
-                  :class="{ 'onclick-btn-footer': pType === 'yearly' }"
-                  @click="changeview('yearly')"
-                  v-b-tooltip.hover
-                  :title="$t('Yearly_view')"
-                  ><div v-if="pType === 'yearly'">
-                    {{ $t("Yearly_view") }}
-                  </div>
-                  <div v-else>{{ $t("Y") }}</div></b-button
-                >
-                <b-button
-                  class="views-btn-footer mx-2 fs-17-1920"
-                  :class="{ 'onclick-btn-footer': pType === 'quarterly' }"
-                  @click="changeview('quarterly')"
-                  v-b-tooltip.hover
-                  :title="$t('Quaterly_view')"
-                  ><div v-if="pType === 'quarterly'">
-                    {{ $t("Quaterly_view") }}
-                  </div>
-                  <div v-else>{{ $t("Q") }}</div></b-button
-                >
-                <b-button
-                  class="views-btn-footer mx-2 fs-17-1920"
-                  :class="{ 'onclick-btn-footer': pType === 'monthly' }"
-                  @click="changeview('monthly')"
-                  v-b-tooltip.hover
-                  :title="$t('Monthly_view')"
-                  ><div v-if="pType === 'monthly'">
-                    {{ $t("Monthly_view") }}
-                  </div>
-                  <div v-else>{{ $t("M") }}</div></b-button
-                >
-              </div>
-            </b-col>
           </template>
           <b-col cols="12" class="footer-col pt-1">
             <div
@@ -373,65 +310,6 @@
               </b-dropdown>
             </div>
           </div>
-          <div class="mr-2 d-none">
-            <b-button
-              v-if="$store.state.financialYear.includes('April')"
-              class="views-btn-footer mx-2 fs-17-1920"
-              :class="{ 'onclick-btn-footer': pType === 'financialYear' }"
-              @click="changeview('financialYear')"
-              v-b-tooltip.hover
-              :title="$t('financialYear')"
-              ><div v-if="pType === 'financialYear'">
-                {{ $t("financialYear") }}
-              </div>
-              <div v-else>{{ $t("FY_Apr") }}</div></b-button
-            >
-            <b-button
-              v-if="$store.state.financialYear.includes('July')"
-              class="views-btn-footer mx-2 fs-17-1920"
-              :class="{ 'onclick-btn-footer': pType === 'financialYearJuly' }"
-              @click="changeview('financialYearJuly')"
-              v-b-tooltip.hover
-              :title="$t('financialYearJuly')"
-              ><div v-if="pType === 'financialYearJuly'">
-                {{ $t("financialYearJuly") }}
-              </div>
-              <div v-else>{{ $t("FY_Jul") }}</div></b-button
-            >
-            <b-button
-              class="views-btn-footer mx-2 fs-17-1920"
-              :class="{ 'onclick-btn-footer': pType === 'yearly' }"
-              @click="changeview('yearly')"
-              v-b-tooltip.hover
-              :title="$t('Yearly_view')"
-              ><div v-if="pType === 'yearly'">
-                {{ $t("Yearly_view") }}
-              </div>
-              <div v-else>{{ $t("Y") }}</div></b-button
-            >
-            <b-button
-              class="views-btn-footer mx-2 fs-17-1920"
-              :class="{ 'onclick-btn-footer': pType === 'quarterly' }"
-              @click="changeview('quarterly')"
-              v-b-tooltip.hover
-              :title="$t('Quaterly_view')"
-              ><div v-if="pType === 'quarterly'">
-                {{ $t("Quaterly_view") }}
-              </div>
-              <div v-else>{{ $t("Q") }}</div></b-button
-            >
-            <b-button
-              class="views-btn-footer mx-2 fs-17-1920"
-              :class="{ 'onclick-btn-footer': pType === 'monthly' }"
-              @click="changeview('monthly')"
-              v-b-tooltip.hover
-              :title="$t('Monthly_view')"
-              ><div v-if="pType === 'monthly'">
-                {{ $t("Monthly_view") }}
-              </div>
-              <div v-else>{{ $t("M") }}</div></b-button
-            >
-          </div>
         </template>
         <div
           class="key-indicators mr-3"
@@ -490,11 +368,7 @@
         </div>
         <b-button
           class="applyBtn blue-btn btn btn-sm fs-15-1920"
-          style="
-            height: 38px;
-            margin-top: 21px;
-            border: none;
-          "
+          style="height: 38px; margin-top: 21px; border: none"
           @click.prevent.stop="sendDetails"
           v-if="value && monthYear"
           :disabled="!value || !monthYear"
@@ -514,6 +388,7 @@ import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 import DynamicImageMixin from "@/helpers/DynamicImageMixin";
 import loadLocChildMixin from "@/helpers/LoadLocationChildMixin";
 import {
+  pTypeList,
   excludeName,
   getLocationName,
 } from "@/components/Common/commonFunctions";
@@ -582,6 +457,7 @@ export default {
       regionalCharts: false,
       seasonalCharts: false,
       mType: "method",
+      pTypeOptions: [],
     };
   },
   computed: {
@@ -597,26 +473,6 @@ export default {
         isHide = true;
       }
       return isHide;
-    },
-    pTypeOptions() {
-      let pType = [
-        { id: "monthly", label: this.$i18n.t("monthly") },
-        { id: "quarterly", label: this.$i18n.t("quarterly") },
-        { id: "yearly", label: this.$i18n.t("yearly") },
-      ];
-      if (this.$store.state.financialYear.includes("July")) {
-        pType.push({
-          id: "financialYearJuly",
-          label: this.$i18n.t("financialYearJuly"),
-        });
-      }
-      if (this.$store.state.financialYear.includes("April")) {
-        pType.push({
-          id: "financialYear",
-          label: this.$i18n.t("financialYear"),
-        });
-      }
-      return pType;
     },
     mOptions() {
       let mType = [
@@ -671,7 +527,7 @@ export default {
         let yearsText =
           newVal === "financialYear"
             ? this.financialYearsText
-            : this.financialYearsjulyText;
+            : this.financialYearsJulyText;
 
         for (let i = currentYear - 1; i >= finalYear; i--) {
           this.periodOptions.push({
@@ -858,7 +714,7 @@ export default {
         let yearsText =
           this.pType === "financialYear"
             ? this.financialYearsText
-            : this.financialYearsjulyText;
+            : this.financialYearsJulyText;
         let p =
           this.pType === "financialYear" ? newValue : newValue.split("July")[0];
         this.periodText = `${yearsText[1]} ${p} - ${yearsText[0]} ${p * 1 + 1}`;
@@ -891,6 +747,7 @@ export default {
     },
   },
   created() {
+    this.pTypeOptions = pTypeList({});
     if (this.$i18n.locale === "fr") {
       this.lang = {
         formatLocale: {
@@ -913,7 +770,7 @@ export default {
         },
       };
       this.financialYearsText = ["mars", "avril"];
-      this.financialYearsjulyText = ["juin", "juil."];
+      this.financialYearsJulyText = ["juin", "juil."];
       this.quartersText = {
         Q1: ["janv.", "mars"],
         Q2: ["avril", "juin"],

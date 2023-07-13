@@ -71,14 +71,22 @@
                       </p>
                     </div></b-col
                   >
-                  <b-col sm="10" class="pl-3 pt-2">
+                  <b-col sm="10" class="pl-1 pt-2">
                     <b-row>
                       <b-col sm="8">
-                        <div
-                          v-b-tooltip:hover
-                          :title="summary.tabName[$i18n.locale]"
-                          class="fs-17-1920 indicator-name"
-                        >
+                        <div class="fs-17-1920 indicator-name">
+                          <sup
+                            ><i
+                              class="fa fa-info-circle color-white cursor-pointer chart-info"
+                              aria-hidden="true"
+                              v-b-popover.hover.rightbottom="{
+                                variant: 'info',
+                                content: summary.chartInfo?.[$i18n.locale] || '',
+                                title: summary.tabName[$i18n.locale],
+                                html: true,
+                              }"
+                            ></i
+                          ></sup>
                           {{ summary.tabName[$i18n.locale] }}
                         </div>
                       </b-col>
@@ -95,7 +103,7 @@
                           {{ summary.summaryDetails[0].prevForDate }}
                           <span class="float-right">{{
                             summary.summaryDetails[0].change === null
-                              ? "NA"
+                              ? $t("NA")
                               : summary.summaryDetails[0].change
                           }}</span>
                         </div>
@@ -128,7 +136,7 @@
                   @click="showMoreText(summary.id)"
                 >
                   {{
-                    showMore === summary.id ? "Read Less" : "Read More"
+                    showMore === summary.id ? $t("readLess") : $t("readMore")
                   }}</b-button
                 >
               </div>
@@ -631,6 +639,7 @@ export default {
               trend: null,
               regional: null,
               errorMsg: null,
+              chartInfo: null,
               compareData: null,
               compareDone: false,
               tabName: s.tabName,
@@ -657,6 +666,9 @@ export default {
         let obj = {
           ...this.summaryList[isFound],
           [data.chartCategory]: data.chartData,
+          chartInfo: data.chartInfo
+            ? data.chartInfo
+            : this.summaryList[isFound].chartInfo,
           chartConfigData: data.chartConfigData
             ? data.chartConfigData
             : this.summaryList[isFound].chartConfigData,

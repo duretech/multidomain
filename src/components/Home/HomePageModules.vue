@@ -38,20 +38,24 @@ export default {
   computed: {
     moduleList() {
       let permission = this.$store.getters.getUserPermissions;
-      let dashboards = this.$store.getters.getIsAdmin
-        ? ["fp", "mnch"]
-        : permission.dashboards || [];
+      let dashboards =
+        this.$store.getters.getIsAdmin ||
+        this.$store.getters.getAppSettings.bypassUser
+          ? ["fp", "mnch"]
+          : permission.dashboards || [];
       let dashboard = dashboards.find((d) =>
         this.$store.getters.getNamespace.includes(`_${d}-`)
       );
-      let m = this.$store.getters.getIsAdmin
-        ? [
-            `summary_dashboard-${dashboard}`,
-            `analytical_dashboard-${dashboard}`,
-            `DQR-${dashboard}`,
-            `mapVisualization-${dashboard}`,
-          ]
-        : permission.modules || [];
+      let m =
+        this.$store.getters.getIsAdmin ||
+        this.$store.getters.getAppSettings.bypassUser
+          ? [
+              `summary_dashboard-${dashboard}`,
+              `analytical_dashboard-${dashboard}`,
+              `DQR-${dashboard}`,
+              `mapVisualization-${dashboard}`,
+            ]
+          : permission.modules || [];
       let modules = [];
       if (m.includes(`summary_dashboard-${dashboard}`)) {
         modules.push({

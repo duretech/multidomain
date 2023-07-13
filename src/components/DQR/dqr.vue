@@ -159,7 +159,6 @@
                                     require('@/assets/images/icons/downloadcsvActive.svg')
                                   "
                                   class="w-auto mx-1 mt-lg-n1"
-                                 
                                 />
                               </span>
                               <span class="mx-1"> {{ $t("csv") }} </span>
@@ -597,6 +596,7 @@
             :locationPeriod="locationPeriod"
             v-if="
               ($store.getters.getIsAdmin ||
+                this.$store.getters.getAppSettings.bypassUser ||
                 $store.getters.getUserPermissions.canSignOff) &&
               !reportChartData
             "

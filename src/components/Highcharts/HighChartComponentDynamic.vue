@@ -978,7 +978,7 @@ export default {
                     min: _this.getMin(plotLines.options.value, yAxis.dataMin),
                   });
                 }
-                if (_this.chartConfigData.chartOptions.chartDrillDown) {
+                if (_this.chartConfigData?.chartOptions?.chartDrillDown) {
                   yAxis.update({
                     max: _this.getMax(_this.drillDownPoint, yAxis.dataMax),
                     min: _this.getMin(_this.drillDownPoint, yAxis.dataMin),
@@ -1032,7 +1032,8 @@ export default {
                     _this.drillDownPoint = s.y * 1;
                   }
                   if (s.y * 1 < y * 1) {
-                    outlier.push(`${s.name} (${s.y}%)`);
+                    let v = s.y ? `${s.y}%`: this.$i18n.t("noData")
+                    outlier.push(`${s.name} (${v})`);
                   }
                 });
                 if (outlier.length) {

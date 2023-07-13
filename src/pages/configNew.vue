@@ -74,7 +74,8 @@
                   (!$store.getters.getIsMultiProgram ||
                     ($store.getters.getIsMultiProgram &&
                       $store.getters.getNamespace ===
-                        $store.getters.getAppSettings.tableName))
+                        $store.getters.getAppSettings.tableName)) &&
+                  !$store.getters.getAppSettings.bypassUser
                 "
                 @click="showTabsBtns(false)"
               >

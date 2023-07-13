@@ -952,7 +952,13 @@
           v-if="$route.name === 'SavedFavorites'"
         >
           <div class="link-container fav-sideicons">
-            <div class="link" v-if="$store.getters.getIsAdmin">
+            <div
+              class="link"
+              v-if="
+                $store.getters.getIsAdmin ||
+                $store.getters.getAppSettings.bypassUser
+              "
+            >
               <div>
                 <b-button
                   class="sidebar-item my-3 fs-17-1920"
@@ -1032,6 +1038,7 @@
               class="link"
               v-if="
                 $store.getters.getIsAdmin ||
+                $store.getters.getAppSettings.bypassUser ||
                 $store.getters.getUserPermissions.canGenerateReport
               "
             >
@@ -1060,6 +1067,7 @@
               class="link"
               v-if="
                 $store.getters.getIsAdmin ||
+                $store.getters.getAppSettings.bypassUser ||
                 $store.getters.getUserPermissions.canGenerateReport
               "
             >

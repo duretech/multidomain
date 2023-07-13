@@ -393,7 +393,12 @@ export default {
           })
           .then(() => {
             this.setLocale();
-            if (!this.$store.getters.getIsAdmin) {
+            if (
+              !(
+                this.$store.getters.getIsAdmin &&
+                this.$store.getters.getAppSettings.bypassUser
+              )
+            ) {
               this.setUserPermissions();
             }
           })
@@ -425,7 +430,12 @@ export default {
           });
       } else {
         this.setLocale();
-        if (!this.$store.getters.getIsAdmin) {
+        if (
+          !(
+            this.$store.getters.getIsAdmin &&
+            this.$store.getters.getAppSettings.bypassUser
+          )
+        ) {
           this.setUserPermissions();
         }
       }
