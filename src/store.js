@@ -331,8 +331,11 @@ export default new Vuex.Store({
     getApplicationModule:
       (state, getters) =>
       (isFromDefault = false) => {
+        let m = !isFromDefault ? getters.getAppSettings.modulesList[0] : null;
         let key = isFromDefault
           ? getters.getAppSettings.tableName
+          : m
+          ? `${getters.getAppSettings.tableName}_${m}-dashboard`
           : state.namespace;
         return state.applicationModule[key]
           ? process.env.NODE_ENV !== "production"

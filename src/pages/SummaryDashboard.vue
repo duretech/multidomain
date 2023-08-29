@@ -22,7 +22,7 @@
           :locationPeriod="locationPeriod"
           :reportChartData="reportChartData"
           v-if="configData && locationPeriod"
-          @updateToolBar="updateToolBar" 
+          @updateToolBar="updateToolBar"
         />
       </b-container>
     </div>
@@ -190,9 +190,9 @@ export default {
           this.reFetchConfig(err); //* In case of network error, shows the popup to refresh and fetch the summaryDashboard.json datastore file
         });
     },
-    updateToolBar(updatedVal){
-      this.updateLocPer = updatedVal
-    }
+    updateToolBar(updatedVal) {
+      this.updateLocPer = updatedVal;
+    },
   },
   async created() {
     if (!this.reportChartData) {
@@ -204,8 +204,12 @@ export default {
         this.$store.commit("setActiveTab", this.activeTab);
       });
     }
+    let namespace = "";
+    if (this.reportChartData) {
+      namespace = this.reportChartData.selectedDashboard;
+    }
     this.globalPeriodData =
-      this.$store.getters.getGlobalFactors().period.Period; //Get period from global factors
+      this.$store.getters.getGlobalFactors(namespace).period.Period; //Get period from global factors
     //Condition to call this component from Report section vs direct component visit
     if (
       !this.reportChartData ||

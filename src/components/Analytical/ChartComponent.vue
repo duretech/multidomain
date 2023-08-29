@@ -313,8 +313,12 @@ export default {
       this.isError = false;
     },
     async setBenchmarks({ benchmarkValue, chartData, chartOptions }) {
+      let namespace = "";
+      if (this.reportChartData) {
+        namespace = this.reportChartData.selectedDashboard;
+      }
       let plotLines = [],
-        allBenchmarks = this.$store.getters.getGlobalFactors().allBenchmarks;
+        allBenchmarks = this.$store.getters.getGlobalFactors(namespace).allBenchmarks;
       for (const b of chartOptions.benchmarks) {
         let isFound = allBenchmarks.benchmarks.find((a) => b.includes(a.id));
         if (isFound) {

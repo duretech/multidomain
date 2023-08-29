@@ -202,8 +202,12 @@ export default {
           console.log("Failed in getGlobalFactors()...");
         });
     }
+    let namespace = "";
+    if (this.reportChartData) {
+      namespace = this.reportChartData.selectedDashboard;
+    }
     this.globalPeriodData =
-      this.$store.getters.getGlobalFactors().period.Period;
+      this.$store.getters.getGlobalFactors(namespace).period.Period;
     if (
       !this.reportChartData ||
       (this.reportChartData && !this.reportConfigData)

@@ -62,7 +62,13 @@ export const getDateRange = ({
 };
 
 export const getAppFinalYear = () => {
-  let globalPeriodData = store.getters.getGlobalFactors().period.Period;
+  let namespace = "";
+  if (!store.getters.getIsMultiProgram) {
+    let m = store.getters.getAppSettings.modulesList[0];
+    namespace = `${m}-dashboard`;
+  }
+  let globalPeriodData =
+    store.getters.getGlobalFactors(namespace).period.Period;
   return globalPeriodData
     ? moment(new Date(globalPeriodData.backtrackedLimitedDate), "YYYY").format(
         "YYYY"

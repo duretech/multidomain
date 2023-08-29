@@ -636,7 +636,13 @@ export default {
       }
     },
     setPeriod(newVal) {
-      let period = this.$store.getters.getGlobalFactors().period.Period,
+      let namespace = "";
+      if (!this.$store.getters.getIsMultiProgram) {
+        let m = this.$store.getters.getAppSettings.modulesList[0];
+        namespace = `${m}-dashboard`;
+      }
+      let period =
+          this.$store.getters.getGlobalFactors(namespace).period.Period,
         periodObj = {
           defaultPeriod: null,
           calculatedPeriod: null,
