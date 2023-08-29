@@ -876,17 +876,16 @@ class DataService {
     // If user has permission below the organisation level [levelID] set in the 'applicationModule' config file, then we need to load the application with the organisation allowed to the user under the 'dataViewOrganisationUnits' array which we will get in the 'me.json' API response [See getLoggedInUser()], else the application will load with the organisation set in the 'applicationModule' config file.
     let isFromDefault = store.getters.getIsMultiProgram ? true : false;
     let appData = store.getters.getApplicationModule(isFromDefault);
+    let uData = store.getters.getUserDetails,
+      uLevel = uData?.dataViewOrganisationUnits?.[0]?.level || 0;
     let locationID = appData.defaultLocationID[0],
       levelID = appData.defaultLevelID,
       subLevelID = appData.subLevelID;
-    if (
-      store.getters.getUserDetails.dataViewOrganisationUnits[0].level >
-      appData.defaultLevelID
-    ) {
-      locationID = store.getters.getUserDetails.dataViewOrganisationUnits[0].id;
-      levelID = store.getters.getUserDetails.dataViewOrganisationUnits[0].level;
-      subLevelID =
-        store.getters.getUserDetails.dataViewOrganisationUnits[0].level * 1 + 1;
+    console.log("uLevel", uLevel);
+    if (uLevel && uLevel > appData.defaultLevelID) {
+      locationID = uData.dataViewOrganisationUnits[0].id;
+      levelID = uData.dataViewOrganisationUnits[0].level;
+      subLevelID = uData.dataViewOrganisationUnits[0].level * 1 + 1;
     }
     return { locationID, levelID, subLevelID };
   }

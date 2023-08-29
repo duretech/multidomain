@@ -151,8 +151,6 @@ export default new Vuex.Store({
           : LZString.compressToUTF16(JSON.stringify(payload));
     },
     setIsMultiProgram(state, payload) {
-      console.log("state", state);
-      console.log("payload", payload);
       state.isMultiProgram =
         process.env.NODE_ENV !== "production"
           ? payload

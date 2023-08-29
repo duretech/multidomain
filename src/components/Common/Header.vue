@@ -52,7 +52,12 @@
               </span>
             </template>
             <b-dropdown-text class="text-center font-14">
-              <b-avatar variant="primary"></b-avatar>
+              <div class="profilebox-upper">
+                  <div class="profilebox-upper-left">
+                    <div class="text-body">{{ profileInitials }}</div>
+                  </div>
+                </div>
+              <!-- <b-avatar variant="primary"></b-avatar> -->
               <div class="text-capitalize pt-1">
                 {{ userName }}
               </div>

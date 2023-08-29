@@ -338,7 +338,7 @@ export default {
               displayName: response.data.modules[i].displayName,
               name: response.data.modules[i].name,
               icon: response.data.modules[i].icon,
-              defaultAction: path.includes("https://") ? path : "../../" + path,
+              defaultAction: path.includes("https://") || path.includes("http://") ? path : "../../" + path,
             });
             vm.tempArray = [...vm.menuArray];
           } else {
