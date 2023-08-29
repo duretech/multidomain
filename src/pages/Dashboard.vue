@@ -671,20 +671,24 @@ export default {
         //Get periods from default admin
         let defaultGlobalData = this.$store.getters.getGlobalFactors("", true);
         let FinalPeriodArray = [];
-        FinalPeriodArray = getAllPeriodRange(
-          defaultGlobalData.period.Period,
-          FinalPeriodArray
-        );
+        if (Object.keys(defaultGlobalData).length) {
+          FinalPeriodArray = getAllPeriodRange(
+            defaultGlobalData.period.Period,
+            FinalPeriodArray
+          );
+        }
 
         let key = this.generateKey("globalFactors");
         let response = service.getSavedConfig({ tableKey: key });
         response
           .then(async (response) => {
             //Get periods from the FP/MCH admin
-            FinalPeriodArray = getAllPeriodRange(
-              response.data.period.Period,
-              FinalPeriodArray
-            );
+            if (response?.data?.period?.Period) {
+              FinalPeriodArray = getAllPeriodRange(
+                response.data.period.Period,
+                FinalPeriodArray
+              );
+            }
             let { locationID } = service.getAllowedLocation(),
               des = null;
             for (let map in response.data.globalMappings.mappings) {

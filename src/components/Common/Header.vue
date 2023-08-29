@@ -283,7 +283,7 @@
                   </div>
                 </div>
                 <!-- <b-avatar variant="primary"></b-avatar> -->
-                <div class="text-capitalize">
+                <div class="text-capitalize pt-1">
                   {{ userName }}
                 </div>
                 <div>
@@ -460,7 +460,9 @@ export default {
     profileInitials() {
       let p = "",
         u = this.$store.getters.getUserDetails;
-      p = u.firstName[0].toUpperCase() + u.surname[0].toUpperCase();
+      if (u) {
+        p = u.firstName[0].toUpperCase() + u.surname[0].toUpperCase();
+      }
       return p;
     },
     manuals() {
@@ -640,7 +642,7 @@ export default {
 }
 .profilebox-upper-left {
   display: inline-block;
-  margin: 15px 20px;
+  // margin: 15px 20px;
   vertical-align: top;
   width: 50px;
   font-size: 20px;
