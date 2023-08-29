@@ -503,6 +503,8 @@ export default {
           });
       } else {
         this.appData = this.$store.getters.getApplicationModule();
+        // Set the theme on hot-reload
+        service.applyTheme();
         this.getLocationList();
       }
     },
@@ -531,8 +533,6 @@ export default {
       }
       this.getOrgLevels();
       this.getGlobalFactors();
-      // Set the theme on hot-reload
-      service.applyTheme();
     },
     /**
      * Get Org levels

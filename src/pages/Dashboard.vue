@@ -601,6 +601,8 @@ export default {
           });
       } else {
         this.appData = this.$store.getters.getApplicationModule();
+        // Set the theme on hot-reload
+        service.applyTheme();
         if (this.$store.getters.getIsMultiProgram) {
           this.getLocationList();
         } else {
@@ -636,8 +638,6 @@ export default {
         this.getDynamicModules();
       }
       this.getGlobalFactors();
-      // Set the theme on hot-reload
-      service.applyTheme();
     },
     /**
      * Get Org levels
