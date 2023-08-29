@@ -172,7 +172,7 @@ export default {
     },
     setOrgData(orgList) {
       let filterLevel =
-          this.$store.getters.getUserDetails.dataViewOrganisationUnits[0].level,
+          this.$store.getters.getUserDetails?.dataViewOrganisationUnits?.[0]?.level || 0,
         defaultLevelID = this.$store.getters.getApplicationModule(
           this.$store.getters.getIsMultiProgram
         ).defaultLevelID;

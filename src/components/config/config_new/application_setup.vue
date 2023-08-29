@@ -522,12 +522,12 @@ export default {
             locationID = data.defaultLocationID[0],
             levelID = data.defaultLevelID,
             subLevelID = data.subLevelID,
-            userDetails =
-              this.$store.getters.getUserDetails.dataViewOrganisationUnits[0];
-          if (userDetails && userDetails.level > data.defaultLevelID) {
-            locationID = userDetails.id;
-            levelID = userDetails.level;
-            subLevelID = userDetails.level * 1 + 1;
+            uData = this.$store.getters.getUserDetails,
+            uLevel = uData?.dataViewOrganisationUnits?.[0]?.level || 0;
+          if (uLevel && uLevel > data.defaultLevelID) {
+            locationID = uData.dataViewOrganisationUnits[0].id;
+            levelID = uData.dataViewOrganisationUnits[0].level;
+            subLevelID = uData.dataViewOrganisationUnits[0].level * 1 + 1;
           }
           this.applicationModule = {
             ...data,
