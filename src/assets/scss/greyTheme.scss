@@ -242,6 +242,9 @@ body[data-theme~="grey"] {
             background-color:var(--bg-main-color) !important;
         }
 
+
+        
+
     }  
      
     .explore-col{
@@ -840,6 +843,7 @@ body[data-theme~="grey"] {
        .modal-content .modal-body .btn-secondary.move-btn-right,
        .v-tour .v-step__button.v-step__button-skip,  
        .grey-btn,
+       .adminsection-modal .btn-primary:active,
        .modal-content .modal-body .btn-secondary.grey-btn{
        
            background-color: var(--main-header-color) !important;
@@ -953,6 +957,10 @@ body[data-theme~="grey"] {
             background: transparent !important;
         }
 
+        }
+
+        .integratedFamilyWrap {
+            background: linear-gradient(0deg, rgba(50, 59, 71, 0.8), rgba(50, 59, 71, 0.8)),url(../images/grey-theme/bg-inimg.png) !important;
         }
 
         .interactive-page{ 
@@ -1420,15 +1428,6 @@ body[data-theme~="grey"] {
                 border: none !important;
             }
 
-            .md_nested_tabs .border{
-              
-                .collapse-section-border{
-                    border: 1px solid var(--footer-components-color) !important;
-                }
-    
-              
-            }
-
             .md_nested_tabs .md_tabs .card-header.nav-pills li a.active{
             
                 background-color: var(--maindropdown-bg-color) !important;
@@ -1495,11 +1494,11 @@ body[data-theme~="grey"] {
                         background-color: var(--signoff-top-card) !important;
                     }
 
-                    .card .accordion .card-header{
-                        border-top-left-radius:0% !important;
-                        border-top-right-radius: 0% !important;
+                    // .card .accordion .card-header{
+                    //     border-top-left-radius:0% !important;
+                    //     border-top-right-radius: 0% !important;
             
-                    }    
+                    // }    
                     
                     .card .card-header.adminConfigInner{
                         background-color: transparent !important;
@@ -1581,15 +1580,6 @@ body[data-theme~="grey"] {
                 background: var(--signoff-top-card) !important;
             }
 
-    .md_nested_tabs .collapse-section-border,
-    .map-admin .map-fpadmin,
-    .map-fpborder,
-    #collapseChartSettings .indicator-main,
-    .scalesTabSection .card-body{
-        border: 1px solid var(--footer-components-color ) !important;
-    }
-
-    .map-fpborder,
     .border-admin .card{
         border-right-color: var(--footer-components-color ) !important;
         border-bottom-color: var(--footer-components-color ) !important;

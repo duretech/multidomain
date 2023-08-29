@@ -1,6 +1,6 @@
 export const commonChartConfig = {
   chart: {
-    type: "line",
+    type: "spline",
     zoomType: "x",
   },
   title: {
@@ -633,7 +633,7 @@ export const integratedChartConfig = {
     },
     {
       name: "Benchmark",
-      type: "line",
+      type: "spline",
       data: [],
       lineWidth: 0,
       states: { hover: { lineWidthPlus: 0 } },
@@ -902,8 +902,8 @@ export const basicChartConfig = {
   },
   line: {
     chart: {
-      type: "line",
-      oType: "line",
+      type: "spline",
+      otype: "spline",
       zoomType: "x",
     },
     title: {

@@ -30,7 +30,7 @@ export default {
     uploadData(key, newData) {
       if (key) {
         service
-          .getSavedConfig(key)
+          .getSavedConfig({ tableKey: key })
           .then((response) => {
             let data =
               typeof response.data.rows == "string"
@@ -76,7 +76,7 @@ export default {
 
             data.rows = JSON.stringify(compress(updatedData));
             service
-              .updateConfig(data, key)
+              .updateConfig({ data: data, tableKey: key })
               .then((response) => {
                 if (response.data.status === "OK") {
                   this.sweetAlert({
@@ -120,7 +120,7 @@ export default {
               ],
               rows: JSON.stringify(compress(newData)),
             };
-            let response = service.saveConfig(data, key);
+            let response = service.saveConfig({ data: data, tableKey: key });
             response
               .then((response) => {
                 if (response.data.status === "OK") {

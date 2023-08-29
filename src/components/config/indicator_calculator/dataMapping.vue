@@ -49,9 +49,10 @@
                     ></b-form-select>
                   </div>
                   <!-- @change="updateDDT(type , $e.target.value)" -->
+                  <!-- removed d-flex  card for 'hide' class prperty css to be get applied for -->
                   <div
                     v-if="dqrConfig.emu[type]['dataOnContraceptive'] === 'Yes'"
-                    class="d-flex justify-content-between align-items-center my-2"
+                    class="justify-content-between align-items-center my-2 hide"
                   >
                     <div class="w-50">{{ $t("emu_initial_year_quest") }}</div>
                     <b-form-input
@@ -66,7 +67,7 @@
                   </div>
                   <div
                     v-if="dqrConfig.emu[type]['dataOnContraceptive'] === 'Yes'"
-                    class="d-flex justify-content-between align-items-center my-2"
+                    class="justify-content-between align-items-center my-2 hide"
                   >
                     <div class="w-50">{{ $t("emu_final_year_quest") }}</div>
                     <b-form-input
@@ -80,7 +81,7 @@
                   </div>
                   <div
                     v-if="dqrConfig.emu[type]['dataOnContraceptive'] === 'Yes'"
-                    class="d-flex justify-content-between align-items-center my-2"
+                    class="justify-content-between align-items-center my-2 hide"
                   >
                     <div class="w-50">
                       {{ $t("mostRecentYearMonth") }}
@@ -94,9 +95,10 @@
                       disabled
                     ></b-form-input>
                   </div>
+                  <!-- Hided above three year fields as global period setting is getting used -->
                   <div
                     v-if="dqrConfig.emu[type]['dataOnContraceptive'] === 'Yes'"
-                    class="d-flex justify-content-between align-items-center my-2"
+                    class="justify-content-between align-items-center my-2 hide"
                   >
                     <div class="w-50">{{ $t("backtrackingMonth") }}</div>
                     <b-form-select
@@ -628,6 +630,7 @@
       hide-footer
       centered
       :title="$t('selectLocation')"
+      no-close-on-backdrop
     >
       <div class="d-block text-left">
         <treeselect
@@ -659,6 +662,7 @@
           :items="items"
           :fields="fields"
           show-empty
+          :empty-text="$t('no_data_to_display')"
         >
         </b-table>
       </div>
@@ -668,6 +672,7 @@
       hide-footer
       centered
       :title="$t('selectLocation')"
+      no-close-on-backdrop
     >
       <div class="d-block text-left default-button modaladmin-heading">
         <h5>{{ $t("selectLocation") }}</h5>
@@ -701,6 +706,7 @@
           :items="monthlyItems"
           :fields="monthlyFields"
           show-empty
+          :empty-text="$t('no_data_to_display')"
         >
         </b-table>
       </div>
@@ -1030,7 +1036,11 @@ export default {
       this.$store.commit("setLoading", true);
       let key = this.generateKey("dqrModule");
       service
-        .updateConfig(this.dqrConfig, key, false, "fp-dashboard")
+        .updateConfig({
+          data: this.dqrConfig,
+          tableKey: key,
+          namespace: "fp-dashboard",
+        })
         .then((resp) => {
           if (resp.data.status === "OK") {
             this.$store.commit("setLoading", false);
@@ -1041,7 +1051,11 @@ export default {
         })
         .catch((err) => {
           service
-            .saveConfig(this.dqrConfig, key, false, "fp-dashboard")
+            .saveConfig({
+              data: this.dqrConfig,
+              tableKey: key,
+              namespace: "fp-dashboard",
+            })
             .then((resp) => {
               if (resp.data.status === "OK") {
                 this.$store.commit("setLoading", false);
@@ -1071,10 +1085,32 @@ export default {
         this.EMUResponse = null;
         this.setItems = [];
         let locs = this.selectedNode.join(";");
-        let pes = dataM.getYearFormated(
-          this.dqrConfig.emu[this.type]["initialYear"],
-          this.dqrConfig.emu[this.type]["finalYear"]
-        );
+        let periodData = this.$store.getters.getGlobalFactors(
+          "fp-dashboard",
+          false
+        ).period.Period;
+        let d = new Date();
+        if (this.$store.getters.getAppSettings.calendar === "nepali") {
+          d = new NepaliDate(
+            new Date(d.getFullYear(), d.getMonth() + 1, d.getDate())
+          ).getBS();
+          let nplMonth = d.month;
+          let nplYear = d.year;
+          let zeroForMonth = nplMonth < 10 ? "0" + nplMonth : nplMonth;
+          d = d.year + "" + zeroForMonth;
+        }
+        let recentYearMonth = this.$moment(d, "YYYYMM")
+          .subtract(periodData.backtrackedMonth * 1, "months")
+          .format("YYYY-MM");
+        let recentYear =
+          recentYearMonth.split("-")[1] != 12
+            ? recentYearMonth.split("-")[0] * 1 - 1
+            : recentYearMonth.split("-")[0];
+        let startYear = this.$moment(recentYearMonth, "YYYY-MM")
+          .subtract(periodData.backtrackedYearLimit * 1, "years")
+          .format("YYYY");
+
+        let pes = dataM.getYearFormated(startYear, recentYear);
         let tp =
           this.type === "Commodities_Client"
             ? "Commodities Client"
@@ -1122,18 +1158,42 @@ export default {
         this.EMUResponse = null;
         this.setItems = [];
         let locs = this.selectedNode.join(";");
-        let startDate = this.$moment(
-            this.dqrConfig.emu_monthly[this.type]["initialYear"]
-          ),
-          endDate = this.$moment(
-            this.dqrConfig.emu_monthly[this.type]["finalYear"]
-          ).add(1, "year"),
-          months = [];
+        // let startDate = this.$moment(
+        //     this.dqrConfig.emu_monthly[this.type]["initialYear"]
+        //   ),
+        //   endDate = this.$moment(
+        //     this.dqrConfig.emu_monthly[this.type]["finalYear"]
+        //   ).add(1, "year"),
+        let periodData = this.$store.getters.getGlobalFactors(
+          "fp-dashboard",
+          false
+        ).period.Period;
+        let d = new Date();
+        if (this.$store.getters.getAppSettings.calendar === "nepali") {
+          d = new NepaliDate(
+            new Date(d.getFullYear(), d.getMonth() + 1, d.getDate())
+          ).getBS();
+          let nplMonth = d.month;
+          let nplYear = d.year;
+          let zeroForMonth = nplMonth < 10 ? "0" + nplMonth : nplMonth;
+          d = d.year + "" + zeroForMonth;
+        }
+        let recentYearMonth = this.$moment(d, "YYYYMM")
+          .subtract(periodData.backtrackedMonth * 1, "months")
+          .format("YYYYMM");
 
-        while (startDate.isBefore(endDate)) {
+        let startYear = this.$moment(recentYearMonth, "YYYYMM")
+          .subtract(periodData.backtrackedYearLimit * 1, "years")
+          .format("YYYYMM");
+        let startDate = this.$moment(startYear),
+          recentYear = this.$moment(recentYearMonth).add(1, "month"),
+          months = [];
+        console.log(startYear, recentYearMonth);
+        while (startDate.isBefore(recentYear)) {
           months.push(startDate.format("YYYYMM"));
           startDate.add(1, "month");
         }
+        console.log(months, "months array");
         let sYear = months.join(";");
         let tp =
           this.type === "Commodities_Client"
@@ -1189,7 +1249,11 @@ export default {
       console.log(repoData);
       let key = this.generateKey("annualSectorReporting");
       service
-        .updateConfig(newObj, key, false, "fp-dashboard")
+        .updateConfig({
+          data: newObj,
+          tableKey: key,
+          namespace: "fp-dashboard",
+        })
         .then((resp) => {
           this.$store.commit("setLoading", true);
           if (resp.data.status === "OK") {

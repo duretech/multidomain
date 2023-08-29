@@ -3,7 +3,7 @@
     <b-row
       class="mb-3"
       v-for="(chart, c) in settings"
-      :key="configKey + chart.chartOptions.cid"
+      :key="configKey + i + j + c + chart.chartOptions.cid"
     >
       <b-col sm="12">
         <div>
@@ -51,6 +51,7 @@
                 tInd: i,
                 stInd: j,
                 delInd: c,
+                subTabGroup: subTabGroup,
               })
             "
           />
@@ -78,7 +79,7 @@
                   $t("disable")
                 }}</label>
               </b-col>
-              <b-col sm="9">
+              <b-col sm="9" class="ml-40px mt-lg-n2">
                 <b-input-group :id="`visible-${configKey}-${i}-${j}-${c}`">
                   <b-input-group-prepend
                     is-text
@@ -100,16 +101,18 @@
                 <b-row>
                   <b-col sm="12" class="mb-3">
                     <b-row>
-                      <b-col sm="3">
+                      <b-col sm="2">
                         <label
                           :for="`chartHeading-${configKey}-${i}-${j}-${c}`"
                           >{{ $t("chartHeading") }}</label
                         >
                       </b-col>
-                      <b-col sm="9">
+                      <b-col sm="10">
                         <b-input-group
                           :id="`chartHeading-${configKey}-${i}-${j}-${c}`"
+                        
                         >
+                        
                           <b-form-textarea
                             v-model="chart.chartOptions.chartName[$i18n.locale]"
                             :state="
@@ -123,6 +126,7 @@
                             rows="3"
                             :maxlength="chartTitleMaxLength"
                             disabled
+                            class="ml-37px"
                           ></b-form-textarea>
                           <b-input-group-append is-text>
                             <Translations
@@ -130,7 +134,7 @@
                             />
                           </b-input-group-append>
                         </b-input-group>
-                        <span class="small"
+                        <span class="small ml-37px"
                           >{{
                             chart.chartOptions.chartName[$i18n.locale]
                               ? chart.chartOptions.chartName[$i18n.locale]
@@ -138,22 +142,24 @@
                               : 0
                           }}/{{ chartTitleMaxLength }}</span
                         >
+                       
                       </b-col>
                     </b-row>
                   </b-col>
                   <b-col sm="12" class="mb-3">
                     <b-row>
-                      <b-col sm="3">
+                      <b-col sm="2">
                         <label
                           :for="`chartInformation-${configKey}-${i}-${j}-${c}`"
                           >{{ $t("chartInformation") }}</label
                         >
                       </b-col>
-                      <b-col sm="9">
+                      <b-col sm="10" class="input-lang">
                         <b-input-group
                           :id="`chartInformation-${configKey}-${i}-${j}-${c}`"
+                          class="ml-37px"
                         >
-                          <b-form-textarea
+                          <!-- <b-form-textarea
                             v-model="chart.chartOptions.chartInfo[$i18n.locale]"
                             :state="
                               chart.chartOptions.chartInfo[$i18n.locale] &&
@@ -166,21 +172,33 @@
                             rows="3"
                             :maxlength="chartInfoMaxLength"
                             disabled
-                          ></b-form-textarea>
+                          ></b-form-textarea> -->
+                          <vue-editor
+                            v-model="chart.chartOptions.chartInfo[$i18n.locale]"
+                            :state="
+                              chart.chartOptions.chartInfo &&
+                              chart.chartOptions.chartInfo[$i18n.locale] &&
+                              chart.chartOptions.chartInfo[$i18n.locale]
+                                .length !== 0
+                            "
+                            :editorToolbar="customToolbar"
+                            disabled
+                          ></vue-editor>
                           <b-input-group-append is-text>
                             <Translations
                               :transText.sync="chart.chartOptions.chartInfo"
+                              type="editor"
                             />
                           </b-input-group-append>
                         </b-input-group>
-                        <span class="small"
+                        <!-- <span class="small"
                           >{{
                             chart.chartOptions.chartInfo[$i18n.locale]
                               ? chart.chartOptions.chartInfo[$i18n.locale]
                                   .length
                               : 0
                           }}/{{ chartInfoMaxLength }}</span
-                        >
+                        > -->
                       </b-col>
                     </b-row>
                   </b-col>
@@ -196,15 +214,16 @@
                     "
                   >
                     <b-row>
-                      <b-col sm="6">
+                      <b-col sm="3">
                         <label
                           :for="`isSavedData-${configKey}-${i}-${j}-${c}`"
                           >{{ $t("useSavedEMU") }}</label
                         >
                       </b-col>
-                      <b-col sm="6">
+                      <b-col sm="9">
                         <b-input-group
                           :id="`isSavedData-${configKey}-${i}-${j}-${c}`"
+                          class="ml-45px"
                         >
                           <b-input-group-prepend is-text>
                             <b-form-checkbox
@@ -229,11 +248,12 @@
                     <b-row>
                       <b-col sm="3">
                         <label
+                          class="mb-0 mt-2"
                           :for="`isSingleSource-${configKey}-${i}-${j}-${c}`"
                           >{{ $t("singleSource") }}</label
                         >
                       </b-col>
-                      <b-col sm="9" style="margin-left: -13px">
+                      <b-col sm="9" class="ml-45px">
                         <b-input-group
                           :id="`isSingleSource-${configKey}-${i}-${j}-${c}`"
                         >
@@ -271,6 +291,7 @@
                         <!-- :load-options="loadOptions" -->
                         <!-- :always-open="true" -->
                         <treeselect
+                          class="ml-40px"
                           :id="`chartDataMapping-${configKey}-${i}-${j}-${c}`"
                           :flat="true"
                           :multiple="true"
@@ -335,6 +356,7 @@
                         <!-- :auto-load-root-options="false" -->
                         <!-- :load-options="loadOptions" -->
                         <treeselect
+                          class="ml-40px"
                           :id="`chartDataMapping2-${configKey}-${i}-${j}-${c}`"
                           :flat="true"
                           :multiple="true"
@@ -421,9 +443,9 @@
                   <b-col sm="12" lg="6" class="mb-3">
                     <b-row>
                       <b-col sm="5">
-                        <label :for="`chartType-${configKey}-${i}-${j}-${c}`"
-                          >{{ $t("chart") }} {{ $t("type") }}</label
-                        >
+                        <label :for="`chartType-${configKey}-${i}-${j}-${c}`">{{
+                          $t("chartType")
+                        }}</label>
                       </b-col>
                       <b-col sm="7">
                         <b-form-select
@@ -928,9 +950,9 @@
                             :flat="true"
                             :multiple="true"
                             :show-count="true"
-                            sort-value-by="INDEX"
                             :default-expand-level="1"
                             :placeholder="$t('search')"
+                            sort-value-by="ORDER_SELECTED"
                             :auto-load-root-options="false"
                             v-model="chart.chartOptions.benchmarks"
                             :options="
@@ -1329,7 +1351,8 @@
                             ['regional'].includes(
                               chart.chartOptions.chartCategory
                             ) &&
-                            subTabGroup.includes('-CC-') &&
+                            (subTabGroup.includes('-CC-') ||
+                              subTabGroup.includes('-FAC-CCFacility')) &&
                             ['scatter'].includes(chart.chartOptions.type)))
                       "
                     >
@@ -1560,7 +1583,9 @@
                         ) &&
                         chart.chartOptions.chartCalculation === 'DEFAULT' &&
                         (subTabGroup.includes('-CT-') ||
-                          subTabGroup.includes('-IC-'))
+                          subTabGroup.includes('-IC-') ||
+                          subTabGroup.includes('-FAC-CTFacility') ||
+                          subTabGroup.includes('-FAC-ICFacility'))
                       "
                     >
                       <b-row>
@@ -1770,7 +1795,7 @@
                         {{ $t("scales") }}
                       </b-col>
                       <b-col sm="9" class="mb-3">
-                        <b-tabs class="charts-tabs">
+                        <b-tabs class="charts-tabs ml-40px">
                           <!-- content-class="mt-3" -->
                           <b-tab
                             v-for="(levelScale, levelIndex) in chart
@@ -1848,7 +1873,7 @@
                                         <b-form-input
                                           type="number"
                                           min="4"
-                                          max="9"
+                                          max="4"
                                           v-model="shadesNumber"
                                         ></b-form-input>
                                         <b-input-group-append
@@ -1859,7 +1884,7 @@
                                             v-model="shadesNumber"
                                             type="range"
                                             min="4"
-                                            max="9"
+                                            max="4"
                                             step="1"
                                           ></b-form-input>
                                         </b-input-group-append>
@@ -2262,31 +2287,31 @@
   </div>
 </template>
 <script>
+import { VueEditor } from "vue2-editor";
 import Treeselect from "@riophae/vue-treeselect";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 import DynamicImageMixin from "@/helpers/DynamicImageMixin";
+import VueEditorOptionMixin from "@/helpers/VueEditorOptionMixin";
 
 export default {
   props: [
     "i",
     "j",
-    "copy",
     "tabs",
     "tabId",
-    "copyTo",
     "subTabId",
     "moveItem",
     "settings",
     "moduleKey",
     "configKey",
     "subTabGroup",
-    "levelsSelect",
     "applyPalette",
     "deleteElement",
     "updateBenchmarks",
   ],
-  mixins: [DynamicImageMixin],
+  mixins: [DynamicImageMixin, VueEditorOptionMixin],
   components: {
+    VueEditor,
     Treeselect,
     Translations: () =>
       import(
@@ -2295,13 +2320,18 @@ export default {
   },
   data() {
     return {
+      copyToKey: "",
+      copyLevels: [],
       shadesNumber: 4,
+      levelsSelect: [],
       showShades: false,
       allMappings: null,
       percentageLight: 40,
       selectedLevel: null,
+      selectedTreeLevel: [],
+      selectedCopyOption: [],
       paletteColor: "#00ff80",
-      chartInfoMaxLength: 200,
+      // chartInfoMaxLength: 200,
       chartTitleMaxLength: 100,
       predefinedShades: [
         ["#d4ffff", "#acefff", "#84c7ff", "#5c9fef"],
@@ -2633,6 +2663,68 @@ export default {
     },
   },
   methods: {
+    copyTo({ tInd, stInd, cmInd, key = "chartSetting" }) {
+      this.copyToKey = key;
+      this.levelsSelect = this.tabs[tInd].subTabs[stInd][key][
+        cmInd
+      ].chartOptions.levels.map((l) => ({
+        text: l.levelName,
+        value: l.level,
+      }));
+      this.copyLevels =
+        this.tabs[tInd].subTabs[stInd][key][cmInd].chartOptions.levels;
+      this.selectedLevel = null;
+      this.selectedTreeLevel = [];
+      this.selectedCopyOption = [];
+      this.$nextTick(() => {
+        this.$bvModal.show("copyToModal" + tInd + stInd + cmInd);
+      });
+    },
+    copy({ tInd, stInd, cmInd }) {
+      let mData = JSON.parse(
+        JSON.stringify(this.tabs[tInd].subTabs[stInd][this.copyToKey][cmInd])
+      );
+      let levels = mData.chartOptions.levels,
+        sourceLevel = levels.filter((l) => l.level === this.selectedLevel),
+        targetLevel = levels.filter((l) =>
+          this.selectedTreeLevel.includes(l.level)
+        ),
+        updatedTargetLevels = [],
+        pendingLevel = levels.filter(
+          (l) => !this.selectedTreeLevel.includes(l.level)
+        );
+      targetLevel.forEach((t) => {
+        let updatedScale = [];
+        t.scales.forEach((s, j) => {
+          if (this.selectedCopyOption.includes("labels")) {
+            s = { ...s, scaleLabel: sourceLevel[0].scales[j].scaleLabel };
+          }
+          if (this.selectedCopyOption.includes("range")) {
+            s = {
+              ...s,
+              highScale: sourceLevel[0].scales[j].highScale,
+              lowScale: sourceLevel[0].scales[j].lowScale,
+            };
+          }
+          if (this.selectedCopyOption.includes("colors")) {
+            s = { ...s, scaleColor: sourceLevel[0].scales[j].scaleColor };
+          }
+          updatedScale[j] = s;
+        });
+        updatedTargetLevels.push({ ...t, scales: updatedScale });
+      });
+      let finalLevels = [...pendingLevel, ...updatedTargetLevels].sort(
+        (a, b) => {
+          return a.level < b.level ? -1 : a.level == b.level ? 0 : 1;
+        }
+      );
+      this.tabs[tInd].subTabs[stInd][this.copyToKey][
+        cmInd
+      ].chartOptions.levels = finalLevels;
+      this.$nextTick(() => {
+        this.$bvModal.hide("copyToModal" + tInd + stInd + cmInd);
+      });
+    },
     adjust({ color, amount }) {
       return (
         "#" +

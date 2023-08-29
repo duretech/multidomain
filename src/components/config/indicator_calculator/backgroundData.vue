@@ -553,6 +553,7 @@
           :cancel-title="$t('cancelbtn')"
           :title="$t('dataEntry')"
           centered
+          no-close-on-backdrop
         >
         </b-modal>
       </b-card>
@@ -811,14 +812,14 @@ export default {
       this.$emit("saveJson", this.bgDataConfig, key);
     },
     getAllDEs(val, index, subIndex, keyType, title, insideOf, emuType) {
-      console.log("getAlldes", this.dqrConfig);
-      console.log("val", val);
-      console.log("index", index);
-      console.log("subIndex", subIndex);
-      console.log("keyType", keyType);
-      console.log("title", title);
-      console.log("insideOf", insideOf);
-      console.log("emuType", emuType);
+      // console.log("getAlldes", this.dqrConfig);
+      // console.log("val", val);
+      // console.log("index", index);
+      // console.log("subIndex", subIndex);
+      // console.log("keyType", keyType);
+      // console.log("title", title);
+      // console.log("insideOf", insideOf);
+      // console.log("emuType", emuType);
 
       let actData = this.dqrConfig;
 
@@ -839,7 +840,7 @@ export default {
       this.updateSubInd(index, subIndex, "selectedDE", val, insideOf, emuType);
     },
     updateSubInd(index, subIndex, key, val, insideOf, emuType) {
-      console.log(this.dqrConfig);
+      // console.log(this.dqrConfig);
       let getData = this.dqrConfig;
       if (key === "selectedDE") {
         let ar =

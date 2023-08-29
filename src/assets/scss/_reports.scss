@@ -36,13 +36,15 @@
 
 .saved-report-card {
  
-  height       : 75px;
+  height       : 100%;
   border-radius: 6px;
   text-align   : center;
   // color        : var(--font-white-color);
   font-weight  : 600;
   position     : relative;
-
+  .img-title-flex {
+    height: inherit;
+  }
   .fw-400{
     font-weight: 400;
   }
@@ -59,15 +61,15 @@
     .saved-report-card-img-container {
       // flex: 1 1 50%;
       position: absolute;
-      top     : 29%;
+      top     : 35%;
       // left    : 20%;
     }
 
     .saved-report-card-title {
       
       position  : absolute;
-      top       : 13%;
-      left      : 16%;
+      top       : 3%;
+      left      : 10%;
       // flex: 1 1 50%;
     }
   }
@@ -147,8 +149,8 @@
   border-bottom: 1px solid var(--border-grey-color);
 
   .card{
-    height: 140px;
-    margin: 0.5rem 0px 1.2rem;
+    height: 180px;
+    // margin: 0.5rem 0px 1.2rem;
     color: var(--text-color);
     border-color: transparent !important;
     background-color: transparent !important;
@@ -159,7 +161,7 @@
   
 
   .card-body{
-    padding: 8px 10px 0px;
+    padding: 0px 10px 0px;
     background-color: var(--signoff-bottom-card);
     border-color: var(--signoff-bottom-card) !important;
     border-radius: 0px 0px 7px 7px !important;

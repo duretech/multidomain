@@ -209,7 +209,7 @@
                                 <b-card-body>
                                   <b-card-text>
                                     <AddMapping
-                                      :metrixList="metrixList"
+                                      :matrixList="matrixList"
                                       :dataSetsList="dataSetsList"
                                       :indicatorsList="indicatorsList"
                                       :dataElementsList="dataElementsList"
@@ -271,7 +271,7 @@ export default {
     "tInd",
     "moveItem",
     "addElement",
-    "metrixList",
+    "matrixList",
     "indicatorId",
     "dataSetsList",
     "isDataFetched",

@@ -19,10 +19,16 @@
         >
       </div>
 
-      <b-modal ref="my-modal" hide-footer centered :title="$t('selectLocation')">
+      <b-modal
+        ref="my-modal"
+        hide-footer
+        centered
+        :title="$t('selectLocation')"
+        no-close-on-backdrop
+      >
         <div class="d-block text-left default-btn">
           <h5>{{ $t("selectLocation") }}</h5>
-          
+
           <treeselect
             :multiple="true"
             class=""
@@ -753,7 +759,7 @@ export default {
     "categoryOptionID",
     "locOrgList",
   ],
-  mixins:[DynamicImageMixin],
+  mixins: [DynamicImageMixin],
   components: { ModalPopup, Treeselect },
   data() {
     // console.log(this.orgList);
@@ -1287,7 +1293,11 @@ export default {
       this.$store.commit("setLoading", true);
       let key = this.generateKey("stockOut");
       service
-        .updateConfig(this.config, key, false, "fp-dashboard")
+        .updateConfig({
+          data: this.config,
+          tableKey: key,
+          namespace: "fp-dashboard",
+        })
         .then((resp) => {
           if (resp.data.status === "OK") {
             this.$store.commit("setLoading", false);
@@ -1298,7 +1308,11 @@ export default {
         })
         .catch((err) => {
           service
-            .saveConfig(this.config, key, false, "fp-dashboard")
+            .saveConfig({
+              data: this.config,
+              tableKey: key,
+              namespace: "fp-dashboard",
+            })
             .then((resp) => {
               if (resp.data.status === "OK") {
                 this.$store.commit("setLoading", false);

@@ -3,7 +3,7 @@
     <!-- DHIS2 header component -->
     <D2Header v-if="isHeader && appSettings" />
     <!-- Common loader component -->
-    <Loader v-if="$store.state.loading" />
+    <Loader v-if="$store.getters.getLoading" />
     <template v-if="appSettings">
       <!-- Sidebar component -->
       <sidebar
@@ -114,11 +114,17 @@ export default {
     computedDOM() {
       return `${this.$route.path}-${this.langChangeDOM}`;
     },
+    isMEMUSet() {
+      return this.$store.getters.getIsMonthlyEMUSet;
+    },
+    isAEMUSet() {
+      return this.$store.getters.getIsAnnualEMUSet;
+    },
     isHeader() {
       return this.$store.getters.getAppSettings.isAppHub;
     },
     currentTheme() {
-      return this.$store.state.defaultColorTheme;
+      return this.$store.getters.getTheme;
     },
   },
   /**
@@ -133,6 +139,16 @@ export default {
     currentTheme(newValue) {
       if (newValue) {
         service.applyTheme();
+      }
+    },
+    isAEMUSet(newVal) {
+      if (!newVal) {
+        this.fetchData();
+      }
+    },
+    isMEMUSet(newVal) {
+      if (!newVal) {
+        this.fetchData();
       }
     },
   },
@@ -244,7 +260,7 @@ export default {
     getTour() {
       let key = this.generateKey("appTour");
       service
-        .getSavedConfig(key)
+        .getSavedConfig({ tableKey: key })
         .then((response) => {
           this.appTour = response.data;
         })
@@ -259,7 +275,6 @@ export default {
      * @returns null
      */
     enablePlugin(ga) {
-      console.log("ga", ga);
       setOptions({
         config: { id: ga },
         appName: "Multidomain", // appName to capture screenview event
@@ -268,7 +283,7 @@ export default {
 
       bootstrap().then((gtag) => {
         // all done!
-        console.log("gtag", gtag);
+        console.log("ga, gtag", ga, gtag);
       });
     },
     /**
@@ -283,8 +298,47 @@ export default {
       if (Object.keys(this.$store.getters.getAppSettings).length === 0) {
         let key = this.generateKey("appSettings");
         service
-          .getSavedConfig(key)
+          .getSavedConfig({ tableKey: key })
           .then(async (response) => {
+            let updatedSchema = null;
+            try {
+              let isViz = await service.checkAPI("visualizations");
+              if (
+                isViz &&
+                (!response.data.commentSchema ||
+                  (response.data.commentSchema &&
+                    response.data.commentSchema.toLowerCase() !== "new"))
+              ) {
+                updatedSchema = "new";
+              }
+            } catch (err) {
+              console.log("visualizations API not present", err);
+              try {
+                let isCharts = await service.checkAPI("charts");
+                if (
+                  isCharts &&
+                  (!response.data.commentSchema ||
+                    (response.data.commentSchema &&
+                      response.data.commentSchema.toLowerCase() !== "old"))
+                ) {
+                  updatedSchema = "old";
+                }
+              } catch (err1) {
+                console.log("charts API not present", err1);
+              }
+            }
+            if (updatedSchema) {
+              response.data.commentSchema = updatedSchema;
+              try {
+                await service.updateConfig({
+                  data: response.data,
+                  tableKey: key,
+                });
+              } catch (err2) {
+                console.log("Error in saving config data...", err2);
+              }
+            }
+
             this.$store.commit("setAppSettings", response.data); //Set app settings in store
             this.$store.commit("setLocalLang", response.data.defaultLocale); //Set default locale in store
             //Set start of financial year list in store.

@@ -61,6 +61,8 @@
               :items="seqFpItems"
               :fields="fields"
               responsive="sm"
+              show-empty
+              :empty-text="$t('no_data_to_display')"
             >
               <template #cell(method)="row">
                 <div style="position: relative">
@@ -86,6 +88,8 @@
                     :items="row.item.children"
                     :fields="subTablefields"
                     responsive="sm"
+                    show-empty
+                    :empty-text="$t('no_data_to_display')"
                   />
                   <!-- <b-button size="sm" @click="row.toggleDetails">Hide Details</b-button> -->
                 </b-card>
@@ -933,6 +937,8 @@
               class="tableCss"
               :items="reportingItems"
               :fields="reportingFields"
+              show-empty
+              :empty-text="$t('no_data_to_display')"
             ></b-table>
           </div>
         </div>
@@ -975,6 +981,8 @@
               :items="fpTableItems"
               :fields="fpFields"
               responsive="sm"
+              show-empty
+              :empty-text="$t('no_data_to_display')"
             >
               <template #cell(method)="row">
                 <div style="position: relative">
@@ -1000,6 +1008,8 @@
                     :items="row.item.children"
                     :fields="fpsubtableFields"
                     responsive="sm"
+                    show-empty
+                    :empty-text="$t('no_data_to_display')"
                   />
                   <!-- <b-button size="sm" @click="row.toggleDetails">Hide Details</b-button> -->
                 </b-card>
@@ -1133,11 +1143,11 @@ export default {
   methods: {
     getUserAccess() {
       let key = this.generateKey("annualSectorReporting");
-      let allKeys = service.getAllKeys();
+      let allKeys = service.getAllKeys({});
       allKeys
         .then((keys) => {
           service
-            .getSavedConfig(key)
+            .getSavedConfig({ tableKey: key })
             .then((appRes) => {
               let FPSource = {
                 Commodities_Client: {
@@ -1191,40 +1201,40 @@ export default {
         });
     },
     updateReporting() {
-      //console.log(this.FPSource)
       this.drawChart(this.fpItems);
       this.sweetAlert({
         title: this.$i18n.t("data_saved_successfully"),
       });
     },
     async getFPSourceData() {
-      // this.userDetails.userCredentials.userRoles.forEach((u) => {
-      //   if (this.$store.getters.getAppSettings.adminUserRole.includes(u.name)) {
-      //     //console.log(u.name);
-      //     if (u.name) {
-      //       this.isAdmin = false;
-      //     }
-      //   }
-      // });
+      let periodData = this.$store.getters.getGlobalFactors().period.Period;
+      let d = new Date();
+      if (this.$store.getters.getAppSettings.calendar === "nepali") {
+        d = new NepaliDate(
+          new Date(d.getFullYear(), d.getMonth() + 1, d.getDate())
+        ).getBS();
+        let nplMonth = d.month;
+        let nplYear = d.year;
+        let zeroForMonth = nplMonth < 10 ? "0" + nplMonth : nplMonth;
+        d = d.year + "" + zeroForMonth;
+      }
+      let lastYear = "";
+      let recentYearMonth = this.$moment(d, "YYYYMM")
+        .subtract(periodData.backtrackedMonth * 1, "months")
+        .format("YYYY-MM");
+      if (recentYearMonth.split("-")[1] == 12)
+        lastYear = recentYearMonth.split("-")[0];
+      else lastYear = recentYearMonth.split("-")[0] * 1 - 1;
 
-      let startYear =
-        this.dqrResponse.emu["Background_Data"]["startingYear"] * 1;
-      let lastYear =
-        this.dqrResponse.emu["Background_Data"]["SSDataRecentYear"];
+      let startYear = this.$moment(recentYearMonth, "YYYY-MM")
+        .subtract(periodData.backtrackedYearLimit * 1, "years")
+        .format("YYYY");
       this.excludeAF = this.dqrResponse.emu["Background_Data"][
         "adjustmentFactor"
       ]
         ? this.dqrResponse.emu["Background_Data"]["adjustmentFactor"]
         : "No";
-      // let locationID = this.appResponse.defaultLocationID[0];
       let locationID = this.selectedLevel.split("/")[1];
-      // if (
-      //   this.userDetails.dataViewOrganisationUnits[0].level >
-      //   this.appResponse.defaultLevelID
-      // ) {
-      //   locationID = [this.userDetails.dataViewOrganisationUnits[0].id];
-      //   this.defaultLevel = this.userDetails.dataViewOrganisationUnits[0].level;
-      // }
       this.categoryData = this.dqrResponse.emu;
       let fromDataStore =
         this.dqrResponse.emu["Background_Data"]["bgDataSource"];
@@ -1287,9 +1297,11 @@ export default {
         let levelid = this.selectedLevel.split("/")[0];
         let key = `psa_${levelid}`;
         if (!this.$store.getters.getAppSettings.country) {
-          let appId = this.$store.state.appId ? this.$store.state.appId : "",
-            appUserId = this.$store.state.appUserId
-              ? this.$store.state.appUserId
+          let appId = this.$store.getters.getAppId
+              ? this.$store.getters.getAppId
+              : "",
+            appUserId = this.$store.getters.getAppUserId
+              ? this.$store.getters.getAppUserId
               : "";
           if (appId && appUserId) {
             key = `psa_${levelid}`;
@@ -1298,7 +1310,7 @@ export default {
             return;
           }
         }
-        await service.getSavedConfig(key).then((fpRes) => {
+        await service.getSavedConfig({ tableKey: key }).then((fpRes) => {
           //response = fpResponse
           let fpResponse =
             fpRes && typeof fpRes.data.rows == "string"
@@ -1342,7 +1354,6 @@ export default {
             }
             r.selectedDatastoreDE.forEach((de) => {
               indId.push(de.id);
-              // console.log(response);
 
               let val = response.find((obj) => {
                 if (obj[0] == de.id) return obj;
@@ -1355,7 +1366,6 @@ export default {
               }
             });
             this.fpItems.push(oData);
-            //console.log(oData);
           });
         });
         this.drawChart(this.fpItems);
@@ -1475,18 +1485,12 @@ export default {
                     obj["Shop"] = null;
                     this.fpItems.push(obj);
                   }
-                  //console.log(this.fpItems, nCount)
                   if (this.fpItems.length == nCount) {
                     this.drawChart(this.fpItems);
                   }
                 });
             }
           });
-          /* if(count == 22){
-    console.clear();
-    console.log(this.fpItems.length);
-    this.drawChart(this.fpItems)
-} */
         });
       }
     },
@@ -1499,19 +1503,11 @@ export default {
      */
     /**Note:  need to use return object "combinedObj" in other methods  */
     getFpSourceVals(p_modified, p_fpItems, excludeAF) {
-      console.log(
-        p_modified,
-        p_fpItems,
-        excludeAF,
-        excludeAF === "No",
-        "in fpsource============="
-      );
       let aData = [];
       let combinedObj = {};
       for (let j = 0; j < p_fpItems.length; j++) {
         let nSum = 0;
         if (excludeAF === "No") {
-          console.log("in if for exlude");
           for (let k in p_modified) {
             if (p_modified[k] === "Yes") {
               nSum += p_fpItems[j][k];
@@ -1521,7 +1517,6 @@ export default {
               nSum += p_fpItems[j][k] / 2;
             }
           }
-          //console.log(nSum, p_fpItems[j]["submethod"])
           if (nSum === 0 || nSum >= 100) {
             nSum = 1;
           } else {
@@ -1536,20 +1531,13 @@ export default {
         } else {
           nSum = 1;
         }
-        // if (
-        //   p_fpItems[j]["submethod"].split('/')[1] == "Female Condom" &&
-        //   p_fpItems[j]["adjusted"] == false
-        // ) {
-        //   nSum = 1;
-        // }
+
         aData.push(nSum);
         combinedObj[p_fpItems[j]["submethod"].split("/")[1]] = nSum;
       }
-      //console.log(aData)
       return { aData, combinedObj };
     },
     drawTable(series, fpItems, combinedObj) {
-      //console.log( this.methodSeq, fpItems,combinedObj);
       let catName = {
         Visits: this.$i18n.t("fp_visits"),
         User: this.$i18n.t("fp_users"),
@@ -1599,7 +1587,6 @@ export default {
         });
       });
       let fpTableItems = [];
-      console.log(valObj, "valObj");
       valObj[Object.keys(valObj)[0]].forEach((v, i) => {
         let tempObj = { _cellVariants: {} };
         if (this.fpItems[i]["submethod"].split("/")[1] == "Male Condom") {
@@ -1629,15 +1616,7 @@ export default {
 
         fpTableItems.push(tempObj);
       });
-      // Object.keys(fpTableItems).forEach(key => {
-      //   this.methodSeq.forEach((m, i) => {
-      //      console.log(m,fpTableItems[key]["Method"])
-      //   if (m == fpTableItems[key]["Method"]) {
-      //         this.fpTableItems[i] = fpTableItems[key];
-      //       }
-      //   });
-      // });
-      //console.log(fpTableItems)
+
       this.fpTableItems = [];
       this.methodSeq.forEach((method) => {
         let methodFound = fpTableItems.filter((obj) => {
@@ -1660,7 +1639,6 @@ export default {
           //})
         }
       });
-      //console.log(this.fpTableItems);
     },
     drawChart(fpItems) {
       let categories = [];
@@ -1689,7 +1667,6 @@ export default {
       for (c = 0; c < nFPItems; c++) {
         categories.push(fpItems[c].submethod.split("/")[0]);
       }
-      //console.log(this.categoryData, 'dwqdqwd')
       this.reportingFields = [
         { key: "type", label: this.$i18n.t("dataType") },
         { key: "reporting", label: this.$i18n.t("sectorReporting") },
@@ -1708,7 +1685,6 @@ export default {
       ];
       this.reportingItems = [];
       let oSectorReporting = {};
-      //console.log(this.categoryData)
       for (let i in this.categoryData) {
         if (
           i !== "Background_Data" &&
@@ -1733,12 +1709,10 @@ export default {
           } else if (i == "Visits") {
             tempObj["type"] = this.$i18n.t("fp_visits");
           }
-          //console.log(i)
-          // console.log(this.sectors, this.categoryData[i]["reportingSector"])
+
           tempObj["reporting"] = this.$i18n.t(
             "" + this.sectors[this.categoryData[i]["reportingSector"]]
           );
-          //console.log(this.defaultLevel, this.selectedLevel.split("/")[0], this.selectedLevel)
           if (this.defaultLevel == this.selectedLevel.split("/")[0]) {
             ofpSource = JSON.parse(
               JSON.stringify(this.categoryData[i].FPSource)
@@ -1746,7 +1720,6 @@ export default {
           } else {
             ofpSource = this.FPSource[i];
           }
-          //console.log(ofpSource)
           for (let j in ofpSource) {
             if (this.defaultLevel == this.selectedLevel.split("/")[0]) {
               if (j != "reporting" && j != "type") {
@@ -1831,10 +1804,10 @@ export default {
       let dataStore = {};
       let key = this.generateKey("annualSectorReporting");
       //this.bshowLoader = true;
-      let allKeys = service.getAllKeys();
+      let allKeys = service.getAllKeys({});
       allKeys.then((keys) => {
         if (keys.data.includes(key)) {
-          let oConfig = service.getSavedConfig(key);
+          let oConfig = service.getSavedConfig({ tableKey: key });
           oConfig.then((response) => {
             let oResponse = response.data;
             if (oResponse["sectorReporting"]) {
@@ -1855,7 +1828,9 @@ export default {
               };
             }
             //.log(oResponse)
-            service.updateConfig(oResponse, key).then(console.log("updated"));
+            service
+              .updateConfig({ data: oResponse, tableKey: key })
+              .then(console.log("updated"));
           });
         } else {
           dataStore = {
@@ -1863,7 +1838,9 @@ export default {
               [this.selectedLevel.split("/")[1]]: oSectorReporting,
             },
           };
-          service.saveConfig(dataStore, key).then(console.log("saved"));
+          service
+            .saveConfig({ data: dataStore, tableKey: key })
+            .then(console.log("saved"));
         }
       });
     },

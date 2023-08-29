@@ -86,7 +86,7 @@
                           v-if="
                             ($store.getters.getIsAdmin ||
                               $store.getters.getAppSettings.bypassUser) &&
-                            module.user === $store.state.loggedInUserId
+                            module.user === $store.getters.getLoggedInUserId
                           "
                         >
                           <div class="col-4">
@@ -633,6 +633,7 @@
       id="addTextPopup"
       :title="`${editChartText ? $t('update') : $t('addbtn')} ${$t('text')}`"
       hide-footer
+      no-close-on-backdrop
     >
       <vue-editor
         id="inputTextarea"
@@ -854,10 +855,10 @@ export default {
       this.addTextPopup = false;
     },
     liveSubmit(id) {
-      this.$store.state.loading = true;
+      this.$store.commit("setLoading", true);
       let key = this.generateKey("dynamicModules");
 
-      let saveConfig = service.getSavedConfig(key);
+      let saveConfig = service.getSavedConfig({ tableKey: key });
       saveConfig.then((res) => {
         let dynamicModules = res.data.map((d) => {
           if (d.id === id) {
@@ -870,7 +871,10 @@ export default {
           }
         });
 
-        let response = service.updateConfig(dynamicModules, key);
+        let response = service.updateConfig({
+          data: dynamicModules,
+          tableKey: key,
+        });
         response.then((response) => {
           this.$emit("updateModules", dynamicModules);
           this.reset();
@@ -881,7 +885,7 @@ export default {
             ...this.draftModule,
             isLive: !this.draftModule.isLive,
           };
-          this.$store.state.loading = false;
+          this.$store.commit("setLoading", false);
         });
       });
     },
@@ -1053,11 +1057,11 @@ export default {
 
       let key = this.generateKey("dynamicModules");
 
-      let allKeys = service.getAllKeys();
+      let allKeys = service.getAllKeys({});
       allKeys
         .then((keys) => {
           if (keys.data.includes(key)) {
-            let saveConfig = service.getSavedConfig(key);
+            let saveConfig = service.getSavedConfig({ tableKey: key });
             saveConfig.then((res) => {
               let dynamicModules = res.data;
               if (this.isEdit) {
@@ -1072,7 +1076,10 @@ export default {
               } else {
                 dynamicModules.push(dynamicModule);
               }
-              let response = service.updateConfig(dynamicModules, key);
+              let response = service.updateConfig({
+                data: dynamicModules,
+                tableKey: key,
+              });
               response.then((response) => {
                 this.$emit("updateModules", dynamicModules);
                 this.reset();
@@ -1080,7 +1087,10 @@ export default {
               });
             });
           } else {
-            let response = service.saveConfig([dynamicModule], key);
+            let response = service.saveConfig({
+              data: [dynamicModule],
+              tableKey: key,
+            });
             response.then((response) => {
               this.$emit("updateModules", [dynamicModule]);
               this.reset();
@@ -1104,9 +1114,12 @@ export default {
         cancelButtonText: this.$i18n.t("cancelbtn"),
       }).then((result) => {
         if (result.value) {
-          this.$store.state.loading = true;
+          this.$store.commit("setLoading", true);
           this.dynamicModules = this.dynamicModules.filter((d) => d.id !== id);
-          let response = service.updateConfig(this.dynamicModules, key);
+          let response = service.updateConfig({
+            data: this.dynamicModules,
+            tableKey: key,
+          });
           response.then((response) => {
             this.$emit("updateModules", this.dynamicModules, true);
             this.showDeleteAlert(response);
@@ -1204,7 +1217,7 @@ export default {
       this.$store.commit("setLoading", true);
       let key = this.generateKey("dynamicModules");
 
-      let saveConfig = service.getSavedConfig(key);
+      let saveConfig = service.getSavedConfig({ tableKey: key });
       saveConfig.then((res) => {
         let dynamicModules = res.data;
         let moduleIndex = dynamicModules.findIndex(
@@ -1212,7 +1225,10 @@ export default {
         );
         dynamicModules[moduleIndex] = this.draftModule;
 
-        let response = service.updateConfig(dynamicModules, key);
+        let response = service.updateConfig({
+          data: dynamicModules,
+          tableKey: key,
+        });
         response.then((response) => {
           this.sweetAlert({
             title: this.$i18n.t("moduleUpdated"),
@@ -1228,13 +1244,13 @@ export default {
           title: this.$i18n.t("deleted"),
           text: this.$i18n.t("moduleDeleted"),
         });
-        this.$store.state.loading = false;
+        this.$store.commit("setLoading", false);
       } else {
         this.sweetAlert({
           title: this.$i18n.t("error"),
           text: `${response.data.message}`,
         });
-        this.$store.state.loading = false;
+        this.$store.commit("setLoading", false);
         return;
       }
     },

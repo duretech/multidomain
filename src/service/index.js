@@ -14,7 +14,7 @@ if (process.env.NODE_ENV !== "production") {
 /**
  * @author Ravindra Bagul
  * @description Good To Know
- * ! store.state.baseURL => is coming from the sessionStorage
+ * ! store.getters.getBaseURL => is coming from the sessionStorage
  * ! All the url's are dynamically created
  * @param null
  * @returns null
@@ -64,17 +64,17 @@ class DataService {
     if (ngoValue && ageGroupValue) {
       // Only for Nepal
       // if(ngoValue !== 'All' && ageGroupValue === 'All') {
-      //   url = `${store.state.baseURL}/api/analytics.json?dimension=dx:` + indID + `&dimension=` + ngoValue + `&dimension=pe:` + period + `&dimension=ou:` + ou + `&displayProperty=NAME&skipMeta=false&includeNumDen=false`
+      //   url = `${store.getters.getBaseURL}/api/analytics.json?dimension=dx:` + indID + `&dimension=` + ngoValue + `&dimension=pe:` + period + `&dimension=ou:` + ou + `&displayProperty=NAME&skipMeta=false&includeNumDen=false`
       // } else if(ngoValue === 'All' && ageGroupValue !== 'All') {
-      //   url = `${store.state.baseURL}/api/analytics.json?dimension=dx:` + indID + `&dimension=` + ageGroupValue + `&dimension=pe:` + period + `&dimension=ou:` + ou + `&displayProperty=NAME&skipMeta=false&includeNumDen=false`
+      //   url = `${store.getters.getBaseURL}/api/analytics.json?dimension=dx:` + indID + `&dimension=` + ageGroupValue + `&dimension=pe:` + period + `&dimension=ou:` + ou + `&displayProperty=NAME&skipMeta=false&includeNumDen=false`
       // } else if(ngoValue !== 'All' && ageGroupValue !== 'All') {
       //
       // } else {
-      //   url = `${store.state.baseURL}/api/analytics.json?dimension=dx:` + indID + `&dimension=pe:` + period + `&dimension=ou:` + ou + `&displayProperty=NAME&skipMeta=false&includeNumDen=false`
+      //   url = `${store.getters.getBaseURL}/api/analytics.json?dimension=dx:` + indID + `&dimension=pe:` + period + `&dimension=ou:` + ou + `&displayProperty=NAME&skipMeta=false&includeNumDen=false`
       // }
       if (msiGroupValue)
         url =
-          `${store.state.baseURL}/api/analytics.json?dimension=dx:` +
+          `${store.getters.getBaseURL}/api/analytics.json?dimension=dx:` +
           indID +
           `&dimension=` +
           ngoValue +
@@ -89,7 +89,7 @@ class DataService {
           `&displayProperty=NAME&skipMeta=false&includeNumDen=false`;
       else {
         url =
-          `${store.state.baseURL}/api/analytics.json?dimension=dx:` +
+          `${store.getters.getBaseURL}/api/analytics.json?dimension=dx:` +
           indID +
           `&dimension=` +
           ngoValue +
@@ -104,7 +104,7 @@ class DataService {
     } else {
       // Normal case
       url =
-        `${store.state.baseURL}/api/analytics.json?dimension=dx:` +
+        `${store.getters.getBaseURL}/api/analytics.json?dimension=dx:` +
         indID +
         `&dimension=pe:` +
         period +
@@ -130,15 +130,25 @@ class DataService {
    * @param period - semicolon [;] separated list of periods
    * @returns response object
    */
-  getAnalyticalIndicatorData(indID = "", location = null, period = 2018) {
+  getAnalyticalIndicatorData(
+    indID = "",
+    location = null,
+    period = 2018,
+    skipMeta = false,
+    skipData = false
+  ) {
     let url =
-      `${store.state.baseURL}/api/analytics.json?dimension=dx:` +
+      `${store.getters.getBaseURL}/api/analytics.json?dimension=dx:` +
       indID +
       `&dimension=pe:` +
       period +
       `&dimension=ou:` +
       location +
-      `&displayProperty=NAME&skipMeta=false&includeNumDen=false`;
+      `&displayProperty=NAME&skipMeta=` +
+      skipMeta +
+      `&skipData=` +
+      skipData +
+      `&includeNumDen=false`;
 
     return axios
       .get(url, {
@@ -153,143 +163,181 @@ class DataService {
    * @description Fetch all the configuration files key stored in the datastore.
    * @param isAudit - when passed 'true', we are referring to the audit datastore
    * @param namespace - datastore namespace name
-   * @param isDynamicModule - Boolean flag for dynamic module
+   * @param isDefault - Boolean flag to take default namespace
    * @returns response object
    */
-  getAllKeys(isAudit = false, namespace = "", isDynamicModule = false) {
-    let tableName = namespace
-      ? `${store.getters.getNamespace}_${namespace}`
-      : isDynamicModule
-      ? store.getters.getAppSettings.tableName
-      : store.getters.getNamespace;
+  getAllKeys({
+    namespace = "",
+    isUses = false,
+    isAudit = false,
+    isDefault = false,
+  }) {
+    let tableName = store.getters.getNamespace;
+    if (namespace) {
+      tableName = `${store.getters.getAppSettings.tableName}_${namespace}`;
+    }
+    if (isDefault) {
+      tableName = store.getters.getAppSettings.tableName;
+    }
+    if (isUses) {
+      tableName = `${store.getters.getAppSettings.tableName}_uses`;
+    }
     if (isAudit) {
       tableName = `${tableName}_audit`;
     }
     return axios({
       method: "get",
-      url: `${store.state.baseURL}/api/dataStore/${tableName}`,
+      url: `${store.getters.getBaseURL}/api/dataStore/${tableName}`,
       headers: header,
     });
   }
   /**
    * @author Ravindra Bagul
    * @description Save the configuration file in the datastore.
-   * @param configData - configuration object
-   * @param key_in_table - configuration file name
-   * @param isAudit - when passed 'true', we are referring to the audit datastore
+   * @param data - configuration object
+   * @param tableKey - configuration file name
    * @param namespace - datastore namespace name
-   * @param isDynamicModule - Boolean flag for dynamic module
+   * @param isUses - flag to use the Uses Analytics datastore namespace
+   * @param isAudit - when passed 'true', we are referring to the audit datastore
+   * @param isDefault - Boolean flag to take default namespace
    * @returns response object
    */
-  saveConfig(
-    configData,
-    key_in_table,
-    isAudit = false,
+  saveConfig({
+    data,
+    tableKey,
     namespace = "",
-    isDynamicModule = false
-  ) {
-    let tableName = namespace
-      ? `${store.getters.getNamespace}_${namespace}`
-      : isDynamicModule
-      ? store.getters.getAppSettings.tableName
-      : store.getters.getNamespace;
+    isUses = false,
+    isAudit = false,
+    isDefault = false,
+  }) {
+    let tableName = store.getters.getNamespace;
+    if (namespace) {
+      tableName = `${store.getters.getAppSettings.tableName}_${namespace}`;
+    }
+    if (isDefault) {
+      tableName = store.getters.getAppSettings.tableName;
+    }
+    if (isUses) {
+      tableName = `${store.getters.getAppSettings.tableName}_uses`;
+    }
     if (isAudit) {
       tableName = `${tableName}_audit`;
     }
     return axios({
       method: "post",
-      url: `${store.state.baseURL}/api/dataStore/${tableName}/${key_in_table}`,
+      url: `${store.getters.getBaseURL}/api/dataStore/${tableName}/${tableKey}`,
       headers: header,
-      data: configData,
+      data: data,
     });
   }
   /**
    * @author Ravindra Bagul
    * @description Update the configuration file in the datastore.
-   * @param configData - configuration object
-   * @param key_in_table - configuration file name
-   * @param isAudit - when passed 'true', we are referring to the audit datastore
+   * @param data - configuration object
+   * @param tableKey - configuration file name
    * @param namespace - datastore namespace name
-   * @param isDynamicModule - Boolean flag for dynamic module
+   * @param isUses - flag to use the Uses Analytics datastore namespace
+   * @param isAudit - when passed 'true', we are referring to the audit datastore
+   * @param isDefault - Boolean flag to take default namespace
    * @returns response object
    */
-  updateConfig(
-    configData,
-    key_in_table,
-    isAudit = false,
+  updateConfig({
+    data,
+    tableKey,
     namespace = "",
-    isDynamicModule = false
-  ) {
-    let tableName = namespace
-      ? `${store.getters.getNamespace}_${namespace}`
-      : isDynamicModule
-      ? store.getters.getAppSettings.tableName
-      : store.getters.getNamespace;
+    isUses = false,
+    isAudit = false,
+    isDefault = false,
+  }) {
+    let tableName = store.getters.getNamespace;
+    if (namespace) {
+      tableName = `${store.getters.getAppSettings.tableName}_${namespace}`;
+    }
+    if (isDefault) {
+      tableName = store.getters.getAppSettings.tableName;
+    }
+    if (isUses) {
+      tableName = `${store.getters.getAppSettings.tableName}_uses`;
+    }
     if (isAudit) {
       tableName = `${tableName}_audit`;
     }
     return axios({
       method: "put",
-      url: `${store.state.baseURL}/api/dataStore/${tableName}/${key_in_table}`,
+      url: `${store.getters.getBaseURL}/api/dataStore/${tableName}/${tableKey}`,
       headers: header,
-      data: configData,
+      data: data,
     });
   }
   /**
    * @author Ravindra Bagul
    * @description Get the stored configuration file from the datastore.
-   * @param key_in_table - configuration file name
-   * @param isAudit - when passed 'true', we are referring to the audit datastore
+   * @param tableKey - configuration file name
    * @param namespace - datastore namespace name
-   * @param isDynamicModule - Boolean flag for dynamic module
+   * @param isUses - flag to use the Uses Analytics datastore namespace
+   * @param isAudit - when passed 'true', we are referring to the audit datastore
+   * @param isDefault - Boolean flag to take default namespace
    * @returns response object
    */
-  getSavedConfig(
-    key_in_table,
-    isAudit = false,
+  getSavedConfig({
+    tableKey,
     namespace = "",
-    isDynamicModule = false
-  ) {
-    let tableName = namespace
-      ? `${store.getters.getAppSettings.tableName}_${namespace}`
-      : isDynamicModule
-      ? store.getters.getAppSettings.tableName
-      : store.getters.getNamespace;
+    isUses = false,
+    isAudit = false,
+    isDefault = false,
+  }) {
+    let tableName = store.getters.getNamespace;
+    if (namespace) {
+      tableName = `${store.getters.getAppSettings.tableName}_${namespace}`;
+    }
+    if (isDefault) {
+      tableName = store.getters.getAppSettings.tableName;
+    }
+    if (isUses) {
+      tableName = `${store.getters.getAppSettings.tableName}_uses`;
+    }
     if (isAudit) {
       tableName = `${tableName}_audit`;
     }
     return axios({
       method: "get",
-      url: `${store.state.baseURL}/api/dataStore/${tableName}/${key_in_table}`,
+      url: `${store.getters.getBaseURL}/api/dataStore/${tableName}/${tableKey}`,
       headers: header,
     });
   }
   /**
    * @author Ravindra Bagul
    * @description Delete the configuration file from the datastore.
-   * @param key_in_table - configuration file name
+   * @param tableKey - configuration file name
    * @param namespace - datastore namespace name
-   * @param isDynamicModule - Boolean flag for dynamic module
+   * @param isUses - flag to use the Uses Analytics datastore namespace
    * @param isAudit - when passed 'true', we are referring to the audit datastore
+   * @param isDefault - Boolean flag to take default namespace
    * @returns response object
    */
-  deleteSavedConfig(
-    key_in_table,
+  deleteSavedConfig({
+    tableKey,
     namespace = "",
-    isDynamicModule = false,
-    isAudit = false
-  ) {
-    let tableName = namespace
-      ? `${store.getters.getNamespace}_${namespace}`
-      : isDynamicModule
-      ? store.getters.getAppSettings.tableName
-      : store.getters.getNamespace;
+    isUses = false,
+    isAudit = false,
+    isDefault = false,
+  }) {
+    let tableName = store.getters.getNamespace;
+    if (namespace) {
+      tableName = `${store.getters.getAppSettings.tableName}_${namespace}`;
+    }
+    if (isDefault) {
+      tableName = store.getters.getAppSettings.tableName;
+    }
+    if (isUses) {
+      tableName = `${store.getters.getAppSettings.tableName}_uses`;
+    }
     if (isAudit) {
       tableName = `${tableName}_audit`;
     }
     return axios({
       method: "delete",
-      url: `${store.state.baseURL}/api/dataStore/${tableName}/${key_in_table}`,
+      url: `${store.getters.getBaseURL}/api/dataStore/${tableName}/${tableKey}`,
       headers: header,
     });
   }
@@ -302,8 +350,8 @@ class DataService {
   getIndicators(signal) {
     return axios({
       method: "get",
-      // url: `${store.state.baseURL}/api/programIndicators.json`,
-      url: `${store.state.baseURL}/api/indicators.json?paging=false`,
+      // url: `${store.getters.getBaseURL}/api/programIndicators.json`,
+      url: `${store.getters.getBaseURL}/api/indicators.json?paging=false`,
       headers: header,
       signal,
     });
@@ -317,9 +365,9 @@ class DataService {
   getDataElements(signal) {
     return axios({
       method: "get",
-      url: `${store.state.baseURL}/api/dataElements.json?paging=false`,
-      // url: `${store.state.baseURL}/api/dataElements.json?fields=id,displayName,categoryCombo%5bid,categoryOptionCombos%5bid%5d%5d&paging=false`,
-      // url: `${store.state.baseURL}/api/dataElements.json?fields=id,displayName,formName,description,categoryCombo[id,displayName,categoryOptionCombos[id,displayName]]&paging=false`,
+      url: `${store.getters.getBaseURL}/api/dataElements.json?paging=false`,
+      // url: `${store.getters.getBaseURL}/api/dataElements.json?fields=id,displayName,categoryCombo%5bid,categoryOptionCombos%5bid%5d%5d&paging=false`,
+      // url: `${store.getters.getBaseURL}/api/dataElements.json?fields=id,displayName,formName,description,categoryCombo[id,displayName,categoryOptionCombos[id,displayName]]&paging=false`,
       headers: header,
       signal,
     });
@@ -333,8 +381,8 @@ class DataService {
   getDataSets() {
     return axios({
       method: "get",
-      // url: `${store.state.baseURL}/api/programIndicators.json`,
-      url: `${store.state.baseURL}/api/dataSets.json?paging=false`,
+      // url: `${store.getters.getBaseURL}/api/programIndicators.json`,
+      url: `${store.getters.getBaseURL}/api/dataSets.json?paging=false`,
       headers: header,
     });
   }
@@ -347,7 +395,7 @@ class DataService {
   getCategoryCombo(de) {
     return axios({
       method: "get",
-      url: `${store.state.baseURL}/api/dataElements/${de}.json?fields=id,displayName,categoryCombo[id,displayName,categoryOptionCombos[id,displayName]]&paging=false`,
+      url: `${store.getters.getBaseURL}/api/dataElements/${de}.json?fields=id,displayName,categoryCombo[id,displayName,categoryOptionCombos[id,displayName]]&paging=false`,
       headers: header,
     });
   }
@@ -360,7 +408,7 @@ class DataService {
   getAllCategoryOptionCombo() {
     return axios({
       method: "get",
-      url: `${store.state.baseURL}/api/categoryOptionCombos.json?paging=false`,
+      url: `${store.getters.getBaseURL}/api/categoryOptionCombos.json?paging=false`,
       headers: header,
     });
   }
@@ -373,7 +421,7 @@ class DataService {
   getOrganisation() {
     return axios({
       method: "get",
-      url: `${store.state.baseURL}/api/organisationUnits.json?fields=displayName,id,name,level,parent[id, name]&paging=false`,
+      url: `${store.getters.getBaseURL}/api/organisationUnits.json?fields=displayName,id,name,level,parent[id, name]&paging=false`,
       headers: header,
     });
   }
@@ -386,7 +434,7 @@ class DataService {
   getOrgLevels() {
     return axios({
       method: "get",
-      url: `${store.state.baseURL}/api/organisationUnitLevels.json?fields=level&paging=false`,
+      url: `${store.getters.getBaseURL}/api/organisationUnitLevels.json?fields=level&paging=false`,
       headers: header,
     });
   }
@@ -397,10 +445,10 @@ class DataService {
    * @returns response object
    */
   getOrganisationUnitLevels() {
-    // url: `${store.state.baseURL}/api/organisationUnitLevels.json?fields=id,displayName~rename(name),level&paging=false`,
+    // url: `${store.getters.getBaseURL}/api/organisationUnitLevels.json?fields=id,displayName~rename(name),level&paging=false`,
     return axios({
       method: "get",
-      url: `${store.state.baseURL}/api/filledOrganisationUnitLevels`,
+      url: `${store.getters.getBaseURL}/api/filledOrganisationUnitLevels`,
       headers: header,
     });
   }
@@ -413,7 +461,7 @@ class DataService {
   getChildOrganisation(uid) {
     return axios({
       method: "get",
-      url: `${store.state.baseURL}/api/organisationUnits/${uid}/children.json?fields=id,displayName,name,level,parent[id, name]`,
+      url: `${store.getters.getBaseURL}/api/organisationUnits/${uid}/children.json?fields=id,displayName,name,level,parent[id, name]`,
       headers: header,
     });
   }
@@ -431,7 +479,7 @@ class DataService {
     }
     return axios({
       method: "get",
-      url: `${store.state.baseURL}/api/organisationUnits/${uid}?fields=${fields}`,
+      url: `${store.getters.getBaseURL}/api/organisationUnits/${uid}?fields=${fields}`,
       headers: header,
     });
   }
@@ -444,7 +492,7 @@ class DataService {
   getLoggedInUser() {
     return axios({
       method: "get",
-      url: `${store.state.baseURL}/api/me.json?fields=id,firstName,surname,userCredentials[id,username,userRoles[id,name]],dataViewOrganisationUnits[level,id]`,
+      url: `${store.getters.getBaseURL}/api/me.json?fields=id,firstName,surname,userCredentials[id,username,userRoles[id,name]],dataViewOrganisationUnits[level,id,name]`,
       headers: header,
     });
   }
@@ -455,7 +503,7 @@ class DataService {
    * @returns response object
    */
   getUsersList() {
-    let url = `${store.state.baseURL}/api/users.json?fields=id,name~rename(label),userCredentials[id,username,userRoles[id,name]]&paging=false&order=firstName%3Aasc%2Csurname%3Aasc`;
+    let url = `${store.getters.getBaseURL}/api/users.json?fields=id,name~rename(label),userCredentials[id,username,userRoles[id,name]]&paging=false&order=firstName%3Aasc%2Csurname%3Aasc`;
     return axios({
       method: "get",
       url,
@@ -472,7 +520,7 @@ class DataService {
    */
   getOrganisationChildren(uid, level, signal) {
     //let orgLevel = 8;
-    let url = `${store.state.baseURL}/api/organisationUnits/${uid}.json?fields=id,displayName,level,parent[id, name],children[id,displayName,level,parent[id, name]]`;
+    let url = `${store.getters.getBaseURL}/api/organisationUnits/${uid}.json?fields=id,displayName,level,parent[id, name],children[id,displayName,level,parent[id, name]]`;
     // for (let i = level; i <= orgLevel; i++) {
     // 	url += ",children[id,displayName,level"; // Create nested URL
     // }
@@ -512,7 +560,7 @@ class DataService {
 
     return axios({
       method: "get",
-      url: `${store.state.baseURL}/api/${url}`,
+      url: `${store.getters.getBaseURL}/api/${url}`,
       headers: header,
     });
   }
@@ -540,7 +588,7 @@ class DataService {
 
     return axios({
       method: "get",
-      url: `${store.state.baseURL}/api/${url}`,
+      url: `${store.getters.getBaseURL}/api/${url}`,
       headers: header,
     });
   }
@@ -575,7 +623,7 @@ class DataService {
 
     return axios({
       method: "get",
-      url: `${store.state.baseURL}/api/${url}`,
+      url: `${store.getters.getBaseURL}/api/${url}`,
       headers: header,
     });
   }
@@ -602,9 +650,9 @@ class DataService {
 
     let url = null;
     if (filter) {
-      url = `${store.state.baseURL}/api/analytics.json?${dimension}${filter}&displayProperty=NAME&skipMeta=false&includeNumDen=false`;
+      url = `${store.getters.getBaseURL}/api/analytics.json?${dimension}${filter}&displayProperty=NAME&skipMeta=false&includeNumDen=false`;
     } else {
-      url = `${store.state.baseURL}/api/analytics.json?${dimension}&displayProperty=NAME&skipMeta=false&includeNumDen=true`;
+      url = `${store.getters.getBaseURL}/api/analytics.json?${dimension}&displayProperty=NAME&skipMeta=false&includeNumDen=true`;
     }
 
     return axios
@@ -624,7 +672,7 @@ class DataService {
   getFacilityTypes(id) {
     return axios({
       method: "get",
-      url: `${store.state.baseURL}/api/dimensions/${id}/items.json?fields=id,displayName~rename(name)&_dc=1571812835337&page=1&pageSize=50`,
+      url: `${store.getters.getBaseURL}/api/dimensions/${id}/items.json?fields=id,displayName~rename(name)&_dc=1571812835337&page=1&pageSize=50`,
       headers: header,
     });
   }
@@ -637,7 +685,7 @@ class DataService {
   getDimensions() {
     return axios({
       method: "get",
-      url: `${store.state.baseURL}/api/dimensions.json?fields=id,displayName~rename(name),dimensionType&paging=false`,
+      url: `${store.getters.getBaseURL}/api/dimensions.json?fields=id,displayName~rename(name),dimensionType&paging=false`,
       headers: header,
     });
   }
@@ -649,15 +697,15 @@ class DataService {
    * @returns response object
    */
   getGeoJson(locationID, level) {
-    //console.log(`${store.state.baseURL}/api/organisationUnits.geojson?parent=` + locationID + `&level=` + level)
+    //console.log(`${store.getters.getBaseURL}/api/organisationUnits.geojson?parent=` + locationID + `&level=` + level)
     return axios({
       method: "get",
       url:
-        `${store.state.baseURL}/api/organisationUnits.geojson?parent=` +
+        `${store.getters.getBaseURL}/api/organisationUnits.geojson?parent=` +
         locationID +
         `&level=` +
         level,
-      //url: `${store.state.baseURL}/api/geoFeatures.json?ou=ou:` + locationID + `;LEVEL-` + levelId + '&displayProperty=NAME',
+      //url: `${store.getters.getBaseURL}/api/geoFeatures.json?ou=ou:` + locationID + `;LEVEL-` + levelId + '&displayProperty=NAME',
       headers: header,
     });
   }
@@ -668,7 +716,7 @@ class DataService {
    * @returns null
    */
   applyTheme() {
-    let theme = store.state.defaultColorTheme || "grey";
+    let theme = store.getters.getTheme || "grey";
     document.body.setAttribute("data-theme", theme);
   }
   /**
@@ -760,9 +808,22 @@ class DataService {
         : "visualizations";
     return axios({
       method: "post",
-      url: `${store.state.baseURL}/api/${endPoint}`,
+      url: `${store.getters.getBaseURL}/api/${endPoint}`,
       headers: header,
       data: payload,
+    });
+  }
+  /**
+   * @author Ravindra Bagul
+   * @description Check for the API. We see API endpoint changes for DHIS2 version >= 2.37
+   * @param endPoint - API endPoint
+   * @returns response object
+   */
+  checkAPI(endPoint) {
+    return axios({
+      method: "get",
+      url: `${store.getters.getBaseURL}/api/${endPoint}`,
+      headers: header,
     });
   }
   /**
@@ -778,7 +839,7 @@ class DataService {
         : "visualizations";
     return axios({
       method: "get",
-      url: `${store.state.baseURL}/api/${endPoint}/${cid}.json?fields=interpretations%5B*,user%5Bid,displayName,userCredentials%5Busername%5D%5D,likedBy%5Bid,displayName%5D,comments%5Bid,lastUpdated,text,user%5Bid,displayName#/`,
+      url: `${store.getters.getBaseURL}/api/${endPoint}/${cid}.json?fields=interpretations%5B*,user%5Bid,displayName,userCredentials%5Busername%5D%5D,likedBy%5Bid,displayName%5D,comments%5Bid,lastUpdated,text,user%5Bid,displayName#/`,
       headers: header,
     });
   }
@@ -796,7 +857,7 @@ class DataService {
         : "visualization";
     return axios({
       method: "post",
-      url: `${store.state.baseURL}/api/interpretations/${endPoint}/${cid}`,
+      url: `${store.getters.getBaseURL}/api/interpretations/${endPoint}/${cid}`,
       headers: {
         ...header,
         "Content-Type": "text/plain",
@@ -909,7 +970,7 @@ class DataService {
   createDE(deData) {
     return axios({
       method: "post",
-      url: `${store.state.baseURL}/api/dataElements`,
+      url: `${store.getters.getBaseURL}/api/dataElements`,
       headers: header,
       data: deData,
     });
@@ -923,7 +984,7 @@ class DataService {
   updateDE(deData) {
     return axios({
       method: "post",
-      url: `${store.state.baseURL}/api/schemas/dataElement`,
+      url: `${store.getters.getBaseURL}/api/schemas/dataElement`,
       headers: header,
       data: deData,
     });
@@ -937,7 +998,7 @@ class DataService {
   getdefaultCategoryCombo(nm) {
     return axios({
       method: "get",
-      url: `${store.state.baseURL}/api/categoryCombos.json?filter=name:eq:${nm}&paging=false`,
+      url: `${store.getters.getBaseURL}/api/categoryCombos.json?filter=name:eq:${nm}&paging=false`,
       headers: header,
     });
   }
@@ -950,7 +1011,7 @@ class DataService {
   getOrganisationWithParent() {
     return axios({
       method: "get",
-      url: `${store.state.baseURL}/api/organisationUnits.json?fields=id,name,level,parent[id, name]&paging=false`,
+      url: `${store.getters.getBaseURL}/api/organisationUnits.json?fields=id,name,level,parent[id, name]&paging=false`,
       headers: header,
     });
   }
@@ -962,7 +1023,7 @@ class DataService {
    */
   uploadJson(jDat) {
     return axios.post(
-      `${store.state.baseURL}/api/dataValueSets.json?async=true&dryRun=false&strategy=NEW_AND_UPDATES&preheatCache=false&skipAudit=false&dataElementIdScheme=UID&orgUnitIdScheme=UID&idScheme=UID&skipExistingCheck=false&format=json`,
+      `${store.getters.getBaseURL}/api/dataValueSets.json?async=true&dryRun=false&strategy=NEW_AND_UPDATES&preheatCache=false&skipAudit=false&dataElementIdScheme=UID&orgUnitIdScheme=UID&idScheme=UID&skipExistingCheck=false&format=json`,
       jDat,
       {
         headers: header,
@@ -978,7 +1039,7 @@ class DataService {
   showTask(upId) {
     return axios({
       method: "get",
-      url: `${store.state.baseURL}/api/system/tasks/DATAVALUE_IMPORT/${upId}`,
+      url: `${store.getters.getBaseURL}/api/system/tasks/DATAVALUE_IMPORT/${upId}`,
       headers: header,
     });
   }
@@ -991,7 +1052,7 @@ class DataService {
   showTaskSumm(upId) {
     return axios({
       method: "get",
-      url: `${store.state.baseURL}/api/system/taskSummaries/DATAVALUE_IMPORT/${upId}`,
+      url: `${store.getters.getBaseURL}/api/system/taskSummaries/DATAVALUE_IMPORT/${upId}`,
       headers: header,
     });
   }
@@ -1004,7 +1065,7 @@ class DataService {
   getCategoryOptionCombo(nm) {
     return axios({
       method: "get",
-      url: `${store.state.baseURL}/api/categoryOptionCombos.json?filter=name:eq:${nm}&paging=false`,
+      url: `${store.getters.getBaseURL}/api/categoryOptionCombos.json?filter=name:eq:${nm}&paging=false`,
       headers: header,
     });
   }

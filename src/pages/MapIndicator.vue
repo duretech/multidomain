@@ -248,7 +248,9 @@
                         :items="chartTable"
                         :fields="fields"
                         bordered
+                        show-empty
                         sticky-header="385px"
+                        :empty-text="$t('no_data_to_display')"
                       >
                       </b-table>
                     </div>
@@ -365,12 +367,14 @@ import {
   getDateRange,
   generateChart,
   translateDate,
+  translateAlphatoNum,
 } from "@/components/Common/commonFunctions";
 import GeoJsonMixin from "@/helpers/GeoJsonMixin";
 import { commonChartConfig } from "@/config/basicChartConfig";
 import DynamicImageMixin from "@/helpers/DynamicImageMixin";
 import DocumentTitleMixin from "@/helpers/DocumentTitleMixin";
 import ReFetchConfigMixin from "@/helpers/ReFetchConfigMixin";
+import UsesAnalyticsMixin from "@/helpers/UsesAnalyticsMixin";
 import LanguageChangeMixin from "@/helpers/LanguageChangeMixin";
 import EmitTourCallbackMixin from "@/helpers/EmitTourCallbackMixin";
 export default {
@@ -386,6 +390,7 @@ export default {
     DynamicImageMixin,
     DocumentTitleMixin,
     ReFetchConfigMixin,
+    UsesAnalyticsMixin,
     LanguageChangeMixin,
     EmitTourCallbackMixin,
   ],
@@ -566,11 +571,19 @@ export default {
       }
     },
     locationPeriod: {
-      handler() {
-        this.$nextTick(() => {
-          this.setData(this.activeIndicatorObj);
-          this.getGeoJson(this.locationPeriod.location);
-        });
+      handler(newValue, oldValue) {
+        if (
+          (!oldValue && newValue.location) ||
+          (oldValue &&
+            (newValue.location !== oldValue.location ||
+              newValue.periodType !== oldValue.periodType ||
+              newValue.period !== oldValue.period))
+        ) {
+          this.$nextTick(() => {
+            this.setData(this.activeIndicatorObj);
+            this.getGeoJson(newValue.location); //mixin function
+          });
+        }
       },
       deep: true,
     },
@@ -673,7 +686,7 @@ export default {
         let key = this.generateKey(configKey);
 
         try {
-          let response = await service.getSavedConfig(key);
+          let response = await service.getSavedConfig({ tableKey: key });
           this.$set(
             this.emuData,
             `${periodType}_${this.$i18n.locale}`,
@@ -881,9 +894,7 @@ export default {
             let formattedCatArray = [];
             if (this.locationPeriod.periodType === "monthly") {
               emuData.saveCategories.forEach((c) =>
-                formattedCatArray.push(
-                  this.$moment(c, "MMM YYYY").format("YYYYMM")
-                )
+                formattedCatArray.push(translateAlphatoNum(c))
               );
             }
             if (this.locationPeriod.periodType === "yearly") {
@@ -908,8 +919,9 @@ export default {
             pe.forEach((p) => {
               let formattedDate = translateDate({
                 rawDate: p,
-                periodType: this.locationPeriod.periodType,
+                // periodType: this.locationPeriod.periodType,
               });
+              // let formattedDate = this.$store.getters.getPeriod[p].name;
               if (formattedCatArray.includes(p)) {
                 let catIndex = formattedCatArray.indexOf(p);
                 let drillText = formattedDate;
@@ -990,7 +1002,7 @@ export default {
     getConfigData() {
       let key = this.generateKey("mapVisualization");
       service
-        .getSavedConfig(key)
+        .getSavedConfig({ tableKey: key })
         .then((response) => {
           this.mapResponse = response.data;
         })

@@ -43,6 +43,7 @@
                 v-for="filter in calTypeOptions"
                 :key="filter.value"
                 :value="filter.value"
+                :alwaysOpen="false"
               >
                 {{ filter.text }}
               </option>
@@ -198,6 +199,8 @@
                   bordered
                   :items="emuItems"
                   class="emu-table"
+                  show-empty
+                  :empty-text="$t('no_data_to_display')"
                 ></b-table>
               </b-card>
             </template>
@@ -291,9 +294,7 @@ export default {
         this.generateEMUPopup = false;
       }
     },
-    recentActiveTab(vale) {
-      //console.log(vale)
-    },
+
     locationValue(newValue) {
       if (newValue) {
         this.value = newValue;
@@ -309,10 +310,8 @@ export default {
     },
     selected(newValue) {
       if (newValue) {
-        this.selected = newValue;
         this.$emit("emuMethod", newValue);
       }
-      console.log(this.selected);
     },
     methods(newValue) {
       this.emuMethods = newValue;
@@ -377,7 +376,7 @@ export default {
       ];
       let key = this.generateKey(`autoSaveEMU_${this.$i18n.locale}`);
       service
-        .getSavedConfig(key)
+        .getSavedConfig({ tableKey: key })
         .then((res) => {
           let emuData = res.data;
           this.emuTableData = emuData;

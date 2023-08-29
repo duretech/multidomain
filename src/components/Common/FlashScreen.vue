@@ -9,6 +9,7 @@
     @ok="disablePopup"
     hide-header
     centered
+    no-close-on-backdrop
   >
     <div class="" :class="{ 'text-center': !isFetched }">
       <h3 class="text-center">{{ $t("welcome") }}</h3>
@@ -97,28 +98,32 @@ export default {
     disablePopup() {
       if (!this.isDisableFlash) {
         let key = this.generateKey("appSettings");
-        service.getSavedConfig(key, false, "", true).then((response) => {
-          let res = {
-            ...response.data,
-            disableFlash:
-              response.data.disableFlash && response.data.disableFlash.length
-                ? [
-                    ...response.data.disableFlash,
-                    this.$store.getters.getLoggedInUserId,
-                  ]
-                : [this.$store.getters.getLoggedInUserId],
-          };
-          service.updateConfig(res, key, false, "", true).then((r) => {
-            console.log("flashScreen disabled permanently", r);
-            this.$store.commit("setAppSettings", res);
+        service
+          .getSavedConfig({ tableKey: key, isDefault: true })
+          .then((response) => {
+            let res = {
+              ...response.data,
+              disableFlash:
+                response.data.disableFlash && response.data.disableFlash.length
+                  ? [
+                      ...response.data.disableFlash,
+                      this.$store.getters.getLoggedInUserId,
+                    ]
+                  : [this.$store.getters.getLoggedInUserId],
+            };
+            service
+              .updateConfig({ data: res, tableKey: key, isDefault: true })
+              .then((r) => {
+                console.log("flashScreen disabled permanently", r);
+                this.$store.commit("setAppSettings", res);
+              });
           });
-        });
       }
     },
     getConfigData() {
       let key = this.generateKey("flashData");
       service
-        .getSavedConfig(key, false, "", true)
+        .getSavedConfig({ tableKey: key, isDefault: true })
         .then((response) => {
           this.flashData = response.data;
           this.$emit("getFlashData", response.data);

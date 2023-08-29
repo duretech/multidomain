@@ -1,446 +1,69 @@
 <template>
   <div>
     <div class="container-fluid m-t-28px px-0">
-      <loader v-if="bShowLoader" />
       <div class="filter-btn" @click.prevent="showToolbarOnTablet = true">
         <a href="#" id="tabbar-expand"><i class="fas fa-filter"></i></a>
       </div>
-      <div class="row">
-        <div class="col-lg-12">
-          <ul
-            class="nav nav-pills mb-3 benchmark-new mx-3 border-bottom mt-3"
-            id="benchmarking-sub-tab"
-            role="tablist"
-          >
-            <li
-              class="nav-item fs-19-1920"
-              v-if="
-                categoryData['Commodities_Client'] &&
-                categoryData['Commodities_Client']['dataOnContraceptive'] ==
-                  'Yes'
-              "
-            >
-              <a
-                :class="{ active: activeTab === 'Commodities_Client' }"
-                class="nav-link analytical-method-link"
-                id="benchmarking-comclient-tab"
-                data-toggle="pill"
-                href="#benchmarking-comclient"
-                role="tab"
-                aria-controls="benchmarking-comclient"
-                aria-selected="true"
-                @click="getRecentActiveTab('client')"
-                >{{ $t("commodities_Distributed_to_Clients") }}</a
-              >
-            </li>
-            <li
-              class="nav-item fs-19-1920"
-              v-if="
-                categoryData['Commodities_Facilities'] &&
-                categoryData['Commodities_Facilities']['dataOnContraceptive'] ==
-                  'Yes'
-              "
-            >
-              <a
-                :class="{ active: activeTab === 'Commodities_Facilities' }"
-                class="nav-link analytical-method-link"
-                id="benchmarking-comfacilities-tab"
-                data-toggle="pill"
-                href="#benchmarking-comfacilities"
-                role="tab"
-                aria-controls="benchmarking-comfacilities"
-                aria-selected="false"
-                @click="getRecentActiveTab('facilities')"
-                >{{ $t("commodities_Distributed_to_Facilities") }}</a
-              >
-            </li>
-            <li
-              class="nav-item fs-19-1920"
-              v-if="
-                categoryData['Visits'] &&
-                categoryData['Visits']['dataOnContraceptive'] == 'Yes'
-              "
-            >
-              <a
-                :class="{ active: activeTab === 'Visits' }"
-                class="nav-link analytical-method-link"
-                id="benchmarking-fpvisits-tab"
-                data-toggle="pill"
-                href="#benchmarking-fpvisits"
-                role="tab"
-                aria-controls="benchmarking-fpvisits"
-                aria-selected="false"
-                @click="getRecentActiveTab('visits')"
-                >{{ $t("fp_visits") }}</a
-              >
-            </li>
-            <li
-              class="nav-item fs-19-1920"
-              v-if="
-                categoryData['User'] &&
-                categoryData['User']['dataOnContraceptive'] == 'Yes'
-              "
-            >
-              <a
-                :class="{ active: activeTab === 'User' }"
-                class="nav-link analytical-method-link"
-                id="benchmarking-fpusers-tab"
-                data-toggle="pill"
-                href="#benchmarking-fpusers"
-                role="tab"
-                aria-controls="benchmarking-fpusers"
-                aria-selected="false"
-                @click="getRecentActiveTab('users')"
-                >{{ $t("fp_users") }}</a
-              >
-            </li>
-            <!-- <li class="nav-item">
-                        <a class="nav-link analytical-method-link" id="benchmarking-fpemuoutput-tab" data-toggle="pill" href="#benchmarking-fpemuoutput" role="tab" aria-controls="benchmarking-fpemuoutput" aria-selected="false">EMU Output</a>
-                    </li> -->
-          </ul>
-        </div>
-        
-        <div class="col-lg-12">
-         
-          <div class="tab-content" id="benchmarking-sub-tabContent">
-            <div
-              :class="{
-                active: activeTab === 'Commodities_Client',
-                show: activeTab === 'Commodities_Client',
-              }"
-              class="tab-pane fade"
-              id="benchmarking-comclient"
-              role="tabpanel"
-              aria-labelledby="benchmarking-comclient-tab"
-            >
-              <div
-                class="summaryTabSection fs-17-1920"
+      <div class="row" id="benchmarking-sub-tab">
+        <div class="col-lg-12 mx-3">
+          <b-tabs v-if="Object.keys(categoryData).length" class="mx-1">
+            <template v-for="(catData, key, index) in categoryData">
+              <b-tab
+                @click="getRecentActiveTab(key)"
+                :title="getSource(key)"
+                :key="key"
                 v-if="
-                  categoryData['Commodities_Client'] &&
-                  categoryData['Commodities_Client']['categoryInfo'] &&
-                  (typeof categoryData['Commodities_Client']['categoryInfo'] ==
-                  'object'
-                    ? categoryData['Commodities_Client']['categoryInfo'][
-                        $i18n.locale
-                      ] != ''
-                    : categoryData['Commodities_Client']['categoryInfo'])
+                  [
+                    'User',
+                    'Commodities_Facilities',
+                    'Visits',
+                    'Commodities_Client',
+                  ].includes(key) &&
+                  catData.dataOnContraceptive == 'Yes' &&
+                  population
                 "
               >
-                <div class="row">
-                  <div class="col-12">
-                    <button
-                      class="btn text-white summaryBtn fs-19-1920"
-                      data-toggle="collapse"
-                      data-target="#clientSummaryTab"
-                      @click="activeSummary('client')"
-                      :class="{ active: clientActive }"
-                    >
-                      {{ $t("Summary") }}
-                      <i
-                        class="fa fa-angle-double-right"
-                        aria-hidden="true"
-                      ></i>
-                    </button>
-                    <div
-                      id="clientSummaryTab"
-                      class="collapse card px-3 pt-3 mb-3 summary_Card fs-17-1920"
-                      v-html="
-                        categoryData['Commodities_Client']['categoryInfo'][$i18n.locale]
-                      "
-                    ></div>
-                  </div>
+                <div class="mt-3">
+                  <TabSummary
+                    v-if="
+                      catData &&
+                      catData['categoryInfo'] &&
+                      (typeof catData['categoryInfo'] == 'object'
+                        ? catData['categoryInfo'][$i18n.locale] != ''
+                        : catData['categoryInfo'])
+                    "
+                    :content="
+                      typeof catData == 'object'
+                        ? catData['categoryInfo'][$i18n.locale]
+                        : catData['categoryInfo']
+                    "
+                    :contKey="'input' + key"
+                  />
                 </div>
-              </div>
-              <benchMarkingInpOutp
-                v-if="
-                  categoryData['Commodities_Client'] &&
-                  population &&
-                  categoryData['Commodities_Client']['dataOnContraceptive'] ==
-                    'Yes'
-                "
-                :data="categoryData['Commodities_Client']"
-                :bAllWomen="bAllWomen"
-                key="Commodities_Client"
-                :dhsColor="dhsColor"
-                :totalEMUColor="totalEMUColor"
-                tabName="commoditiesToClients"
-                tableName="Commodities Client"
-                :emuSaveType="emuSaveType"
-                :source="$i18n.t('commodities_Distributed_to_Clients')"
-                :startYear="sStartYear"
-                :endYear="sRecentYear"
-                :population="population"
-                :location="value[0]"
-                :locationName="locationName"
-                :setData="getDataFromChild"
-                @methodFilter="methodFilterVal"
-                :method="methodSelected"
-                @activeTabName="getActiveTab"
-                ref="comclientref"
-                :signOffActive="signOffActive"
-                exportPosition="1"
-                @sendEMUCharts="getEMUCharts"
-                contName="Commodities_Client"
-                :userDetails="userDetails"
-                :dqrResponse="dqrResponse"
-                :appResponse="appResponse"
-                :globalResponse="globalResponse"
-                @dataUpdated="updatedFlag"
-                :caltype="caltype"
-                @saveEMUFinal="saveEMUFinal"
-              />
-            </div>
-            <div
-              :class="{
-                active: activeTab === 'Commodities_Facilities',
-                show: activeTab === 'Commodities_Facilities',
-              }"
-              class="tab-pane fade"
-              id="benchmarking-comfacilities"
-              role="tabpanel"
-              aria-labelledby="benchmarking-comfacilities-tab"
-            >
-              <div
-                class="summaryTabSection fs-17-1920"
-                v-if="
-                  categoryData['Commodities_Facilities'] &&
-                  categoryData['Commodities_Facilities']['categoryInfo'] &&
-                  (typeof categoryData['Commodities_Facilities'][
-                    'categoryInfo'
-                  ] == 'object'
-                    ? categoryData['Commodities_Facilities']['categoryInfo'][
-                        $i18n.locale
-                      ] != ''
-                    : categoryData['Commodities_Facilities']['categoryInfo'])
-                "
-              >
-                <div class="row">
-                  <div class="col-12">
-                    <button
-                      class="btn text-white summaryBtn"
-                      data-toggle="collapse"
-                      data-target="#facSummaryTab"
-                      @click="activeSummary('fac')"
-                      :class="{ active: facActive }"
-                    >
-                      {{ $t("Summary") }}
-                      <i
-                        class="fa fa-angle-double-right"
-                        aria-hidden="true"
-                      ></i>
-                    </button>
-                    <div
-                      id="facSummaryTab"
-                      class="collapse card px-3 pt-3 mb-3 summary_Card fs-17-1920"
-                      v-html="
-                        categoryData['Commodities_Facilities']['categoryInfo']
-                      "
-                    ></div>
-                  </div>
-                </div>
-              </div>
-              <benchMarkingInpOutp
-                v-if="
-                  categoryData['Commodities_Facilities'] &&
-                  population &&
-                  categoryData['Commodities_Facilities'][
-                    'dataOnContraceptive'
-                  ] == 'Yes'
-                "
-                :data="categoryData['Commodities_Facilities']"
-                :bAllWomen="bAllWomen"
-                key="Commodities_Facilities"
-                :dhsColor="dhsColor"
-                :totalEMUColor="totalEMUColor"
-                tabName="commoditiesToFacilities"
-                tableName="Commodities Facilities"
-                :emuSaveType="emuSaveType"
-                :source="$i18n.t('commodities_Distributed_to_Facilities')"
-                :startYear="sStartYear"
-                :endYear="sRecentYear"
-                :population="population"
-                :location="value[0]"
-                :locationName="locationName"
-                :setData="getDataFromChild"
-                @methodFilter="methodFilterVal"
-                :method="methodSelected"
-                @activeTabName="getActiveTab"
-                ref="comfacilityref"
-                :signOffActive="signOffActive"
-                exportPosition="2"
-                @sendEMUCharts="getEMUCharts"
-                contName="Commodities_Facilities"
-                :userDetails="userDetails"
-                :dqrResponse="dqrResponse"
-                :appResponse="appResponse"
-                :globalResponse="globalResponse"
-                @dataUpdated="updatedFlag"
-                :caltype="caltype"
-                @saveEMUFinal="saveEMUFinal"
-              />
-            </div>
-            <div
-              :class="{
-                active: activeTab === 'Visits',
-                show: activeTab === 'Visits',
-              }"
-              class="tab-pane fade"
-              id="benchmarking-fpvisits"
-              role="tabpanel"
-              aria-labelledby="benchmarking-fpvisits-tab"
-            >
-              <div
-                class="summaryTabSection fs-17-1920"
-                v-if="
-                  categoryData['Visits'] &&
-                  categoryData['Visits']['categoryInfo'] &&
-                  (typeof categoryData['Visits']['categoryInfo'] == 'object'
-                    ? categoryData['Visits']['categoryInfo'][$i18n.locale] != ''
-                    : categoryData['Visits']['categoryInfo'])
-                "
-              >
-                <div class="row">
-                  <div class="col-12">
-                    <button
-                      class="btn text-white summaryBtn fs-19-1920"
-                      data-toggle="collapse"
-                      data-target="#visitsSummaryTab"
-                      @click="activeSummary('visit')"
-                      :class="{ active: visitsActive }"
-                    >
-                      {{ $t("Summary") }}
-                      <i
-                        class="fa fa-angle-double-right"
-                        aria-hidden="true"
-                      ></i>
-                    </button>
-                    <div
-                      id="visitsSummaryTab"
-                      class="collapse card px-3 pt-3 mb-3 summary_Card fs-17-1920"
-                      v-html="categoryData['Visits']['categoryInfo']"
-                    ></div>
-                  </div>
-                </div>
-              </div>
-              <benchMarkingInpOutp
-                v-if="
-                  categoryData['Visits'] &&
-                  population &&
-                  categoryData['Visits']['dataOnContraceptive'] == 'Yes'
-                "
-                :data="categoryData['Visits']"
-                :bAllWomen="bAllWomen"
-                tabName="fp_visits"
-                tableName="Visits"
-                key="Visits"
-                :dhsColor="dhsColor"
-                :totalEMUColor="totalEMUColor"
-                :emuSaveType="emuSaveType"
-                :source="$i18n.t('fp_visits')"
-                :startYear="sStartYear"
-                :endYear="sRecentYear"
-                :population="population"
-                :location="value[0]"
-                :locationName="locationName"
-                :setData="getDataFromChild"
-                @methodFilter="methodFilterVal"
-                :method="methodSelected"
-                @activeTabName="getActiveTab"
-                ref="visitsref"
-                :signOffActive="signOffActive"
-                exportPosition="3"
-                @sendEMUCharts="getEMUCharts"
-                contName="Visits"
-                :userDetails="userDetails"
-                :dqrResponse="dqrResponse"
-                :appResponse="appResponse"
-                :globalResponse="globalResponse"
-                @dataUpdated="updatedFlag"
-                :caltype="caltype"
-                @saveEMUFinal="saveEMUFinal"
-              />
-            </div>
-            <div
-              :class="{
-                active: activeTab === 'User',
-                show: activeTab === 'User',
-              }"
-              class="tab-pane fade"
-              id="benchmarking-fpusers"
-              role="tabpanel"
-              aria-labelledby="benchmarking-fpusers-tab"
-            >
-              <div
-                class="summaryTabSection fs-17-1920"
-                v-if="
-                  categoryData['User'] &&
-                  categoryData['User']['categoryInfo'] &&
-                  (typeof categoryData['User']['categoryInfo'] == 'object'
-                    ? categoryData['User']['categoryInfo'][$i18n.locale] != ''
-                    : categoryData['User']['categoryInfo'])
-                "
-              >
-                <div class="row">
-                  <div class="col-12">
-                    <button
-                      class="btn text-white summaryBtn fs-19-1920"
-                      data-toggle="collapse"
-                      data-target="#userSummaryTab"
-                      @click="activeSummary('user')"
-                      :class="{ active: userActive }"
-                    >
-                      {{ $t("Summary") }}
-                      <i
-                        class="fa fa-angle-double-right"
-                        aria-hidden="true"
-                      ></i>
-                    </button>
-                    <div
-                      id="userSummaryTab"
-                      class="collapse card px-3 pt-3 mb-3 summary_Card fs-17-1920"
-                      v-html="categoryData['User']['categoryInfo']"
-                    ></div>
-                  </div>
-                </div>
-              </div>
-              <benchMarkingInpOutp
-                v-if="
-                  categoryData['User'] &&
-                  population &&
-                  categoryData['User']['dataOnContraceptive'] == 'Yes'
-                "
-                :data="categoryData['User']"
-                :bAllWomen="bAllWomen"
-                tabName="fp_users"
-                tableName="Users"
-                :source="$i18n.t('fp_users')"
-                :emuSaveType="emuSaveType"
-                :startYear="sStartYear"
-                :endYear="sRecentYear"
-                key="User"
-                :dhsColor="dhsColor"
-                :totalEMUColor="totalEMUColor"
-                :population="population"
-                :location="value[0]"
-                :locationName="locationName"
-                :setData="getDataFromChild"
-                @methodFilter="methodFilterVal"
-                :method="methodSelected"
-                @activeTabName="getActiveTab"
-                ref="usersref"
-                :signOffActive="signOffActive"
-                exportPosition="4"
-                @sendEMUCharts="getEMUCharts"
-                contName="User"
-                :userDetails="userDetails"
-                :dqrResponse="dqrResponse"
-                :appResponse="appResponse"
-                :globalResponse="globalResponse"
-                @dataUpdated="updatedFlag"
-                :caltype="caltype"
-                @saveEMUFinal="saveEMUFinal"
-              />
-            </div>
+                <benchMarkingInpOutp
+                  :data="catData"
+                  :dhsColor="dhsColor"
+                  :totalEMUColor="totalEMUColor"
+                  :source="getSource(key)"
+                  :population="population"
+                  :location="value[0]"
+                  @methodFilter="methodFilterVal"
+                  :method="methodSelected"
+                  @activeTabName="getActiveTab"
+                  :signOffActive="signOffActive"
+                  :exportPosition="index + 1"
+                  @sendEMUCharts="getEMUCharts"
+                  :ref="key"
+                  :contName="key"
+                  :dqrResponse="dqrResponse"
+                  :globalResponse="globalResponse"
+                  :caltype="caltype"
+                  @saveEMUFinal="saveEMUFinal"
+              /></b-tab>
+            </template>
+          </b-tabs>
+          <div class="text-center" v-else>
+            <b-spinner type="grow" label="Spinning"></b-spinner>
           </div>
         </div>
       </div>
@@ -448,9 +71,7 @@
     <autoSaveEMU
       v-if="getEMULocations.length"
       :locationVal="emuLoc"
-      :userDetails="userDetails"
       :dqrResponse="dqrResponse"
-      :appResponse="appResponse"
       :globalResponse="globalResponse"
       @saveEMUAuto="saveEMUAuto"
       @errorOccured="errorOccured"
@@ -487,18 +108,22 @@ import service from "@/service";
 import dataM from "./dataMassaging";
 import toolbarComponent from "./toolbarComponent.vue";
 import { decompress } from "compress-json";
+import NepaliDate from "nepali-date-converter";
+import { translateDate } from "@/components/Common/commonFunctions";
 export default {
   components: {
     benchMarkingInpOutp,
     autoSaveEMU,
     toolbarComponent,
+    TabSummary: () =>
+      import(
+        /* webpackChunkName: "TabSummary"*/ "@/components/Common/TabSummary"
+      ),
   },
   props: [
     "locationVal",
     "signOffActive",
-    "userDetails",
     "dqrResponse",
-    "appResponse",
     "globalResponse",
     "tabName",
     "dhsColor",
@@ -515,8 +140,19 @@ export default {
   },
   updated() {},
   methods: {
+    getSource(key) {
+      let aSource = {
+        Commodities_Client: this.$i18n.t("commodities_Distributed_to_Clients"),
+        Visits: this.$i18n.t("fp_visits"),
+        Commodities_Facilities: this.$i18n.t(
+          "commodities_Distributed_to_Facilities"
+        ),
+        User: this.$i18n.t("fp_users"),
+      };
+      return aSource[key];
+    },
     generateEMU(locations) {
-      this.$store.state.loading = true;
+      this.$store.commit("setLoading", true);
       this.generateAutoEMU = true;
       this.getEMULocations = locations;
       this.locIndex = this.locIndex * 1 + 1;
@@ -530,24 +166,7 @@ export default {
     getCalType(val) {
       this.caltype = val;
     },
-    activeSummary(tab) {
-      if (tab == "client") {
-        this.clientActive = !this.clientActive;
-      } else if (tab == "fac") {
-        this.facActive = !this.facActive;
-      } else if (tab == "visit") {
-        this.visitsActive = !this.visitsActive;
-      } else if (tab == "user") {
-        this.userActive = !this.userActive;
-      } else {
-        this.emuActive = !this.emuActive;
-      }
-    },
-    updatedFlag(data) {
-      if (data == true) {
-        this.bshowLoader = false;
-      }
-    },
+
     getEMUCharts(exportArr = []) {
       let newExport = JSON.parse(JSON.stringify(exportArr));
       newExport = newExport.map((obj) => {
@@ -590,18 +209,35 @@ export default {
         let currentTime = this.$moment(new Date()).format("ll");
         let key = this.generateKey(`autoSaveEMU_${this.$i18n.locale}`);
         service.getIndividualOrganisation(val.split("/")[1]).then((keyOrg) => {
-          service.getSavedConfig(key).then((res) => {
-            let resp = res.data;
-            if (!resp[this.activeTab]) resp[this.activeTab] = {};
-            resp[this.activeTab][val] = {
-              name: keyOrg.data.displayName,
-              time: currentTime,
-            };
-            let response = service.updateConfig(resp, key);
-            response.then((response) => {
-              this.generateFlag = true;
+          service
+            .getSavedConfig({ tableKey: key })
+            .then((res) => {
+              let resp = res.data;
+              if (!resp[this.activeTab]) resp[this.activeTab] = {};
+              resp[this.activeTab][val] = {
+                name: keyOrg.data.displayName,
+                time: currentTime,
+              };
+              let response = service.updateConfig({
+                data: resp,
+                tableKey: key,
+              });
+              response.then((response) => {
+                this.generateFlag = true;
+              });
+            })
+            .catch((err) => {
+              let resp = {};
+              if (!resp[this.activeTab]) resp[this.activeTab] = {};
+              resp[this.activeTab][val] = {
+                name: keyOrg.data.displayName,
+                time: currentTime,
+              };
+              let response = service.saveConfig({ data: resp, tableKey: key });
+              response.then((response) => {
+                this.generateFlag = true;
+              });
             });
-          });
         });
       }
     },
@@ -702,7 +338,7 @@ export default {
     updateEMU(saveObj) {
       let key = this.generateKey(`autoSaveEMU_${this.$i18n.locale}`);
       service
-        .getSavedConfig(key)
+        .getSavedConfig({ tableKey: key })
         .then((res) => {
           let resp = res.data;
           Object.keys(saveObj).forEach((methods) => {
@@ -710,20 +346,22 @@ export default {
               resp[methods][keys] = saveObj[methods][keys];
             });
           });
-          let response = service.updateConfig(resp, key);
+          let response = service.updateConfig({ data: resp, tableKey: key });
           response.then((response) => {
             this.resetAutoSaveEMU();
             this.generateFlag = true;
-            this.$store.state.loading = false;
+            this.$store.commit("setLoading", false);
+            this.$store.commit("setIsMonthlyEMUSet", false);
           });
         })
         .catch(() => {
-          let response = service.saveConfig(saveObj, key);
+          let response = service.saveConfig({ data: saveObj, tableKey: key });
           response.then((response) => {
             if (response.data.status === "OK") {
               this.resetAutoSaveEMU();
               this.generateFlag = true;
-              this.$store.state.loading = false;
+              this.$store.commit("setLoading", false);
+              this.$store.commit("setIsMonthlyEMUSet", false);
             } else {
               console.log("AutosaveEMU Failed!");
               return;
@@ -789,7 +427,7 @@ export default {
         },
       });
       if (formValues) {
-        let period = this.$moment(this.period, "YYYYMM").format("MMM YYYY");
+        let period = translateDate(this.period);
         import(/* webpackChunkName: "pptxgenjs"*/ "pptxgenjs").then(
           (pptxgen) => {
             let pptx = new pptxgen.default();
@@ -1065,30 +703,16 @@ export default {
       this.recentActiveTab = value;
     },
     getRecentActiveTab(tab) {
-      if (tab == "client") {
-        this.recentActiveTab = this.$refs.comclientref.activetab;
-        this.activeTab = "Commodities_Client";
-      } else if (tab == "facilities") {
-        this.recentActiveTab = this.$refs.comfacilityref.activetab;
-        this.activeTab = "Commodities_Facilities";
-      } else if (tab == "visits") {
-        this.recentActiveTab = this.$refs.visitsref.activetab;
-        this.activeTab = "Visits";
-      } else if (tab == "users") {
-        this.recentActiveTab = this.$refs.usersref.activetab;
-        this.activeTab = "User";
-      } else {
-        this.recentActiveTab = tab;
-      }
-      let obj = this.sourceFilter.find((o) => o.name === this.activeTab);
+      this.recentActiveTab = this.$refs[tab][0].activetab;
+      this.activeTab = tab;
+      let obj = this.sourceFilter.find((o) => o.name === tab);
       if (obj) {
         this.emuMethods = obj.value;
         this.defaultMethod = obj.value[0]["children"][0]["id"];
         this.methodSelected = obj.value[0]["children"][0]["id"];
       }
       this.autoSaveSource =
-        this.dqrResponse.emu_monthly.Background_Data["autoSaveEMU"] ==
-        this.activeTab;
+        this.dqrResponse.emu_monthly.Background_Data["autoSaveEMU"] == tab;
     },
     closeToolbar() {
       this.showToolbarOnTablet = false;
@@ -1126,30 +750,45 @@ export default {
      */
     async getConfigAccess(locChange) {
       let locationID = this.newLocVal.split("/")[1];
-      if (
-        this.userDetails.dataViewOrganisationUnits[0].level >
-        this.appResponse.defaultLevelID
-      ) {
-        locationID = this.userDetails.dataViewOrganisationUnits[0].id;
+      //chnaging period logic and taking application period datefor emu monthly
+      // let sStartYear = this.dqrResponse.emu_monthly["Background_Data"][
+      //   "startingYear"
+      // ]
+      //   ? this.dqrResponse.emu_monthly["Background_Data"]["startingYear"]
+      //   : "2007";
+      let periodData = this.$store.getters.getGlobalFactors().period.Period;
+      let d = new Date();
+      if (this.$store.getters.getAppSettings.calendar === "nepali") {
+        d = new NepaliDate(
+          new Date(d.getFullYear(), d.getMonth() + 1, d.getDate())
+        ).getBS();
+        let nplMonth = d.month;
+        let nplYear = d.year;
+        let zeroForMonth = nplMonth < 10 ? "0" + nplMonth : nplMonth;
+        d = d.year + "" + zeroForMonth;
       }
-
-      let sStartYear = this.dqrResponse.emu_monthly["Background_Data"][
-        "startingYear"
-      ]
-        ? this.dqrResponse.emu_monthly["Background_Data"]["startingYear"]
-        : "2007";
+      let lYear = this.$moment(d, "YYYYMM")
+        .subtract(periodData.backtrackedMonth * 1, "months")
+        .format("YYYY");
       this.categoryData = this.dqrResponse.emu_monthly;
-      let lYear = this.categoryData["Background_Data"]["SSDataRecentYear"]
-        ? this.categoryData["Background_Data"]["SSDataRecentYear"]
-        : sStartYear * 1 + 13;
+      // let lYear = this.categoryData["Background_Data"]["SSDataRecentYear"]
+      //   ? this.categoryData["Background_Data"]["SSDataRecentYear"]
+      //   : sStartYear * 1 + 13;
+      let sStartYear = this.$moment(lYear, "YYYY")
+        .subtract(periodData.backtrackedYearLimit * 1, "years")
+        .format("YYYY");
+
+      console.log(
+        sStartYear,
+        lYear,
+        "=========",
+        this.dqrResponse.emu_monthly["Background_Data"]["startingYear"],
+        this.categoryData["Background_Data"]["SSDataRecentYear"]
+      );
       let sYear = dataM.getYearFormated(sStartYear, lYear * 1 + 1);
       this.value = [this.newLocVal];
       this.locationValue = this.newLocVal;
-      this.emuSaveType = this.dqrResponse.emu_monthly["Background_Data"][
-        "emuSaveType"
-      ]
-        ? this.dqrResponse.emu_monthly["Background_Data"]["emuSaveType"]
-        : "Custom"; //Indicator_Calculator or Custom
+
       let aBackgorundIndicators = this.categoryData["Background_Data"][
         "backgroundIndicators"
       ]
@@ -1188,7 +827,7 @@ export default {
         popType = popType.toLowerCase();
         let key = `population_${popType}_${levelid}`;
         await service
-          .getSavedConfig(key)
+          .getSavedConfig({ tableKey: key })
           .then(async (popResp) => {
             this.population = {};
             let popResponse =
@@ -1204,12 +843,12 @@ export default {
             newpopResponse.forEach((data) => {
               this.population[data[1]] = data[3] * 1;
             });
-            this.bShowLoader = false;
+
+            console.log(this.population, "from DT");
           })
           .catch((res) => {
             console.log(res);
             this.showAlert();
-            this.bShowLoader = false;
           });
       } else {
         await service
@@ -1224,22 +863,15 @@ export default {
               this.sweetAlert({
                 text: this.$i18n.t("populationdatanotfound"),
               });
-              this.bshowLoader = false;
             }
-            this.bShowLoader = false;
           })
           .catch((res) => {
             console.log(res);
             this.showAlert();
-            this.bShowLoader = false;
           });
       }
       this.sStartYear = sStartYear;
-      this.sRecentYear =
-        this.categoryData["Background_Data"]["SSDataRecentYear"];
-      this.bAllWomen =
-        this.categoryData["Background_Data"]["FPWomenPopulation"] === "WRA";
-      console.log("Population data from ", innerDataStore);
+      console.log("Population data ", innerDataStore);
       console.log(this.population);
     },
     showAlert() {
@@ -1247,14 +879,13 @@ export default {
       this.sweetAlert({
         text: this.$i18n.t("somethingwentwrong"),
       });
-      this.bshowLoader = false;
     },
     switchCategory(data) {
       let aSource = {
-        Commodities_Client: "EMU :Commodities to clients",
-        Visits: "EMU :FP visits",
-        Commodities_Facilities: "EMU :Commodities to facilitlity",
         User: "EMU :FP users",
+        Visits: "EMU :FP visits",
+        Commodities_Client: "EMU :Commodities to clients",
+        Commodities_Facilities: "EMU :Commodities to facilitlity",
       };
       let preVal = "",
         preValFlag = false;
@@ -1269,25 +900,9 @@ export default {
       });
       this.activeTab = preVal;
     },
-
-    getDataFromChild(p_data) {
-      let sTab = p_data.tab,
-        sLoc = p_data.loc,
-        sType = p_data.type;
-      if (!this.dataStore) {
-        this.dataStore = {};
-      }
-      this.dataStore[sTab] = {
-        [sLoc]: {
-          [sType]: p_data.data,
-        },
-      };
-      this.bEMUFlag = !this.bEMUFlag;
-    },
   },
   data() {
     return {
-      emuSaveType: null,
       autoSaveSource: "",
       generateFlag: false,
       saveObj: {},
@@ -1298,29 +913,12 @@ export default {
       emuLoc: "",
       caltype: "method",
       categoryData: {},
-      bAllWomen: false,
-      sStartYear: 2007,
-      sRecentYear: "",
-      bShowLoader: true,
+      sStartYear: 2010,
       population: null,
-      locationName: null,
-      multiple: false,
-      clearable: true,
-      searchable: false,
-      disabled: false,
-      openOnClick: true,
-      openOnFocus: false,
-      clearOnSelect: true,
-      closeOnSelect: false,
-      alwaysOpen: true,
-      appendToBody: false,
-      defaultExpandLevel: 1,
       options: [],
       value: null,
-      dataStore: null,
-      bEMUFlag: false,
       locationValue: "",
-      period: new Date("2017-12"),
+      period: this.$moment(new Date()).format("YYYY-MM"),
       activeTab: "",
       methodSelected: "",
       emuMethods: [],
@@ -1328,14 +926,8 @@ export default {
       showToolbarOnTablet: false,
       recentActiveTab: "",
       exportArr: [],
-      emuM: [],
       newLocVal: this.locationVal,
-      defaultLevelID: "",
       sourceFilter: [],
-      clientActive: false,
-      facActive: false,
-      visitsActive: false,
-      userActive: false,
       locKey: 0,
     };
   },
@@ -1357,10 +949,6 @@ export default {
     locationVal(newVal) {
       let val = newVal.split("/");
       this.value = val[1];
-      this.bshowLoader = true;
-    },
-    methodSelected(newVal) {
-      this.methodSelected = newVal;
     },
   },
 };

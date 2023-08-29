@@ -1,9 +1,5 @@
 <template>
   <div class="card">
-    <!-- <div class="card-header border-radius-0 text-uppercase f-s-0-875rem">
-     
-    </div> -->
-    <!--EMUMONTHLY-->
     <div class="card-body">
       <div class="row">
         <div class="col-lg-12">
@@ -29,7 +25,7 @@
               </select>
             </div>
           </div>
-          <div class="form-group row">
+          <div class="form-group row hide">
             <label for="startYearPopulation" class="col-sm-7 col-form-label">{{
               $t("initialYearOfData")
             }}</label>
@@ -43,7 +39,7 @@
               />
             </div>
           </div>
-          <div class="form-group row">
+          <div class="form-group row hide">
             <label for="yearPopulation" class="col-sm-7 col-form-label">{{
               $t("completeService")
             }}</label>
@@ -127,7 +123,7 @@
               </select>
             </div>
           </div>
-          <div class="form-group row">
+          <div class="form-group row" v-if="$store.getters.getAppSettings.isIC">
             <label for="emuSaveType" class="col-sm-7 col-form-label">{{
               $t("emuSaveType")
             }}</label>
@@ -179,9 +175,9 @@
           v-for="(method, _i) in moduleConfig.backgroundIndicators"
           :key="_i"
         >
-          <div class="card-header">
+          <!-- <div class="card-header">
             {{ $t(`${method.name}`) }}
-          </div>
+          </div> -->
           <div class="card-body">
             <div class="form-group row">
               <label for="selectBGSource" class="col-sm-7 col-form-label">{{
@@ -213,7 +209,7 @@
               :indicatorsList="indicatorsList"
               :dataElementsList="dataElementsList"
               :dataSetsList="dataSetsList"
-              :metrixList="metrixList"
+              :matrixList="matrixList"
               :updateDEName="updateDEName"
               :bgDataSource="method.bgDataSource"
               :bgDataType="moduleConfig.FPWomenPopulation"
@@ -292,7 +288,7 @@
               :indicatorsList="indicatorsList"
               :dataElementsList="dataElementsList"
               :dataSetsList="dataSetsList"
-              :metrixList="metrixList"
+              :matrixList="matrixList"
               :bgDataSource="moduleConfig.bgDataSource"
               :bgDataType="moduleConfig.FPWomenPopulation"
             />
@@ -312,7 +308,7 @@ export default {
     "indicatorsList",
     "dataElementsList",
     "dataSetsList",
-    "metrixList",
+    "matrixList",
     "autoSaveOption",
     "defaultEMUOption",
   ],

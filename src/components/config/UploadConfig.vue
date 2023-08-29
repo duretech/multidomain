@@ -113,9 +113,9 @@ export default {
       else if (obj instanceof Object) for (var k in obj) this.removeCID(obj[k]);
     },
     uploadFile() {
-      this.$store.state.loading = true;
+      this.$store.commit("setLoading", true);
       service
-        .getAllKeys()
+        .getAllKeys({})
         .then((res) => {
           this.processUploadFile(res);
         })
@@ -134,7 +134,9 @@ export default {
           fileDuplicate.push(key);
         } else {
           files.push(key);
-          promises.push(service.saveConfig(this.selectedFiles[key], key));
+          promises.push(
+            service.saveConfig({ data: this.selectedFiles[key], tableKey: key })
+          );
         }
       });
       await Promise.allSettled(promises).then((results) => {
@@ -146,7 +148,7 @@ export default {
           }
         });
       });
-      this.$store.state.loading = false;
+      this.$store.commit("setLoading", false);
       let successText = this.createStatusText(
         fileSuccess,
         "success",

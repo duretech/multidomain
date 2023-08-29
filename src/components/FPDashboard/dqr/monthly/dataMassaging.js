@@ -46,19 +46,8 @@ export default {
    * @param 'p_data, p_global' p_data is data of indivisual tab, p_global is global config.
    * @return {Object} oData
    */
-  getFormatedData: (p_data, p_global) => {
+  getFormatedData: (p_data) => {
     let oData = {
-        //type:p_data.chartOptions.chart.type.toLowerCase(),
-        type: "column",
-        // title:p_data.chartOptions.title.title,
-        // xTitle:p_data.chartOptions.xAxis.title.text,
-        // yTitle:p_data.chartOptions.yAxis.title.text,
-        title: "",
-        //visible:false,
-        xTitle: "",
-        yTitle: "",
-        startingYear: p_global.startingYear,
-        locationId: p_global.defaultLocationID[0],
         chartArr: [],
       },
       i,
@@ -141,13 +130,14 @@ export default {
             : aSubInd[j].static_name;
         oCyp[mName] = aSubInd[j].cyp;
         oDe.de = aSubInd[j].de;
+        oDe.selectedDE = aSubInd[j].selectedDE;
         /* commented for modified api calls */
         /*
                 for(let k in oSelectedDE){
                     oDe.displayName.push(oSelectedDE[k].displayName);
                     oDe.de.push(oSelectedDE[k].id);
                 } */
-        if (oDe.de.length) {
+        if (oDe.selectedDE.length) {
           aDataElems.push(oDe);
         }
       }

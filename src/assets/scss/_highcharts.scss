@@ -13,14 +13,22 @@
   position: inherit !important;
 }
 
-.b-table-sticky-header table{
-  position: relative;
+.b-table-sticky-header{
+  table{
+    position: relative;
+  }  
+  thead{
+    position: sticky;
+    top: -1px;
+    z-index: 2;
+  }
+  .drillTable {
+    thead {
+      z-index: 1;
+    }
+  }
 }
 
-.b-table-sticky-header thead{
-  position: sticky;
-  top: -1px;
-}
 
 
 .tables {

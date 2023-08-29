@@ -32,7 +32,7 @@
           }}</span>
           <template v-if="typeof subInd.adjusted !== 'undefined'">
             <select
-              class="form-control form-control-sm m-l-20px w-auto"
+              class="form-control form-control-sm m-l-20px w-auto custom-select"
               style="display: inline-block"
               v-model="subInd.adjusted"
             >
@@ -150,7 +150,7 @@
                                 </div>
                                 <div v-else>
                                   <AddMapping
-                                    :metrixList="metrixList"
+                                    :matrixList="matrixList"
                                     :dataSetsList="dataSetsList"
                                     :indicatorsList="indicatorsList"
                                     :dataElementsList="dataElementsList"
@@ -205,7 +205,7 @@ export default {
     "dataElementsList",
     "updateDEName",
     "dataSetsList",
-    "metrixList",
+    "matrixList",
     "bgDataSource",
     "bgDataType",
   ],

@@ -137,7 +137,7 @@ export default {
       // console.log("mapping", this.mapping)
       // console.log("chartData", this.chartData)
       // console.log("replaceExisting", this.replaceExisting)
-      this.$store.state.loading = true;
+      this.$store.commit("setLoading",true);
       let mapping = JSON.parse(JSON.stringify(this.chartData));
       // console.log("mapping", mapping)
       let updatedMapping = [];
@@ -240,7 +240,7 @@ export default {
       this.selectedMethods = [];
       this.replaceExisting = true;
       this.copyMappingModal = false;
-      this.$store.state.loading = false;
+      this.$store.commit("setLoading",false);
     },
     createSourceList() {
       Object.keys(this.globalMapping).forEach((source) => {

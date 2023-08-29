@@ -43,7 +43,7 @@
             v-if="showAutoButton && autoSaveSource"
             small
             @click.prevent.stop="generateEmuButtonClick"
-            class="position-relative mt-3"
+            class="position-relative mt-3 blue-btn"
           >
             <span class="small">Generate EMU</span>
             <!-- <span class="small" v-if="scorecardDataFetching">{{locationFetchedPercent}}%</span>
@@ -179,6 +179,8 @@
                   hover
                   bordered
                   :items="emuItems"
+                  show-empty
+                  :empty-text="$t('no_data_to_display')"
                 ></b-table>
               </b-card>
             </template>
@@ -202,6 +204,7 @@ import Treeselect from "@riophae/vue-treeselect";
 // import the styles
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 import loadLocChildMixin from "@/helpers/LoadLocationChildMixin";
+import NepaliDate from "nepali-date-converter";
 export default {
   props: [
     // "emuYears",
@@ -217,6 +220,7 @@ export default {
     Treeselect,
   },
   data() {
+    console.log(this.recentActiveTab, "recentActiveTab");
     return {
       showAutoButton: false,
       EMU: "EMU",
@@ -251,7 +255,6 @@ export default {
       if (tab) this.showTable();
     },
     generateFlag(newVal) {
-      console.log("generateFlag", newVal);
       if (newVal) {
         this.generateEMUTable();
         this.selectedEMULocation = [];
@@ -259,12 +262,9 @@ export default {
         this.generateEMUPopup = false;
       }
     },
-    recentActiveTab(vale) {
-      //console.log(vale)
-    },
+    recentActiveTab(vale) {},
 
     emuYear(newValue) {
-      console.log("emuYear watch", newValue);
       if (newValue) {
         this.$emit("emuYear", newValue);
 
@@ -319,18 +319,14 @@ export default {
       ];
       let key = this.generateKey(`autoSaveEMUAnnual_${this.$i18n.locale}`);
       service
-        .getSavedConfig(key)
+        .getSavedConfig({ tableKey: key })
         .then((res) => {
-          console.log("datastore exist");
           this.showAutoButton = false;
           let emuData = res.data;
           this.emuTableData = emuData;
           this.showTable();
-
-          //console.log(emuData,this.getActiveTab,emuData[this.getActiveTab]);
         })
         .catch((res) => {
-          console.log("res", res);
           this.showAutoButton = true;
         });
     },
@@ -352,8 +348,25 @@ export default {
       );
       this.value = this.options[0].id;
       this.$emit("defLevel", this.value.split("/")[0]);
-      this.emuYear =
-        this.dqrResponse.emu["Background_Data"]["SSDataRecentYear"];
+      // this.emuYear = this.dqrResponse.emu["Background_Data"]["SSDataRecentYear"];
+      //Global Period Seeting in emu annual
+      let periodData = this.$store.getters.getGlobalFactors().period.Period;
+      let d = new Date();
+      if (this.$store.getters.getAppSettings.calendar === "nepali") {
+        d = new NepaliDate(
+          new Date(d.getFullYear(), d.getMonth() + 1, d.getDate())
+        ).getBS();
+        let nplMonth = d.month;
+        let nplYear = d.year;
+        let zeroForMonth = nplMonth < 10 ? "0" + nplMonth : nplMonth;
+        d = d.year + "" + zeroForMonth;
+      }
+      let recentYearMonth = this.$moment(d, "YYYYMM")
+        .subtract(periodData.backtrackedMonth * 1, "months")
+        .format("YYYY-MM");
+      if (recentYearMonth.split("-")[1] == 12)
+        this.emuYear = recentYearMonth.split("-")[0];
+      else this.emuYear = recentYearMonth.split("-")[0] * 1 - 1;
     },
   },
   computed: {
@@ -365,9 +378,29 @@ export default {
     },
     emuYears() {
       let aKeys = [],
-        nStart = this.dqrResponse.emu["Background_Data"]["startingYear"] * 1,
-        nEnd = this.dqrResponse.emu["Background_Data"]["SSDataRecentYear"] * 1;
-      //let aKeys = [],nStart = this.sourceStartYear * 1,nEnd = this.sourceEndYear * 1;
+        nStart,
+        nEnd;
+      //Global Period Seeting in emu annual
+      let periodData = this.$store.getters.getGlobalFactors().period.Period;
+      let d = new Date();
+      if (this.$store.getters.getAppSettings.calendar === "nepali") {
+        d = new NepaliDate(
+          new Date(d.getFullYear(), d.getMonth() + 1, d.getDate())
+        ).getBS();
+        let nplMonth = d.month;
+        let nplYear = d.year;
+        let zeroForMonth = nplMonth < 10 ? "0" + nplMonth : nplMonth;
+        d = d.year + "" + zeroForMonth;
+      }
+      let recentYearMonth = this.$moment(d, "YYYYMM")
+        .subtract(periodData.backtrackedMonth * 1, "months")
+        .format("YYYY-MM");
+      if (recentYearMonth.split("-")[1] == 12)
+        nEnd = recentYearMonth.split("-")[0];
+      else nEnd = recentYearMonth.split("-")[0] * 1 - 1;
+      nStart = this.$moment(recentYearMonth, "YYYY-MM")
+        .subtract(periodData.backtrackedYearLimit * 1, "years")
+        .format("YYYY");
       if (!(isNaN(nStart) || isNaN(nEnd))) {
         while (nStart <= nEnd) {
           aKeys.push(nStart);

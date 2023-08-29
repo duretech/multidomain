@@ -23,8 +23,8 @@
             </template>
           </i18n>
         </b-col>
-        <b-col sm="2" v-if="!isGenerating"
-          ><div class="text-right mb-3">
+        <b-col sm="2" v-if="!isGenerating">
+          <div class="text-right mb-3">
             <button
               type="button"
               class="btn btn-primary black-btn blue-btn f-08rem"
@@ -38,15 +38,15 @@
               </span>
               <span class="mx-1"> {{ $t("exportbtn") }} </span>
             </button>
-          </div></b-col
-        >
+          </div>
+        </b-col>
       </b-row>
       <div class="mb-4">
         <b-row>
           <b-col
             sm="6"
             :class="{
-              'col-lg-12': $store.state.defaultViewType === 'wide',
+              'col-lg-12': $store.getters.getViewType === 'wide',
             }"
             v-for="summary in summaryList"
             :key="summary.id"
@@ -81,7 +81,8 @@
                               aria-hidden="true"
                               v-b-popover.hover.rightbottom="{
                                 variant: 'info',
-                                content: summary.chartInfo?.[$i18n.locale] || '',
+                                content:
+                                  summary.chartInfo?.[$i18n.locale] || '',
                                 title: summary.tabName[$i18n.locale],
                                 html: true,
                               }"
@@ -258,6 +259,7 @@
                           :allExtData="allExtData"
                           :summaryList="summaryList"
                           :preFetchData="preFetchData"
+                          @updateToolBar="updateToolBar"
                           @setReportChart="setReportChart"
                           :locationPeriod="locationPeriod"
                           :reportChartData="reportChartData"
@@ -538,6 +540,7 @@ export default {
           chartObj: data.chartData,
           chartName: data.chartData?.title?.title || "",
           cid: [this.reportChartData.cid],
+          errorText: data.errorText,
         });
       }
     },
@@ -583,7 +586,7 @@ export default {
         let key = this.generateKey(configKey);
 
         service
-          .getSavedConfig(key)
+          .getSavedConfig({ tableKey: key })
           .then((resp) => {
             this.$set(
               this.emuData,
@@ -697,6 +700,9 @@ export default {
         };
         this.$set(this.summaryList, isCompareFound, obj);
       }
+    },
+    updateToolBar(updatedVal) {
+      this.$emit("updateToolBar", updatedVal);
     },
   },
   created() {

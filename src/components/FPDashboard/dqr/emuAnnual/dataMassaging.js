@@ -48,7 +48,6 @@ export default {
       }
 
       emuColors[indName.split("/")[0]] = aChart[i].indicator.chartOptions.color;
-      //console.log(aChart[i].indicator)
       let oOptions = {
           // color:aChart[i].indicator.color,
           title: aChart[i].indicator.chartOptions.title.title,
@@ -86,7 +85,6 @@ export default {
           typeof aSubInd[j].name == "object"
             ? aSubInd[j].name[i18n.locale]
             : aSubInd[j].name;
-        // console.log(subIndNameAct, aSubInd[j].name, "subIndNameAct");
         emuColors[subIndNameAct] = aSubInd[j].color;
         let statName =
           typeof aChart[i].indicator.static_name == "object"
@@ -110,7 +108,7 @@ export default {
           selectedDE: [],
           color: aSubInd[j].color,
           scaling: aSubInd[j].scalingFactor,
-          subMethodType: continuation[subIndName].type,
+          subMethodType: continuation[subIndName]?.type || null,
         };
         // ,oSelectedDE = aSubInd[j].selectedDE ;
 
@@ -274,7 +272,6 @@ export default {
       });
       /*  */
     }
-    // console.log(aTableData, aFields)
     return {
       categories: aCats,
       data: aData,
@@ -348,7 +345,6 @@ export default {
         });
       }
     });
-    //console.log(newTableData)
     return {
       categories: aCats,
       data: aSeries,
@@ -365,7 +361,6 @@ export default {
    *
    */
   calculateSTMNotAdjusted: (p_arr, p_repo, p_adjF, byPassRepoRate) => {
-    //console.log(p_arr, p_repo,p_adjF)
     let i,
       nLen = p_arr.length,
       oAdjusted = {},
@@ -389,7 +384,6 @@ export default {
           for (let k in oChart[j]) {
             oNotAdjusted[sName][j][k] = oChart[j][k];
             oAdjusted[sName][j][k] = oChart[j][k];
-            console.log("byPassRepoRate", byPassRepoRate);
             if (
               byPassRepoRate == true ||
               (byPassRepoRate == false && p_repo != null && p_repo[j] > 60)
@@ -399,7 +393,6 @@ export default {
               oNotAdjusted[sName][j][k] =
                 oNotAdjusted[sName][j][k].toFixed(3) * 1;
               let adF = p_adjF[k.split("/")[1]] ? p_adjF[k.split("/")[1]] : 1;
-              //console.log(oNotAdjusted[sName][j][k], adF)
               oAdjusted[sName][j][k] = oNotAdjusted[sName][j][k] * adF;
               oAdjusted[sName][j][k] = oAdjusted[sName][j][k].toFixed(3) * 1;
             } else {
@@ -416,7 +409,6 @@ export default {
       }
       /*  */
     }
-    //console.log(oAdjusted, oNotAdjusted)
     return {
       adjusted: oAdjusted,
       nonAdjusted: oNotAdjusted,
@@ -438,7 +430,6 @@ export default {
       oPArr = {},
       aYears = [];
     for (i = 0; i < nLen; i++) {
-      // console.log(p_arr[i].name, "name---------------");
       let oChart = p_arr[i].charts,
         sName = p_arr[i].name,
         bIsLongTerm = p_arr[i].methodType;
@@ -456,7 +447,6 @@ export default {
               if (!oBU[sName][j]) oBU[sName][j] = {};
               //scalling[sName][j] ={}
               for (let k in oChart[j]) {
-                // console.log(s.name, k, "name---------------");
                 if (s.name == k) {
                   if (!scalling[k]) scalling[k] = {};
                   let nCont = p_cont[k.split("/")[1]][m]
@@ -524,9 +514,7 @@ export default {
                 //nCounter--;
               }
             }
-            //console.log(oNonAdjusted[method][j][sSubM], 'value', sSubM)
 
-            //console.log(nSum, sSubM)
             oNonAdjusted[method][j][sSubM] += nSum;
             //oNonAdjusted[method][j][sSubM] = Math.round(oNonAdjusted[method][j][sSubM]);
             oNonAdjusted[method][j][sSubM] =
@@ -551,7 +539,6 @@ export default {
         nCounter++;
       }
     }
-    console.log("Baseline users ", JSON.parse(JSON.stringify(oBU)));
     return {
       scalling: scalling,
       baseline: oBU,
@@ -578,7 +565,6 @@ export default {
   },
 
   getSumOfCont: (p_obj) => {
-    //console.log(p_obj)
     let oFinal = {};
     for (let i in p_obj) {
       oFinal[i] = [];
@@ -601,7 +587,6 @@ export default {
       }
       oFinal[i] = aFinalMthodVals;
     }
-    //console.log(oFinal)
     return oFinal;
   },
   getUserTrendsData: (p_tab, finalMethodArr, sYearArray, adjustedObject) => {
@@ -759,7 +744,9 @@ export default {
     surveyData
   ) => {
     let emuColors = JSON.parse(localStorage.getItem("emuColors"));
-    finalMethodArr = finalMethodArr.reverse(); //need to do as for stack as it shows reversed order of methods
+    //need to do as for stack as it shows reversed order of methods
+    //finalMethodArr = finalMethodArr.reverse();
+    let reversedArray = JSON.parse(JSON.stringify(finalMethodArr)).reverse();
     let allData = {
       nonAdjusted: adjNonAdjData.nonAdjusted,
       adjusted: adjNonAdjData.adjusted,
@@ -777,8 +764,8 @@ export default {
     for (let yrInd in sYearArray) {
       let year = sYearArray[yrInd];
       if (year == endYear) {
-        for (let methodInd in finalMethodArr) {
-          let method = finalMethodArr[methodInd];
+        for (let methodInd in reversedArray) {
+          let method = reversedArray[methodInd];
           let tablerow = {};
           let tempObj = { name: method, data: [], color: emuColors[method] };
           let surveyVal = allData["surveyData"][method][year];
@@ -837,7 +824,7 @@ export default {
     let mainObj = {};
     mainObj.data = [];
     mainObj.tableData = [];
-    let methodArr = finalMethodArr;
+    let methodArr = JSON.parse(JSON.stringify(finalMethodArr));
     finalMethodArr = methodArr.reverse(); //need to do as for stack as it shows reversed order of methods
     let emuColors = JSON.parse(localStorage.getItem("emuColors"));
     for (let yrInd in sYearArray) {
@@ -877,7 +864,6 @@ export default {
         }
       }
     }
-    //console.log(mainObj);
     mainObj.tableData = mainObj.tableData.reverse();
     return mainObj;
   },
@@ -928,7 +914,6 @@ export default {
         });
       }
     }
-    // console.log("comarisonEstimateColumnChart",mainObj);
     return mainObj;
   },
   getMethodMixServicePie: (
@@ -985,13 +970,13 @@ export default {
             y: perVal.toFixed(2) * 1,
             color: emuColors[method],
           };
-          mainObject.data.push(tempObj);
+          if (tempObj.y) mainObject.data.push(tempObj);
           let tempMethodObj = {
             name: method,
             y: perMVal.toFixed(2) * 1,
             color: emuColors[method],
           };
-          methodMix.data.push(tempMethodObj);
+          if (tempMethodObj.y) methodMix.data.push(tempMethodObj);
           tRow[i18n.t("estimated_modern")] = perVal.toFixed(2) * 1;
           tRow[i18n.t("contraceptive_modern")] = perMVal.toFixed(2) * 1;
           tableData.push(tRow);
@@ -1045,7 +1030,6 @@ export default {
         let year = sYearArray[yearInd];
         // tRow[testArray[type]]=sData[year]
         //tempObj.data.push({name:year,y:sData[year]})
-        console.log(sData[year], testArray[surveyType], year);
         tempObj.data.push(sData[year] ? sData[year] : null);
         if (checkIfEmpty == null)
           checkIfEmpty = sData[year] && sData[year] != 0 ? sData[year] : null;
@@ -1081,7 +1065,7 @@ export default {
     mainObject.data = bgSureyData.data ? bgSureyData.data : [];
 
     for (let type in oProps) {
-      let emuData = outputData[type];
+      let emuData = outputData ? outputData[type] : null;
       let emuFilter = filter[type];
       if (emuData) {
         mainObject.categories =
@@ -1106,7 +1090,6 @@ export default {
         mainObject.data.push(tempObj);
       }
     }
-    // console.log(outputData, mainObject, "this.outputData for emuoutput");
 
     return mainObject;
   },
@@ -1165,17 +1148,17 @@ export default {
     for (let yearInd in sYearArray) {
       let year = sYearArray[yearInd];
       let incCondomVal =
-        ((totalObj[year] && totalObj[year]["incCondm"]
-          ? totalObj[year]["incCondm"]
-          : 0) /
-          (oPopulation[year] ? oPopulation[year] : 0)) *
-        100;
+        (oPopulation[year]
+          ? (totalObj[year] && totalObj[year]["incCondm"]
+              ? totalObj[year]["incCondm"]
+              : 0) / (oPopulation[year] ? oPopulation[year] : 0)
+          : 0) * 100;
       let exCondomVal =
-        ((totalObj[year] && totalObj[year]["exCondom"]
-          ? totalObj[year]["exCondom"]
-          : 0) /
-          (oPopulation[year] ? oPopulation[year] : 0)) *
-        100;
+        (oPopulation[year]
+          ? (totalObj[year] && totalObj[year]["exCondom"]
+              ? totalObj[year]["exCondom"]
+              : 0) / (oPopulation[year] ? oPopulation[year] : 0)
+          : 0) * 100;
       tempObjInc.data.push(incCondomVal.toFixed(2) * 1);
       tempObjEx.data.push(exCondomVal.toFixed(2) * 1);
       tempObjInc.keyVal[year] = incCondomVal.toFixed(2) * 1;
@@ -1363,7 +1346,6 @@ export default {
       fp_users: i18n.t("fp_users"),
       fp_visits: i18n.t("fp_visits"),
     };
-    // console.log(oProps, "==============oProps=====================");
     let finalEmu = "";
     for (let tp in oProps) {
       if (oProps[tp] == defaultEMU) {
@@ -1425,7 +1407,6 @@ export default {
   /**Note: Future develepment need to combine logic of both finalmethodmix and finalBG */
   getFormatedBackGroundData: (p_data, p_Keys, p_year) => {
     /***Added by ashvini */
-    // console.log("p_data,p_Keys",p_data,p_Keys,p_year);
     let finalBG = {},
       finalMethodMix = {},
       methodMixYear = "";
@@ -1469,7 +1450,6 @@ export default {
           //for other methods like popumlation,fpet
           let dataRows = p_data.rows;
           let statName, dispName;
-          console.log(methodDE, "methodDE");
           if (methodDE.length > 0)
             if (methodDE[0].split("/").length == 2) {
               (statName = methodDE[0].split("/")[0]),
@@ -1562,7 +1542,6 @@ export default {
         p_cont[i][j].continuation = oFinal;
       }
     }
-    //console.log(p_cont)
     return p_cont;
   },
   getTableFormatedData: (newData, methodSeq) => {

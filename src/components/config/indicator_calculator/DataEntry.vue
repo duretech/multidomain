@@ -1,8 +1,8 @@
 <template>
   <div>
-    <b-button class="btn btn-primary black-btn blue-btn" @click="showModal"
-      >{{ $t("dataEntry") }}</b-button
-    >
+    <b-button class="btn btn-primary black-btn blue-btn" @click="showModal">{{
+      $t("dataEntry")
+    }}</b-button>
     <b-modal
       ref="my-modal"
       effect="fade/zoom"
@@ -13,11 +13,12 @@
       ok-only
       :ok-title="$t('ok')"
       @ok="updateDataStore"
+      no-close-on-backdrop
     >
       <div class="row">
         <div class="col-6">
           <div class="d-block text-left">
-            <div>{{$t("selectOrg")}}</div>
+            <div>{{ $t("selectOrg") }}</div>
             <treeselect
               :multiple="false"
               :options="computedLocList"
@@ -28,13 +29,13 @@
             />
           </div>
           <div class="my-3">
-            {{$t("period")}}
+            {{ $t("period") }}
             <span class="float-right" v-if="dataEntryId.includes('prevalence')">
               <b-button class="black-btn btn-sm ml-3" @click="nextYear">
-                {{$t("next_year")}}
+                {{ $t("next_year") }}
               </b-button>
               <b-button class="black-btn btn-sm ml-3" @click="prevYear">
-                {{$t("prev_year")}}
+                {{ $t("prev_year") }}
               </b-button>
             </span>
           </div>
@@ -60,8 +61,9 @@
                 type="number"
                 :id="`period+${per}`"
                 :value="
-                  finalHtmlPE.filter((inObj) => Number(inObj[1]) == per).length > 0
-                ? finalHtmlPE.filter((Obj) => Obj[1] * 1 == per)[0][3]
+                  finalHtmlPE.filter((inObj) => Number(inObj[1]) == per)
+                    .length > 0
+                    ? finalHtmlPE.filter((Obj) => Obj[1] * 1 == per)[0][3]
                     : ''
                 "
                 @input="(e) => updateValues(per, e)"
@@ -208,24 +210,25 @@ export default {
       if (this.dataEntryId.includes("prevalence")) {
         newKey = `prevalence_${this.level}`;
       }
-      service.getSavedConfig(newKey, false, "fp-dashboard").then((resp) => {
-        let pes =
-          typeof resp.data.rows == "string"
-            ? {
-                ...resp.data,
-                rows: decompress(JSON.parse(resp.data.rows)),
-              }
-            : resp.data;
-        pes = pes.rows.filter(
-          (obj) => obj[2] == this.selectedOrg && obj[0] === this.dataEntryId
-        );
-        this.finalHtmlPE = [...pes];
-      });
+      service
+        .getSavedConfig({ tableKey: newKey, namespace: "fp-dashboard" })
+        .then((resp) => {
+          let pes =
+            typeof resp.data.rows == "string"
+              ? {
+                  ...resp.data,
+                  rows: decompress(JSON.parse(resp.data.rows)),
+                }
+              : resp.data;
+          pes = pes.rows.filter(
+            (obj) => obj[2] == this.selectedOrg && obj[0] === this.dataEntryId
+          );
+          this.finalHtmlPE = [...pes];
+        });
     },
     updateValues(period, val) {
       let dt = this.finalHtmlPE;
       let isFound = dt.filter((obj) => obj[1].toString() == period.toString());
-      console.log(isFound)
       if (isFound.length > 0) {
         let index = dt.findIndex(
           (obj) => obj[1].toString() == period.toString()
@@ -252,7 +255,6 @@ export default {
       });
     },
     updateDataStore() {
-      console.log('HI')
       this.$refs["my-modal"].hide();
       this.getLevel(this.computedLocList, this.selectedOrg);
       let newKey = this.dataEntryId;
@@ -272,26 +274,32 @@ export default {
       if (this.dataEntryId.includes("prevalence")) {
         newKey = `prevalence_${this.level}`;
       }
-      service.getSavedConfig(newKey, false, "fp-dashboard").then((res) => {
-        let upData =
-          typeof res.data.rows == "string"
-            ? {
-                ...res.data,
-                rows: decompress(JSON.parse(res.data.rows)),
-              }
-            : res.data;
+      service
+        .getSavedConfig({ tableKey: newKey, namespace: "fp-dashboard" })
+        .then((res) => {
+          let upData =
+            typeof res.data.rows == "string"
+              ? {
+                  ...res.data,
+                  rows: decompress(JSON.parse(res.data.rows)),
+                }
+              : res.data;
 
-        upData.rows = JSON.stringify(compress(updatedData));
-        service
-          .updateConfig(upData, newKey, false, "fp-dashboard")
-          .then((response) => {
-            if (response.data.status === "OK") {
-              this.sweetAlert({
-                title: this.$i18n.t("data_saved_successfully"),
-              });
-            }
-          });
-      });
+          upData.rows = JSON.stringify(compress(updatedData));
+          service
+            .updateConfig({
+              data: upData,
+              tableKey: newKey,
+              namespace: "fp-dashboard",
+            })
+            .then((response) => {
+              if (response.data.status === "OK") {
+                this.sweetAlert({
+                  title: this.$i18n.t("data_saved_successfully"),
+                });
+              }
+            });
+        });
     },
     getLevel(mainObj, id) {
       mainObj.map((root) => {

@@ -1,6 +1,6 @@
 <template>
   <div class="card">
-    <div class="card-header p-10px text-decoration-none">
+    <div class="card-header p-10px text-decoration-none bg-transparent">
       <div class="row no-gutters">
         <div class="col-lg-11 col-md-7 p-t-4px">
           <i
@@ -40,7 +40,9 @@
         bordered
         :fields="fields"
         responsive
+        show-empty
         class="methodsTable"
+        :empty-text="$t('no_data_to_display')"
       />
     </div>
     <div class="card-footer text-right">

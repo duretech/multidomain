@@ -33,7 +33,9 @@
           class="color-white text-center small fs-17-1920"
           v-if="dataSourceGroupList.length === 0"
         >
-        <span class="fs-17-1920 small">{{ $t("no_data_to_display") }} </span></b-dropdown-text
+          <span class="fs-17-1920 small"
+            >{{ $t("no_data_to_display") }}
+          </span></b-dropdown-text
         >
       </b-dropdown>
     </div>
@@ -133,16 +135,16 @@ export default {
     dataSource(newValue) {
       let text = "";
       if (newValue === "indicators") {
-        text = "Select indicator group";
+        text = this.$i18n.t("IndGroup");
       }
       if (newValue === "dataElements") {
-        text = "Select data element group";
+        text = this.$i18n.t("DEGroup");
       }
       if (newValue === "dataSets") {
-        text = "Select data set group";
+        text = this.$i18n.t("DSGroup");
       }
       if (newValue === "eventDataItems" || newValue === "programIndicators") {
-        text = "Select program";
+        text = this.$i18n.t("ProgGroup");
       }
       this.dataSourceGroupText = text;
       if (this.allData[this.dataSource]["selectedSourceGroup"]) {

@@ -18,10 +18,9 @@
                 <img
                   :src="require('@/assets/images/icons/sign_off_icon2.svg')"
                   class="img-fluid w-14 mb-1"
-                 
-                /> </span
-              >
-             <span class="mx-1"> {{ $t("data_sign_off") }} </span>
+                />
+              </span>
+              <span class="mx-1"> {{ $t("data_sign_off") }} </span>
             </button>
           </div>
         </div>
@@ -100,7 +99,7 @@
                     <SignOffDSL :dsl="dsl" />
                   </div>
                 </div>
-              
+
                 <b-form-checkbox
                   class="decleration"
                   id="checkbox-1"
@@ -113,15 +112,15 @@
                   {{ $t("text_info_1") }}
                 </b-form-checkbox>
                 <div class="bottom-declare">
-                <b-button
-                  type="button"
-                  class="btn btn-primary sub-btn blue-btn"
-                  :disabled="!declaration || (declaration && isViewForm)"
-                  @click.prevent.stop="submitSignOff"
-                >
-                  {{ isUpdate ? $t("update") : $t("submitbtn") }}
-                </b-button>
-              </div>
+                  <b-button
+                    type="button"
+                    class="btn btn-primary sub-btn blue-btn"
+                    :disabled="!declaration || (declaration && isViewForm)"
+                    @click.prevent.stop="submitSignOff"
+                  >
+                    {{ isUpdate ? $t("update") : $t("submitbtn") }}
+                  </b-button>
+                </div>
               </div>
               <div class="list-of-cards" v-if="showForms">
                 <AllSignOffForms
@@ -216,7 +215,7 @@ export default {
       }).then((result) => {
         if (result.value) {
           this.formSubmitted = true;
-          let saveConfig = service.getSavedConfig(key);
+          let saveConfig = service.getSavedConfig({ tableKey: key });
           saveConfig
             .then((res) => {
               let configData = res.data;
@@ -243,7 +242,10 @@ export default {
                 }
               });
 
-              let response = service.updateConfig(configData, key);
+              let response = service.updateConfig({
+                data: configData,
+                tableKey: key,
+              });
               response
                 .then((response) => {
                   if (response.data.status === "OK") {
@@ -286,12 +288,12 @@ export default {
     },
     submitSignOff() {
       this.formSubmitted = true;
-
       let index = null;
       if (this.responseForms && this.responseForms.length && !this.isUpdate) {
         index = this.responseForms.find(
           (f) =>
-            f.period === this.selectedDate && f.location === this.locationName
+            f.periodText === this.selectedDate &&
+            f.location === this.locationName
         );
       }
       if (index) {
@@ -342,9 +344,18 @@ export default {
           location: this.isUpdate
             ? this.updateForm.location
             : this.locationName,
-          period: this.isUpdate ? this.updateForm.period : this.locationPeriod.period,
-          periodType: this.isUpdate ? this.updateForm.period : this.locationPeriod.periodType,
-          signOffTab: this.isUpdate ? this.updateForm.signOffTab : this.tabNameID,
+          period: this.isUpdate
+            ? this.updateForm.period
+            : this.locationPeriod.period,
+          periodType: this.isUpdate
+            ? this.updateForm.periodType
+            : this.locationPeriod.periodType,
+          periodText: this.isUpdate
+            ? this.updateForm.periodText
+            : this.locationPeriod.periodText,
+          signOffTab: this.isUpdate
+            ? this.updateForm.signOffTab
+            : this.tabNameID,
           signOffForm: this.signOffForm,
           dataSatisfaction: this.dataSatisfaction,
           iconColorClass: iconColorClass,
@@ -356,7 +367,7 @@ export default {
         };
         let key = this.generateKey("dqrDashboard");
 
-        let saveConfig = service.getSavedConfig(key);
+        let saveConfig = service.getSavedConfig({ tableKey: key });
         saveConfig
           .then((res) => {
             let configData = res.data;
@@ -393,7 +404,10 @@ export default {
               }
             });
 
-            let response = service.updateConfig(configData, key);
+            let response = service.updateConfig({
+              data: configData,
+              tableKey: key,
+            });
             response
               .then((response) => {
                 if (response.data.status === "OK") {
@@ -432,10 +446,17 @@ export default {
       this.signOffForm = this.signOffData.questions
         ? JSON.parse(JSON.stringify(this.signOffData.questions))
         : [];
-      this.responseForms =
-        this.signOffData.signOff && this.signOffData.signOff.length
-          ? JSON.parse(JSON.stringify(this.signOffData.signOff))
-          : [];
+      let responseForms = this.signOffData?.signOff?.length
+        ? JSON.parse(JSON.stringify(this.signOffData.signOff))
+        : [];
+      this.responseForms = responseForms.sort((a, b) => {
+        // Turn your strings into dates, and then subtract them
+        // to get a value that is either negative, positive, or zero.
+        return (
+          this.$moment(b.updatedAt, "MMMM Do YYYY, h:mm:ss a").valueOf() -
+          this.$moment(a.updatedAt, "MMMM Do YYYY, h:mm:ss a").valueOf()
+        );
+      });
     },
     refreshForm() {
       this.isUpdate = false;

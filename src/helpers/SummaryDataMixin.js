@@ -1,6 +1,6 @@
 import {
   subtractNDate,
-  translateDate,
+  // translateDate,
   formatSingleDate,
 } from "@/components/Common/commonFunctions";
 
@@ -11,30 +11,33 @@ export default {
           rawDate: this.locationPeriod.period,
           periodType: this.locationPeriod.periodType,
         }),
-        currForDate = translateDate({
-          rawDate: this.locationPeriod.period,
-          periodType: this.locationPeriod.periodType,
-          monthlyFormat: "MMM YYYY",
-        }),
+        // currForDate = translateDate({
+        //   rawDate: this.locationPeriod.period,
+        //   periodType: this.locationPeriod.periodType,
+        //   monthlyFormat: "MMMM YYYY",
+        // }),
+        currForDate = this.metaData?.[currDate]?.["name"] || currDate,
         prevDate = subtractNDate({
           rawDate: this.locationPeriod.period,
           periodType: this.locationPeriod.periodType,
         }),
-        prevForDate = translateDate({
-          rawDate: prevDate,
-          periodType: this.locationPeriod.periodType,
-          monthlyFormat: "MMM YYYY",
-        }),
+        // prevForDate = translateDate({
+        //   rawDate: prevDate,
+        //   periodType: this.locationPeriod.periodType,
+        //   monthlyFormat: "MMMM YYYY",
+        // }),
+        prevForDate = this.metaData?.[prevDate]?.["name"] || prevDate,
         prevYrDate = subtractNDate({
           rawDate: this.locationPeriod.period,
           periodType: this.locationPeriod.periodType,
-          n: 12,
+          n: this.locationPeriod.periodType === "monthly" ? 12 : 1,
         }),
-        prevYrForDate = translateDate({
-          rawDate: prevYrDate,
-          periodType: this.locationPeriod.periodType,
-          monthlyFormat: "MMM YYYY",
-        });
+        prevYrForDate = this.metaData?.[prevYrDate]?.["name"] || prevYrDate;
+      // prevYrForDate = translateDate({
+      //   rawDate: prevYrDate,
+      //   periodType: this.locationPeriod.periodType,
+      //   monthlyFormat: "MMMM YYYY",
+      // });
       return {
         currDate,
         currForDate,

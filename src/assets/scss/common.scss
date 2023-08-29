@@ -148,6 +148,10 @@ strong{
   margin-left: -45px;
 }
 
+.ml-40px{
+  margin-left: -40px;
+}
+
 .pointer-event-none {
   pointer-events: none;
 }
@@ -206,3 +210,8 @@ strong{
 .v-tour__target--highlighted {
   box-shadow: 0 0 0 99999px rgba(0,0,0,.4) !important;
 }
+
+
+// .form-check-input[disabled] ~ .form-check-label, .form-check-input:disabled ~ .form-check-label{
+//   color: var(--text-color) !important;
+// }

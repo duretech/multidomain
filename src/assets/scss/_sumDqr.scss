@@ -170,6 +170,8 @@
                 font-size: var(--font-size-p-normal-text);
                 height: 643px;
                 border-radius: 7px;
+                overflow-y: auto;
+                overflow-x: hidden;
 
                 .selectionName{
                     .userName{

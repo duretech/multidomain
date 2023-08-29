@@ -120,6 +120,8 @@ import { decompress } from "compress-json";
 import DataEntryMixin from "@/helpers/DataEntryMixin";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 import loadLocChildMixin from "@/helpers/LoadLocationChildMixin";
+import NepaliDate from "nepali-date-converter";
+
 export default {
   props: ["isDataEntry", "dataEntryID", "bgDataType"],
   components: {
@@ -135,7 +137,12 @@ export default {
       location: null,
       period: [],
       periodList: [],
-      currentYear: new Date().getFullYear(),
+      currentYear: this.$store.getters.getAppSettings.calendar === "nepali" ? new NepaliDate(
+      new Date(
+        new Date().getFullYear(),
+        new Date().getMonth(),
+        new Date().getDate()
+      )).getBS().year : new Date().getFullYear(),
       data: [],
       allData: [],
       fileName: "",
@@ -196,14 +203,14 @@ export default {
       this.hideUploadCsv();
     },
     getData(isLocationChanged = false) {
-      this.$store.state.loading = true;
+      this.$store.commit("setLoading", true);
       let key = this.getKey({
         dataEntryID: this.dataEntryID,
         bgDataType: this.bgDataType,
         orgLevel: this.location.split("/")[0],
       }); //Mixin method
       service
-        .getSavedConfig(key)
+        .getSavedConfig({ tableKey: key })
         .then((response) => {
           let transData =
             typeof response.data.rows == "string"
@@ -215,14 +222,14 @@ export default {
           this.allData = transData.rows.filter(
             (d) => d[0] === this.dataEntryID
           );
-          this.$store.state.loading = false;
+          this.$store.commit("setLoading", false);
           this.isForm = this.isDataEntry;
           if (isLocationChanged) {
             this.updatedLocationValue();
           }
         })
         .catch(() => {
-          this.$store.state.loading = false;
+          this.$store.commit("setLoading", false);
           this.allData = [];
           if (isLocationChanged) {
             this.updatedLocationValue();
@@ -285,7 +292,7 @@ export default {
       });
     },
     addData() {
-      this.$store.state.loading = true;
+      this.$store.commit("setLoading", true);
       let key = this.getKey({
         dataEntryID: this.dataEntryID,
         bgDataType: this.bgDataType,
@@ -312,18 +319,18 @@ export default {
         for (let i = 0; i < 12; i++) {
           let month = i < 9 ? `0${i + 1}` : i + 1;
           let months = [
-            "Jan",
-            "Feb",
-            "Mar",
-            "Apr",
+            "January",
+            "February",
+            "March",
+            "April;",
             "May",
-            "Jun",
-            "Jul",
-            "Aug",
-            "Sep",
-            "Oct",
-            "Nov",
-            "Dec",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December",
           ];
           if (this.$i18n.locale === "fr") {
             months = [
@@ -340,6 +347,23 @@ export default {
               "nov.",
               "déc.",
             ];
+          }
+          
+          if(this.$store.getters.getAppSettings.calendar === "nepali"){
+            months = [
+            "Baisakh",
+            "Jestha",
+            "Ashad",
+            "Shrawan",
+            "Bhadra",
+            "Ashoj",
+            "Kartik",
+            "Mangsir",
+            "Poush",
+            "Magh",
+            "Falgun",
+            "Chaitra",
+          ];
           }
           this.periodList.push({
             id: `${this.currentYear}${month}`,
@@ -368,6 +392,9 @@ export default {
       this.getData();
       this.getPeriods(true);
     });
+    let d = new Date();
+    console.log(
+      )
   },
 };
 </script>

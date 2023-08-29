@@ -39,7 +39,8 @@
     color: var(--innertext-font-color) !important;
   }
 
-  .dqr-summary-btn:focus.collapsed{
+  .dqr-summary-btn:focus.collapsed,
+  .dqr-summary-btn:hover.collapsed{
     background-color: transparent !important;
     border: 1px solid var(--border-grey-color) !important;
   }

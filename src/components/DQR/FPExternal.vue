@@ -53,7 +53,10 @@
 <script>
 import service from "@/service";
 import cardComponent from "@/components/FPDashboard/dqr/emuAnnual/cardComponent";
-
+import {
+  translateDate,
+  translateAlphatoNum,
+} from "@/components/Common/commonFunctions";
 export default {
   props: ["dqrResponse", "preFetchData", "locationPeriod"],
   components: { cardComponent },
@@ -92,21 +95,28 @@ export default {
       deep: true,
     },
     locationPeriod: {
-      handler(newValue) {
-        if (["monthly", "yearly"].includes(newValue.periodType)) {
-          this.pTypeError = null;
-          this.mData = null;
-          this.mDataFetched = false;
-          this.aData = null;
-          this.aDataFetched = false;
-          this.$nextTick(() => {
-            if (this.dqrResponse) {
-              this.getMonthlyCharts();
-              this.getAnnualCharts();
-            }
-          });
-        } else {
-          this.pTypeError = this.$i18n.t("emuNotAvailable");
+      handler(newValue, oldValue) {
+        if (
+          oldValue &&
+          (newValue.location !== oldValue.location ||
+            newValue.periodType !== oldValue.periodType ||
+            newValue.period !== oldValue.period)
+        ) {
+          if (["monthly", "yearly"].includes(newValue.periodType)) {
+            this.pTypeError = null;
+            this.mData = null;
+            this.mDataFetched = false;
+            this.aData = null;
+            this.aDataFetched = false;
+            this.$nextTick(() => {
+              if (this.dqrResponse) {
+                this.getMonthlyCharts();
+                this.getAnnualCharts();
+              }
+            });
+          } else {
+            this.pTypeError = this.$i18n.t("emuNotAvailable");
+          }
         }
       },
       deep: true,
@@ -125,7 +135,7 @@ export default {
       } else {
         try {
           let key = this.generateKey(`annualEMU_${this.$i18n.locale}`);
-          let res = await service.getSavedConfig(key);
+          let res = await service.getSavedConfig({ tableKey: key });
           aData = res.data;
         } catch (err) {
           this.aData = null;
@@ -181,7 +191,7 @@ export default {
       } else {
         try {
           let key = this.generateKey(`monthlyEMU_${this.$i18n.locale}`);
-          let res = await service.getSavedConfig(key);
+          let res = await service.getSavedConfig({ tableKey: key });
           mData = res.data;
         } catch (err) {
           this.mData = null;
@@ -220,24 +230,25 @@ export default {
               this.locationPeriod.period,
               "YYYYMM"
             );
-            let selectedDate = this.$moment(defaultDate, "YYYYMM").format(
-              "MMM YYYY"
-            );
+            // let selectedDate = translateDate({
+            //   rawDate: defaultDate,
+            // });
+            // this.$moment(defaultDate, "YYYYMM").format(
+            //   "MMMM YYYY"
+            // );
             for (let i = 23; i >= 0; i--) {
               if (i === 0) {
-                pe.push(
-                  this.$moment(selectedDate, "MMM YYYY").format("YYYYMM")
-                );
+                pe.push(this.$moment(defaultDate, "YYYYMM").format("YYYYMM"));
               } else {
                 pe.push(
-                  this.$moment(selectedDate, "MMM YYYY")
+                  this.$moment(defaultDate, "YYYYMM")
                     .subtract(i, "months")
                     .format("YYYYMM")
                 );
               }
             }
             this.mData.saveCategories.forEach((c) =>
-              fCatArray.push(this.$moment(c, "MMM YYYY").format("YYYYMM"))
+              fCatArray.push(translateAlphatoNum(c))
             );
             this.mData.saveData.forEach((sData) => {
               let reqData = sData.data;
@@ -247,9 +258,9 @@ export default {
                 color: sData.color,
               };
               pe.forEach((p) => {
-                let formattedDate = this.$moment(p, "YYYYMM").format(
-                  "MMM YYYY"
-                );
+                let formattedDate = translateDate({
+                  rawDate: p,
+                });
                 if (fCatArray.includes(p)) {
                   let catIndex = fCatArray.indexOf(p);
                   obj.data.push(reqData[catIndex].toFixed(2) * 1);
@@ -283,7 +294,7 @@ export default {
   created() {
     this.canComment =
       this.$store.getters.getIsAdmin ||
-        this.$store.getters.getAppSettings.bypassUser ||
+      this.$store.getters.getAppSettings.bypassUser ||
       this.$store.getters.getUserPermissions.canComment;
     if (this.dqrResponse) {
       this.getMonthlyCharts();

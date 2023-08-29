@@ -80,6 +80,15 @@
               :title="selectedInd || $t('legend')"
             >
               <span class="toggleHeading">
+                <i
+                  class="fa fa-info-circle cursor-pointer chart-info"
+                  aria-hidden="true"
+                  v-b-popover.hover.rightbottom="{
+                    variant: 'info',
+                    content: $t('mapScaleInfo'),
+                    html: true,
+                  }"
+                ></i>
                 {{ selectedInd || $t("legend") }}
               </span>
             </div>
@@ -400,11 +409,11 @@ export default {
       }
     },
     getScales(scaleData) {
-      let scales = [];
+      let scales = [],
+        loc = this.locationPeriod.location.split("/");
       this.scaleDescription = [];
-      let scaleDescription = this.mapConfigData.levels.filter(
-        (c) => c.level === this.locationPeriod.location.split("/")[0] * 1
-      );
+      let scaleDescription =
+        this.mapConfigData?.levels?.filter((c) => c.level === loc[0] * 1) || [];
       this.scaleDescription = JSON.parse(JSON.stringify(scaleDescription));
       if (this.scaleDescription.length === 0) {
         this.scaleDescription = [{ scales: [] }];
@@ -418,7 +427,9 @@ export default {
         });
         let valArray = [];
         scaleData.forEach((obj) => {
-          valArray.push(obj.originalY * 1);
+          if (obj.locationID !== loc[1]) {
+            valArray.push(obj.originalY * 1);
+          }
         });
         let maxValue = Math.max.apply(Math, valArray);
         let medianValue =
@@ -669,7 +680,10 @@ export default {
               name: excludeName(this.geoJson.features[i]["properties"].name),
               lat: mapCentroid.lat,
               lng: mapCentroid.lng,
-              value: excludeName(this.geoJson.features[i]["properties"].name) + ": " + value,
+              value:
+                excludeName(this.geoJson.features[i]["properties"].name) +
+                ": " +
+                value,
               period: this.updatedYearSliderValue,
             };
           }
@@ -763,5 +777,4 @@ export default {
   color: var(--text-font-color) !important;
   cursor: pointer;
 }
-
 </style>

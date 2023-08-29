@@ -22,12 +22,13 @@
             @click.prevent.stop="exportPPT"
             style="border: 2px solid #fff"
           >
-          <span class="">
-            <img
-              :src="require('@/assets/images/icons/generateReport.svg')"
-              class="img-fluid mt-xl-n1"
-            /> </span
-          > <span class="mx-1"> {{ $t("exportbtn") }} </span>
+            <span class="">
+              <img
+                :src="require('@/assets/images/icons/generateReport.svg')"
+                class="img-fluid mt-xl-n1"
+              />
+            </span>
+            <span class="mx-1"> {{ $t("exportbtn") }} </span>
           </button>
         </template>
       </Header>
@@ -69,6 +70,7 @@
 /*eslint no-undef: "error"*/
 import service from "@/service";
 import toolbarComponent from "@/components/DynamicModule/ToolbarComponent";
+import UsesAnalyticsMixin from "@/helpers/UsesAnalyticsMixin";
 import LanguageChangeMixin from "@/helpers/LanguageChangeMixin";
 import EmitTourCallbackMixin from "@/helpers/EmitTourCallbackMixin";
 
@@ -80,7 +82,7 @@ export default {
         /*webpackChunkName: 'GridLayoutComponent'*/ "@/components/ReportTemplate/GridLayoutComponent"
       ),
   },
-  mixins: [LanguageChangeMixin, EmitTourCallbackMixin],
+  mixins: [UsesAnalyticsMixin, LanguageChangeMixin, EmitTourCallbackMixin],
   data() {
     return {
       dynamicModule: null,
@@ -581,7 +583,7 @@ export default {
         key2 = this.generateKey("alertRules");
 
       service
-        .getSavedConfig(key2, false, "", true)
+        .getSavedConfig({ tableKey: key2, isDefault: true })
         .then((response) => {
           this.alertData = response.data;
         })
@@ -594,7 +596,10 @@ export default {
         });
     },
     getDynamicModule(key) {
-      let response = service.getSavedConfig(key, false, "", true);
+      let response = service.getSavedConfig({
+        tableKey: key,
+        isDefault: true,
+      });
       response
         .then((response) => {
           let data = response.data.find(
@@ -604,16 +609,16 @@ export default {
             ...data,
           };
           document.title = this.dynamicModule.moduleName;
-          this.$store.state.loading = false;
+          this.$store.commit("setLoading", false);
         })
         .catch(() => {
-          this.$store.state.loading = false;
+          this.$store.commit("setLoading", false);
           console.log("Failed to fetch the dynamic module...");
         });
     },
   },
   created() {
-    this.$store.state.loading = true;
+    this.$store.commit("setLoading", true);
     this.globalPeriodData =
       this.$store.getters.getGlobalFactors().period.Period;
     this.getAlertsData();
@@ -627,7 +632,7 @@ export default {
   background-position: center;
   min-height: calc(100vh - 65px);
   padding: 0 0 50px 0;
- // background-color: #3471ce;
+  // background-color: #3471ce;
   overflow: hidden;
 }
 .dashboardchart-container {

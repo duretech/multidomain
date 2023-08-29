@@ -119,6 +119,7 @@
             }"
             configKey="selectedCharts"
             @showAddTextPopup="showAddTextPopup"
+            @showAddChartPopup="showAddChartPopup"
             class="grid-down"
           />
         </div>
@@ -130,7 +131,7 @@
       scrollable
       body-class="p-0 bg-faint-grey"
       no-close-on-backdrop
-      :title="$t('subMenu_3')"
+      :title="isViewChart ? $t('chartDetails') : $t('subMenu_3')"
     >
       <div class="p-3">
         <div class="row mb-3">
@@ -141,6 +142,7 @@
             <b-form-select
               v-model="selectedDashboard"
               :options="dashboardList"
+              :disabled="isViewChart"
             ></b-form-select>
           </div>
         </div>
@@ -152,6 +154,7 @@
             <b-form-select
               v-model="selectedModule"
               :options="modulesList"
+              :disabled="isViewChart"
             ></b-form-select>
           </div>
         </div>
@@ -163,6 +166,7 @@
             <b-form-select
               v-model="selectedCategory"
               :options="categoryList"
+              :disabled="isViewChart"
             ></b-form-select>
           </div>
         </div>
@@ -174,6 +178,7 @@
             <b-form-select
               v-model="selectedSource"
               :options="sourceList"
+              :disabled="isViewChart"
             ></b-form-select>
           </div>
         </div>
@@ -185,6 +190,7 @@
             <b-form-select
               v-model="selectedType"
               :options="typeList"
+              :disabled="isViewChart"
             ></b-form-select>
           </div>
         </div>
@@ -196,6 +202,7 @@
             <b-form-select
               v-model="selectedChart"
               :options="chartsList"
+              :disabled="isViewChart"
             ></b-form-select>
           </div>
         </div>
@@ -219,10 +226,11 @@
             <b-form-select
               v-model="periodType"
               :options="filteredPeriodTypeList"
+              :disabled="isViewChart"
             ></b-form-select>
           </div>
         </div>
-        <div class="row pt-4">
+        <div class="row pt-4" v-if="!isViewChart">
           <div class="col text-right">
             <button
               type="button"
@@ -390,6 +398,8 @@ export default {
       originalConfigs: {},
       editTextID: null,
       editChartText: false,
+      isViewChart: false,
+      viewChartObj: null,
     };
   },
   watch: {
@@ -435,6 +445,58 @@ export default {
         this.getCharts(newValue);
       }
     },
+    modulesList: {
+      handler(newValue) {
+        if (newValue.length && this.isViewChart) {
+          this.selectedModule = this.viewChartObj.selectedModule;
+        }
+      },
+      deep: true,
+    },
+    categoryList: {
+      handler(newValue) {
+        if (newValue.length && this.isViewChart) {
+          this.selectedCategory = this.viewChartObj.selectedCategory;
+        }
+      },
+      deep: true,
+    },
+    sourceList: {
+      handler(newValue) {
+        if (newValue.length && this.isViewChart) {
+          this.selectedSource = this.viewChartObj.selectedSource;
+        }
+      },
+      deep: true,
+    },
+    typeList: {
+      handler(newValue) {
+        if (newValue.length && this.isViewChart) {
+          this.selectedType = this.viewChartObj.selectedType;
+        }
+      },
+      deep: true,
+    },
+    chartsList: {
+      handler(newValue) {
+        if (newValue.length && this.isViewChart) {
+          this.selectedChart = this.viewChartObj.cid.split("/")[1];
+          // Intentionally kept here, do not change this position
+          // This is the last value from the chart selection form
+          // The periodType options are generated using computed property
+          // It's not taking effect if we set this value in "showAddChartPopup" function
+          this.periodType = this.viewChartObj.periodType;
+        }
+      },
+      deep: true,
+    },
+    addChartSection(newValue) {
+      if (!newValue) {
+        this.isViewChart = false;
+        this.viewChartObj = null;
+        this.cancelAddChart();
+      }
+    },
   },
   computed: {
     filteredPeriodTypeList() {
@@ -452,6 +514,16 @@ export default {
     },
   },
   methods: {
+    showAddChartPopup(chart = null) {
+      if (chart) {
+        this.isViewChart = true;
+        this.viewChartObj = chart;
+        this.$nextTick(() => {
+          this.selectedDashboard = chart.selectedDashboard;
+          this.addChartSection = true;
+        });
+      }
+    },
     showAddTextPopup(chart = null) {
       if (chart) {
         this.chartText = chart.text;
@@ -463,7 +535,7 @@ export default {
       this.addTextSection = true;
     },
     saveReportTemplate() {
-      this.$store.state.loading = true;
+      this.$store.commit("setLoading", true);
       this.templateObj.updatedAt = this.$moment(new Date()).format("lll");
       let charts = [...this.templateObj.selectedCharts];
       charts = charts.sort((a, b) => {
@@ -478,7 +550,7 @@ export default {
       this.templateObj.selectedCharts = charts;
       let key = this.generateKey("reportTemplates");
       service
-        .getSavedConfig(key)
+        .getSavedConfig({ tableKey: key })
         .then((res) => {
           let reportTemplates = res.data;
           let templateIndex = res.data.findIndex(
@@ -489,15 +561,19 @@ export default {
           } else {
             reportTemplates = [...res.data, this.templateObj];
           }
-          service.updateConfig(reportTemplates, key).then((response) => {
-            this.handleResponse(response, this.templateObj);
-          });
+          service
+            .updateConfig({ data: reportTemplates, tableKey: key })
+            .then((response) => {
+              this.handleResponse(response, this.templateObj);
+            });
         })
         .catch(() => {
           console.log("Report templates not found, adding new...");
-          service.saveConfig([this.templateObj], key).then((response) => {
-            this.handleResponse(response, this.templateObj);
-          });
+          service
+            .saveConfig({ data: [this.templateObj], tableKey: key })
+            .then((response) => {
+              this.handleResponse(response, this.templateObj);
+            });
         });
     },
     handleResponse(response, templateObj) {
@@ -506,13 +582,13 @@ export default {
           title: this.$i18n.t("data_saved_successfully"),
         });
         this.$emit("updateModule", templateObj);
-        this.$store.state.loading = false;
+        this.$store.commit("setLoading", false);
       } else {
         this.sweetAlert({
           title: this.$i18n.t("error"),
           text: `${response.data.message}`,
         });
-        this.$store.state.loading = false;
+        this.$store.commit("setLoading", false);
         return;
       }
     },
@@ -532,10 +608,10 @@ export default {
           this.processModuleConfig(newValue);
         });
       } else {
-        this.$store.state.loading = true;
+        this.$store.commit("setLoading", true);
         let key = this.generateKey(newValue);
         service
-          .getSavedConfig(key, false, selectedDashboard)
+          .getSavedConfig({ tableKey: key, namespace: selectedDashboard })
           .then((response) => {
             if (response.data) {
               this.moduleConfig = this.originalConfigs[
@@ -545,11 +621,11 @@ export default {
                 this.processModuleConfig(newValue);
               });
             }
-            this.$store.state.loading = false;
+            this.$store.commit("setLoading", false);
           })
           .catch((res) => {
             console.log("Config not found...");
-            this.$store.state.loading = false;
+            this.$store.commit("setLoading", false);
           });
       }
     },
@@ -623,6 +699,7 @@ export default {
             sFound.chartSetting.forEach((c) => {
               if (
                 c.chartOptions &&
+                !c.chartOptions.disable &&
                 c.chartOptions.cid &&
                 c.chartOptions.chartName &&
                 !c.chartOptions.isSavedData
@@ -665,7 +742,7 @@ export default {
       let id = randomString(16);
       let updatedCID = `${id}/${chart.value}`;
 
-      let findY = 0;
+      let findY = 0.5;
       if (this.templateObj && this.templateObj.selectedCharts.length) {
         let item = null;
         this.templateObj.selectedCharts.forEach((m) => {
@@ -704,7 +781,7 @@ export default {
           c.canCallAPI
       );
       if (isFound) {
-        canCallAPI = false;
+        canCallAPI = true;
         let isFoundIndex = this.templateObj.selectedCharts.findIndex(
           (c) =>
             c.selectedModule === this.selectedModule &&

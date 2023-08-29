@@ -8,7 +8,7 @@ export default {
   },
   computed: {
     currentTheme() {
-      return this.$store.state.defaultColorTheme;
+      return this.$store.getters.getTheme;
     },
   },
   watch: {

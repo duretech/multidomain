@@ -1,6 +1,21 @@
 <template>
   <div class="summary-page-container" id="scrollTop">
-    <div id="modal-anc">
+    <div id="modal-anc" ref="printPDF">
+      <!-- <div class="text-right mb-3">
+        <button
+          type="button"
+          class="btn btn-primary black-btn blue-btn f-08rem"
+          @click.prevent.stop="downloadReport()"
+        >
+          <span class="">
+            <img
+              :src="require('@/assets/images/icons/generateReport.svg')"
+              class="img-fluid mt-xl-n1"
+            />
+          </span>
+          <span class="mx-1"> {{ $t("exportbtn") }} </span>
+        </button>
+      </div> -->
       <template v-if="configData && !reportChartData">
         <div
           v-for="(subTab, sInd) in configData.subTabs"
@@ -80,8 +95,15 @@
                 :key="'sumArrayDetails' + i"
               >
                 <b-col class="table-heading pt-2 px-10px" cols="4"
-                  ><p class="fs-17-1920">{{ sDetails.indicatorName }}</p></b-col
-                >
+                  ><p class="fs-17-1920">
+                    {{ sDetails.indicatorName
+                    }}<span class="small text-info" v-if="obj.priorityIndicator"
+                      ><strong
+                        >&nbsp;({{ $t("chartPriorityIndicator") }})</strong
+                      ></span
+                    >
+                  </p>
+                </b-col>
                 <b-col cols="2" class="px-10px"
                   ><div class="summary-dot fs-17-1920">
                     {{
@@ -119,7 +141,7 @@
                 >
               </b-row>
             </div>
-
+            <hr v-if="regionCountArray.length" />
             <div
               v-for="(region, i) in regionCountArray"
               :key="'regionCountArray' + i"
@@ -181,7 +203,7 @@
             class="anc-charts tablemap-col2"
             v-for="(subTab, sInd) in configData.subTabs"
           >
-            <template v-if="!reportChartData">
+            <template v-if="!reportChartData && isMaps(subTab.mapSetting)">
               <b-col
                 sm="12"
                 lg="6"
@@ -214,9 +236,11 @@
                   chartData.chartOptions.cid
                 "
                 :style="{
-                  display: $store.getters.getActiveTab.includes(subTab.id)
-                    ? 'block'
-                    : 'none',
+                  display:
+                    reportChartData ||
+                    $store.getters.getActiveTab.includes(subTab.id)
+                      ? 'block'
+                      : 'none',
                 }"
               >
                 <ChartComponent
@@ -228,6 +252,7 @@
                   :population="population"
                   @summaryData="summaryData"
                   :preFetchData="preFetchData"
+                  @updateToolBar="updateToolBar"
                   @setReportChart="setReportChart"
                   :locationPeriod="locationPeriod"
                   :reportChartData="reportChartData"
@@ -247,10 +272,10 @@ import { decompress } from "compress-json";
 import MapContainer from "./MapContainer.vue";
 import GeoJsonMixin from "@/helpers/GeoJsonMixin";
 import ScrollPageMixin from "@/helpers/ScrollPageMixin";
-
+import GenerateReportMixin from "@/helpers/GenerateReportMixin";
 export default {
   props: ["selectedData", "preFetchData", "locationPeriod", "reportChartData"],
-  mixins: [GeoJsonMixin, ScrollPageMixin],
+  mixins: [GeoJsonMixin, ScrollPageMixin, GenerateReportMixin],
   components: {
     TabSummary: () =>
       import(
@@ -450,10 +475,18 @@ export default {
       deep: true,
     },
     locationPeriod: {
-      handler() {
-        this.summaryList = [];
-        this.getGeoJson(this.locationPeriod.location);
-        this.getEMUData();
+      handler(newValue, oldValue) {
+        if (
+          (!oldValue && newValue.location) ||
+          (oldValue &&
+            (newValue.location !== oldValue.location ||
+              newValue.periodType !== oldValue.periodType ||
+              newValue.period !== oldValue.period))
+        ) {
+          this.summaryList = [];
+          this.getGeoJson(newValue.location); //mixin function
+          this.getEMUData();
+        }
       },
       deep: true,
     },
@@ -472,6 +505,22 @@ export default {
     },
   },
   methods: {
+    updateToolBar(updatedVal) {
+      this.$emit("updateToolBar", updatedVal);
+    },
+    isMaps(mSetting) {
+      let isMap = false;
+      if (mSetting.length) {
+        isMap = mSetting.find(
+          (c) =>
+            (c.chartOptions.isSavedData ||
+              (c.chartOptions.dataMapping &&
+                c.chartOptions.dataMapping.length)) &&
+            !c.chartOptions.disable
+        );
+      }
+      return isMap;
+    },
     setExtData(level, obj) {
       this.allExtData[level] = obj;
     },
@@ -490,52 +539,55 @@ export default {
       if (!this.population && ["yearly"].includes(periodType)) {
         let key = this.generateKey("dqrModule");
 
-        await service.getSavedConfig(key).then(async (dqrModule) => {
-          let isDataStore =
-            dqrModule.data["emu"]["Background_Data"]["backgroundIndicators"][0]
-              .bgDataSource === "Datastore";
-          let typeKey =
-            dqrModule.data["emu"][
-              "Background_Data"
-            ].FPWomenPopulation.toLowerCase();
+        await service
+          .getSavedConfig({ tableKey: key })
+          .then(async (dqrModule) => {
+            let isDataStore =
+              dqrModule.data["emu"]["Background_Data"][
+                "backgroundIndicators"
+              ][0].bgDataSource === "Datastore";
+            let typeKey =
+              dqrModule.data["emu"][
+                "Background_Data"
+              ].FPWomenPopulation.toLowerCase();
 
-          if (isDataStore) {
-            try {
-              pData = await service.getSavedConfig(
-                `population_${typeKey}_${levelID}`
-              );
-              pData =
-                typeof pData.data.rows == "string"
-                  ? {
-                      ...pData.data,
-                      rows: decompress(JSON.parse(pData.data.rows)),
-                    }
-                  : pData.data;
-              //pData.rows = pData.rows.filter((obj) => obj[1] == pe);
-            } catch {
-              console.log(
-                `Population data not found for population_${typeKey}_${levelID}...`
-              );
+            if (isDataStore) {
+              try {
+                pData = await service.getSavedConfig({
+                  tableKey: `population_${typeKey}_${levelID}`,
+                });
+                pData =
+                  typeof pData.data.rows == "string"
+                    ? {
+                        ...pData.data,
+                        rows: decompress(JSON.parse(pData.data.rows)),
+                      }
+                    : pData.data;
+                //pData.rows = pData.rows.filter((obj) => obj[1] == pe);
+              } catch {
+                console.log(
+                  `Population data not found for population_${typeKey}_${levelID}...`
+                );
+              }
+              try {
+                let pData1 = await service.getSavedConfig({
+                  tableKey: `population_${typeKey}_${subLevelID}`,
+                });
+                pData1 =
+                  typeof pData1.data.rows == "string"
+                    ? decompress(JSON.parse(pData1.data.rows))
+                    : pData1.data.rows;
+                //pData1 = pData1.filter((obj) => obj[1] == pe);
+                pData.rows = pData.rows.concat(pData1);
+              } catch {
+                console.log(
+                  `Population data not found for population_${typeKey}_${subLevelID}...`
+                );
+              }
+            } else {
+              this.isDataSet = true;
             }
-            try {
-              let pData1 = await service.getSavedConfig(
-                `population_${typeKey}_${subLevelID}`
-              );
-              pData1 =
-                typeof pData1.data.rows == "string"
-                  ? decompress(JSON.parse(pData1.data.rows))
-                  : pData1.data.rows;
-              //pData1 = pData1.filter((obj) => obj[1] == pe);
-              pData.rows = pData.rows.concat(pData1);
-            } catch {
-              console.log(
-                `Population data not found for population_${typeKey}_${subLevelID}...`
-              );
-            }
-          } else {
-            this.isDataSet = true;
-          }
-        });
+          });
       }
       if (this.isDataSet) {
         let perArray = [];
@@ -571,8 +623,10 @@ export default {
         );
       }
       if (
-        !this.emuData[`${periodType}_${this.$i18n.locale}`] &&
-        ["monthly", "yearly"].includes(periodType)
+        (!this.emuData[`${periodType}_${this.$i18n.locale}`] &&
+          ["monthly", "yearly"].includes(periodType)) ||
+        !this.$store.getters.getIsMonthlyEMUSet ||
+        !this.$store.getters.getIsAnnualEMUSet
       ) {
         let configKey = null;
         if (periodType === "monthly") {
@@ -584,13 +638,15 @@ export default {
         let key = this.generateKey(configKey);
 
         service
-          .getSavedConfig(key)
+          .getSavedConfig({ tableKey: key })
           .then((resp) => {
             this.$set(
               this.emuData,
               `${periodType}_${this.$i18n.locale}`,
               resp.data
             );
+            this.$store.commit("setIsMonthlyEMUSet", true);
+            this.$store.commit("setIsAnnualEMUSet", true);
           })
           .catch(() => {
             this.$set(
@@ -619,6 +675,7 @@ export default {
           chartObj: data.chartData,
           chartName: data.chartData?.title?.title || "",
           cid: [this.reportChartData.cid],
+          errorText: data.errorText,
         });
       }
     },

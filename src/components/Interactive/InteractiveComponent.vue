@@ -531,6 +531,8 @@
                           hover
                           :items="table.items"
                           :fields="table.fields"
+                          show-empty
+                          :empty-text="$t('no_data_to_display')"
                           ref="interactiveChart"
                         ></b-table>
                         <div
@@ -582,7 +584,7 @@ import {
   chartExport,
   randomString,
 } from "@/components/Common/commonFunctions";
-
+import NepaliDate from "nepali-date-converter";
 export default {
   components: {
     chartOptions,
@@ -605,7 +607,16 @@ export default {
       isPercentageChart: false,
       periodType: null,
       selectedPeriod: [],
-      currentYear: new Date().getFullYear(),
+      currentYear:
+        this.$store.getters.getAppSettings.calendar === "nepali"
+          ? new NepaliDate(
+              new Date(
+                new Date().getFullYear(),
+                new Date().getMonth() + 1,
+                new Date().getDate()
+              )
+            ).getBS().year
+          : new Date().getFullYear(),
       dataSource: null,
       dataSourceGroup: "",
       dataSourceText: "",
@@ -658,7 +669,9 @@ export default {
   },
   computed: {
     periodList() {
-      let pList = [];
+      let pList = [],
+        years = [],
+        curYear;
       if (this.periodType === "yearly") {
         for (let i = this.currentYear; i > this.currentYear - 10; i--) {
           pList.push({ id: `${i}`, text: `${i}`, periodType: this.periodType });
@@ -667,11 +680,14 @@ export default {
         this.periodType === "financialYear" ||
         this.periodType === "financialYearJuly"
       ) {
-        let years =
-            this.periodType === "FinancialYear"
-              ? ["Mar", "Apr"]
-              : ["Jun", "Jul"],
-          curYear = this.currentYear;
+        (years =
+          this.periodType === "FinancialYear"
+            ? ["Mar", "Apr"]
+            : ["Jun", "Jul"]),
+          (curYear = this.currentYear);
+        if (this.$store.getters.getAppSettings.calendar === "nepali") {
+          years = ["Shrawan", "Ashadh"];
+        }
         if (this.$i18n.locale === "fr") {
           years =
             this.periodType === "FinancialYear"
@@ -685,18 +701,35 @@ export default {
                 ? `${curYear}April`
                 : `${curYear}July`,
             text:
-              years[1] + " " + curYear + " - " + years[0] + " " + (curYear + 1),
+              years[1] +
+              " " +
+              curYear +
+              " " +
+              this.$i18n.t("toSmall") +
+              " " +
+              years[0] +
+              " " +
+              (curYear + 1),
             periodType: this.periodType,
           });
           curYear -= 1;
         }
       } else if (this.periodType === "quarterly") {
-        let years = {
-          Q1: ["Jan", "Mar"],
-          Q2: ["Apr", "Jun"],
-          Q3: ["Jul", "Sep"],
-          Q4: ["Oct", "Dec"],
-        };
+        if (this.$store.getters.getAppSettings.calendar === "nepali") {
+          years = {
+            Q1: ["Ashadh", "Shrawan"],
+            Q2: ["Bhadra", "Ashwin"],
+            Q3: ["Kartik", "Mangsir"],
+            Q4: ["Baishakh", "Jestha"],
+          };
+        } else {
+          years = {
+            Q1: ["Jan", "Mar"],
+            Q2: ["Apr", "Jun"],
+            Q3: ["Jul", "Sep"],
+            Q4: ["Oct", "Dec"],
+          };
+        }
         if (this.$i18n.locale === "fr") {
           years = {
             Q1: ["janv.", "mars"],
@@ -710,7 +743,9 @@ export default {
             id: `${this.currentYear}Q${i}`,
             text:
               years[`Q${i}`][0] +
-              " - " +
+              " " +
+              this.$i18n.t("toSmall") +
+              " " +
               years[`Q${i}`][1] +
               " " +
               this.currentYear,
@@ -719,20 +754,37 @@ export default {
         }
         pList.reverse();
       } else {
-        let years = [
-          "Jan",
-          "Feb",
-          "Mar",
-          "Apr",
-          "May",
-          "Jun",
-          "Jul",
-          "Aug",
-          "Sep",
-          "Oct",
-          "Nov",
-          "Dec",
-        ];
+        if (this.$store.getters.getAppSettings.calendar === "nepali") {
+          years = [
+            "Baishakh",
+            "Jestha",
+            "Ashadh",
+            "Shrawan",
+            "Bhadra",
+            "Ashwin",
+            "Kartik",
+            "Mangsir",
+            "Poush",
+            "Magh",
+            "Falgun",
+            "Chaitra",
+          ];
+        } else {
+          years = [
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December",
+          ];
+        }
         if (this.$i18n.locale === "fr") {
           years = [
             "janv.",
@@ -941,15 +993,15 @@ export default {
       chartExport(type, chart);
     },
     bookmark() {
-      this.$store.state.loading = true;
+      this.$store.commit("setLoading", true);
       let key = this.generateKey("interactive");
-      let allKeys = service.getAllKeys();
+      let allKeys = service.getAllKeys({});
       allKeys
         .then((keys) => {
           if (keys.data.includes(key)) {
-            let saveConfig = service.getSavedConfig(key);
+            let saveConfig = service.getSavedConfig({ tableKey: key });
             saveConfig.then(async (res) => {
-              this.$store.state.loading = false;
+              this.$store.commit("setLoading", false);
               if (this.$route.query.bookmarkChart) {
                 const { value: yesNo } = await this.$swal({
                   title: this.$i18n.t("bookmarkName", {
@@ -989,7 +1041,7 @@ export default {
                     cancelButtonText: this.$i18n.t("cancelbtn"),
                   }).then((result) => {
                     if (result.value) {
-                      this.$store.state.loading = true;
+                      this.$store.commit("setLoading", true);
                       let allBookmarks = res.data;
                       let b = allBookmarks.find(
                         (b) =>
@@ -1004,7 +1056,10 @@ export default {
                       let bookmark = this.getBookmarkObj(b, result.value);
 
                       allBookmarks.push(bookmark);
-                      let response = service.updateConfig(allBookmarks, key);
+                      let response = service.updateConfig({
+                        data: allBookmarks,
+                        tableKey: key,
+                      });
                       response.then((response) => {
                         this.showAlert(response);
                       });
@@ -1012,7 +1067,7 @@ export default {
                   });
                 }
                 if (yesNo === "no") {
-                  this.$store.state.loading = true;
+                  this.$store.commit("setLoading", true);
                   let allBookmarks = res.data;
                   let b = allBookmarks.find(
                     (b) =>
@@ -1030,7 +1085,10 @@ export default {
                   );
 
                   allBookmarks.push(bookmark);
-                  let response = service.updateConfig(allBookmarks, key);
+                  let response = service.updateConfig({
+                    data: allBookmarks,
+                    tableKey: key,
+                  });
                   response.then((response) => {
                     this.showAlert(response);
                   });
@@ -1040,7 +1098,7 @@ export default {
               }
             });
           } else {
-            this.$store.state.loading = false;
+            this.$store.commit("setLoading", false);
             this.$swal({
               title: this.$i18n.t("nameYourBookmark"),
               input: "text",
@@ -1050,11 +1108,14 @@ export default {
               cancelButtonText: this.$i18n.t("cancelbtn"),
             }).then((result) => {
               if (result.value) {
-                this.$store.state.loading = true;
+                this.$store.commit("setLoading", true);
                 let interactiveBookmarks = [
                   this.getFirstBookmarkObj(result.value),
                 ];
-                let response = service.saveConfig(interactiveBookmarks, key);
+                let response = service.saveConfig({
+                  data: interactiveBookmarks,
+                  tableKey: key,
+                });
                 response.then((response) => {
                   this.showAlert(response);
                 });
@@ -1063,7 +1124,7 @@ export default {
           }
         })
         .catch(() => {
-          this.$store.state.loading = false;
+          this.$store.commit("setLoading", false);
         });
     },
     getBookmarkObj(b, name) {
@@ -1135,7 +1196,7 @@ export default {
         cancelButtonText: this.$i18n.t("cancelbtn"),
       }).then((result) => {
         if (result.value) {
-          this.$store.state.loading = true;
+          this.$store.commit("setLoading", true);
           let isName = null;
           isName =
             res.data &&
@@ -1147,12 +1208,15 @@ export default {
               title: this.$i18n.t("error"),
               text: this.$i18n.t("duplicateName"),
             });
-            this.$store.state.loading = false;
+            this.$store.commit("setLoading", false);
           } else {
             let bookmark = this.getFirstBookmarkObj(result.value);
             let allBookmarks = res.data;
             allBookmarks.push(bookmark);
-            let response = service.updateConfig(allBookmarks, key);
+            let response = service.updateConfig({
+              data: allBookmarks,
+              tableKey: key,
+            });
             response.then((response) => {
               this.showAlert(response);
             });
@@ -1172,13 +1236,13 @@ export default {
             this.$router.push("SavedFavorites");
           }
         });
-        this.$store.state.loading = false;
+        this.$store.commit("setLoading", false);
       } else {
         this.sweetAlert({
           title: this.$i18n.t("error"),
           text: `${response.data.message}`,
         });
-        this.$store.state.loading = false;
+        this.$store.commit("setLoading", false);
         return;
       }
     },
@@ -1743,7 +1807,7 @@ export default {
         } else {
           let key = this.generateKey("interactive");
 
-          let saveConfig = service.getSavedConfig(key);
+          let saveConfig = service.getSavedConfig({ tableKey: key });
           saveConfig.then((res) => {
             let bookmarkData = res.data.find(
               (d) => d.id === this.$route.query.bookmarkChart
@@ -1774,7 +1838,7 @@ export default {
     getConfigData() {
       let key = this.generateKey("interactiveConfig");
       service
-        .getSavedConfig(key)
+        .getSavedConfig({ tableKey: key })
         .then((res) => {
           this.allowedOptions = res.data;
         })

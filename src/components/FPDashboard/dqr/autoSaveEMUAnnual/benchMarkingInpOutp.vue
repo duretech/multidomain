@@ -1,6 +1,6 @@
 <template>
   <div class="row">
-    <loader v-if="bshowLoader" />
+    <!-- <loader v-if="bshowLoader" /> -->
     <div class="col-lg-12">
       <div class="top-date-page-div">
         <span class="btn pointer-events-none color-white">
@@ -51,7 +51,7 @@
     </div>
 
     <div class="col-lg-12">
-      <div class="tab-content">
+      <div class="tab-content mt-3">
         <div
           class="tab-pane fade"
           :id="'input_tab_content_' + tabName"
@@ -74,9 +74,12 @@
           />
           <div class="row dashboardchart-container emu-dqr m-1">
             <div class="col-lg-12 col-xl-12">
-              <b-alert v-if="!aFinalInputData" show variant="danger">{{
-                $t("no_data_to_display")
-              }}</b-alert>
+              <div
+                v-if="!aFinalInputData"
+                class="card-body pb-0 h-410px align-items-center d-flex justify-content-center"
+              >
+                <b-spinner type="grow" label="Spinning"></b-spinner>
+              </div>
               <div class="row" v-if="aFinalInputData">
                 <div
                   v-bind:class="getClass()"
@@ -87,6 +90,7 @@
                   class="border-right"
                 >
                   <card-component
+                    v-if="chart"
                     :chartdata="chart"
                     :period="true"
                     :canComment="canComment"
@@ -94,6 +98,13 @@
                     defaultSort="JAN-DEC"
                     sorting="type3"
                   ></card-component>
+                  <div class="card" v-else>
+                    <div
+                      class="card-body pb-0 h-410px align-items-center d-flex justify-content-center"
+                    >
+                      <b-spinner type="grow" label="Spinning"></b-spinner>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -128,18 +139,8 @@
           <div class="row dashboardchart-container">
             <div class="col-lg-12 col-xl-12">
               <div class="row">
-                <!-- <div class="col-12 d-none">
-                  <div class="card mb-3">
-                    <div
-                      class="card-header"
-                    >{{$t('outputsChartTitle1')}}</div>
-                    <div
-                      class="card-body"
-                    >{{$t('outputsChartBody1')}}</div>
-                  </div>
-                </div> -->
                 <div class="col-12">
-                  <div class="card mb-25px">
+                  <div class="mb-25px">
                     <div class="card-header">
                       {{ $t("outputsChartTitle1") }}
                     </div>
@@ -149,53 +150,57 @@
                     >
                       <p>{{ $t("outputsChartBody1") }}</p>
                       <div class="row emu-dqr">
-                        <div
-                          v-bind:class="getClass()"
-                          v-if="
-                            lineAdNonAdChartData &&
-                            lineAdNonAdChartData.disable == false
-                          "
-                          class=""
-                        >
+                        <div v-bind:class="getClass()" class="">
                           <card-component
+                            v-if="
+                              lineAdNonAdChartData &&
+                              lineAdNonAdChartData.disable == false
+                            "
                             :chartdata="lineAdNonAdChartData"
                             :canComment="canComment"
                             :loggedInUserId="loggedInUserId"
                             defaultSort="JAN-DEC"
                             sorting="type3"
                           />
+                          <div class="card" v-else>
+                            <div
+                              class="card-body pb-0 h-410px align-items-center d-flex justify-content-center"
+                            >
+                              <b-spinner
+                                type="grow"
+                                label="Spinning"
+                              ></b-spinner>
+                            </div>
+                          </div>
                         </div>
-                        <div
-                          v-bind:class="getClass()"
-                          v-if="
-                            adNonadChartData &&
-                            adNonadChartData.disable == false
-                          "
-                        >
+                        <div v-bind:class="getClass()">
                           <card-component
+                            v-if="
+                              adNonadChartData &&
+                              adNonadChartData.disable == false
+                            "
                             :chartdata="adNonadChartData"
                             :canComment="canComment"
                             :loggedInUserId="loggedInUserId"
                           />
+                          <div class="card" v-else>
+                            <div
+                              class="card-body pb-0 h-410px align-items-center d-flex justify-content-center"
+                            >
+                              <b-spinner
+                                type="grow"
+                                label="Spinning"
+                              ></b-spinner>
+                            </div>
+                          </div>
                           <!--  defaultSort="A-Z" sorting="type4" -->
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
-
-                <!-- <div class="col-12 d-none">
-                  <div class="card mb-3">
-                    <div
-                      class="card-header"
-                    >{{$t('outputsChartTitle2')}}</div>
-                    <div
-                      class="card-body"
-                    >{{$t('outputsChartBody2')}}</div>
-                  </div>
-                </div> -->
                 <div class="col-12">
-                  <div class="card mb-25px">
+                  <div class="mb-25px">
                     <div class="card-header">
                       {{ $t("outputsChartTitle2") }}
                     </div>
@@ -205,55 +210,82 @@
                     >
                       <p>{{ $t("outputsChartBody2") }}</p>
                       <div class="row emu-dqr">
-                        <div
-                          v-bind:class="getClass()"
-                          v-if="
-                            outPutTrendsChart &&
-                            outPutTrendsChart.disable == false
-                          "
-                          class="border-right"
-                        >
+                        <div v-bind:class="getClass()" class="border-right">
                           <card-component
+                            v-if="
+                              outPutTrendsChart &&
+                              outPutTrendsChart.disable == false
+                            "
                             :chartdata="outPutTrendsChart"
                             :canComment="canComment"
                             :loggedInUserId="loggedInUserId"
                             defaultSort="JAN-DEC"
                             sorting="type3"
                           ></card-component>
+                          <div class="card" v-else>
+                            <div
+                              class="card-body pb-0 h-410px align-items-center d-flex justify-content-center"
+                            >
+                              <b-spinner
+                                type="grow"
+                                label="Spinning"
+                              ></b-spinner>
+                            </div>
+                          </div>
                         </div>
-                        <div
-                          v-bind:class="getClass()"
-                          v-if="
-                            comparisionEstimateData &&
-                            comparisionEstimateData.disable == false
-                          "
-                        >
+                        <div v-bind:class="getClass()">
                           <card-component
+                            v-if="
+                              comparisionEstimateData &&
+                              comparisionEstimateData.disable == false
+                            "
                             :chartdata="comparisionEstimateData"
                             :canComment="canComment"
                             :loggedInUserId="loggedInUserId"
                           />
+                          <div class="card" v-else>
+                            <div
+                              class="card-body pb-0 h-410px align-items-center d-flex justify-content-center"
+                            >
+                              <b-spinner
+                                type="grow"
+                                label="Spinning"
+                              ></b-spinner>
+                            </div>
+                          </div>
                         </div>
-                        <!--                                             defaultSort="A-Z" sorting="type4"
- -->
+
                         <div
-                          class="col-lg-12 col-xl-12 mb-4 pieChart-col"
-                          v-if="
-                            MordernUsersByMethodsData &&
-                            MordernUsersByMethodsData.disable == false &&
+                          :class="
                             signOffActive
+                              ? `col-lg-12 col-xl-12 mb-4 pieChart-col`
+                              : `col-lg-4 col-xl-4 mb-4`
                           "
                         >
                           <card-component
+                            v-if="
+                              MordernUsersByMethodsData &&
+                              MordernUsersByMethodsData.disable == false
+                            "
                             :chartdata="MordernUsersByMethodsData"
                             :canComment="canComment"
                             :loggedInUserId="loggedInUserId"
                             defaultSort="A-Z"
                             sorting="type4"
                           />
+                          <div class="card" v-else>
+                            <div
+                              class="card-body pb-0 h-410px align-items-center d-flex justify-content-center"
+                            >
+                              <b-spinner
+                                type="grow"
+                                label="Spinning"
+                              ></b-spinner>
+                            </div>
+                          </div>
                         </div>
 
-                        <div
+                        <!-- <div
                           class="col-lg-4 col-xl-4 mb-4"
                           v-else-if="
                             MordernUsersByMethodsData &&
@@ -267,23 +299,37 @@
                             defaultSort="A-Z"
                             sorting="type4"
                           />
-                        </div>
+                        </div> -->
 
                         <div
-                          class="col-lg-12 col-xl-12 mb-4 pieChart-col"
-                          v-if="
-                            MixComparisionData &&
-                            MixComparisionData.disable == false &&
+                          :class="
                             signOffActive
+                              ? `col-lg-12 col-xl-12 mb-4 pieChart-col`
+                              : `col-lg-8 col-xl-8 mb-4 pieChart-col border-left`
                           "
                         >
                           <card-component
+                            v-if="
+                              MixComparisionData &&
+                              MixComparisionData.disable == false
+                            "
                             :chartdata="MixComparisionData"
                             :canComment="canComment"
                             :loggedInUserId="loggedInUserId"
                           />
+                          <div class="card" v-else>
+                            <div
+                              class="card-body pb-0 h-410px align-items-center d-flex justify-content-center"
+                            >
+                              <b-spinner
+                                type="grow"
+                                label="Spinning"
+                              ></b-spinner>
+                            </div>
+                          </div>
                         </div>
-                        <div
+
+                        <!-- <div
                           class="col-lg-8 col-xl-8 mb-4 pieChart-col border-left"
                           v-else-if="
                             MixComparisionData &&
@@ -295,45 +341,54 @@
                             :canComment="canComment"
                             :loggedInUserId="loggedInUserId"
                           />
-                        </div>
+                        </div> -->
 
-                        <!-- <div class="col-lg-6 col-xl-4 mb-4" v-if="methodMixPieChart">
-                                    <card-component
-                                        :chartdata="methodMixPieChart"
-                                    />
-                </div>-->
-
-                        <div
-                          v-bind:class="getClass()"
-                          v-if="
-                            userTrendsByMethod &&
-                            userTrendsByMethod.disable == false
-                          "
-                          class="border-right"
-                        >
+                        <div v-bind:class="getClass()" class="border-right">
                           <card-component
+                            v-if="
+                              userTrendsByMethod &&
+                              userTrendsByMethod.disable == false
+                            "
                             :chartdata="userTrendsByMethod"
                             :canComment="canComment"
                             :loggedInUserId="loggedInUserId"
                             defaultSort="JAN-DEC"
                             sorting="type3"
                           />
+                          <div class="card" v-else>
+                            <div
+                              class="card-body pb-0 h-410px align-items-center d-flex justify-content-center"
+                            >
+                              <b-spinner
+                                type="grow"
+                                label="Spinning"
+                              ></b-spinner>
+                            </div>
+                          </div>
                         </div>
 
-                        <div
-                          v-bind:class="getClass()"
-                          v-if="
-                            comparisionSlope &&
-                            comparisionSlope.disable == false
-                          "
-                        >
+                        <div v-bind:class="getClass()">
                           <card-component
+                            v-if="
+                              comparisionSlope &&
+                              comparisionSlope.disable == false
+                            "
                             :chartdata="comparisionSlope"
                             :canComment="canComment"
                             :loggedInUserId="loggedInUserId"
                             defaultSort="A-Z"
                             sorting="type4"
                           />
+                          <div class="card" v-else>
+                            <div
+                              class="card-body pb-0 h-410px align-items-center d-flex justify-content-center"
+                            >
+                              <b-spinner
+                                type="grow"
+                                label="Spinning"
+                              ></b-spinner>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -352,6 +407,13 @@
                         :chartInfo="firstTableInfo"
                         @filter="getFilter"
                       />
+                      <div class="card" v-else>
+                        <div
+                          class="card-body pb-0 h-410px align-items-center d-flex justify-content-center"
+                        >
+                          <b-spinner type="grow" label="Spinning"></b-spinner>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -368,24 +430,17 @@
                     :source="contName"
                     :location="location"
                   />
+                  <div class="card" v-else>
+                    <div
+                      class="card-body pb-0 h-410px align-items-center d-flex justify-content-center"
+                    >
+                      <b-spinner type="grow" label="Spinning"></b-spinner>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-          <!-- <div class="row m-t-40px float-right">
-                        <div class="col-lg-12 col-xl-12 ">
-                            <a class="btn black-btn color-white" :id="'input_tab_link_'+tabName" data-toggle="pill"
-                                :href="'#input_tab_content_'+tabName" role="tab" :aria-controls="'input_tab_content_'+tabName"
-                                aria-selected="true" @click="removeActiveClass" style="margin-bottom:30px;">
-                                Prev
-                            </a>
-
-                            <a class="btn black-btn color-white" id="benchmarking-fpemuoutput-tabemu"
-                            data-toggle="pill" href="#benchmarking-fpemuoutput"
-                            role="tab" aria-controls="benchmarking-fpemuoutput"
-                            aria-selected="false" @click="removeActiveClass" style="margin-bottom:30px;">EMU Output</a>
-                        </div>
-          </div>-->
         </div>
         <div
           class="tab-pane fade show active"
@@ -396,10 +451,12 @@
           <div class="row dashboardchart-container">
             <div class="col-lg-12 col-xl-12 mb-4 p-4" v-if="reportinRateChart">
               <TabSummary
+                v-if="reportinRateChart"
                 :content="reportinRateChart['categoryInfo']"
                 :contKey="contName"
               />
               <card-component
+                v-if="reportinRateChart"
                 :chartdata="reportinRateChart"
                 :canComment="canComment"
                 :loggedInUserId="loggedInUserId"
@@ -407,6 +464,24 @@
                 defaultSort="JAN-DEC"
                 sorting="type3"
               />
+            </div>
+            <div class="col-lg-12 col-xl-12 mb-4 p-4" v-else>
+              <div
+                class="card"
+                v-if="!reportinRateChart && byPassRepoRate == false"
+              >
+                <div
+                  class="card-body pb-0 h-410px align-items-center d-flex justify-content-center"
+                >
+                  <b-spinner type="grow" label="Spinning"></b-spinner>
+                </div>
+              </div>
+              <b-alert
+                v-if="!reportinRateChart && byPassRepoRate == true"
+                show
+                variant="warning"
+                >{{ $t("rrByPass") }}</b-alert
+              >
             </div>
           </div>
         </div>
@@ -425,10 +500,11 @@ import dataM from "./../emuAnnual/dataMassaging.js";
 import bechMarkingOutputTable from "./bechMarkingOutputTable";
 import DynamicImageMixin from "@/helpers/DynamicImageMixin";
 import StaticColorMixin from "@/helpers/StaticColorMixin";
+import NepaliDate from "nepali-date-converter";
+
 export default {
   mixins: [DynamicImageMixin, StaticColorMixin],
   data() {
-    //console.log(this.inputActive)
     return {
       finalMethodArr: [],
       sYearArray: [],
@@ -436,7 +512,7 @@ export default {
       globalConfig: null,
       bRequestFlag: false,
       aFinalInputData: null,
-      bshowLoader: false,
+      //bshowLoader: false,
       totalCyp: null,
       reportingRateDe: this.repoId,
       CommAdjustment: null,
@@ -445,12 +521,12 @@ export default {
       newBaseLineUsers: null,
       cypFactors: null,
       AdjudtedValues: null,
-      NonAdjudtedValues: null,
+      // NonAdjudtedValues: null,
       outPutTrendsChart: null,
       comparisionEstimateData: null,
       MordernUsersByMethodsData: null,
       MixComparisionData: null,
-      methodMixPieChart: null,
+      //methodMixPieChart: null,
       userTrendsByMethod: null,
       comparisionSlope: null,
       reportinRateChart: null,
@@ -505,8 +581,8 @@ export default {
       statFields: [],
       activetab: "",
       defaultLevelID: "",
-      sourceStartYear: this.data["initialYear"],
-      sourceEndYear: this.data["finalYear"],
+      sourceStartYear: "",
+      sourceEndYear: "",
       methodSeq: [],
       tableMethodSeq: [],
       newinputActive: this.inputActive,
@@ -549,15 +625,6 @@ export default {
     this.getActiveTab("repo");
   },
   methods: {
-    activeSummary(tab) {
-      if (tab == "input") {
-        this.newinputActive = !this.newinputActive;
-      } else if (tab == "output") {
-        this.newoutputActive = !this.newoutputActive;
-      } else {
-        this.newrepoActive = !this.newrepoActive;
-      }
-    },
     getClass() {
       if (this.signOffActive) {
         return "col-lg-12 col-xl-12 mb-4";
@@ -598,7 +665,6 @@ export default {
      * @return {Object} globalConfig
      */
     getGlobalConfig() {
-      //console.log(this.bgData)
       let { levelID } = service.getAllowedLocation();
 
       //let locationID = locationID;
@@ -619,6 +685,28 @@ export default {
       this.tableMethodSeq = oRet.tableMethodSeq;
       this.emuColors = oRet.emuColors;
       this.$store.commit("setEMUColors", oRet.emuColors);
+      //Global Period Seeting in emu annual
+      let periodData = this.$store.getters.getGlobalFactors().period.Period;
+      let d = new Date();
+      if (this.$store.getters.getAppSettings.calendar === "nepali") {
+        d = new NepaliDate(
+          new Date(d.getFullYear(), d.getMonth() + 1, d.getDate())
+        ).getBS();
+        let nplMonth = d.month;
+        let nplYear = d.year;
+        let zeroForMonth = nplMonth < 10 ? "0" + nplMonth : nplMonth;
+        d = d.year + "" + zeroForMonth;
+      }
+      let recentYearMonth = this.$moment(d, "YYYYMM")
+        .subtract(periodData.backtrackedMonth * 1, "months")
+        .format("YYYY-MM");
+      if (recentYearMonth.split("-")[1] == 12)
+        this.sourceEndYear = recentYearMonth.split("-")[0];
+      else this.sourceEndYear = recentYearMonth.split("-")[0] * 1 - 1;
+
+      this.sourceStartYear = this.$moment(recentYearMonth, "YYYY-MM")
+        .subtract(periodData.backtrackedYearLimit * 1, "years")
+        .format("YYYY");
       if (this.globalConfig.chartArr.length) {
         this.getReportingRate();
 
@@ -629,7 +717,7 @@ export default {
           this.bshowLoader = false;
         }
       } else {
-        this.bshowLoader = false;
+        //this.bshowLoader = false;
         if (this.getData) {
           this.getData(this.tabName, null, "whole_data_empty", this.filter);
         }
@@ -640,7 +728,12 @@ export default {
      * Usage: `getAllDataelemsData()`
      */
     async getAllDataelemsData() {
-      console.log("getAllDataelemsData method caled==========================");
+      console.log(
+        this.location,
+        "this.location",
+        "getAllDataelemsData method caled==========================",
+        this.globalConfig.chartArr
+      );
       let i,
         aChart = this.globalConfig.chartArr,
         ncLen = aChart.length,
@@ -650,6 +743,7 @@ export default {
         sYear = dataM.getYearFormated(this.sourceStartYear, this.sourceEndYear),
         nFlag1 = 0,
         nFlag2 = 0;
+      this.sYearArray = sYear.split(";");
       let showAlert = false;
       this.sYearArray = sYear.split(";");
       for (i = 0; i < ncLen; i++) {
@@ -664,10 +758,11 @@ export default {
           aDe = aChart[i].dataElems;
         let alertSt = "";
         for (j in aDe) {
-          let sdes = aDe[j].de.join(";"),
+          let sdesIDS = aDe[j].selectedDE.map((obj) => obj.id);
+          let sdes = sdesIDS.join(";"),
             nI = i,
             nJ = j;
-          if (!aDe[j].de.length) {
+          if (!sdesIDS.length) {
             continue;
           }
           nFlag2++;
@@ -754,7 +849,6 @@ export default {
      * This fnc is to compute reporting chart data.
      */
     reportingRateChart(data) {
-      //console.log(this.data['reportingRate'][0]['indicator']['chartOptions']['title']['text'], 'jvhnvhgvng')
       let categories = [];
       let seriesData = [];
       let catData = [];
@@ -854,7 +948,6 @@ export default {
           this.totalCyp
         )
       );
-
       this.aFinalInputData = aFinalCharts;
       dataM.saveChartColors(aFinalCharts, this.tabName);
     },
@@ -874,20 +967,10 @@ export default {
         oAdjustmentFactors,
         this.byPassRepoRate
       );
-      console.log(
-        this.contName,
-        "Short term methods calculation",
-        oSTMAdjusment
-      );
-      console.log(
-        "Continuation factor ",
-        this.bgData.continuation[this.contName]
-      );
       let aSumOfCont = dataM.getSumOfCont(
         this.bgData.continuation[this.contName]
       );
       // bIsUser = this.tabName === "fp_users";
-      console.log(this.contName, "aSumOfContinuation", aSumOfCont);
       let continuation = {};
       Object.keys(this.bgData.continuation[this.contName]).forEach((cont) => {
         continuation[cont] = [];
@@ -921,19 +1004,12 @@ export default {
       this.AdjudtedValues = dataM.calculateNewAdjustedVals(
         allMethodsAdjusted.adjusted
       );
-      this.NonAdjudtedValues = dataM.calculateNewAdjustedVals(
-        allMethodsAdjusted.nonAdjusted
-      );
-      // let oUserTrends = dataM.getFinalOutPutChart(
-      //   this.tabName,
-      //   allMethodsAdjusted.adjusted
-      // );
-      //
+
       let adjNonAdjData = dataM.getFinaladjNonAdjData(
         this.tabName,
         allMethodsAdjusted
       );
-      console.log("adjNonAdjData", adjNonAdjData);
+
       let methodWiseAdjObject = adjNonAdjData.adjusted;
       let oUserTrends = dataM.getUserTrendsData(
         this.tabName,
@@ -941,8 +1017,6 @@ export default {
         this.sYearArray,
         methodWiseAdjObject
       );
-      //console.log("oUserTrendsNew",oUserTrendsNew);
-      // console.log("oUserTrends",oUserTrends);
       this.outPutTrendsChart = this.getOtherChartDeatils(
         oUserTrends,
         0,
@@ -962,6 +1036,7 @@ export default {
         return el != null && el != "";
       });
       this.outPutTrendsChart = oUserTrends;
+
       if (this.getData) {
         this.getData(
           this.tabName,
@@ -1117,7 +1192,7 @@ export default {
           },
           {
             size: 130,
-            center: [450, 250],
+            center: [450, 180],
             name: this.$i18n.t("methods"),
             colorByPoint: true,
             data: pieDataObject["methodMix"].data,
@@ -1131,7 +1206,26 @@ export default {
               ]
             : this.data["derivedCharts"][3]["chartOptions"]["chartName"],
         source: this.sources[this.contName],
-        xTitle: "",
+        xTitle:
+          ((typeof this.data["derivedCharts"][3]["chartOptions"]["subTitle"][
+            "text"
+          ] == "object"
+            ? this.data["derivedCharts"][3]["chartOptions"]["subTitle"]["text"][
+                this.$i18n.locale
+              ]
+            : this.data["derivedCharts"][3]["chartOptions"]["subTitle"][
+                "text"
+              ]) || this.$i18n.t("estimated_modern")) +
+          " & " +
+          ((typeof this.data["derivedCharts"][3]["chartOptions"]["subTitle1"][
+            "text"
+          ] == "object"
+            ? this.data["derivedCharts"][3]["chartOptions"]["subTitle1"][
+                "text"
+              ][this.$i18n.locale]
+            : this.data["derivedCharts"][3]["chartOptions"]["subTitle1"][
+                "text"
+              ]) || this.$i18n.t("contraceptive_modern")),
         yTitle: "",
         type: "pie",
         disable: this.data["derivedCharts"][3]["chartOptions"]["disableChart"],
@@ -1151,15 +1245,16 @@ export default {
             {
               // html: 'Estimated Modern Method Mix',
               html:
-                (typeof this.data["derivedCharts"][3]["chartOptions"][
-                  "subTitle"
-                ]["text"] == "object"
-                  ? this.data["derivedCharts"][3]["chartOptions"]["subTitle"][
-                      "text"
-                    ][this.$i18n.locale]
-                  : this.data["derivedCharts"][3]["chartOptions"]["subTitle"][
-                      "text"
-                    ]) || "Estimated Modern Method Mix",
+                "<span class='pie-title'>" +
+                  (typeof this.data["derivedCharts"][3]["chartOptions"][
+                    "subTitle"
+                  ]["text"] == "object"
+                    ? this.data["derivedCharts"][3]["chartOptions"]["subTitle"][
+                        "text"
+                      ][this.$i18n.locale]
+                    : this.data["derivedCharts"][3]["chartOptions"]["subTitle"][
+                        "text"
+                      ]) || this.$i18n.t("estimated_modern") + "</span>",
               style: {
                 left: "100px",
                 top: "0px",
@@ -1169,15 +1264,17 @@ export default {
             {
               // html: 'Modern Contraceptive Method Mix',
               html:
-                (typeof this.data["derivedCharts"][3]["chartOptions"][
-                  "subTitle1"
-                ]["text"] == "object"
-                  ? this.data["derivedCharts"][3]["chartOptions"]["subTitle1"][
-                      "text"
-                    ][this.$i18n.locale]
-                  : this.data["derivedCharts"][3]["chartOptions"]["subTitle1"][
-                      "text"
-                    ]) || "Modern Contraceptive Method Mix",
+                "<span class='pie-title'>" +
+                  (typeof this.data["derivedCharts"][3]["chartOptions"][
+                    "subTitle1"
+                  ]["text"] == "object"
+                    ? this.data["derivedCharts"][3]["chartOptions"][
+                        "subTitle1"
+                      ]["text"][this.$i18n.locale]
+                    : this.data["derivedCharts"][3]["chartOptions"][
+                        "subTitle1"
+                      ]["text"]) ||
+                this.$i18n.t("contraceptive_modern") + "</span>",
               style: {
                 left: "400px",
                 top: "0px",
@@ -1187,7 +1284,6 @@ export default {
           ],
         },
       };
-      //console.log(oResponse, this.tabName, this.location.split('/')[1])
       return oResponse;
     },
     getOtherChartDeatils(obj, index, type) {
@@ -1244,11 +1340,7 @@ export default {
       this.sweetAlert({
         text: this.$i18n.t("somethingwentwrong"),
       });
-      this.bshowLoader = false;
-    },
-    onYearChange(p_val) {
-      this.currentYear = p_val;
-      this.allDataFetched();
+      //this.bshowLoader = false;
     },
     getYearList() {
       let aKeys = [],
@@ -1273,7 +1365,6 @@ export default {
     },
   },
   created() {
-    console.log(this.contName);
     this.getGlobalConfig();
   },
   updated() {},
@@ -1281,7 +1372,7 @@ export default {
   watch: {
     bgData(newVal) {
       this.bgData = newVal;
-      this.bshowLoader = false;
+      //this.bshowLoader = false;
       if (this.bRequestFlag) this.allDataFetched();
     },
     bRequestFlag(newVal) {
@@ -1289,17 +1380,10 @@ export default {
         this.allDataFetched();
       }
     },
-    // repoRate(newVal) {
-    //   ////console.log(newVal)
-    //   console.log("repoRate allDataFetched",newVal)
-    //   if (newVal && this.bRequestFlag) {
-    //     this.allDataFetched();
-    //   }
-    // },
     location(newVal) {
       if (newVal) {
         this.bRequestFlag = false;
-        this.bshowLoader = false;
+        //this.bshowLoader = false;
         this.getGlobalConfig();
       }
     },
@@ -1326,7 +1410,7 @@ export default {
       this.comparisionSlope = null;
 
       this.bRequestFlag = false;
-      this.bshowLoader = false;
+      // this.bshowLoader = false;
       this.getGlobalConfig();
     },
   },
@@ -1336,17 +1420,17 @@ export default {
 .top-date-page-div {
   position: absolute;
   top: 0;
-  right: 34px !important;
+  right: 15px;
 
   span {
-    background-color: var(--new-header-color);
-    border-color: var(--new-header-color);
+    background-color: var(--new-footer-component-color);
+    border-color: var(--new-footer-component-color);
     font-size: 0.875rem;
     padding: 12px 12px;
   }
   span:hover {
-    background-color: var(--new-header-color);
-    border-color: var(--new-header-color);
+    background-color: var(--new-footer-component-color);
+    border-color: var(--new-footer-component-color);
   }
 }
 </style>

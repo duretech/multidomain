@@ -33,16 +33,17 @@
           <a
             class="btn black-btn pointer-events-none color-white float-right blue-btn"
           >
-          <span class="">
-            <img
-              :src="require('@/assets/images/icons/generateReport.svg')"
-              class="img-fluid mt-xl-n1"
-            /> </span
-          > <span class="mx-1"> {{ $t("exportbtn") }} </span>
+            <span class="">
+              <img
+                :src="require('@/assets/images/icons/generateReport.svg')"
+                class="img-fluid mt-xl-n1"
+              />
+            </span>
+            <span class="mx-1"> {{ $t("exportbtn") }} </span>
           </a>
         </download-csv>
 
-        <b-table :items="items" :fields="fields" responsive="sm">
+        <b-table :items="items" :fields="fields" responsive="sm" show-empty :empty-text="$t('no_data_to_display')">
           <!-- <template v-slot:thead-top="data">
                         <b-tr>
                         <b-th colspan="1"></b-th>
@@ -63,24 +64,25 @@
           <a
             class="btn black-btn pointer-events-none color-white float-right m-t-40px blue-btn"
           >
-          <span class="">
-            <img
-              :src="require('@/assets/images/icons/generateReport.svg')"
-              class="img-fluid mt-xl-n1"
-            /> </span
-          > <span class="mx-1"> {{ $t("exportbtn") }} </span>
+            <span class="">
+              <img
+                :src="require('@/assets/images/icons/generateReport.svg')"
+                class="img-fluid mt-xl-n1"
+              />
+            </span>
+            <span class="mx-1"> {{ $t("exportbtn") }} </span>
           </a>
         </download-csv>
 
-        <b-table striped hover :items="bgItems"></b-table>
+        <b-table striped hover :items="bgItems" show-empty :empty-text="$t('no_data_to_display')"></b-table>
       </div>
     </div>
   </div>
 </template>
 <script>
-import service from "@/service";
-import dataM from "./dataMassaging";
 import cardComponent from "./cardComponent";
+import NepaliDate from "nepali-date-converter";
+
 export default {
   props: [
     "bgData",
@@ -91,7 +93,6 @@ export default {
     "userDetails",
   ],
   data() {
-    console.log(this.methodMixData);
     return {
       items: [],
       bgItems: [],
@@ -120,9 +121,11 @@ export default {
         key = `applicationModule_${locale}`,
         key1 = `dqrModule_${locale}`;
       if (!this.$store.getters.getAppSettings.country) {
-        let appId = this.$store.state.appId ? this.$store.state.appId : "",
-          appUserId = this.$store.state.appUserId
-            ? this.$store.state.appUserId
+        let appId = this.$store.getters.getAppId
+            ? this.$store.getters.getAppId
+            : "",
+          appUserId = this.$store.getters.getAppUserId
+            ? this.$store.getters.getAppUserId
             : "";
         if (appId && appUserId) {
           key = `${appUserId}_${appId}_applicationModule_${locale}`;
@@ -132,14 +135,6 @@ export default {
           return;
         }
       }
-      let startYear = this.dqrResponse.emu.Background_Data.startingYear;
-      let locationID = this.selectedLevel.split("/")[1];
-      if (
-        this.userDetails.dataViewOrganisationUnits[0].level >
-        this.appResponse.defaultLevelID
-      ) {
-        locationID = [this.userDetails.dataViewOrganisationUnits[0].id];
-      }
       this.categoryData = this.dqrResponse.emu;
       let fromDataStore = this.dqrResponse.emu["Background_Data"][
         "bgDataSource"
@@ -148,7 +143,28 @@ export default {
         : false;
       let womenPop = this.categoryData["Background_Data"]["FPWomenPopulation"];
       this.fields = [{ key: "year", label: this.$i18n.t("year") }];
-      let lastYear = this.categoryData["Background_Data"]["SSDataRecentYear"];
+      let periodData = this.$store.getters.getGlobalFactors().period.Period;
+      let d = new Date();
+      if (this.$store.getters.getAppSettings.calendar === "nepali") {
+        d = new NepaliDate(
+          new Date(d.getFullYear(), d.getMonth() + 1, d.getDate())
+        ).getBS();
+        let nplMonth = d.month;
+        let nplYear = d.year;
+        let zeroForMonth = nplMonth < 10 ? "0" + nplMonth : nplMonth;
+        d = d.year + "" + zeroForMonth;
+      }
+      let lastYear = "";
+      let recentYearMonth = this.$moment(d, "YYYYMM")
+        .subtract(periodData.backtrackedMonth * 1, "months")
+        .format("YYYY-MM");
+      if (recentYearMonth.split("-")[1] == 12)
+        lastYear = recentYearMonth.split("-")[0];
+      else lastYear = recentYearMonth.split("-")[0] * 1 - 1;
+
+      let startYear = this.$moment(recentYearMonth, "YYYY-MM")
+        .subtract(periodData.backtrackedYearLimit * 1, "years")
+        .format("YYYY");
       let years = [];
       let indId = [];
       for (let year = startYear; year <= lastYear; year++) {
@@ -237,7 +253,6 @@ export default {
         labels: {},
       };
       this.methodMixPieChart = oResponse;
-      console.log(oResponse);
       oResponse.data[0].data.forEach((res) => {
         if (res.name != undefined) {
           this.bgItems.push({
@@ -246,7 +261,6 @@ export default {
           });
         }
       });
-      //console.log(this.bgItems)
     },
   },
   mounted() {},

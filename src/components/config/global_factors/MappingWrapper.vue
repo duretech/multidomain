@@ -139,7 +139,7 @@
                       :moveItem="moveItem"
                       :mappings="tab.mapping"
                       :addElement="addElement"
-                      :metrixList="metrixList"
+                      :matrixList="matrixList"
                       v-bind.sync="tab.mapping"
                       :dataSetsList="dataSetsList"
                       :isDataFetched="isDataFetched"
@@ -241,7 +241,7 @@ export default {
     "module",
     "type",
     "subType",
-    "metrixList",
+    "matrixList",
     "dataSetsList",
     "indicatorsList",
     "dataElementsList",
@@ -389,36 +389,36 @@ export default {
     },
     //This is to fetch config data on page load
     getConfigData() {
-      this.$store.state.loading = true;
+      this.$store.commit("setLoading", true);
       let key = this.generateKey(this.module);
 
-      let response = service.getSavedConfig(key);
+      let response = service.getSavedConfig({ tableKey: key });
       response
         .then((response) => {
           if (response.data[this.type]) {
             this.tabs = response.data[this.type][this.subType];
             this.originalTabs = JSON.parse(JSON.stringify(this.tabs));
           }
-          this.$store.state.loading = false;
+          this.$store.commit("setLoading", false);
           this.isDataFetched = true;
         })
         .catch((res) => {
           console.log("Config not found...", res);
-          this.$store.state.loading = false;
+          this.$store.commit("setLoading", false);
           this.isDataFetched = true;
           this.reFetchConfig();
         });
     },
     updateConfigData() {
-      this.$store.state.loading = true;
+      this.$store.commit("setLoading", true);
       let tabs = this.tabs;
 
       let key = this.generateKey(this.module);
 
-      let allKeys = service.getAllKeys();
+      let allKeys = service.getAllKeys({});
       allKeys.then((keys) => {
         if (keys.data.includes(key)) {
-          let saveConfig = service.getSavedConfig(key);
+          let saveConfig = service.getSavedConfig({ tableKey: key });
           saveConfig.then((res) => {
             let configData = res.data;
             if (!configData[this.type]) {
@@ -430,7 +430,10 @@ export default {
             //   this.originalTabs,
             //   configData[this.type][this.subType]
             // );
-            let response = service.updateConfig(configData, key);
+            let response = service.updateConfig({
+              data: configData,
+              tableKey: key,
+            });
             response
               .then((response) => {
                 if (response.data.status === "OK") {
@@ -441,14 +444,14 @@ export default {
                     payload: configData,
                   });
                   this.originalTabs = JSON.parse(JSON.stringify(this.tabs));
-                  this.$store.state.loading = false;
+                  this.$store.commit("setLoading", false);
                 } else {
                   this.sweetAlert({
                     title: this.$i18n.t("error"),
                     text: `${response.data.message}`,
                   });
 
-                  this.$store.state.loading = false;
+                  this.$store.commit("setLoading", false);
                   return;
                 }
               })
@@ -458,7 +461,7 @@ export default {
                   text: error,
                 });
 
-                this.$store.state.loading = false;
+                this.$store.commit("setLoading", false);
                 return;
               });
           });
@@ -468,7 +471,10 @@ export default {
               [this.subType]: tabs,
             },
           };
-          let response = service.saveConfig(configData, key);
+          let response = service.saveConfig({
+            data: configData,
+            tableKey: key,
+          });
           response.then((response) => {
             if (response.data.status === "OK") {
               this.sweetAlert({
@@ -478,13 +484,13 @@ export default {
                 payload: configData,
               });
               this.originalTabs = JSON.parse(JSON.stringify(this.tabs));
-              this.$store.state.loading = false;
+              this.$store.commit("setLoading", false);
             } else {
               this.sweetAlert({
                 title: this.$i18n.t("error"),
                 text: `${response.data.message}`,
               });
-              this.$store.state.loading = false;
+              this.$store.commit("setLoading", false);
               return;
             }
           });

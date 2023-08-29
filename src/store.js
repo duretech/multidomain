@@ -15,12 +15,12 @@ const defaultState = {
   appVersion: "",
   loading: false,
   isAdmin: false,
-  mdLayout: null,
   emuColors: null,
   orgLevels: null,
   loadingText: "",
   appSettings: {},
   localLang: false,
+  periodData: null,
   baseFontSize: 16,
   dataStoreKeys: {},
   globalFactors: {},
@@ -34,8 +34,10 @@ const defaultState = {
   isMultiProgram: true,
   loggedInUserId: null,
   applicationModule: {},
-  defaultViewType: "grid",
   defaultColorTheme: null,
+  periodDX: null,
+  isMonthlyEMUSet: true,
+  isAnnualEMUSet: true,
   namespace: settings.tableName || "multi_program",
 };
 
@@ -73,16 +75,19 @@ export default new Vuex.Store({
       state.loadingText = "";
     },
     setIsAdmin(state, payload) {
-      state.isAdmin = payload;
-    },
-    setMDLayout(state, payload) {
-      state.mdLayout = payload;
+      state.isAdmin =
+        process.env.NODE_ENV !== "production"
+          ? payload
+          : LZString.compressToUTF16(JSON.stringify(payload));
     },
     setLoadingText(state, payload) {
       state.loadingText = payload;
     },
     setAppSettings(state, payload) {
-      state.appSettings = payload;
+      state.appSettings =
+        process.env.NODE_ENV !== "production"
+          ? payload
+          : LZString.compressToUTF16(JSON.stringify(payload));
     },
     setLocalLang(state, payload) {
       state.localLang = payload;
@@ -146,7 +151,12 @@ export default new Vuex.Store({
           : LZString.compressToUTF16(JSON.stringify(payload));
     },
     setIsMultiProgram(state, payload) {
-      state.isMultiProgram = payload;
+      console.log("state", state);
+      console.log("payload", payload);
+      state.isMultiProgram =
+        process.env.NODE_ENV !== "production"
+          ? payload
+          : LZString.compressToUTF16(JSON.stringify(payload));
     },
     setLoggedInUserId(state, payload) {
       state.loggedInUserId = payload;
@@ -158,11 +168,23 @@ export default new Vuex.Store({
           : LZString.compressToUTF16(JSON.stringify(payload));
       Vue.set(state.applicationModule, state.namespace, payloadData);
     },
-    setViewType(state, payload) {
-      state.defaultViewType = payload;
-    },
     setTheme(state, payload) {
       state.defaultColorTheme = payload;
+    },
+    setPeriodData(state, payload) {
+      state.periodData =
+        process.env.NODE_ENV !== "production"
+          ? payload
+          : LZString.compressToUTF16(JSON.stringify(payload));
+    },
+    setPeriodDX(state, payload) {
+      state.periodDX = payload;
+    },
+    setIsMonthlyEMUSet(state, payload) {
+      state.isMonthlyEMUSet = payload;
+    },
+    setIsAnnualEMUSet(state, payload) {
+      state.isAnnualEMUSet = payload;
     },
     //Keep at last only, any new mutation should be before this
     setStoreValues(state) {
@@ -202,16 +224,19 @@ export default new Vuex.Store({
       return state.loading;
     },
     getIsAdmin(state) {
-      return state.isAdmin;
-    },
-    getMDLayout(state) {
-      return state.mdLayout;
+      return process.env.NODE_ENV !== "production"
+        ? state.isAdmin
+        : JSON.parse(LZString.decompressFromUTF16(state.isAdmin));
     },
     getLoadingText(state) {
       return state.loadingText;
     },
     getAppSettings(state) {
-      return state.appSettings;
+      return Object.keys(state.appSettings).length
+        ? process.env.NODE_ENV !== "production"
+          ? state.appSettings
+          : JSON.parse(LZString.decompressFromUTF16(state.appSettings))
+        : {};
     },
     getLocalLang(state) {
       return state.localLang;
@@ -229,26 +254,41 @@ export default new Vuex.Store({
     getBaseFontSize(state) {
       return state.baseFontSize;
     },
-    getDataStoreKeys(state) {
-      return state.dataStoreKeys[state.namespace]
-        ? process.env.NODE_ENV !== "production"
-          ? state.dataStoreKeys[state.namespace]
-          : JSON.parse(
-              LZString.decompressFromUTF16(state.dataStoreKeys[state.namespace])
-            )
-        : {};
-    },
-    getGlobalFactors:
-      (state) =>
+    getDataStoreKeys:
+      (state, getters) =>
       (namespace = "") => {
-        let n = namespace !== "" ? `_${namespace}` : "";
-        let key = `${state.namespace}${n}`;
+        let key =
+          namespace !== ""
+            ? `${getters.getAppSettings.tableName}_${namespace}`
+            : state.namespace;
+        return state.dataStoreKeys[key]
+          ? process.env.NODE_ENV !== "production"
+            ? state.dataStoreKeys[key]
+            : JSON.parse(LZString.decompressFromUTF16(state.dataStoreKeys[key]))
+          : {};
+      },
+    getGlobalFactors:
+      (state, getters) =>
+      (namespace = "", isFromDefault = false) => {
+        let n =
+          namespace !== ""
+            ? `${getters.getAppSettings.tableName}_${namespace}`
+            : state.namespace;
+        let key = isFromDefault ? getters.getAppSettings.tableName : n;
+
         return state.globalFactors[key]
           ? process.env.NODE_ENV !== "production"
             ? state.globalFactors[key]
             : JSON.parse(LZString.decompressFromUTF16(state.globalFactors[key]))
           : {};
       },
+    getPeriodData(state) {
+      return state.periodData
+        ? process.env.NODE_ENV !== "production"
+          ? state.periodData
+          : JSON.parse(LZString.decompressFromUTF16(state.periodData))
+        : null;
+    },
     getEMUMethodTable(state) {
       return state.methodTable;
     },
@@ -283,15 +323,19 @@ export default new Vuex.Store({
         : {};
     },
     getIsMultiProgram(state) {
-      return state.isMultiProgram;
+      return process.env.NODE_ENV !== "production"
+        ? state.isMultiProgram
+        : JSON.parse(LZString.decompressFromUTF16(state.isMultiProgram));
     },
     getLoggedInUserId(state) {
       return state.loggedInUserId;
     },
     getApplicationModule:
-      (state) =>
+      (state, getters) =>
       (isFromDefault = false) => {
-        let key = isFromDefault ? state.appSettings.tableName : state.namespace;
+        let key = isFromDefault
+          ? getters.getAppSettings.tableName
+          : state.namespace;
         return state.applicationModule[key]
           ? process.env.NODE_ENV !== "production"
             ? state.applicationModule[key]
@@ -300,11 +344,17 @@ export default new Vuex.Store({
               )
           : {};
       },
-    getViewType(state) {
-      return state.defaultViewType;
-    },
     getTheme(state) {
       return state.defaultColorTheme;
+    },
+    getPeriodDX(state) {
+      return state.periodDX;
+    },
+    getIsMonthlyEMUSet(state) {
+      return state.isMonthlyEMUSet;
+    },
+    getIsAnnualEMUSet(state) {
+      return state.isAnnualEMUSet;
     },
   },
   actions: {},

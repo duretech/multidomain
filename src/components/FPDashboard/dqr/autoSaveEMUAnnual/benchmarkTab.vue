@@ -1,13 +1,13 @@
 <template>
-  <div class="container-fluid m-t-20px">
-    <loader v-if="bShowLoader" />
+  <div class="container-fluid m-t-28px">
+    <!-- <loader v-if="bShowLoader" /> -->
     <div class="filter-btn" @click.prevent="showToolbarOnTablet = true">
       <a href="#" id="tabbar-expand"><i class="fas fa-filter"></i></a>
     </div>
-    <div class="row float-button mbl-floatbtn">
+    <div class="row dqr-emumonth">
       <div
         class="map-collapse-btndiv benchmarkmap-toggle"
-        style="top: 1vh; left: 0px; padding-left: 10px"
+        style="padding-left: 10px"
       >
         <a
           href="#"
@@ -111,8 +111,140 @@
       <div class="col-lg-12 px-0">
         <div class="row">
           <div class="col-lg-12">
-            <ul
-              class="nav nav-pills mb-3 mx-3"
+            <b-tabs
+              v-if="categoryData && Object.keys(categoryData.emu).length"
+              class="mx-1"
+            >
+              <template v-for="(catData, key) in categoryData.emu">
+                <b-tab
+                  @click="getRecentActiveTab(key)"
+                  :title="getSource(key)"
+                  :key="key"
+                  v-if="
+                    [
+                      'User',
+                      'Commodities_Facilities',
+                      'Visits',
+                      'Commodities_Client',
+                    ].includes(key) &&
+                    catData.dataOnContraceptive == 'Yes' &&
+                    bgData
+                  "
+                >
+                  <div class="mt-3">
+                    <TabSummary
+                      v-if="
+                        catData &&
+                        catData['categoryInfo'] &&
+                        (typeof catData['categoryInfo'] == 'object'
+                          ? catData['categoryInfo'][$i18n.locale] != ''
+                          : catData['categoryInfo'])
+                      "
+                      :content="
+                        typeof catData == 'object'
+                          ? catData['categoryInfo'][$i18n.locale]
+                          : catData['categoryInfo']
+                      "
+                      :contKey="'input' + key"
+                    />
+                  </div>
+                  <benchMarkingInpOutp
+                    v-if="catData && bgData"
+                    :data="categoryData.emu['Commodities_Client']"
+                    :bgData="bgData"
+                    :bAllWomen="bAllWomen"
+                    :byPassRepoRate="
+                      catData['reportingRate'][0]['indicator']['disableChart']
+                    "
+                    :repoId="
+                      catData['reportingRate'][0]['indicator'][
+                        'subIndicator'
+                      ][0]['de'][0]
+                    "
+                    :repoColor="
+                      catData['reportingRate'][0]['indicator']['chartOptions'][
+                        'color'
+                      ]
+                    "
+                    :tabName="getTabName(key)"
+                    :getData="getDatafromChild"
+                    :tableName="getTableName(key)"
+                    :startYear="sStartYear"
+                    :endYear="sRecentYear"
+                    :contName="key"
+                    :location="value[0]"
+                    :year="filterYear"
+                    @activeTabName="getActiveTab"
+                    :ref="key"
+                    :signOffActive="signOffActive"
+                    inputActive="false"
+                    outputActive="false"
+                    repoActive="false"
+                    :userDetails="userDetails"
+                    @changeFilter="changeFilter"
+                  />
+                </b-tab>
+                <b-tab
+                  @click="getRecentActiveTab(key)"
+                  :title="getSource(key)"
+                  :key="key"
+                  v-if="['Output'].includes(key) && bShowEmu"
+                >
+                  <TabSummary
+                    v-if="
+                      catData &&
+                      catData['categoryInfo'] &&
+                      (typeof catData['categoryInfo'] == 'object'
+                        ? catData['categoryInfo'][$i18n.locale] != ''
+                        : catData['categoryInfo'])
+                    "
+                    :content="
+                      typeof catData == 'object'
+                        ? catData['categoryInfo'][$i18n.locale]
+                        : catData['categoryInfo']
+                    "
+                    :contKey="'input' + key"
+                  />
+                  <emuOutput
+                    v-if="
+                      bShowEmu &&
+                      outputData &&
+                      slopeData &&
+                      userTrendsData &&
+                      finalMethodArr
+                    "
+                    :bShowEmu="bShowEmu"
+                    :outputData="outputData"
+                    :filter="filter"
+                    :bgData="bgData"
+                    :bAllWomen="bAllWomen"
+                    :slopeData="slopeData"
+                    :surveyData="surveyData"
+                    :finalMethodArr="finalMethodArr"
+                    :userTrendsData="userTrendsData"
+                    :userTrendsDataByMethods="userTrendsDataByMethods"
+                    :startYear="sStartYear"
+                    :endYear="sRecentYear"
+                    :boolVal="boolVal"
+                    :location="value[0]"
+                    :defaultEMU="defaultEMUSource"
+                    :data="categoryData.emu"
+                    :year="filterYear"
+                    :signOffActive="signOffActive"
+                    :defaultLevelID="defaultLevelID"
+                    :userDetails="userDetails"
+                    @saveEMUAuto="saveEMUAuto"
+                    :emuOuputFinalEMu="emuOuputFinalEMu"
+                    :initialYear="initialYear"
+                  />
+                </b-tab>
+              </template>
+            </b-tabs>
+            <div class="text-center" v-else>
+              <b-spinner type="grow" label="Spinning"></b-spinner>
+            </div>
+            <!-- <ul
+              class="nav nav-pills mb-3"
               id="benchmarking-sub-tab"
               role="tablist"
               v-if="
@@ -139,7 +271,7 @@
               </li>
             </ul>
             <ul
-              class="nav nav-pills mb-3"
+              class="nav nav-pills mb-3 mx-3 mx-3 benchmark-emu border-bottom"
               id="benchmarking-sub-tab"
               role="tablist"
               v-else
@@ -230,6 +362,7 @@
               </li>
               <li class="nav-item">
                 <a
+                  v-if="bShowEmu"
                   class="nav-link analytical-method-link"
                   id="benchmarking-fpemuoutput-tab"
                   data-toggle="pill"
@@ -241,11 +374,11 @@
                   >{{ $t("emu_Output") }}</a
                 >
               </li>
-            </ul>
+            </ul> -->
           </div>
         </div>
       </div>
-      <div class="col-lg-12 px-0">
+      <!-- <div class="col-lg-12 px-0">
         <div
           class="tab-content"
           id="benchmarking-sub-tabContent"
@@ -297,7 +430,7 @@
                   : categoryData.emu['Commodities_Client']['categoryInfo']
               "
             >
-              <div class="row">
+              <div class="row p-4">
                 <div class="col-12">
                   <button
                     class="btn text-white summaryBtn fs-19-1920"
@@ -363,7 +496,6 @@
               @changeFilter="changeFilter"
             />
           </div>
-          <!-- :repoId="repoIds['Commodities_Client']" -->
           <div
             :class="{
               active: activeTab === 'Commodities_Facilities',
@@ -392,7 +524,7 @@
                   : categoryData.emu['Commodities_Facilities']['categoryInfo']
               "
             >
-              <div class="row">
+              <div class="row p-3">
                 <div class="col-12">
                   <button
                     class="btn text-white summaryBtn fs-19-1920"
@@ -482,10 +614,10 @@
                   : categoryData.emu['Visits']['categoryInfo']
               "
             >
-              <div class="row">
+              <div class="row p-4">
                 <div class="col-12">
                   <button
-                    class="btn text-white summaryBtn fs-19-1920"
+                    class="btn text-white summaryBtn  fs-19-1920"
                     data-toggle="collapse"
                     data-target="#visitsSummaryTab"
                     @click="activeSummary('visit')"
@@ -569,7 +701,7 @@
                   : categoryData.emu['User']['categoryInfo']
               "
             >
-              <div class="row">
+              <div class="row p-3">
                 <div class="col-12">
                   <button
                     class="btn text-white summaryBtn fs-19-1920"
@@ -633,6 +765,7 @@
             />
           </div>
           <div
+            v-if="bShowEmu"
             class="tab-pane fade"
             id="benchmarking-fpemuoutput"
             role="tabpanel"
@@ -642,7 +775,7 @@
               class="summaryTabSection"
               v-if="categoryData && categoryData.emu['Output']['categoryInfo']"
             >
-              <div class="row">
+              <div class="row p-3">
                 <div class="col-12">
                   <button
                     class="btn text-white summaryBtn fs-19-1920"
@@ -698,12 +831,7 @@
             />
           </div>
         </div>
-        <!-- <div class="top-date-page-div">
-          <span class="btn pointer-events-none color-white">
-            {{ sStartYear }} - {{ sRecentYear }}
-          </span>
         </div> -->
-      </div>
     </div>
 
     <toolbarComponent
@@ -731,6 +859,7 @@ import introduction from "./../emuAnnual/introduction";
 import dataM from "./../emuAnnual/dataMassaging";
 import toolbarComponent from "./toolbarComponent.vue";
 import { decompress } from "compress-json";
+import NepaliDate from "nepali-date-converter";
 export default {
   components: {
     emuOutput,
@@ -739,12 +868,17 @@ export default {
     fpSource,
     introduction,
     toolbarComponent,
+    TabSummary: () =>
+      import(
+        /* webpackChunkName: "TabSummary"*/ "@/components/Common/TabSummary"
+      ),
   },
 
   mounted() {
     this.$gtag.event("tab_view", {
       value: this.tabName,
     });
+    this.getLocation(this.locationVal);
   },
   props: [
     "locationVal",
@@ -757,34 +891,47 @@ export default {
   ],
   computed: {
     emuOuputRender() {
-      // console.log(
-      //   this.$store.state.methodTable,
-      //   this.$store.state.methodTable ? true : false
-      // );
-
-      return this.$store.state.methodTable ? true : false;
+      return this.$store.getters.getEMUMethodTable ? true : false;
     },
   },
   methods: {
+    getTabName(key) {
+      let sources = {
+        Commodities_Client: "commoditiesToClients",
+        Commodities_Facilities: "commoditiesToFacilities",
+        Visits: "fp_visits",
+        User: "fp_users",
+      };
+
+      return sources[key];
+    },
+    getSource(key) {
+      let aSource = {
+        Commodities_Client: this.$i18n.t("commodities_Distributed_to_Clients"),
+        Visits: this.$i18n.t("fp_visits"),
+        Commodities_Facilities: this.$i18n.t(
+          "commodities_Distributed_to_Facilities"
+        ),
+        User: this.$i18n.t("fp_users"),
+        Output: this.$i18n.t("emu_Output"),
+      };
+      return aSource[key];
+    },
+    getTableName(key) {
+      let aSource = {
+        Commodities_Client: this.$i18n.t("commodities_to_clients"),
+        Visits: this.$i18n.t("fp_visits"),
+        Commodities_Facilities: this.$i18n.t("commodities_to_facility"),
+        User: this.$i18n.t("fp_users"),
+      };
+      return aSource[key];
+    },
     tableRendered(newVal) {
       this.tableRender = newVal;
     },
     saveEMUAuto(val) {
       //console.log(val);
       this.$emit("saveEMUAuto", val);
-    },
-    activeSummary(tab) {
-      if (tab == "client") {
-        this.clientActive = !this.clientActive;
-      } else if (tab == "fac") {
-        this.facActive = !this.facActive;
-      } else if (tab == "visit") {
-        this.visitsActive = !this.visitsActive;
-      } else if (tab == "user") {
-        this.userActive = !this.userActive;
-      } else {
-        this.emuActive = !this.emuActive;
-      }
     },
     // getMethodMixData(data) {
     //   this.methodMixData = data;
@@ -793,19 +940,20 @@ export default {
       this.recentActiveTab = value;
     },
     getRecentActiveTab(tab) {
-      if (tab == "client") {
-        this.recentActiveTab = this.$refs.comclientref.activetab;
-      } else if (tab == "facilities") {
-        this.recentActiveTab = this.$refs.comfacilityref.activetab;
-      } else if (tab == "visits") {
-        //console.log(this.$refs.visitsref)
-        this.recentActiveTab = this.$refs.visitsref.activetab;
-      } else if (tab == "users") {
-        this.recentActiveTab = this.$refs.usersref.activetab;
-      } else {
-        this.recentActiveTab = tab;
-      }
-      ////console.log(this.recentActiveTab)
+      if (tab == "Output") this.recentActiveTab = "emu";
+      else this.recentActiveTab = this.$refs[tab][0].activetab;
+      // this.activeTab = tab;
+      // if (tab == "client") {
+      //   this.recentActiveTab = this.$refs.comclientref.activetab;
+      // } else if (tab == "facilities") {
+      //   this.recentActiveTab = this.$refs.comfacilityref.activetab;
+      // } else if (tab == "visits") {
+      //   this.recentActiveTab = this.$refs.visitsref.activetab;
+      // } else if (tab == "users") {
+      //   this.recentActiveTab = this.$refs.usersref.activetab;
+      // } else {
+      //   this.recentActiveTab = tab;
+      // }
     },
     closeToolbar() {
       this.showToolbarOnTablet = false;
@@ -814,7 +962,7 @@ export default {
       this.defaultLevelID = newLev;
     },
     getLocation(newLocation) {
-      console.log(newLocation, "newLocation", this.newLocVal);
+      console.log(newLocation, "newLocation");
       //let val = newLocation.split("/")
       //this.bShowLoader = true;
       this.methodMixData = null;
@@ -828,12 +976,8 @@ export default {
       this.newLocVal = newLocation;
       //this.getConfigAccess();
     },
-    // getFilter(p) {
-    //   //console.log(p);
-    // },
-    getEmuYear(p) {
-      console.log("watch in bench tab getEmuYear", p);
 
+    getEmuYear(p) {
       setTimeout(() => {
         this.filterYear = p;
       }, 10);
@@ -846,12 +990,9 @@ export default {
      */
     getFPSource(newVal) {
       if (newVal === "false") {
-        //this.bShowLoader = false;
         return;
       }
       if (newVal) {
-        //console.log(this.bShowLoader)
-        //this.bShowLoader = true;
         this.getConfigAccess();
       }
     },
@@ -859,7 +1000,6 @@ export default {
       this.adjustmentData = newVal;
     },
     async getConfigAccess() {
-      //console.log(this.newLocVal);
       this.categoryData = this.dqrResponse;
       let oBechMarkModule = this.dqrResponse,
         aBackgorundIndicators = oBechMarkModule.emu["Background_Data"][
@@ -871,71 +1011,54 @@ export default {
         nLen = aBackgorundIndicators.length,
         oBackground = {},
         oBackgroundColor = {},
-        locationID = this.newLocVal.split("/")[1],
+        locationID = this.locationVal.split("/")[1],
         aSelectedDEs = [],
         sSelectedDEs = "";
       let promises = [];
       let fromDataStore = oBechMarkModule.emu["Background_Data"]["bgDataSource"]
         ? oBechMarkModule.emu["Background_Data"]["bgDataSource"]
         : false;
-      // levelID = this.newLocVal.split("/")[0];
-      // this.defaultLevelID = this.appResponse.defaultLevelID;
-
-      // if (
-      //   this.userDetails.dataViewOrganisationUnits[0].level >
-      //   this.appResponse.defaultLevelID
-      // ) {
-      //   locationID = this.userDetails.dataViewOrganisationUnits[0].id;
-      //   // levelID = this.userDetails.dataViewOrganisationUnits[0].level;
-      // }
-
-      // this.value = [this.newLocVal];
-      // for (i = 0; i < nLen; i++) {
-      //   let aSubInd = aBackgorundIndicators[i].subIndicators,
-      //     j,
-      //     nSubLen = aSubInd.length;
-
-      // for (j = 0; j < nSubLen; j++) {
-      //   let sName = aSubInd[j].name,aSelectedDE;
-      //   let innerDataStore = aBackgorundIndicators[i]["bgDataSource"] ? aBackgorundIndicators[i]["bgDataSource"] : fromDataStore
-      //   if(innerDataStore == "Datastore")
-      //   aSelectedDE = aSubInd[j].selectedDatastoreDE;
-      //   else
-      //   aSelectedDE = aSubInd[j].selectedDE;
-      //   oBackground[sName] = aSelectedDE.map((ele) => {
-      //     aSelectedDEs.push(ele.id);
-      //     if (ele.static_displayName) {
-      //       return ele.id + "/" + ele.static_displayName;
-      //     } else {
-      //       return ele.id;
-      //     }
-      //   });
-      //   oBackgroundColor[this.$i18n.t(`${sName}`)] =  aSubInd[j].color
-      //   oBackgroundColor[sName] = aSubInd[j].color
-      // }
-      // }
-      // sSelectedDEs = aSelectedDEs.join(";");
 
       // SWITCH CASE START
       this.switchCategory(this.categoryData.emu);
       // SWITCH CASE END
-      this.sStartYear = this.categoryData.emu["Background_Data"]["startingYear"]
-        ? this.categoryData.emu["Background_Data"]["startingYear"]
-        : "2007";
-      this.sRecentYear =
-        this.categoryData.emu["Background_Data"]["SSDataRecentYear"];
+      //Global Period Seeting in emu annual
+      let periodData = this.$store.getters.getGlobalFactors().period.Period;
+      let d = new Date();
+      if (this.$store.getters.getAppSettings.calendar === "nepali") {
+        d = new NepaliDate(
+          new Date(d.getFullYear(), d.getMonth() + 1, d.getDate())
+        ).getBS();
+        let nplMonth = d.month;
+        let nplYear = d.year;
+        let zeroForMonth = nplMonth < 10 ? "0" + nplMonth : nplMonth;
+        d = d.year + "" + zeroForMonth;
+      }
+      let recentYearMonth = this.$moment(d, "YYYYMM")
+        .subtract(periodData.backtrackedMonth * 1, "months")
+        .format("YYYY-MM");
+      if (recentYearMonth.split("-")[1] == 12)
+        this.sRecentYear = recentYearMonth.split("-")[0];
+      else this.sRecentYear = recentYearMonth.split("-")[0] * 1 - 1;
+
+      this.sStartYear = this.$moment(recentYearMonth, "YYYY-MM")
+        .subtract(periodData.backtrackedYearLimit * 1, "years")
+        .format("YYYY");
+
       this.bAllWomen =
         this.categoryData.emu["Background_Data"]["FPWomenPopulation"] === "WRA";
+
       let sYear = dataM.getYearFormated(this.sStartYear, this.sRecentYear),
         aYear = sYear.split(";");
       let metaConfigData = this.$store.getters.getGlobalFactors();
-      ////console.log(metaConfigData)
       let defaultEMUSource = this.categoryData.emu["Background_Data"][
         "defaultEMU"
       ]
         ? this.categoryData.emu["Background_Data"]["defaultEMU"]
         : "Commodities_Client";
-      this.initialYear = this.categoryData.emu[defaultEMUSource]["initialYear"];
+      //Setting inital Year in emu o/p as per global setting
+      this.initialYear = this.sStartYear;
+      //this.initialYear = this.categoryData.emu[defaultEMUSource]["initialYear"];
       let emufromDQR = this.categoryData.emu["Background_Data"]["defaultEMU"]
         ? this.categoryData.emu["Background_Data"]["defaultEMU"]
         : "Commodities_Client";
@@ -951,7 +1074,6 @@ export default {
         aAdjTypes = oAdjsData.data,
         oFinalAdjTypes = {};
       aAdjTypes.forEach((ele) => {
-        //console.log(ele)
         let { _i, data } = ele;
         oFinalAdjTypes[_i] = {};
         aAdjCats.forEach((categ, jndex) => {
@@ -960,8 +1082,6 @@ export default {
             : 0;
         });
       });
-      /*  */
-      //console.log(pCont.data.cyp)
       let cypGlobal = {};
       Object.keys(metaConfigData.cyp).forEach((contName) => {
         cypGlobal[contName] = {};
@@ -974,8 +1094,6 @@ export default {
           });
         });
       });
-      ////console.log(locationID);
-      ////console.log(metaConfigData.continuation)
       let response = {};
       response.rows = [];
       for (i = 0; i < nLen; i++) {
@@ -1001,9 +1119,9 @@ export default {
                 : ele.static_displayName;
 
             if (statDispName) {
-              return ele.id + "/" + statDispName;
+              return ele.id + "/" + (i == 0 || i == 1 ? sName : statDispName); //need to discuss for static name
             } else {
-              return ele.id;
+              return ele.id + (i == 0 || i == 1 ? "/" + sName : "");
             }
           });
           oBackgroundColor[this.$i18n.t(`${sName}`)] = aSubInd[j].color;
@@ -1011,7 +1129,7 @@ export default {
         }
         if (innerDataStore == "Datastore") {
           let keyName = i == 0 ? "population_" : i == 1 ? "mcpr_" : "mcmm_";
-          let levelid = this.newLocVal.split("/")[0];
+          let levelid = this.locationVal.split("/")[0];
           let popType = this.categoryData.emu["Background_Data"][
             "FPWomenPopulation"
           ]
@@ -1020,9 +1138,11 @@ export default {
           popType = popType.toLowerCase();
           let key = `${keyName}${popType}_${levelid}`;
           if (!this.$store.getters.getAppSettings.country) {
-            let appId = this.$store.state.appId ? this.$store.state.appId : "",
-              appUserId = this.$store.state.appUserId
-                ? this.$store.state.appUserId
+            let appId = this.$store.getters.getAppId
+                ? this.$store.getters.getAppId
+                : "",
+              appUserId = this.$store.getters.getAppUserId
+                ? this.$store.getters.getAppUserId
                 : "";
             if (appId && appUserId) {
               key = `${keyName}${popType}_${levelid}`;
@@ -1031,7 +1151,7 @@ export default {
               return;
             }
           }
-          promises.push(service.getSavedConfig(key));
+          promises.push(service.getSavedConfig({ tableKey: key }));
         } else {
           let aSubInd = aBackgorundIndicators[i].subIndicators,
             j,
@@ -1092,13 +1212,7 @@ export default {
             this.showAlert();
           });
       }
-      console.log(
-        response,
-        oBackground,
-        aYear,
-        locationID,
-        "background data for autosave emu"
-      );
+
       if (response) {
         let oFinalData = dataM.getFormatedBackGroundData(
             response,
@@ -1128,17 +1242,14 @@ export default {
             defaultEMUSource: defaultEMUSource,
             bgIndColor: oBackgroundColor,
           };
-        //this.getLocationList(levelID, locationID);
-        //this.bShowLoader = false;
         this.bgData = oBgdata;
-        console.log("1st step bgdata calculated", this.bgData);
         let aMethodMixPie = dataM.getMethodMixPie(oFinalData.methodMix);
         this.methodMixData = aMethodMixPie;
         //console.log("this.methodMixData",this.methodMixData);
       } else {
         //console.log("in else");
         this.showAlert();
-        this.$emit("errorOccured", this.newLocVal);
+        this.$emit("errorOccured", this.locationVal);
       }
     },
     switchCategory(data) {
@@ -1160,7 +1271,6 @@ export default {
           cat = aSource[source];
           preValFlag = true;
         }
-        //console.log(this.category, this.activeTab)
       });
       this.defaultEMUSource = this.categoryData.emu["Background_Data"][
         "defaultEMU"
@@ -1171,10 +1281,7 @@ export default {
       this.activeTab = preVal;
     },
     getDatafromChild(p_tabName, p_data, p_type, filter) {
-      // if()
-      // console.log(p_tabName,p_type,JSON.parse(JSON.stringify(p_data)),filter)
       this.boolVal = !this.boolVal;
-      //p_data = JSON.parse(JSON.stringify(p_data));
       let sProp =
         p_type === "finalMethodArr"
           ? "finalMethodArr"
@@ -1196,7 +1303,6 @@ export default {
       if (!this["filter"]) {
         this["filter"] = {};
       }
-
       this[sProp][p_tabName] = p_data;
       this["filter"][p_tabName] = filter;
 
@@ -1262,16 +1368,16 @@ export default {
         Object.keys(this.userTrendsData).length === count
       ) {
         this.bShowEmu = true;
-        this.$nextTick(() => {
-          this.bShowLoader = false;
-        });
+        // this.$nextTick(() => {
+        //   this.bShowLoader = false;
+        // });
       }
     },
     showAlert() {
       this.sweetAlert({
         text: this.$i18n.t("somethingwentwrong"),
       });
-      this.bShowLoader = false;
+      //this.bShowLoader = false;
     },
     getLocationList(defaultLevelID, defaultLocationID) {
       service
@@ -1324,6 +1430,7 @@ export default {
     },
   },
   data() {
+    console.log(this.locationVal, "locationVal");
     return {
       initialYear: "",
       emuOuputFinalEMu: "",
@@ -1374,6 +1481,7 @@ export default {
   },
   watch: {
     locationVal(newVal) {
+      console.log("this.locationVal", newVal);
       this.getLocation(newVal);
     },
     filterYear() {
@@ -1392,8 +1500,6 @@ export default {
     },
     signOffActive() {
       this.bShowEmu = false;
-      // this.newSignOff = newVal
-      // console.log(this.newSignOff)
       this.outputData = null;
       this.slopeData = null;
       this.userTrendsData = null;

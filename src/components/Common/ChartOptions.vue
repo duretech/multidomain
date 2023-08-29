@@ -206,7 +206,7 @@
                                 :title="$t('edit')"
                                 v-b-tooltip
                                 v-if="
-                                  $store.state.loggedInUserId ===
+                                  $store.getters.getLoggedInUserId ===
                                   comment.user.id
                                 "
                               >
@@ -217,7 +217,7 @@
                                 :title="$t('deletebtn')"
                                 v-b-tooltip
                                 v-if="
-                                  $store.state.loggedInUserId ===
+                                  $store.getters.getLoggedInUserId ===
                                   comment.user.id
                                 "
                               >
@@ -327,6 +327,7 @@
       size="xl"
       :title="name"
       modal-class="preview-modal-up"
+      no-close-on-backdrop
     >
       <highcharts
         id="container"

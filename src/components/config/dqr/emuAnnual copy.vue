@@ -4,36 +4,34 @@
       <div class="row">
         <div class="col-lg-12">
           <div class="form-group row">
-            <label for="catInformation" class="col-sm-4 col-form-label">{{
+            <label for="finalYear" class="col-sm-4 col-form-label">{{
               $t("catInformation")
             }}</label>
             <div class="col-sm-8">
               <b-input-group>
                 <vue-editor
-                  v-model="cData.categoryInfo[$i18n.locale]"
-                  :state="cData?.categoryInfo?.[$i18n.locale]?.length !== 0"
+                  v-model="categoryInfo[$i18n.locale]"
+                  :state="
+                    categoryInfo &&
+                    categoryInfo[$i18n.locale] &&
+                    categoryInfo[$i18n.locale].length !== 0
+                  "
                   :editorToolbar="customToolbar"
                   disabled
                 ></vue-editor>
                 <b-input-group-append is-text>
-                  <Translations
-                    :transText.sync="cData.categoryInfo"
-                    type="editor"
-                  />
+                  <Translations :transText.sync="categoryInfo" type="editor" />
                 </b-input-group-append>
               </b-input-group>
             </div>
           </div>
-          <div class="form-group row" v-if="cData.dataOnContraceptive">
+          <div class="form-group row" v-if="dataOnContraceptive">
             <label for="conterceptiveYesNo" class="col-sm-4 col-form-label">{{
               $t("emu_mon_quest")
             }}</label>
             <div class="col-sm-8">
               <div class="select-wrapper">
-                <select
-                  class="form-control"
-                  v-model="cData.dataOnContraceptive"
-                >
+                <select class="form-control" v-model="dataOnContraceptive">
                   <option value="Yes">
                     {{ $t("yes") }}
                   </option>
@@ -47,7 +45,35 @@
         </div>
       </div>
       <transition name="slide-fade">
-        <div v-if="cData.dataOnContraceptive !== 'No'">
+        <div v-if="dataOnContraceptive !== 'No'">
+          <div class="form-group row hide" v-if="chartBySubtype !== 'Output'">
+            <label for="initialYear" class="col-sm-4 col-form-label">{{
+              $t("emu_initial_year_quest")
+            }}</label>
+            <div class="col-sm-8">
+              <input
+                type="number"
+                class="form-control"
+                id="initialYear"
+                placeholder=""
+                v-model="initialYear"
+              />
+            </div>
+          </div>
+          <div class="form-group row hide" v-if="chartBySubtype !== 'Output'">
+            <label for="finalYear" class="col-sm-4 col-form-label">{{
+              $t("emu_final_year_quest")
+            }}</label>
+            <div class="col-sm-8">
+              <input
+                type="number"
+                class="form-control"
+                id="finalYear"
+                placeholder=""
+                v-model="finalYear"
+              />
+            </div>
+          </div>
           <div class="accordion" role="tablist">
             <b-card no-body class="mb-1">
               <b-card-header
@@ -67,7 +93,7 @@
               >
                 <b-card-body>
                   <b-card-text>
-                    <div class="row" v-if="cData.chartData.length">
+                    <div class="row" v-if="chartData.length">
                       <div class="col">
                         <div class="card">
                           <div class="card-body">
@@ -79,32 +105,20 @@
                             </div>
                             <div class="form-group row">
                               <label
-                                for="catInformation"
+                                for="finalYear"
                                 class="col-sm-3 col-form-label"
                                 >{{ $t("catInformation") }}</label
                               >
                               <div class="col-sm-9">
                                 <b-input-group>
                                   <vue-editor
-                                    v-model="
-                                      cData.tabCategoryInfo[0][$i18n.locale]
-                                    "
-                                    v-if="
-                                      cData?.tabCategoryInfo?.[0]?.[
-                                        $i18n.locale
-                                      ]
-                                    "
-                                    :state="
-                                      cData?.tabCategoryInfo?.[0]?.[
-                                        $i18n.locale
-                                      ]?.length !== 0
-                                    "
+                                    v-model="tabCategoryInfo[0][$i18n.locale]"
                                     :editorToolbar="customToolbar"
                                     disabled
                                   ></vue-editor>
                                   <b-input-group-append is-text>
                                     <Translations
-                                      :transText.sync="cData.tabCategoryInfo[0]"
+                                      :transText.sync="tabCategoryInfo[0]"
                                       type="editor"
                                     />
                                   </b-input-group-append>
@@ -113,7 +127,7 @@
                             </div>
                             <div
                               class="row"
-                              v-for="(chart, index) in cData.chartData"
+                              v-for="(chart, index) in chartData"
                               :key="index"
                             >
                               <div class="col-12">
@@ -145,6 +159,11 @@
                                         chartByType
                                       "
                                     >
+                                      <!-- <i
+                                        class="fa fa-cog f-s-20px pr-2"
+                                        v-b-tooltip.hover
+                                        :title="$t('dataMapping')"
+                                      ></i> -->
                                       <img
                                         src="@/assets/images/icons/adminsetting-icon.svg"
                                         :style="{ filter: filterColor }"
@@ -153,7 +172,7 @@
                                         :title="$t('dataMapping')"
                                       />
                                       {{
-                                        cData.chartData[index].indicator.name[
+                                        chartData[index].indicator.name[
                                           $i18n.locale
                                         ]
                                       }}
@@ -539,14 +558,16 @@
                                                     ]
                                                   "
                                                   :state="
-                                                    chart?.indicator
-                                                      ?.chartName?.[
+                                                    chart.indicator.chartName &&
+                                                    chart.indicator.chartName[
                                                       $i18n.locale
-                                                    ]?.length !== 0 &&
-                                                    chart?.indicator
-                                                      ?.chartName?.[
+                                                    ] &&
+                                                    chart.indicator.chartName[
                                                       $i18n.locale
-                                                    ]?.length <=
+                                                    ].length !== 0 &&
+                                                    chart.indicator.chartName[
+                                                      $i18n.locale
+                                                    ].length <=
                                                       chartTitleMaxLength
                                                   "
                                                   placeholder=""
@@ -602,14 +623,16 @@
                                                     ]
                                                   "
                                                   :state="
-                                                    chart?.indicator
-                                                      ?.chartInfo?.[
+                                                    chart.indicator.chartInfo &&
+                                                    chart.indicator.chartInfo[
                                                       $i18n.locale
-                                                    ]?.length !== 0 &&
-                                                    chart?.indicator
-                                                      ?.chartInfo?.[
+                                                    ] &&
+                                                    chart.indicator.chartInfo[
                                                       $i18n.locale
-                                                    ]?.length <=
+                                                    ].length !== 0 &&
+                                                    chart.indicator.chartInfo[
+                                                      $i18n.locale
+                                                    ].length <=
                                                       chartInfoMaxLength
                                                   "
                                                   :placeholder="
@@ -649,7 +672,7 @@
                                       <div
                                         class="row m-0 mt-4 mb-lg-n3"
                                         v-if="
-                                          cData.chartData[index].indicator
+                                          chartData[index].indicator
                                             .subIndicator.length
                                         "
                                       >
@@ -691,9 +714,8 @@
                                                       class="col-12"
                                                       v-for="(
                                                         subIndicator, ind
-                                                      ) in cData.chartData[
-                                                        index
-                                                      ].indicator.subIndicator"
+                                                      ) in chartData[index]
+                                                        .indicator.subIndicator"
                                                       :key="ind"
                                                     >
                                                       <div class="row mb-3">
@@ -741,9 +763,8 @@
                                                             />
                                                           </a>
                                                           <span>{{
-                                                            cData.chartData[
-                                                              index
-                                                            ].indicator
+                                                            chartData[index]
+                                                              .indicator
                                                               .subIndicator[ind]
                                                               .name[
                                                               $i18n.locale
@@ -807,8 +828,7 @@
                                                                           class="form-control"
                                                                           placeholder=""
                                                                           v-model="
-                                                                            cData
-                                                                              .chartData[
+                                                                            chartData[
                                                                               index
                                                                             ]
                                                                               .indicator
@@ -827,8 +847,7 @@
                                                                         >
                                                                           <Translations
                                                                             :transText.sync="
-                                                                              cData
-                                                                                .chartData[
+                                                                              chartData[
                                                                                 index
                                                                               ]
                                                                                 .indicator
@@ -861,8 +880,7 @@
                                                                         class="form-control"
                                                                         placeholder=""
                                                                         v-model="
-                                                                          cData
-                                                                            .chartData[
+                                                                          chartData[
                                                                             index
                                                                           ]
                                                                             .indicator
@@ -881,8 +899,7 @@
                                                                         class="form-control"
                                                                         placeholder=""
                                                                         v-model="
-                                                                          cData
-                                                                            .chartData[
+                                                                          chartData[
                                                                             index
                                                                           ]
                                                                             .indicator
@@ -898,8 +915,7 @@
                                                                   <div
                                                                     class="form-group row"
                                                                     v-if="
-                                                                      typeof cData
-                                                                        .chartData[
+                                                                      typeof chartData[
                                                                         index
                                                                       ]
                                                                         .indicator
@@ -924,8 +940,7 @@
                                                                       <select
                                                                         class="form-control"
                                                                         v-model="
-                                                                          cData
-                                                                            .chartData[
+                                                                          chartData[
                                                                             index
                                                                           ]
                                                                             .indicator
@@ -1009,8 +1024,7 @@
                                                                       index
                                                                     "
                                                                     :mappingType.sync="
-                                                                      cData
-                                                                        .chartData[
+                                                                      chartData[
                                                                         index
                                                                       ]
                                                                         .indicator
@@ -1019,8 +1033,7 @@
                                                                       ].type
                                                                     "
                                                                     :selectedDE.sync="
-                                                                      cData
-                                                                        .chartData[
+                                                                      chartData[
                                                                         index
                                                                       ]
                                                                         .indicator
@@ -1062,7 +1075,7 @@
                       :id="
                         'adHeadingReportingRate' + chartByType + chartBySubtype
                       "
-                      v-if="cData.reportingRate.length"
+                      v-if="reportingRate.length"
                     >
                       <h2 class="mb-0 mt-lg-n1">
                         <button
@@ -1093,7 +1106,7 @@
                       :aria-labelledby="
                         'adHeadingReportingRate' + chartByType + chartBySubtype
                       "
-                      v-if="cData.reportingRate.length"
+                      v-if="reportingRate.length"
                     >
                       <div class="col-sm-12 col-lg-12 mt-3">
                         <div class="form-group row">
@@ -1102,10 +1115,8 @@
                           }}</label>
                           <div class="col-sm-7">
                             <b-form-checkbox
-                              checked="cData.reportingRate[0].indicator.disableChart"
-                              v-model="
-                                cData.reportingRate[0].indicator.disableChart
-                              "
+                              checked="reportingRate[0].indicator.disableChart"
+                              v-model="reportingRate[0].indicator.disableChart"
                               name="someSwitchOptionDisableChart"
                               switch
                               size="lg"
@@ -1114,12 +1125,10 @@
                           </div>
                         </div>
                       </div>
-                      <!-- v-if="cData.reportingRate[0].indicator.disableChart == false" -->
+                      <!-- v-if="reportingRate[0].indicator.disableChart == false" -->
                       <div
                         class="p-2"
-                        v-if="
-                          cData.reportingRate[0].indicator.disableChart == false
-                        "
+                        v-if="reportingRate[0].indicator.disableChart == false"
                       >
                         <div class="row m-0 mb-2">
                           <div class="col-sm-12 col-lg-6">
@@ -1134,7 +1143,7 @@
                                     class="form-control"
                                     placeholder=""
                                     v-model="
-                                      cData.reportingRate[0].indicator.name[
+                                      reportingRate[0].indicator.name[
                                         $i18n.locale
                                       ]
                                     "
@@ -1143,7 +1152,7 @@
                                   <b-input-group-append is-text>
                                     <Translations
                                       :transText.sync="
-                                        cData.reportingRate[0].indicator.name
+                                        reportingRate[0].indicator.name
                                       "
                                     />
                                   </b-input-group-append>
@@ -1158,9 +1167,9 @@
                               }}</label>
                               <div class="col-sm-7">
                                 <b-form-checkbox
-                                  checked="cData.reportingRate[0].indicator.dataLabels.enabled"
+                                  checked="reportingRate[0].indicator.dataLabels.enabled"
                                   v-model="
-                                    cData.reportingRate[0].indicator.dataLabels
+                                    reportingRate[0].indicator.dataLabels
                                       .enabled
                                   "
                                   name="someSwitchOptionDataLabels"
@@ -1182,8 +1191,8 @@
                                 <b-form-checkbox
                                   checked="chartTitleVisible"
                                   v-model="
-                                    cData.reportingRate[0].indicator
-                                      .chartOptions.title.visible
+                                    reportingRate[0].indicator.chartOptions
+                                      .title.visible
                                   "
                                   name="someSwitchOptionTitle"
                                   switch
@@ -1195,8 +1204,8 @@
                                 <div
                                   class="col-sm-4 pl-0"
                                   v-if="
-                                    cData.reportingRate[0].indicator
-                                      .chartOptions.title.visible
+                                    reportingRate[0].indicator.chartOptions
+                                      .title.visible
                                   "
                                 >
                                   <b-input-group>
@@ -1205,15 +1214,15 @@
                                       class="form-control"
                                       placeholder=""
                                       v-model="
-                                        cData.reportingRate[0].indicator
-                                          .chartOptions.title.text[$i18n.locale]
+                                        reportingRate[0].indicator.chartOptions
+                                          .title.text[$i18n.locale]
                                       "
                                       disabled
                                     />
                                     <b-input-group-append is-text>
                                       <Translations
                                         :transText.sync="
-                                          cData.reportingRate[0].indicator
+                                          reportingRate[0].indicator
                                             .chartOptions.title.text
                                         "
                                       />
@@ -1234,8 +1243,8 @@
                                 <b-form-checkbox
                                   checked="chartSubTitleVisible"
                                   v-model="
-                                    cData.reportingRate[0].indicator
-                                      .chartOptions.subTitle.visible
+                                    reportingRate[0].indicator.chartOptions
+                                      .subTitle.visible
                                   "
                                   name="someSwitchOptionSubtitle"
                                   switch
@@ -1247,8 +1256,8 @@
                                 <div
                                   class="col-sm-5 pl-0"
                                   v-if="
-                                    cData.reportingRate[0].indicator
-                                      .chartOptions.subTitle.visible
+                                    reportingRate[0].indicator.chartOptions
+                                      .subTitle.visible
                                   "
                                 >
                                   <b-input-group>
@@ -1257,17 +1266,15 @@
                                       class="form-control"
                                       id="inputChartSubtitle"
                                       v-model="
-                                        cData.reportingRate[0].indicator
-                                          .chartOptions.subTitle.text[
-                                          $i18n.locale
-                                        ]
+                                        reportingRate[0].indicator.chartOptions
+                                          .subTitle.text[$i18n.locale]
                                       "
                                       disabled
                                     />
                                     <b-input-group-append is-text>
                                       <Translations
                                         :transText.sync="
-                                          cData.reportingRate[0].indicator
+                                          reportingRate[0].indicator
                                             .chartOptions.subTitle.text
                                         "
                                       />
@@ -1281,17 +1288,13 @@
                         <div
                           class="row m-0 mb-2"
                           v-if="
-                            cData.reportingRate[0].indicator.chartOptions
-                              .xAxis &&
-                            cData.reportingRate[0].indicator.chartOptions.yAxis
+                            reportingRate[0].indicator.chartOptions.xAxis &&
+                            reportingRate[0].indicator.chartOptions.yAxis
                           "
                         >
                           <div
                             class="col-sm-12 col-lg-6"
-                            v-if="
-                              cData.reportingRate[0].indicator.chartOptions
-                                .xAxis
-                            "
+                            v-if="reportingRate[0].indicator.chartOptions.xAxis"
                           >
                             <div class="form-group row">
                               <label class="col-sm-6 col-form-label">{{
@@ -1301,8 +1304,8 @@
                                 <b-form-checkbox
                                   checked="chartXAxisTitleVisible"
                                   v-model="
-                                    cData.reportingRate[0].indicator
-                                      .chartOptions.xAxis.visible
+                                    reportingRate[0].indicator.chartOptions
+                                      .xAxis.visible
                                   "
                                   name="someSwitchOptionXAxis"
                                   switch
@@ -1314,8 +1317,8 @@
                                 <div
                                   class="col-sm-4 pl-0"
                                   v-if="
-                                    cData.reportingRate[0].indicator
-                                      .chartOptions.xAxis.visible
+                                    reportingRate[0].indicator.chartOptions
+                                      .xAxis.visible
                                   "
                                 >
                                   <b-input-group>
@@ -1324,17 +1327,15 @@
                                       class="form-control"
                                       placeholder=""
                                       v-model="
-                                        cData.reportingRate[0].indicator
-                                          .chartOptions.xAxis.title.text[
-                                          $i18n.locale
-                                        ]
+                                        reportingRate[0].indicator.chartOptions
+                                          .xAxis.title.text[$i18n.locale]
                                       "
                                       disabled
                                     />
                                     <b-input-group-append is-text>
                                       <Translations
                                         :transText.sync="
-                                          cData.reportingRate[0].indicator
+                                          reportingRate[0].indicator
                                             .chartOptions.xAxis.title.text
                                         "
                                       />
@@ -1346,10 +1347,7 @@
                           </div>
                           <div
                             class="col-sm-12 col-lg-6"
-                            v-if="
-                              cData.reportingRate[0].indicator.chartOptions
-                                .yAxis
-                            "
+                            v-if="reportingRate[0].indicator.chartOptions.yAxis"
                           >
                             <div class="form-group row">
                               <label class="col-sm-5 col-form-label">{{
@@ -1359,8 +1357,8 @@
                                 <b-form-checkbox
                                   checked="chartYAxisTitleVisible"
                                   v-model="
-                                    cData.reportingRate[0].indicator
-                                      .chartOptions.yAxis.visible
+                                    reportingRate[0].indicator.chartOptions
+                                      .yAxis.visible
                                   "
                                   name="someSwitchOptionYAxis"
                                   switch
@@ -1372,8 +1370,8 @@
                                 <div
                                   class="col-sm-5 pl-0"
                                   v-if="
-                                    cData.reportingRate[0].indicator
-                                      .chartOptions.yAxis.visible
+                                    reportingRate[0].indicator.chartOptions
+                                      .yAxis.visible
                                   "
                                 >
                                   <b-input-group>
@@ -1382,17 +1380,15 @@
                                       class="form-control"
                                       placeholder=""
                                       v-model="
-                                        cData.reportingRate[0].indicator
-                                          .chartOptions.yAxis.title.text[
-                                          $i18n.locale
-                                        ]
+                                        reportingRate[0].indicator.chartOptions
+                                          .yAxis.title.text[$i18n.locale]
                                       "
                                       disabled
                                     />
                                     <b-input-group-append is-text>
                                       <Translations
                                         :transText.sync="
-                                          cData.reportingRate[0].indicator
+                                          reportingRate[0].indicator
                                             .chartOptions.yAxis.title.text
                                         "
                                       />
@@ -1415,8 +1411,8 @@
                                   class="form-control"
                                   placeholder=""
                                   v-model="
-                                    cData.reportingRate[0].indicator
-                                      .chartOptions.color
+                                    reportingRate[0].indicator.chartOptions
+                                      .color
                                   "
                                 />
                               </div>
@@ -1426,8 +1422,8 @@
                                   class="form-control"
                                   placeholder=""
                                   v-model="
-                                    cData.reportingRate[0].indicator
-                                      .chartOptions.color
+                                    reportingRate[0].indicator.chartOptions
+                                      .color
                                   "
                                 />
                               </div>
@@ -1445,16 +1441,21 @@
                                   <b-form-textarea
                                     id="inputChartInfoDerived"
                                     v-model="
-                                      cData.reportingRate[0].indicator
-                                        .chartName[$i18n.locale]
+                                      reportingRate[0].indicator.chartName[
+                                        $i18n.locale
+                                      ]
                                     "
                                     :state="
-                                      cData?.reportingRate?.[0]?.indicator
-                                        ?.chartName?.[$i18n.locale]?.length !==
-                                        0 &&
-                                      cData?.reportingRate?.[0]?.indicator
-                                        ?.chartName?.[$i18n.locale]?.length <=
-                                        chartTitleMaxLength
+                                      reportingRate[0].indicator.chartName &&
+                                      reportingRate[0].indicator.chartName[
+                                        $i18n.locale
+                                      ] &&
+                                      reportingRate[0].indicator.chartName[
+                                        $i18n.locale
+                                      ].length !== 0 &&
+                                      reportingRate[0].indicator.chartName[
+                                        $i18n.locale
+                                      ].length <= chartTitleMaxLength
                                     "
                                     placeholder=""
                                     rows="3"
@@ -1464,19 +1465,19 @@
                                   <b-input-group-append is-text>
                                     <Translations
                                       :transText.sync="
-                                        cData.reportingRate[0].indicator
-                                          .chartName
+                                        reportingRate[0].indicator.chartName
                                       "
                                     />
                                   </b-input-group-append>
                                 </b-input-group>
                                 <span
                                   >{{
-                                    cData.reportingRate[0].indicator.chartName[
+                                    reportingRate[0].indicator.chartName[
                                       $i18n.locale
                                     ]
-                                      ? cData.reportingRate[0].indicator
-                                          .chartName[$i18n.locale].length
+                                      ? reportingRate[0].indicator.chartName[
+                                          $i18n.locale
+                                        ].length
                                       : 0
                                   }}/{{ chartTitleMaxLength }}</span
                                 >
@@ -1497,16 +1498,21 @@
                                   <b-form-textarea
                                     id="inputChartInfoDerived"
                                     v-model="
-                                      cData.reportingRate[0].indicator
-                                        .chartInfo[$i18n.locale]
+                                      reportingRate[0].indicator.chartInfo[
+                                        $i18n.locale
+                                      ]
                                     "
                                     :state="
-                                      cData?.reportingRate?.[0]?.indicator
-                                        ?.chartInfo?.[$i18n.locale]?.length !==
-                                        0 &&
-                                      cData?.reportingRate?.[0]?.indicator
-                                        ?.chartInfo?.[$i18n.locale]?.length <=
-                                        chartInfoMaxLength
+                                      reportingRate[0].indicator.chartInfo &&
+                                      reportingRate[0].indicator.chartInfo[
+                                        $i18n.locale
+                                      ] &&
+                                      reportingRate[0].indicator.chartInfo[
+                                        $i18n.locale
+                                      ].length !== 0 &&
+                                      reportingRate[0].indicator.chartInfo[
+                                        $i18n.locale
+                                      ].length <= chartInfoMaxLength
                                     "
                                     :placeholder="chartInfoPlaceholder"
                                     rows="3"
@@ -1516,19 +1522,19 @@
                                   <b-input-group-append is-text>
                                     <Translations
                                       :transText.sync="
-                                        cData.reportingRate[0].indicator
-                                          .chartInfo
+                                        reportingRate[0].indicator.chartInfo
                                       "
                                     />
                                   </b-input-group-append>
                                 </b-input-group>
                                 <span
                                   >{{
-                                    cData.reportingRate[0].indicator.chartInfo[
+                                    reportingRate[0].indicator.chartInfo[
                                       $i18n.locale
                                     ]
-                                      ? cData.reportingRate[0].indicator
-                                          .chartInfo[$i18n.locale].length
+                                      ? reportingRate[0].indicator.chartInfo[
+                                          $i18n.locale
+                                        ].length
                                       : 0
                                   }}/{{ chartInfoMaxLength }}</span
                                 >
@@ -1544,17 +1550,18 @@
                                 <b-input-group>
                                   <vue-editor
                                     v-model="
-                                      cData.reportingRate[0].indicator
-                                        .categoryInfo[$i18n.locale]
-                                    "
-                                    v-if="
-                                      cData?.reportingRate?.[0]?.indicator
-                                        ?.categoryInfo?.[$i18n.locale]
+                                      reportingRate[0].indicator.categoryInfo[
+                                        $i18n.locale
+                                      ]
                                     "
                                     :state="
-                                      cData?.reportingRate?.[0]?.indicator
-                                        ?.categoryInfo?.[$i18n.locale]
-                                        ?.length !== 0
+                                      reportingRate[0].indicator.categoryInfo &&
+                                      reportingRate[0].indicator.categoryInfo[
+                                        $i18n.locale
+                                      ] &&
+                                      reportingRate[0].indicator.categoryInfo[
+                                        $i18n.locale
+                                      ].length !== 0
                                     "
                                     :editorToolbar="customToolbar"
                                     disabled
@@ -1562,8 +1569,7 @@
                                   <b-input-group-append is-text>
                                     <Translations
                                       :transText.sync="
-                                        cData.reportingRate[0].indicator
-                                          .categoryInfo
+                                        reportingRate[0].indicator.categoryInfo
                                       "
                                       type="editor"
                                     />
@@ -1610,12 +1616,12 @@
                                       0
                                     "
                                     :mappingType.sync="
-                                      cData.reportingRate[0].indicator
-                                        .subIndicator[0].type
+                                      reportingRate[0].indicator.subIndicator[0]
+                                        .type
                                     "
                                     :selectedDE.sync="
-                                      cData.reportingRate[0].indicator
-                                        .subIndicator[0].selectedDE
+                                      reportingRate[0].indicator.subIndicator[0]
+                                        .selectedDE
                                     "
                                     v-if="isDataFetched"
                                 /></b-card-text>
@@ -1628,7 +1634,7 @@
                     <div
                       class="p-1 accordion-header f-s-0-875rem font-weight-bold bt-10 mt-2"
                       :id="'adHeadingFPSource' + chartByType + chartBySubtype"
-                      v-if="cData.reportingSector"
+                      v-if="reportingSector"
                     >
                       <h2 class="mb-0 mt-lg-n1">
                         <button
@@ -1653,11 +1659,11 @@
                       :aria-labelledby="
                         'adHeadingFPSource' + chartByType + chartBySubtype
                       "
-                      v-if="cData.reportingSector"
+                      v-if="reportingSector"
                     >
                       <!-- FP Source Component -->
-                      <benchmarkFpSource
-                        :FPSource="cData.fpSource"
+                      <bachmarkFpSource
+                        :FPSource="fpSource"
                         :indicatorsList="indicatorsList"
                         :dataElementsList="dataElementsList"
                       />
@@ -1669,7 +1675,8 @@
           </div>
 
           <!-- FPSource collapse start-->
-          <div class="mt-2 mb-4" v-if="cData.derivedCharts.length">
+
+          <div class="mt-2 mb-4" v-if="derivedCharts.length">
             <div class="">
               <div class="">
                 <div class="">
@@ -1705,32 +1712,20 @@
                               v-if="chartBySubtype != 'Output'"
                             >
                               <label
-                                for="catInformation"
+                                for="finalYear"
                                 class="col-sm-3 col-form-label"
                                 >{{ $t("catInformation") }}</label
                               >
                               <div class="col-sm-9">
                                 <b-input-group>
                                   <vue-editor
-                                    v-model="
-                                      cData.tabCategoryInfo[1][$i18n.locale]
-                                    "
-                                    v-if="
-                                      cData?.tabCategoryInfo?.[1]?.[
-                                        $i18n.locale
-                                      ]
-                                    "
-                                    :state="
-                                      cData?.tabCategoryInfo?.[1]?.[
-                                        $i18n.locale
-                                      ]?.length !== 0
-                                    "
+                                    v-model="tabCategoryInfo[1][$i18n.locale]"
                                     :editorToolbar="customToolbar"
                                     disabled
                                   ></vue-editor>
                                   <b-input-group-append is-text>
                                     <Translations
-                                      :transText.sync="cData.tabCategoryInfo[1]"
+                                      :transText.sync="tabCategoryInfo[1]"
                                       type="editor"
                                     />
                                   </b-input-group-append>
@@ -1739,7 +1734,7 @@
                             </div>
                             <div
                               class="mb-2"
-                              v-for="(derived, ind) in cData.derivedCharts"
+                              v-for="(derived, ind) in derivedCharts"
                               :key="ind"
                             >
                               <div
@@ -1834,12 +1829,16 @@
                                                     .chartName[$i18n.locale]
                                                 "
                                                 :state="
-                                                  derived?.chartOptions
-                                                    ?.chartName?.[$i18n.locale]
-                                                    ?.length !== 0 &&
-                                                  derived?.chartOptions
-                                                    ?.chartName?.[$i18n.locale]
-                                                    ?.length <=
+                                                  derived.chartOptions
+                                                    .chartName &&
+                                                  derived.chartOptions
+                                                    .chartName[$i18n.locale] &&
+                                                  derived.chartOptions
+                                                    .chartName[$i18n.locale]
+                                                    .length !== 0 &&
+                                                  derived.chartOptions
+                                                    .chartName[$i18n.locale]
+                                                    .length <=
                                                     chartTitleMaxLength
                                                 "
                                                 placeholder=""
@@ -1882,9 +1881,7 @@
                                         class="col-sm-12 col-lg-6"
                                         v-if="derived.chartOptions.title"
                                       >
-                                        <div
-                                          class="form-group row translate-iconheight"
-                                        >
+                                        <div class="form-group row translate-iconheight">
                                           <label
                                             class="col-sm-6 col-form-label"
                                             >{{ $t("chart_title") }}</label
@@ -1938,9 +1935,7 @@
                                         class="col-sm-12 col-lg-6"
                                         v-if="derived.chartOptions.subTitle"
                                       >
-                                        <div
-                                          class="form-group row translate-iconheight"
-                                        >
+                                        <div class="form-group row translate-iconheight">
                                           <label
                                             for="inputChartSubtitle"
                                             class="col-sm-6 col-form-label"
@@ -2005,9 +2000,7 @@
                                         class="col-sm-12 col-lg-6"
                                         v-if="derived.chartOptions.title1"
                                       >
-                                        <div
-                                          class="form-group row translate-iconheight"
-                                        >
+                                        <div class="form-group row translate-iconheight">
                                           <label
                                             class="col-sm-6 col-form-label"
                                             >{{ $t("chart_title2") }}</label
@@ -2061,9 +2054,7 @@
                                         class="col-sm-12 col-lg-6"
                                         v-if="derived.chartOptions.subTitle1"
                                       >
-                                        <div
-                                          class="form-group row translate-iconheight"
-                                        >
+                                        <div class="form-group row translate-iconheight">
                                           <label
                                             for="inputChartSubtitle"
                                             class="col-sm-6 col-form-label"
@@ -2128,9 +2119,7 @@
                                         class="col-sm-12 col-lg-6"
                                         v-if="derived.chartOptions.xAxis"
                                       >
-                                        <div
-                                          class="form-group row translate-iconheight"
-                                        >
+                                        <div class="form-group row translate-iconheight">
                                           <label
                                             class="col-sm-6 col-form-label"
                                             >{{ $t("x_axis") }}</label
@@ -2184,9 +2173,7 @@
                                         class="col-sm-12 col-lg-6"
                                         v-if="derived.chartOptions.yAxis"
                                       >
-                                        <div
-                                          class="form-group row translate-iconheight"
-                                        >
+                                        <div class="form-group row translate-iconheight">
                                           <label
                                             class="col-sm-6 col-form-label"
                                             >{{ $t("y_axis") }}</label
@@ -2254,12 +2241,16 @@
                                                     .chartInfo[$i18n.locale]
                                                 "
                                                 :state="
-                                                  derived?.chartOptions
-                                                    ?.chartInfo?.[$i18n.locale]
-                                                    ?.length !== 0 &&
-                                                  derived?.chartOptions
-                                                    ?.chartInfo?.[$i18n.locale]
-                                                    ?.length <=
+                                                  derived.chartOptions
+                                                    .chartInfo &&
+                                                  derived.chartOptions
+                                                    .chartInfo[$i18n.locale] &&
+                                                  derived.chartOptions
+                                                    .chartInfo[$i18n.locale]
+                                                    .length !== 0 &&
+                                                  derived.chartOptions
+                                                    .chartInfo[$i18n.locale]
+                                                    .length <=
                                                     chartInfoMaxLength
                                                 "
                                                 :placeholder="
@@ -2309,14 +2300,13 @@
         </div>
       </transition>
       <div class="row pt-4">
-        <div class="col text-right" v-if="cData.reportingRate.length">
+        <div class="col text-right" v-if="reportingRate.length">
           <span
             class="text-danger mr-4"
             v-if="
-              cData.dataOnContraceptive === 'No'
+              dataOnContraceptive === 'No'
                 ? false
-                : cData.reportingRate[0].indicator.subIndicator[0].de.length ===
-                  0
+                : reportingRate[0].indicator.subIndicator[0].de.length === 0
             "
             ><strong>{{ $t("note") }}:</strong>
             {{ $t("mappingMandatory") }}</span
@@ -2325,10 +2315,9 @@
             class="btn btn-primary black-btn save-btn"
             v-on:click="updateConfigData"
             :disabled="
-              cData.dataOnContraceptive === 'No'
+              dataOnContraceptive === 'No'
                 ? false
-                : cData.reportingRate[0].indicator.subIndicator[0].de.length ===
-                  0
+                : reportingRate[0].indicator.subIndicator[0].de.length === 0
             "
           >
             {{ $t("savebtn") }}
@@ -2348,28 +2337,28 @@
   </div>
 </template>
 <script>
+import emuAnnual from "@/config/emuAnnualConfig.js";
 import service from "@/service";
 import DynamicImageMixin from "@/helpers/DynamicImageMixin";
-import benchmarkFpSource from "./bachmarkFpSource";
+import bachmarkFpSource from "./bachmarkFpSource";
 import { VueEditor } from "vue2-editor";
 import assign from "lodash/assign";
 import ReFetchConfigMixin from "@/helpers/ReFetchConfigMixin";
 import VueEditorOptionMixin from "@/helpers/VueEditorOptionMixin";
 export default {
   props: [
-    "matrixList",
-    "chartByType",
-    "dqrResponse",
-    "dataSetsList",
     "chartByModule",
-    "globalMapping",
+    "chartByType",
     "chartBySubtype",
     "indicatorsList",
     "dataElementsList",
+    "dataSetsList",
+    "matrixList",
+    "globalMapping",
   ],
   mixins: [DynamicImageMixin, ReFetchConfigMixin, VueEditorOptionMixin],
   components: {
-    benchmarkFpSource,
+    bachmarkFpSource,
     VueEditor,
     AddMapping: () =>
       import(
@@ -2381,10 +2370,39 @@ export default {
       ),
   },
   data() {
+    // console.log(this.chartBySubtype, this.indicatorsList)
+    // console.log(config[this.chartByModule][this.chartByType]);
+    let cData =
+      emuAnnual[this.chartByModule][this.chartByType][this.chartBySubtype];
     return {
-      cData: {},
+      derivedCharts: cData.derivedCharts ? cData.derivedCharts : [],
+
+      chartData: cData.chartData ? cData.chartData : [],
+
+      reportingRate: cData.reportingRate ? cData.reportingRate : [],
+
+      dataOnContraceptive: cData.dataOnContraceptive
+        ? cData.dataOnContraceptive
+        : "",
+
+      initialYear: cData.initialYear
+        ? cData.initialYear
+        : new Date().getFullYear(),
+
+      finalYear: cData.finalYear ? cData.finalYear : new Date().getFullYear(),
+
+      dataSource: cData.source ? cData.source : "",
+
+      reportingSector: cData.reportingSector ? cData.reportingSector : "",
+
+      fpSource: cData.FPSource ? cData.FPSource : {},
+
       chartInfoMaxLength: 200,
+
       chartTitleMaxLength: 100,
+      categoryInfo: cData.categoryInfo ? cData.categoryInfo : "",
+      tabCategoryInfo: cData.tabCategoryInfo ? cData.tabCategoryInfo : [{}, {}],
+      originalData: null,
       isDataFetched: false,
     };
   },
@@ -2395,39 +2413,94 @@ export default {
       });
     },
   },
-  watch: {
-    dqrResponse: {
-      handler(newValue) {
-        if (newValue) {
-          this.getConfigData();
-        }
-      },
-      deep: true,
-    },
-  },
+  watch: {},
   methods: {
+    getUpdatedMapping(updatedMapping, ismatchFound) {
+      if (ismatchFound) {
+        this.chartData = updatedMapping;
+        this.$nextTick(() => {
+          this.updateConfigData();
+        });
+      } else {
+        this.sweetAlert({
+          title: this.$i18n.t("oops"),
+          text: this.$i18n.t("no_match_found"),
+        });
+      }
+    },
     //This is to fetch config data on page load
     getConfigData() {
-      this.cData =
-        this.dqrResponse?.[this.chartByType]?.[this.chartBySubtype] || {};
-      if (Object.keys(this.cData).length) {
-        this.isDataFetched = true;
-      }
+      // console.log("data initial",[this.chartBySubtype],JSON.stringify(config))
+      let key = this.generateKey(this.chartByModule);
+
+      let response = service.getSavedConfig({ tableKey: key });
+      response
+        .then((response) => {
+          // console.log(response)
+          this.$emit("getBGInfo", response.data);
+          if (
+            response.data[this.chartByType] &&
+            response.data[this.chartByType][this.chartBySubtype]
+          ) {
+            let data = response.data[this.chartByType][this.chartBySubtype];
+            // console.log(data)
+            this.chartData = data.chartData ? data.chartData : this.chartData;
+            // ? merge(this.chartData, data.chartData)
+            this.derivedCharts = data.derivedCharts
+              ? data.derivedCharts
+              : this.derivedCharts;
+            // ? merge(this.derivedCharts, data.derivedCharts)
+            this.dataOnContraceptive = data.dataOnContraceptive
+              ? data.dataOnContraceptive
+              : this.dataOnContraceptive;
+            this.initialYear = data.initialYear
+              ? data.initialYear
+              : this.initialYear;
+            this.finalYear = data.finalYear ? data.finalYear : this.finalYear;
+            this.dataSource = data.dataSource
+              ? data.dataSource
+              : this.dataSource;
+            this.reportingSector = data.reportingSector
+              ? data.reportingSector
+              : this.reportingSector;
+            this.fpSource = data.FPSource ? data.FPSource : this.fpSource;
+            // ? merge(this.fpSource, data.FPSource)
+            this.reportingRate = data.reportingRate
+              ? data.reportingRate
+              : this.reportingRate;
+            // ? merge(this.reportingRate, data.reportingRate)
+            this.categoryInfo = data.categoryInfo
+              ? data.categoryInfo
+              : this.categoryInfo;
+            this.tabCategoryInfo = data.tabCategoryInfo
+              ? data.tabCategoryInfo
+              : this.tabCategoryInfo;
+            this.originalData = JSON.parse(JSON.stringify(data));
+            this.$store.commit("setLoading", false);
+          } else {
+            this.$store.commit("setLoading", false);
+          }
+          this.isDataFetched = true;
+        })
+        .catch((err) => {
+          console.log("Config not found...");
+          this.isDataFetched = true;
+          this.$store.commit("setLoading", false);
+          this.reFetchConfig(err);
+        });
     },
     //This is to update config data on click of save button
     async updateConfigData() {
       this.$store.commit("setLoading", true);
 
       let dCharts = [];
-      if (this.cData.derivedCharts.length) {
-        dCharts = this.cData.derivedCharts.map(async (d, index) => {
+      if (this.derivedCharts.length) {
+        dCharts = this.derivedCharts.map(async (d, index) => {
           let cid = "";
           if (d.chartOptions && !d.chartOptions.cid) {
             try {
               let resp = await service.createDHISChart(
-                `${this.chartByModule} ${
-                  d.chartOptions.chartName[this.$i18n.locale]
-                }`
+                `${this.chartByModule} ${d.chartOptions.chartName}`
               );
               if (resp.data.status === "OK") {
                 cid = resp.data.response.uid;
@@ -2449,15 +2522,13 @@ export default {
       }
 
       let rCharts = [];
-      if (this.cData.reportingRate.length) {
-        rCharts = this.cData.reportingRate.map(async (d, index) => {
+      if (this.reportingRate.length) {
+        rCharts = this.reportingRate.map(async (d, index) => {
           let cid = "";
           if (d.indicator && !d.indicator.cid) {
             try {
               let resp = await service.createDHISChart(
-                `${this.chartByModule} ${
-                  d.indicator.chartName[this.$i18n.locale]
-                }`
+                `${this.chartByModule} ${d.indicator.chartName}`
               );
               if (resp.data.status === "OK") {
                 cid = resp.data.response.uid;
@@ -2478,17 +2549,15 @@ export default {
         rCharts = await Promise.all(rCharts);
       }
 
-      let cCharts = this.cData.chartData;
+      let cCharts = this.chartData;
 
-      if (this.cData.chartData.length) {
-        cCharts = this.cData.chartData.map(async (d, index) => {
+      if (this.chartData.length) {
+        cCharts = this.chartData.map(async (d, index) => {
           let cid = "";
           if (d.indicator && !d.indicator.cid) {
             try {
               let resp = await service.createDHISChart(
-                `${this.chartByModule} ${
-                  d.indicator.chartName[this.$i18n.locale]
-                }`
+                `${this.chartByModule} ${d.indicator.chartName}`
               );
               if (resp.data.status === "OK") {
                 cid = resp.data.response.uid;
@@ -2510,67 +2579,114 @@ export default {
       }
 
       let chartBySubtypeData = {
-        ...this.cData,
         derivedCharts: dCharts,
         chartData: cCharts,
         reportingRate: rCharts,
+        dataOnContraceptive: this.dataOnContraceptive,
+        initialYear: this.initialYear,
+        finalYear: this.finalYear,
+        source: this.dataSource,
+        reportingSector: this.reportingSector,
+        FPSource: this.fpSource,
+        categoryInfo: this.categoryInfo,
+        tabCategoryInfo: this.tabCategoryInfo,
       };
 
       let key = this.generateKey(this.chartByModule);
 
-      let saveConfig = service.getSavedConfig({ tableKey: key });
-      saveConfig
-        .then((res) => {
-          let configData = res.data;
-          if (configData[this.chartByType]) {
-            configData[this.chartByType][this.chartBySubtype] = configData[
-              this.chartByType
-            ][this.chartBySubtype]
-              ? assign(
-                  configData[this.chartByType][this.chartBySubtype],
-                  chartBySubtypeData
-                )
-              : chartBySubtypeData;
-          } else {
-            configData[this.chartByType] = {
-              [this.chartBySubtype]: chartBySubtypeData,
-            };
-          }
-          let response = service.updateConfig({
-            data: configData,
-            tableKey: key,
-          });
-          response
-            .then((response) => {
-              if (response.data.status === "OK") {
-                this.sweetAlert({
-                  title: this.$i18n.t("data_saved_successfully"),
-                });
-                this.$emit("updatedData", configData);
-              } else {
+      let allKeys = service.getAllKeys({});
+      allKeys.then((keys) => {
+        if (keys.data.includes(key)) {
+          let saveConfig = service.getSavedConfig({ tableKey: key });
+          saveConfig.then((res) => {
+            let configData = res.data;
+            // console.log("configData",configData);
+            if (configData[this.chartByType]) {
+              configData[this.chartByType][this.chartBySubtype] = configData[
+                this.chartByType
+              ][this.chartBySubtype]
+                ? assign(
+                    configData[this.chartByType][this.chartBySubtype],
+                    chartBySubtypeData
+                  )
+                : chartBySubtypeData;
+            } else {
+              configData[this.chartByType] = {
+                [this.chartBySubtype]: chartBySubtypeData,
+              };
+            }
+            let configChanges = {};
+            // let configChanges = audit.configAudit(
+            //   this.originalData,
+            //   configData[this.chartByType][this.chartBySubtype]
+            // );
+            // console.log("configChanges", configChanges)
+            let response = service.updateConfig({
+              data: configData,
+              tableKey: key,
+            });
+            response
+              .then((response) => {
+                if (response.data.status === "OK") {
+                  // console.log("response update ", response.data)
+                  this.sweetAlert({
+                    title: this.$i18n.t("data_saved_successfully"),
+                  });
+                  this.getConfigData();
+
+                  this.$store.commit("setLoading", false);
+                } else {
+                  this.sweetAlert({
+                    title: this.$i18n.t("error"),
+                    text: `${response.data.message}`,
+                  });
+
+                  this.$store.commit("setLoading", false);
+                  return;
+                }
+              })
+              .catch((error) => {
                 this.sweetAlert({
                   title: this.$i18n.t("error"),
-                  text: `${response.data.message}`,
                 });
-              }
+
+                this.$store.commit("setLoading", false);
+                return;
+              });
+          });
+        } else {
+          let ministrial = {
+            [this.chartByType]: {
+              [this.chartBySubtype]: chartBySubtypeData,
+            },
+          };
+          let response = service.saveConfig({
+            data: ministrial,
+            tableKey: key,
+          });
+          response.then((response) => {
+            if (response.data.status === "OK") {
+              // console.log("response save ", response.data)
+              this.sweetAlert({
+                title: this.$i18n.t("data_saved_successfully"),
+              });
+
               this.$store.commit("setLoading", false);
-            })
-            .catch((error) => {
+            } else {
               this.sweetAlert({
                 title: this.$i18n.t("error"),
+                text: `${response.data.message}`,
               });
               this.$store.commit("setLoading", false);
-            });
-        })
-        .catch((error) => {
-          this.sweetAlert({
-            title: this.$i18n.t("error"),
+              return;
+            }
           });
-          this.$store.commit("setLoading", false);
-        });
+        }
+      });
     },
   },
   created() {
+    this.$store.commit("setLoading", true);
     this.getConfigData();
   },
 };

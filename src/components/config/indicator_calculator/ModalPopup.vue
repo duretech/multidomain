@@ -6,7 +6,7 @@
       @click="showModal"
       >{{ title }}</b-button
     >
-    <b-modal ref="my-modal" hide-footer :title="`Select ${title}`">
+    <b-modal ref="my-modal" hide-footer :title="`Select ${title}`" no-close-on-backdrop>
       <div class="d-block text-left modaladmin-heading">
         <h5 v-if="title == 'Data Sets'">{{$t("selectMatrix")}}</h5>
         <b-form-select

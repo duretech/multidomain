@@ -86,6 +86,9 @@
                 id="modal-bgImg"
                 :title="$t('uploadBackgroundImage')"
                 centered
+                :cancel-title="$t('cancelbtn')"
+                :ok-title="$t('ok')"
+                no-close-on-backdrop
               >
                 <div class="row">
                   <div class="col-lg-12">
@@ -146,6 +149,9 @@
                     id="modal-logo"
                     centered
                     :title="$t('uploadApplicationLogo')"
+                    :cancel-title="$t('cancelbtn')"
+                    :ok-title="$t('ok')"
+                    no-close-on-backdrop
                   >
                     <div class="row">
                       <div class="col-lg-12">
@@ -307,6 +313,7 @@
           centered
           v-model="viewDynamicModules"
           :title="$t('linked_modules')"
+          no-close-on-backdrop
         >
           <div class="home-modules-div">
             <b-row>
@@ -366,6 +373,7 @@ import DocumentTitleMixin from "@/helpers/DocumentTitleMixin";
 import LanguageChangeMixin from "@/helpers/LanguageChangeMixin";
 import EmitTourCallbackMixin from "@/helpers/EmitTourCallbackMixin";
 import HomePageModules from "@/components/Home/HomePageModules.vue";
+import { getAllPeriodRange } from "@/components/Common/commonFunctions";
 
 export default {
   props: ["isFromAdmin", "updatedData", "redirectDetails"],
@@ -471,7 +479,7 @@ export default {
           );
         }
         service
-          .getAllKeys()
+          .getAllKeys({})
           .then((response) => {
             this.$store.commit("setDataStoreKeys", response.data);
           })
@@ -535,15 +543,17 @@ export default {
         Object.keys(this.$store.getters.getUserPermissions).length === 0
       ) {
         let key = this.generateKey("userManagement");
-        service.getSavedConfig(key, false, "", true).then((res) => {
-          let modulePermission = res?.data?.permission?.find(
-            (d) =>
-              d.id === this.$store.getters.getUserDetails.userCredentials.id
-          );
-          if (modulePermission) {
-            this.$store.commit("setUserPermissions", modulePermission);
-          }
-        });
+        service
+          .getSavedConfig({ tableKey: key, isDefault: true })
+          .then((res) => {
+            let modulePermission = res?.data?.permission?.find(
+              (d) =>
+                d.id === this.$store.getters.getUserDetails.userCredentials.id
+            );
+            if (modulePermission) {
+              this.$store.commit("setUserPermissions", modulePermission);
+            }
+          });
       }
     },
     /**
@@ -564,7 +574,7 @@ export default {
         let key = this.generateKey("applicationModule");
         // By default, we are calling the 'applicationSetup' config file using the local/language set in the 'this.$i18n.locale' global variable.
         service
-          .getSavedConfig(key)
+          .getSavedConfig({ tableKey: key })
           .then(async (response) => {
             if (this.$store.getters.getIsMultiProgram) {
               this.appData = response.data;
@@ -658,11 +668,67 @@ export default {
             this.$i18n.t("globalFactorsLoadText")
           );
         }
-        let key = this.generateKey("globalFactors");
+        //Get periods from default admin
+        let defaultGlobalData = this.$store.getters.getGlobalFactors("", true);
+        let FinalPeriodArray = [];
+        FinalPeriodArray = getAllPeriodRange(
+          defaultGlobalData.period.Period,
+          FinalPeriodArray
+        );
 
-        let response = service.getSavedConfig(key);
+        let key = this.generateKey("globalFactors");
+        let response = service.getSavedConfig({ tableKey: key });
         response
-          .then((response) => {
+          .then(async (response) => {
+            //Get periods from the FP/MCH admin
+            FinalPeriodArray = getAllPeriodRange(
+              response.data.period.Period,
+              FinalPeriodArray
+            );
+            let { locationID } = service.getAllowedLocation(),
+              des = null;
+            for (let map in response.data.globalMappings.mappings) {
+              let mappingData = response.data.globalMappings.mappings[map];
+              for (let innerMap in mappingData["mapping"]) {
+                let innerMapData =
+                  response.data.globalMappings.mappings[map]["mapping"][
+                    innerMap
+                  ]["indicator"]["subIndicator"];
+                if (
+                  innerMapData[0] &&
+                  innerMapData[0]["selectedDE"].length > 0
+                ) {
+                  des = innerMapData[0]["selectedDE"][0]["id"];
+                  break;
+                }
+              }
+              if (des != null) break;
+            }
+            let finalPeriodData = this.$store.getters.getPeriodData ?? {};
+            this.$store.commit("setPeriodDX", des);
+            //Check if we already have the formatted date in store
+            FinalPeriodArray = FinalPeriodArray.filter(
+              (p) => !finalPeriodData[p]
+            );
+            //Check if required params are available
+            if (FinalPeriodArray.length && locationID && des) {
+              let pRes = null;
+              try {
+                pRes = await service.getAnalyticalIndicatorData(
+                  des,
+                  locationID,
+                  FinalPeriodArray.join(";"),
+                  false,
+                  true
+                );
+              } catch (err) {
+                console.log("Error in fetching periods from DHIS2...", err);
+              }
+              FinalPeriodArray.forEach((pe) => {
+                finalPeriodData[pe] = pRes?.data?.metaData?.items?.[pe] || pe;
+              });
+              this.$store.commit("setPeriodData", finalPeriodData); // Set the periods in store
+            }
             this.$store.commit("setGlobalFactors", {
               payload: response.data,
             }); // Set the global factors in store
@@ -673,8 +739,8 @@ export default {
             this.showModules = true;
             this.setRedirect();
           })
-          .catch(() => {
-            console.log("Failed in getGlobalFactors()...");
+          .catch((res) => {
+            console.log("Failed in getGlobalFactors()...", res);
             this.$store.commit("setLoadingText", "");
             this.$store.commit("setLoading", false);
             this.setRedirect();
@@ -710,7 +776,7 @@ export default {
       }
       let key = this.generateKey("dynamicModules");
 
-      let response = service.getSavedConfig(key, false, "", true);
+      let response = service.getSavedConfig({ tableKey: key, isDefault: true });
       response.then((response) => {
         // Filter the live modules only
         this.dynamicModules = response.data

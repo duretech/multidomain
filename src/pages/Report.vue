@@ -17,6 +17,7 @@
 <script>
 import Reports from "@/components/ReportTemplate/Reports";
 import DocumentTitleMixin from "@/helpers/DocumentTitleMixin";
+import UsesAnalyticsMixin from "@/helpers/UsesAnalyticsMixin";
 import LanguageChangeMixin from "@/helpers/LanguageChangeMixin";
 import EmitTourCallbackMixin from "@/helpers/EmitTourCallbackMixin";
 
@@ -24,7 +25,12 @@ export default {
   components: {
     Reports,
   },
-  mixins: [DocumentTitleMixin, LanguageChangeMixin, EmitTourCallbackMixin],
+  mixins: [
+    DocumentTitleMixin,
+    UsesAnalyticsMixin,
+    LanguageChangeMixin,
+    EmitTourCallbackMixin,
+  ],
 };
 </script>
 

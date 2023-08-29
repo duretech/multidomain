@@ -65,7 +65,7 @@
             />
           </div>
         </div>
-        <div class="card-body pb-0 h-410px overflow-hidden">
+        <div class="card-body py-0 h-410px overflow-hidden">
           <div class="row">
             <div class="col-12" v-if="viewType == 'chart'">
               <highcharts
@@ -76,24 +76,29 @@
             <div class="col-12" v-else>
               <!-- <b-table hover :items="items" :fields="fields" head-variant="light" sticky-header :bordered=true style="max-height: 400px !important"></b-table> -->
               <div v-if="chartdata.tableData">
-                <b-table
+                <!-- <b-table
                   v-if="ddOptions"
                   sticky-header
                   striped
                   hover
                   :fields="chartdata.fields"
                   :items="chartdata.tableData"
+                  show-empty
+                  :empty-text="$t('no_data_to_display')"
                   style="margin-top: 40px; overflow-y: auto; max-height: 390px"
-                ></b-table>
+                ></b-table> -->
+                <!--                   style="overflow-y: auto; max-height: 390px"
+ -->
                 <b-table
                   class="table-responsive_output"
-                  v-else
                   sticky-header
+                  responsive
                   striped
                   hover
                   :fields="chartdata.fields"
                   :items="chartdata.tableData"
-                  style="overflow-y: auto; max-height: 390px"
+                  show-empty
+                  :empty-text="$t('no_data_to_display')"
                 ></b-table>
               </div>
             </div>

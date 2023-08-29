@@ -13,13 +13,7 @@
         <b-card-text v-if="tab === 'nav-tab1-tab'">
           <div class="md_nested_tabs">
             <EmuConfig
-              v-if="
-                bgDataConfig &&
-                dqrConfig &&
-                sectorRepo &&
-                categoryOptionID &&
-                methodCatId
-              "
+              v-if="loadIC"
               :bgDataConfig="bgDataConfig"
               :dqrConfig="dqrConfig"
               :indicatorList="indicatorList"
@@ -33,7 +27,7 @@
               :sectorRepo="sectorRepo"
               @saveJson="saveJson"
             />
-            <div v-else>Fetching required data</div>
+            <b-spinner v-else type="grow" label="Spinning"></b-spinner>
           </div>
         </b-card-text>
       </b-tab>
@@ -147,8 +141,8 @@ import SubTabConfig from "../indicator_calculator/SubTabConfig";
 import EmuConfig from "../indicator_calculator/emuConfig";
 import stockOutConfig from "@/config/stockOutConfig.js";
 // import bgDataConfig from "@/config/globalFactorsConfig.js";
-import annualConfig from "@/config/emuAnnualConfig.js";
-import monthlyConfig from "@/config/emuMonthlyConfig.js";
+// import annualConfig from "@/config/emuAnnualConfig.js";
+// import monthlyConfig from "@/config/emuMonthlyConfig.js";
 // import globalFactorsConfig from "@/config/globalFactorsConfig.js";
 
 export default {
@@ -161,10 +155,8 @@ export default {
     return {
       tab: "nav-tab1-tab",
       config: stockOutConfig,
-      // bgDataConfig: bgDataConfig,
       dataElementList: [],
       dqrConfig: null,
-      // bgDataConfig: globalFactorsConfig,
       indicatorList: [],
       dataSetList: [],
       matrixList: [],
@@ -213,7 +205,11 @@ export default {
       // console.log(this.dqrConfig);
       this.$store.commit("setLoading", true);
       service
-        .updateConfig(val, configKey, false, "fp-dashboard")
+        .updateConfig({
+          data: val,
+          tableKey: configKey,
+          namespace: "fp-dashboard",
+        })
         .then((resp) => {
           if (resp.data.status === "OK") {
             this.$store.commit("setLoading", false);
@@ -225,7 +221,11 @@ export default {
         })
         .catch((err) => {
           service
-            .saveConfig(val, configKey, false, "fp-dashboard")
+            .saveConfig({
+              data: val,
+              tableKey: configKey,
+              namespace: "fp-dashboard",
+            })
             .then((resp) => {
               if (resp.data.status === "OK") {
                 this.$store.commit("setLoading", false);
@@ -243,6 +243,20 @@ export default {
                 });
             });
         });
+    },
+  },
+  computed: {
+    loadIC() {
+      if (
+        this.bgDataConfig &&
+        this.dqrConfig &&
+        this.sectorRepo &&
+        this.categoryOptionID &&
+        this.methodCatId &&
+        this.orgList
+      ) {
+        return true;
+      } else return false;
     },
   },
   created() {
@@ -315,31 +329,38 @@ export default {
       // this.showLoader = false;
     });
     let key = this.generateKey("annualSectorReporting");
-    service.getSavedConfig(key, false, "fp-dashboard").then((resp) => {
-      if (resp && resp.data) {
-        this.sectorRepo = resp.data.sectorReporting;
-      }
-      console.log(this.sectorRepo);
-    });
+    service
+      .getSavedConfig({ tableKey: key, namespace: "fp-dashboard" })
+      .then((resp) => {
+        if (resp && resp.data) {
+          this.sectorRepo = resp.data.sectorReporting;
+        }
+        console.log(this.sectorRepo);
+      });
     let key1 = this.generateKey("dqrModule");
-    service.getSavedConfig(key1, false, "fp-dashboard").then((resp) => {
-      // this.showLoader = true;
-      if (resp && resp.data) {
-        this.dqrConfig = resp.data;
-        this.$set(this.dqrConfig, "emu", resp.data.emu);
-        this.$set(this.dqrConfig, "emu_monthly", resp.data.emu_monthly);
-      } else {
-        this.dqrConfig = {
-          ...annualConfig.dqrModule,
-          ...monthlyConfig.dqrModule,
-        };
-      }
-      // this.showLoader = false;
-    });
+    service
+      .getSavedConfig({ tableKey: key1, namespace: "fp-dashboard" })
+      .then((resp) => {
+        // this.showLoader = true;
+        if (resp && resp.data) {
+          this.dqrConfig = resp.data;
+          this.$set(this.dqrConfig, "emu", resp.data.emu);
+          this.$set(this.dqrConfig, "emu_monthly", resp.data.emu_monthly);
+        }
+        // else {
+        //   this.dqrConfig = {
+        //     ...annualConfig.dqrModule,
+        //     ...monthlyConfig.dqrModule,
+        //   };
+        // }
+        // this.showLoader = false;
+      });
     let key2 = this.generateKey("stockOut");
-    service.getSavedConfig(key2, false, "fp-dashboard").then((resp) => {
-      if (resp && resp.data) this.config = resp.data;
-    });
+    service
+      .getSavedConfig({ tableKey: key2, namespace: "fp-dashboard" })
+      .then((resp) => {
+        if (resp && resp.data) this.config = resp.data;
+      });
     service.getDataElements().then((resp) => {
       if (resp && resp.data) this.dataElementList = resp.data.dataElements;
     });

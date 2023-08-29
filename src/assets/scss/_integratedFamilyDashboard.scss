@@ -23,21 +23,22 @@
 
 .integratedFamilyWrap {
     height             : calc(100vh - 100px) !important;
-    background         : url(../images/grey-theme/bg-inimg.png);
+    // background         : url(../images/grey-theme/bg-inimg.png);
     background-position: inherit;
     background-repeat  : no-repeat;
     background-size    : cover;
     overflow           : auto;
-
-    &:before{
-        background-color: var(--primary-bg-color) !important;
-        content: '';
-        height: 100vh;
-        display: block;
-        position: absolute;
-        opacity: 0.80;
-        width: 100%;
-    }
+   
+    background: linear-gradient(0deg, rgba(57, 56, 86, 0.8), rgba(57, 56, 86, 0.8)), url(../images/grey-theme/bg-inimg.png);
+    // &:before{
+    //     background-color: var(--primary-bg-color) !important;
+    //     content: '';
+    //     height: 100vh;
+    //     display: block;
+    //     position: absolute;
+    //     opacity: 0.80;
+    //     width: 100%;
+    // }
 
     .integratedPlanningText {
         color    : var(--main-font-color);
@@ -343,7 +344,31 @@
         .programName{
             font-size: .75rem;
             color: var(--main-font-color);
-            padding-bottom: 5%;
+            // padding-bottom: 5%;
+            font-weight: 500;
+        }
+
+        .maternal-health{
+            display: flex !important;
+            flex-direction: row !important;
+            overflow: auto !important;
+            width: 75% !important;
+             flex-wrap: nowrap !important;    
+        }
+        
+        .row .col-sm-3:last-child{
+            margin-left: 25%;
+            margin-top: -26px;
+        }
+        // .row .col-sm-4:last-child{
+            
+        //     margin-top: -26px;
+        // }
+        
+        .show-div{
+            display: flex;
+            width: 75%;
+            flex-wrap: wrap;
         }
    
 }

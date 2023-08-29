@@ -387,11 +387,13 @@ import NavigationMixin from "@/helpers/NavigationMixin";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 import DynamicImageMixin from "@/helpers/DynamicImageMixin";
 import loadLocChildMixin from "@/helpers/LoadLocationChildMixin";
+import merge from "lodash/merge";
 import {
   pTypeList,
   excludeName,
   getLocationName,
 } from "@/components/Common/commonFunctions";
+import NepaliDate from "nepali-date-converter";
 export default {
   props: [
     "showTrend",
@@ -399,6 +401,7 @@ export default {
     "showSeasonal",
     "globalPeriodData",
     "IDLocationPeriod",
+    "updateLocPer",
   ],
   components: { Treeselect, DatePicker },
   mixins: [NavigationMixin, DynamicImageMixin, loadLocChildMixin],
@@ -412,7 +415,7 @@ export default {
       .subtract(period.backtrackedYearLimit * 1, "years")
       .format("YYYY-MM");
     return {
-      viewType: this.$store.state.defaultViewType,
+      viewType: this.$store.getters.getViewType,
       defaultExpandLevel: 1,
       options: [],
       value: null,
@@ -430,18 +433,18 @@ export default {
       lang: {
         formatLocale: {
           monthsShort: [
-            "Jan",
-            "Feb",
-            "Mar",
-            "Apr",
+            "January",
+            "February",
+            "March",
+            "April",
             "May",
-            "Jun",
-            "Jul",
-            "Aug",
-            "Sep",
-            "Oct",
-            "Nov",
-            "Dec",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December",
           ],
         },
       },
@@ -492,13 +495,24 @@ export default {
     showSeasonal(newValue) {
       this.seasonalCharts = newValue;
     },
-    "$store.state.defaultViewType": function (val) {
+    "$store.getters.getViewType": function (val) {
       this.viewType = val;
     },
     pType(newVal) {
       this.periodOptions = [];
       let period = this.globalPeriodData;
       let d = new Date();
+      let nplMonth;
+      let nplYear;
+      if (this.$store.getters.getAppSettings.calendar === "nepali") {
+        d = new NepaliDate(
+          new Date(d.getFullYear(), d.getMonth() + 1, d.getDate())
+        ).getBS();
+        nplMonth = d.month;
+        nplYear = d.year;
+        let zeroForMonth = nplMonth < 10 ? "0" + nplMonth : nplMonth;
+        d = d.year + "" + zeroForMonth;
+      }
       let currentDate = this.$moment(d, "YYYYMM")
         .subtract(period.backtrackedMonth * 1, "months")
         .format("YYYY-MM");
@@ -507,6 +521,7 @@ export default {
         .format("YYYY-MM");
       let currentYear = this.$moment(currentDate, "YYYY").format("YYYY");
       let finalYear = this.$moment(currentFinalDate, "YYYY").format("YYYY");
+
       if (newVal === "monthly") {
         this.monthYear =
           this.IDLocationPeriod && this.IDLocationPeriod.period
@@ -517,10 +532,14 @@ export default {
       }
 
       if (newVal === "yearly") {
+        let newYear;
+        if (currentDate.split("-")[1] == 12)
+          newYear = currentDate.split("-")[0];
+        else newYear = currentDate.split("-")[0] * 1 - 1;
         this.monthYear =
           this.IDLocationPeriod && this.IDLocationPeriod.period
             ? this.IDLocationPeriod.period
-            : currentYear;
+            : newYear.toString();
       }
 
       if (newVal === "financialYear" || newVal === "financialYearJuly") {
@@ -528,10 +547,11 @@ export default {
           newVal === "financialYear"
             ? this.financialYearsText
             : this.financialYearsJulyText;
-
         for (let i = currentYear - 1; i >= finalYear; i--) {
           this.periodOptions.push({
-            text: `${yearsText[1]} ${i} - ${yearsText[0]} ${i + 1}`,
+            text: `${yearsText[1]} ${i} ${this.$i18n.t("toSmall")}  ${
+              yearsText[0]
+            } ${i + 1}`,
             value: newVal === "financialYear" ? `${i}` : `${i}July`,
           });
         }
@@ -541,17 +561,37 @@ export default {
             : newVal === "financialYear"
             ? `${currentYear - 1}`
             : `${currentYear - 1}July`;
-        this.periodText = `${yearsText[1]} ${currentYear - 1} - ${
-          yearsText[0]
-        } ${currentYear}`;
+        this.periodText = `${yearsText[1]} ${currentYear - 1} ${this.$i18n.t(
+          "toSmall"
+        )} ${yearsText[0]} ${currentYear}`;
       }
 
       if (newVal === "quarterly") {
-        let currYear = new Date().getFullYear(),
-          currentMonth = new Date().getMonth() + 1;
-        let currentQuarter = Math.ceil(currentMonth / 3);
+        let currYear, currentQuarter, currentMonth;
+
+        if (this.$store.getters.getAppSettings.calendar === "nepali") {
+          currentMonth = parseInt(nplMonth);
+          currYear = nplYear;
+
+          if (currentMonth > 1 && currentMonth <= 3) {
+            currentQuarter = 3;
+          } else if (currentMonth > 4 && currentMonth <= 6) {
+            currentQuarter = 4;
+          } else if (currentMonth > 7 && currentMonth <= 9) {
+            currentQuarter = 1;
+          } else if (currentMonth > 10 && currentMonth <= 12) {
+            currentQuarter = 2;
+          } else {
+            currentQuarter = "Invalid quarter";
+          }
+        } else {
+          (currYear = new Date().getFullYear()),
+            (currentMonth = new Date().getMonth() + 1);
+          currentQuarter = Math.ceil(currentMonth / 3);
+        }
         let quarterLimit =
           currentYear * 1 === currYear * 1 ? currentQuarter : 4;
+        console.log(currentYear, currYear, currentQuarter, "currentQuarter");
         for (let i = currentYear; i >= finalYear; i--) {
           let quarterLimit = i * 1 === currYear * 1 ? currentQuarter : 4;
           for (let j = quarterLimit; j >= 1; j--) {
@@ -559,7 +599,9 @@ export default {
               value: `${i}Q${j}`,
               text:
                 this.quartersText[`Q${j}`][0] +
-                " - " +
+                " " +
+                this.$i18n.t("toSmall") +
+                " " +
                 this.quartersText[`Q${j}`][1] +
                 " " +
                 i,
@@ -572,7 +614,9 @@ export default {
             : `${currentYear}Q${quarterLimit}`;
         this.periodText =
           this.quartersText[`Q${quarterLimit}`][0] +
-          " - " +
+          " " +
+          this.$i18n.t("toSmall") +
+          " " +
           this.quartersText[`Q${quarterLimit}`][1] +
           " " +
           currentYear;
@@ -629,10 +673,37 @@ export default {
     seasonalCharts(newValue) {
       this.$emit("getViewType", "seasonal", newValue);
     },
+    updateLocPer(newVal) {
+      this.pType = newVal.pType;
+      this.monthYear = newVal.monthYear;
+      this.value = newVal.id;
+      this.updateOptions(newVal);
+      this.$nextTick(() => {
+        this.sendDetails();
+      });
+    },
   },
   methods: {
     sendDetails() {
       let canSend = true;
+      let periodName =
+        this.$store.getters?.getPeriodData?.[this.monthYear] || this.monthYear;
+
+      if (
+        ["quarterly", "financialYear", "financialYearJuly"].includes(this.pType)
+      ) {
+        let isFound = this.periodOptions.find(
+          (p) => p.value === this.monthYear
+        );
+        periodName = isFound.text;
+      }
+      if (["monthly"].includes(this.pType)) {
+        periodName =
+          this.$store.getters?.getPeriodData?.[
+            this.monthYear.split("-").join("")
+          ]?.name || this.monthYear;
+      }
+
       if (this.IDLocationPeriod) {
         if (["monthly", "yearly"].includes(this.pType)) {
           let isDisable = this.disableDate(this.monthYear);
@@ -661,6 +732,7 @@ export default {
         this.pType
       ) {
         let obj = {
+          periodText: periodName,
           period: this.monthYear,
           location: this.value,
           locationList: this.options,
@@ -691,8 +763,18 @@ export default {
       this.getConfigAccess();
     },
     disableDate(date) {
-      let format = this.pType == "yearly" ? "YYYY" : "YYYYMM";
-      let dStart = this.$moment(this.allowedStartDate, format).format(format);
+      let format = this.pType == "yearly" ? "YYYY" : "YYYYMM",
+        dStart;
+      if (this.pType == "yearly") {
+        let yearMonth = this.$moment(this.allowedStartDate, "YYYY-MM").format(
+          "YYYY-MM"
+        );
+        dStart =
+          yearMonth.split("-")[1] == 12
+            ? yearMonth.split("-")[0]
+            : yearMonth.split("-")[0] * 1 - 1;
+      } else
+        dStart = this.$moment(this.allowedStartDate, format).format(format);
       let dEnd = this.$moment(this.allowedFinalDate, format).format(format);
       let d1 = this.$moment(date, format).format(format);
       return d1 < dEnd || d1 > dStart;
@@ -702,7 +784,9 @@ export default {
         let q = newValue.split("Q");
         this.periodText =
           this.quartersText[`Q${q[1]}`][0] +
-          " - " +
+          " " +
+          this.$i18n.t("toSmall") +
+          " " +
           this.quartersText[`Q${q[1]}`][1] +
           " " +
           q[0];
@@ -717,7 +801,9 @@ export default {
             : this.financialYearsJulyText;
         let p =
           this.pType === "financialYear" ? newValue : newValue.split("July")[0];
-        this.periodText = `${yearsText[1]} ${p} - ${yearsText[0]} ${p * 1 + 1}`;
+        this.periodText = `${yearsText[1]} ${p} ${this.$i18n.t("toSmall")} ${
+          yearsText[0]
+        } ${p * 1 + 1}`;
       }
 
       if (this.$refs.dropdown) {
@@ -745,9 +831,66 @@ export default {
           ? this.IDLocationPeriod.location
           : levelID + "/" + locationID;
     },
+    updateOptions(obj, updatedPath = this.options[0]) {
+      if (updatedPath.id.split("/")[1] == obj.children[0].parent.id) {
+        let findData = null;
+        if (updatedPath?.children) {
+          findData = updatedPath.children.find(
+            (item) => item.id == obj.children[0].id
+          );
+        } else {
+          updatedPath.children = [];
+        }
+        if (!findData) {
+          updatedPath.children.push(obj);
+        }
+        return true;
+      } else {
+        if (updatedPath.children) {
+          for (let i = 0; i < updatedPath.children.length; i++) {
+            let result = this.updateOptions(obj, updatedPath.children[i]);
+            if (result) {
+              break;
+            }
+          }
+        } else {
+          return;
+        }
+      }
+    },
   },
   created() {
     this.pTypeOptions = pTypeList({});
+    if (this.$store.getters.getAppSettings.calendar === "nepali") {
+      this.lang = {
+        formatLocale: {
+          monthsShort: [
+            "Baisakh",
+            "Jestha",
+            "Ashad",
+            "Shrawan",
+            "Bhadra",
+            "Ashoj",
+            "Kartik",
+            "Mangsir",
+            "Poush",
+            "Magh",
+            "Falgun",
+            "Chaitra",
+          ],
+          // janv.	févr.	mars	avril	mai	juin	juil.	août	sept.	oct.	nov.	déc.
+          //https://web.library.yale.edu/cataloging/months get abbrevation from here for othe locales
+        },
+      };
+      this.financialYearsText = ["Shrawan", "Ashad"];
+      this.financialYearsjulyText = ["Shrawan", "Ashad"];
+      this.quartersText = {
+        Q1: ["Ashad", "Shrawan"],
+        Q2: ["Bhadra", "Ashoj"],
+        Q3: ["Kartik", "Mangsir"],
+        Q4: ["Baisakh", "Jestha"],
+      };
+    }
     if (this.$i18n.locale === "fr") {
       this.lang = {
         formatLocale: {

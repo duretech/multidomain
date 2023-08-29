@@ -2,8 +2,7 @@
   <div class="text-right">
     <b-button
       v-if="
-        $store.getters.getIsAdmin ||
-        $store.getters.getAppSettings.bypassUser
+        $store.getters.getIsAdmin || $store.getters.getAppSettings.bypassUser
       "
       class="blue-btn mb-2 btn-sm"
       @click="configureBtn = !configureBtn"
@@ -279,29 +278,32 @@ export default {
     updateConfigData() {
       this.$store.commit("setLoading", true);
       let key = this.generateKey("interactiveConfig");
-      let allKeys = service.getAllKeys();
+      let allKeys = service.getAllKeys({});
       allKeys
         .then((keys) => {
           if (keys.data.includes(key)) {
-            let saveConfig = service.getSavedConfig(key);
+            let saveConfig = service.getSavedConfig({ tableKey: key });
             saveConfig.then((res) => {
               let configData = res.data;
               configData[this.dataSource] = this.selectedData;
-              let response = service.updateConfig(configData, key);
+              let response = service.updateConfig({
+                data: configData,
+                tableKey: key,
+              });
               response
                 .then((response) => {
                   if (response.data.status === "OK") {
                     this.sweetAlert({
                       title: this.$i18n.t("data_saved_successfully"),
                     });
-                    this.$store.state.loading = false;
+                    this.$store.commit("setLoading", false);
                     this.$emit("getUpdatedOpt", configData);
                   } else {
                     this.sweetAlert({
                       title: this.$i18n.t("error"),
                       text: `${response.data.message}`,
                     });
-                    this.$store.state.loading = false;
+                    this.$store.commit("setLoading", false);
                     return;
                   }
                 })
@@ -309,7 +311,7 @@ export default {
                   this.sweetAlert({
                     title: this.$i18n.t("error"),
                   });
-                  this.$store.state.loading = false;
+                  this.$store.commit("setLoading", false);
                   return;
                 });
             });
@@ -317,27 +319,30 @@ export default {
             let configData = {
               [this.dataSource]: this.selectedData,
             };
-            let response = service.saveConfig(configData, key);
+            let response = service.saveConfig({
+              data: configData,
+              tableKey: key,
+            });
             response.then((response) => {
               if (response.data.status === "OK") {
                 this.sweetAlert({
                   title: this.$i18n.t("data_saved_successfully"),
                 });
-                this.$store.state.loading = false;
+                this.$store.commit("setLoading", false);
                 this.$emit("getUpdatedOpt", configData);
               } else {
                 this.sweetAlert({
                   title: this.$i18n.t("error"),
                   text: `${response.data.message}`,
                 });
-                this.$store.state.loading = false;
+                this.$store.commit("setLoading", false);
                 return;
               }
             });
           }
         })
         .catch(() => {
-          this.$store.state.loading = false;
+          this.$store.commit("setLoading", false);
         });
     },
   },

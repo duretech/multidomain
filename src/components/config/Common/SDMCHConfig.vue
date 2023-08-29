@@ -8,7 +8,6 @@
         nav-class="p-0"
         nav-wrapper-class="adminConfig admin-fptheme"
       >
-        <!-- Render Tabs, supply a unique `key` to each tab -->
         <b-tab
           v-for="(tab, i) in tabs"
           :key="'dyn-tab-' + tab.id"
@@ -16,14 +15,6 @@
         >
           <template #title>
             <span class="main-tabs" style="display: none">
-              <!-- <i
-              class="fa fa-arrow-up mr-2 cursor-pointer f-s-0-875rem"
-              v-b-tooltip.hover
-              title="Move Up"
-              @click.prevent.stop="
-                moveItem({ type: 'tab', tInd: i, places: -1 })
-              "
-            ></i> -->
               <img
                 src="@/assets/images/icons/up-adminarrow.svg"
                 class="mx-1 mr-2 cursor-pointer f-s-0-875rem w-auto"
@@ -34,14 +25,6 @@
                 "
                 :style="{ filter: filterColor }"
               />
-              <!-- <i
-              class="fa fa-arrow-down mr-2 cursor-pointer f-s-0-875rem"
-              v-b-tooltip.hover
-              title="Move Down"
-              @click.prevent.stop="
-                moveItem({ type: 'tab', tInd: i, places: 1 })
-              "
-            ></i> -->
               <img
                 src="@/assets/images/icons/down-adminarrow.svg"
                 class="mr-2 cursor-pointer f-s-0-875rem w-auto"
@@ -52,21 +35,6 @@
                   moveItem({ type: 'tab', tInd: i, places: 1 })
                 "
               />
-
-              <!-- <i
-              class="fa fa-edit mr-2 f-s-0-875rem"
-              v-b-tooltip.hover
-              :title="$t('edit')"
-              @click="
-                updateTab({
-                  type: 'type11',
-                  tabName: tab.tabName,
-                  tInd: i,
-                  group: tab.group,
-                  showGroups: tab.showGroups,
-                })
-              "
-            ></i> -->
               <img
                 src="@/assets/images/icons/edit-adminicon.svg"
                 class="mr-2 cursor-pointer f-s-0-875rem w-14"
@@ -86,12 +54,6 @@
               <span class="mr-2 translate-icon">
                 <Translations :transText.sync="tab.tabName" />
               </span>
-              <!-- <i
-              class="fa fa-trash mr-2 f-s-0-875rem"
-              v-b-tooltip.hover
-              :title="$t('deletebtn')"
-              @click="deleteElement({ type: 'tab', tInd: i })"
-            ></i> -->
               <img
                 src="@/assets/images/icons/admindelete-icon.svg"
                 class="mr-2 cursor-pointer f-s-0-875rem w-auto"
@@ -103,7 +65,6 @@
             </span>
             <span class=""> {{ tab.tabName[$i18n.locale] }} </span>
           </template>
-
           <div>
             <b-card no-body class="border-adminmodule">
               <b-tabs
@@ -121,7 +82,6 @@
                   />
                 </div>
                 <div class="border-main"></div>
-                <!-- Render Tabs, supply a unique `key` to each tab -->
                 <b-tab
                   v-for="(subTab, j) in tab.subTabs"
                   :key="'dyn-sub-tab-' + subTab.id"
@@ -129,19 +89,6 @@
                 >
                   <template #title>
                     <span class="main-tabs">
-                      <!-- <i
-                      class="fa fa-arrow-left mr-2 cursor-pointer f-s-0-875rem"
-                      v-b-tooltip.hover
-                      title="Move Left"
-                      @click.prevent.stop="
-                        moveItem({
-                          type: 'subTab',
-                          tInd: i,
-                          stInd: j,
-                          places: -1,
-                        })
-                      "
-                    ></i> -->
                       <img
                         src="@/assets/images/icons/admin-leftarrow.svg"
                         class="mr-2 cursor-pointer f-s-0-875rem w-auto"
@@ -157,19 +104,6 @@
                           })
                         "
                       />
-                      <!-- <i
-                      class="fa fa-arrow-right mr-2 cursor-pointer f-s-0-875rem"
-                      v-b-tooltip.hover
-                      title="Move Right"
-                      @click.prevent.stop="
-                        moveItem({
-                          type: 'subTab',
-                          tInd: i,
-                          stInd: j,
-                          places: 1,
-                        })
-                      "
-                    ></i> -->
                       <img
                         src="@/assets/images/icons/right-adminarrow.svg"
                         :style="{ filter: filterColor }"
@@ -185,19 +119,6 @@
                           })
                         "
                       />
-                      <!-- <i
-                      class="fa fa-edit mr-2 f-s-0-875rem"
-                      v-b-tooltip.hover
-                      :title="$t('edit')"
-                      @click="
-                        updateTab({
-                          type: 'type21',
-                          tabName: subTab.tabName,
-                          tInd: i,
-                          stInd: j,
-                        })
-                      "
-                    ></i> -->
                       <img
                         src="@/assets/images/icons/edit-adminicon.svg"
                         :style="{ filter: filterColor }"
@@ -216,14 +137,6 @@
                       <span class="mr-1 translate-icon">
                         <Translations :transText.sync="subTab.tabName" />
                       </span>
-                      <!-- <i
-                      class="fa fa-trash mr-2 f-s-0-875rem"
-                      v-b-tooltip.hover
-                      :title="$t('deletebtn')"
-                      @click="
-                        deleteElement({ type: 'subTab', tInd: i, stInd: j })
-                      "
-                    ></i> -->
                       <img
                         src="@/assets/images/icons/admindelete-icon.svg"
                         :style="{ filter: filterColor }"
@@ -237,7 +150,6 @@
                     </span>
                     <span class="">{{ subTab.tabName[$i18n.locale] }}</span>
                   </template>
-
                   <b-row v-if="tab.group">
                     <b-col sm="12">
                       <b-row class="mb-3">
@@ -246,8 +158,10 @@
                             $t("group")
                           }}</label>
                         </b-col>
-                        <b-col sm="8">
+                        <b-col sm="8" class="px-4">
                           <b-form-select
+                            class="ml-lg-n3"
+
                             :id="`type-tabGroup-${i}-${j}`"
                             v-model="subTab.group"
                             :options="subGroups(tab.group)"
@@ -337,7 +251,6 @@
                       />
                     </transition>
                   </template>
-
                   <template v-if="subTab.backgroundData">
                     <div class="accordion mb-2" role="tablist">
                       <b-card no-body class="mb-1">
@@ -444,29 +357,49 @@
                                   :i="i"
                                   :j="j"
                                   :tabs="tabs"
-                                  :copy="copy"
                                   :tabId="tab.id"
-                                  :copyTo="copyTo"
                                   :moveItem="moveItem"
                                   :subTabId="subTab.id"
                                   :moduleKey="moduleKey"
                                   configKey="mapSetting"
                                   :subTabGroup="subTab.group"
                                   :applyPalette="applyPalette"
-                                  :levelsSelect="levelsSelect"
                                   :settings="subTab.mapSetting"
                                   :deleteElement="deleteElement"
                                   v-bind.sync="subTab.mapSetting"
                                   :updateBenchmarks="updateBenchmarks"
                                 />
-                                <b-row v-if="subTab.mapSetting.length === 0">
+                                <b-row
+                                  v-if="
+                                    subTab.mapSetting.length === 0 &&
+                                    subTab.group !== 'EMU'
+                                  "
+                                >
                                   <b-col sm="12" class="text-center">
-                                    {{ $t("noAvailable") }}
+                                    {{ $t("addMapping") }}
+                                    <code>{{ $t("addbtn") }}</code>
+                                    {{ $t("btnBelow") }}
                                   </b-col>
                                 </b-row>
+                                <div
+                                  class="text-right pt-2"
+                                  v-if="subTab.group !== 'EMU'"
+                                >
+                                  <b-button
+                                    class="blue-btn btn-sm ml-2"
+                                    v-on:click="
+                                      addElement({
+                                        type: 'mapSetting',
+                                        tInd: i,
+                                        stInd: j,
+                                        mKey: 'mapSetting',
+                                      })
+                                    "
+                                    >{{ $t("addbtn") }}</b-button
+                                  >
+                                </div>
                               </div>
                             </b-card-text>
-                            <!-- <b-card-text>{{ text }}</b-card-text> -->
                           </b-card-body>
                         </b-collapse>
                       </b-card>
@@ -507,16 +440,13 @@
                                   :i="i"
                                   :j="j"
                                   :tabs="tabs"
-                                  :copy="copy"
                                   :tabId="tab.id"
-                                  :copyTo="copyTo"
                                   :moveItem="moveItem"
                                   :subTabId="subTab.id"
                                   :moduleKey="moduleKey"
                                   configKey="chartSetting"
                                   :subTabGroup="subTab.group"
                                   :applyPalette="applyPalette"
-                                  :levelsSelect="levelsSelect"
                                   @updatedBGData="updatedBGData"
                                   :deleteElement="deleteElement"
                                   :settings="subTab.chartSetting"
@@ -525,10 +455,9 @@
                                 />
                                 <b-row v-if="subTab.chartSetting.length === 0">
                                   <b-col sm="12" class="text-center">
-                                    {{ $t("addChart") }}
+                                    {{ $t("addMapping") }}
                                     <code>{{ $t("addbtn") }}</code>
-                                    {{ $t("btn") }}
-                                    below.
+                                    {{ $t("btnBelow") }}
                                   </b-col>
                                 </b-row>
                                 <div class="text-right pt-2">
@@ -544,7 +473,7 @@
                                     >{{ $t("addbtn") }}</b-button
                                   >
                                   <b-button
-                                    class="black-btn btn-sm ml-2 d-none"
+                                    class="blue-btn btn-sm ml-2 d-none"
                                     v-on:click="
                                       addElement({
                                         type: 'mapSetting',
@@ -563,7 +492,6 @@
                       </b-card>
                     </div>
                   </template>
-
                   <template
                     v-if="moduleKey === 'summaryDashboard' && subTab.summary"
                   >
@@ -601,14 +529,12 @@
                                 :allCharts="subTab.chartSetting"
                               />
                             </b-card-text>
-                            <!-- <b-card-text>{{ text }}</b-card-text> -->
                           </b-card-body>
                         </b-collapse>
                       </b-card>
                     </div>
                   </template>
                 </b-tab>
-
                 <!-- New Tab Button (Using tabs-start slot) -->
                 <template #tabs-start>
                   <b-nav-item
@@ -623,7 +549,6 @@
                     <span class="mx-1"> {{ $t("addbtn") }} </span>
                   </b-nav-item>
                 </template>
-
                 <!-- Render this if no tabs -->
                 <template #empty>
                   <div class="text-center text-muted">
@@ -642,7 +567,6 @@
             </div>
           </div>
         </b-tab>
-
         <!-- New Tab Button (Using tabs-start slot) -->
         <template #tabs-start>
           <b-nav-item
@@ -656,7 +580,6 @@
             <span class=""> {{ $t("addbtn") }} </span>
           </b-nav-item>
         </template>
-
         <!-- Render this if no tabs -->
         <template #empty>
           <div class="text-center text-muted">
@@ -759,13 +682,6 @@
             >
               <b-col sm="1">
                 <label :for="'input-option' + opt.value">
-                  <!-- <i
-                    class="fa fa-trash mr-2 cursor-pointer f-s-0-875rem"
-                    @click="actionOnOption({ type: 'delete', qInd: i })"
-                    v-b-tooltip.hover
-                    :title="$t('deletebtn')"
-                  ></i> -->
-
                   <img
                     src="@/assets/images/icons/admindelete-icon.svg"
                     :style="{ filter: filterColor }"
@@ -835,7 +751,7 @@ export default {
     "indicatorsList",
     "dataElementsList",
     "dataSetsList",
-    "metrixList",
+    "matrixList",
     "langList",
     "moduleKey",
     "orgList",
@@ -883,25 +799,25 @@ export default {
           {
             lowScale: "0",
             highScale: "25",
-            scaleColor: "#90CAF9",
+            scaleColor: "#F06868",
             scaleLabel: { [this.$i18n.locale]: this.$i18n.t("low") },
           },
           {
             lowScale: "25",
             highScale: "50",
-            scaleColor: "#2BAE8D",
+            scaleColor: "#FFE082",
             scaleLabel: { [this.$i18n.locale]: this.$i18n.t("medium") },
           },
           {
             lowScale: "50",
             highScale: "75",
-            scaleColor: "#FFE082",
+            scaleColor: "#90CAF9",
             scaleLabel: { [this.$i18n.locale]: this.$i18n.t("high") },
           },
           {
             lowScale: "75",
             highScale: "100",
-            scaleColor: "#F06868",
+            scaleColor: "#2BAE8D",
             scaleLabel: { [this.$i18n.locale]: this.$i18n.t("veryHigh") },
           },
         ],
@@ -942,7 +858,7 @@ export default {
         disable: false,
         percentageIndicator: false,
         benchmarkValue: "",
-        summaryText: "",
+        summaryText: {},
         compareWith: null,
         primaryChart: null,
         secondaryChart: null,
@@ -958,13 +874,6 @@ export default {
         answer: "",
       },
       signOffQuestion: null,
-      paletteColor: "#00ff80",
-      levelsSelect: [],
-      selectedLevel: null,
-      selectedTreeLevel: [],
-      copyLevels: [],
-      selectedCopyOption: [],
-      copyToKey: "",
     };
   },
   computed: {
@@ -1116,16 +1025,6 @@ export default {
           }
         }
         if (this.moduleKey === "dqrDashboard") {
-          // if (
-          // 	this.$store.getters.getNamespace !== "multi_program_mnch-dashboard"
-          // ) {
-          // 	subGroups = [
-          // 		{
-          // 			value: "DEFAULT",
-          // 			text: this.$i18n.t("default"),
-          // 		},
-          // 	];
-          // } else {
           subGroups = [
             {
               label: this.$i18n.t("compTime"),
@@ -1162,19 +1061,15 @@ export default {
                 },
               ],
             },
-            // {
-            //   label: this.$i18n.t("eConsistency"),
-            //   options: [
-            //     {
-            //       value: `${group}-EC-survey`,
-            //       text: this.$i18n.t("survey"),
-            //     },
-            //     {
-            //       value: `${group}-EC-method`,
-            //       text: this.$i18n.t("method"),
-            //     },
-            //   ],
-            // },
+            {
+              label: this.$i18n.t("eConsistency"),
+              options: [
+                {
+                  value: `${group}-BENCH-method`,
+                  text: this.$i18n.t("eConsistency"),
+                },
+              ],
+            },
             {
               label: this.$i18n.t("default"),
               options: [
@@ -1185,7 +1080,25 @@ export default {
               ],
             },
           ];
-          // }
+          if (this.$store.getters.getAppSettings.countryName === "SL") {
+            subGroups.splice(subGroups.length - 1, 0, {
+              label: this.$i18n.t("byFacility"),
+              options: [
+                {
+                  value: `${group}-FAC-CTFacility`,
+                  text: this.$i18n.t("CTFacility"),
+                },
+                {
+                  value: `${group}-FAC-ICFacility`,
+                  text: this.$i18n.t("ICFacility"),
+                },
+                {
+                  value: `${group}-FAC-CCFacility`,
+                  text: this.$i18n.t("CCFacility"),
+                },
+              ],
+            });
+          }
         }
         return subGroups;
       };
@@ -1219,68 +1132,6 @@ export default {
           cInd
         ].chartOptions.benchmarks = b.filter((c) => !c.includes("national"));
       }
-    },
-    copyTo({ tInd, stInd, cmInd, key = "chartSetting" }) {
-      this.copyToKey = key;
-      this.levelsSelect = this.tabs[tInd].subTabs[stInd][key][
-        cmInd
-      ].chartOptions.levels.map((l) => ({
-        text: l.levelName,
-        value: l.level,
-      }));
-      this.copyLevels =
-        this.tabs[tInd].subTabs[stInd][key][cmInd].chartOptions.levels;
-      this.selectedLevel = null;
-      this.selectedTreeLevel = [];
-      this.selectedCopyOption = [];
-      this.$nextTick(() => {
-        this.$bvModal.show("copyToModal" + tInd + stInd + cmInd);
-      });
-    },
-    copy({ tInd, stInd, cmInd }) {
-      let mData = JSON.parse(
-        JSON.stringify(this.tabs[tInd].subTabs[stInd][this.copyToKey][cmInd])
-      );
-      let levels = mData.chartOptions.levels,
-        sourceLevel = levels.filter((l) => l.level === this.selectedLevel),
-        targetLevel = levels.filter((l) =>
-          this.selectedTreeLevel.includes(l.level)
-        ),
-        updatedTargetLevels = [],
-        pendingLevel = levels.filter(
-          (l) => !this.selectedTreeLevel.includes(l.level)
-        );
-      targetLevel.forEach((t) => {
-        let updatedScale = [];
-        t.scales.forEach((s, j) => {
-          if (this.selectedCopyOption.includes("labels")) {
-            s = { ...s, scaleLabel: sourceLevel[0].scales[j].scaleLabel };
-          }
-          if (this.selectedCopyOption.includes("range")) {
-            s = {
-              ...s,
-              highScale: sourceLevel[0].scales[j].highScale,
-              lowScale: sourceLevel[0].scales[j].lowScale,
-            };
-          }
-          if (this.selectedCopyOption.includes("colors")) {
-            s = { ...s, scaleColor: sourceLevel[0].scales[j].scaleColor };
-          }
-          updatedScale[j] = s;
-        });
-        updatedTargetLevels.push({ ...t, scales: updatedScale });
-      });
-      let finalLevels = [...pendingLevel, ...updatedTargetLevels].sort(
-        (a, b) => {
-          return a.level < b.level ? -1 : a.level == b.level ? 0 : 1;
-        }
-      );
-      this.tabs[tInd].subTabs[stInd][this.copyToKey][
-        cmInd
-      ].chartOptions.levels = finalLevels;
-      this.$nextTick(() => {
-        this.$bvModal.hide("copyToModal" + tInd + stInd + cmInd);
-      });
     },
     applyPalette({
       tInd,
@@ -1331,11 +1182,11 @@ export default {
       this.isDataEntry = true;
     },
     getConfigData() {
-      this.$store.state.loading = true;
+      this.$store.commit("setLoading", true);
       let key = this.generateKey(this.moduleKey);
 
       service
-        .getSavedConfig(key)
+        .getSavedConfig({ tableKey: key })
         .then((response) => {
           let d = response.data.map((d) => {
             return {
@@ -1371,17 +1222,17 @@ export default {
           this.tabs = d;
           this.originalTabs = JSON.parse(JSON.stringify(d));
           this.isDataFetched = true;
-          this.$store.state.loading = false;
+          this.$store.commit("setLoading", false);
         })
         .catch((err) => {
           console.log("Config not found...");
           this.isDataFetched = true;
-          this.$store.state.loading = false;
+          this.$store.commit("setLoading", false);
           this.reFetchConfig(err);
         });
     },
     async updateConfig() {
-      this.$store.state.loading = true;
+      this.$store.commit("setLoading", true);
       let tabs = [];
       if (this.tabs.length) {
         tabs = this.tabs.map(async (t) => {
@@ -1391,7 +1242,7 @@ export default {
               if (d.chartOptions && !d.chartOptions.cid) {
                 try {
                   let resp = await service.createDHISChart(
-                    `${randomString(16)} ${d.chartOptions.chartName}`
+                    `${randomString(16)} ${d.chartOptions.chartName[this.$i18n.locale]}`
                   );
                   if (resp.data.status === "OK") {
                     cid = resp.data.response.uid;
@@ -1425,24 +1276,27 @@ export default {
       }
       let key = this.generateKey(this.moduleKey);
       service
-        .getSavedConfig(key)
+        .getSavedConfig({ tableKey: key })
         .then((res) => {
           // let configData = assign(res.data, tabs);
           let configData = tabs;
-          let response = service.updateConfig(configData, key);
+          let response = service.updateConfig({
+            data: configData,
+            tableKey: key,
+          });
           response
             .then((response) => {
               if (response.data.status === "OK") {
                 this.sweetAlert({
                   title: this.$i18n.t("data_saved_successfully"),
                 });
-                this.$store.state.loading = false;
+                this.$store.commit("setLoading", false);
               } else {
                 this.sweetAlert({
                   title: this.$i18n.t("error"),
                   text: `${response.data.message}`,
                 });
-                this.$store.state.loading = false;
+                this.$store.commit("setLoading", false);
                 return;
               }
             })
@@ -1450,24 +1304,24 @@ export default {
               this.sweetAlert({
                 title: this.$i18n.t("error"),
               });
-              this.$store.state.loading = false;
+              this.$store.commit("setLoading", false);
               return;
             });
         })
         .catch(() => {
-          let response = service.saveConfig(tabs, key);
+          let response = service.saveConfig({ data: tabs, tableKey: key });
           response.then((response) => {
             if (response.data.status === "OK") {
               this.sweetAlert({
                 title: this.$i18n.t("data_saved_successfully"),
               });
-              this.$store.state.loading = false;
+              this.$store.commit("setLoading", false);
             } else {
               this.sweetAlert({
                 title: this.$i18n.t("error"),
                 text: `${response.data.message}`,
               });
-              this.$store.state.loading = false;
+              this.$store.commit("setLoading", false);
               return;
             }
           });
@@ -1521,8 +1375,8 @@ export default {
         this.updatedTabName = "";
       }
     },
-    deleteElement({ type, tInd, stInd, delInd }) {
-      if (type === "mapSetting") {
+    deleteElement({ type, tInd, stInd, delInd, subTabGroup }) {
+      if (type === "mapSetting" && subTabGroup === "EMU") {
         this.sweetAlert({
           title: this.$i18n.t("mapDelErr"),
         });
@@ -1544,6 +1398,9 @@ export default {
             }
             if (type === "chartSetting") {
               this.tabs[tInd].subTabs[stInd].chartSetting.splice(delInd, 1);
+            }
+            if (type === "mapSetting") {
+              this.tabs[tInd].subTabs[stInd].mapSetting.splice(delInd, 1);
             }
           }
         });
@@ -1688,7 +1545,7 @@ export default {
           showGroups: this.showGroups,
           subTabs: [
             {
-              group: null,
+              group: "DEFAULT",
               mapSetting,
               signOff: [],
               questions: [],
@@ -1725,7 +1582,7 @@ export default {
         }
         this.tabs[this.updateIndex].subTabs.push({
           mapSetting,
-          group: null,
+          group: "DEFAULT",
           signOff: [],
           questions: [],
           chartSetting: [],

@@ -126,7 +126,7 @@
                   :tInd="tInd"
                   :moveItem="moveItem"
                   :addElement="addElement"
-                  :metrixList="metrixList"
+                  :matrixList="matrixList"
                   :dataSetsList="dataSetsList"
                   :deleteElement="deleteElement"
                   :isDataFetched="isDataFetched"
@@ -150,7 +150,7 @@
       <b-col sm="12" class="text-right pt-3">
         <b-button
           v-if="mappings.length < 15"
-          class="black-btn btn-sm blue-btn"
+          class="black-btn blue-btn btn-sm"
           @click="addElement({ type: 'method', tInd })"
           >{{ $t("addbtn") }}</b-button
         >
@@ -166,7 +166,7 @@ export default {
     "moveItem",
     "mappings",
     "addElement",
-    "metrixList",
+    "matrixList",
     "dataSetsList",
     "deleteElement",
     "isDataFetched",

@@ -16,7 +16,7 @@
             <b-col sm="9" class="p-0" :class="{ 'col-sm-12': cObjFull }"
               ><h5 class="summary-chart-title pl-0 mb-0 fs-17-1920">
                 <i
-                  class="fa fa-info-circle color-white cursor-pointer chart-info mr-2 ml-2"
+                  class="fa fa-info-circle cursor-pointer chart-info mr-2 ml-2"
                   aria-hidden="true"
                   v-b-popover.hover.rightbottom="{
                     variant: 'info',
@@ -33,7 +33,7 @@
                 :cID="cID"
                 :mapView="isMap"
                 :sorting="sorting"
-                :trendTable="items"
+                :trendTable="downloadCSV"
                 :viewType="viewType"
                 @dataSort="dataSort"
                 fullScreenKey="cObj"
@@ -118,7 +118,35 @@
                           :fields="fields"
                           bordered
                           sticky-header="385px"
+                          show-empty
+                          :empty-text="$t('no_data_to_display')"
                         >
+                          <template #cell(show_details)="row">
+                            <!-- As `row.showDetails` is one-way, we call the toggleDetails function on @change -->
+                            <b-form-group>
+                              <input
+                                type="checkbox"
+                                v-model="row.detailsShowing"
+                                @click="addValues(row)"
+                              />
+                            </b-form-group>
+                          </template>
+                          <template #row-details="row">
+                            <b-table
+                              :items="
+                                drillTable?.[row.item[$i18n.t('period')]] || []
+                              "
+                              show-empty
+                              :empty-text="$t('no_data_to_display')"
+                              class="drillTable"
+                            ></b-table>
+                            <b-button
+                              class="blue-btn"
+                              size="sm"
+                              @click="row.toggleDetails"
+                              >{{ $t("viewLess") }}</b-button
+                            >
+                          </template>
                         </b-table>
                         <div v-if="isRRChart">
                           <b-row>
@@ -154,12 +182,6 @@
                         label="Spinning"
                         v-else
                       ></b-spinner>
-                      <div
-                        class="small"
-                        v-if="dataFetched && cObj.series.length === 0"
-                      >
-                        {{ $t("no_data_to_display") }}
-                      </div>
                     </div>
                   </template>
                 </template>
@@ -296,6 +318,7 @@
                   hide-footer
                   ok-only
                   :title="$t('exceptions')"
+                  no-close-on-backdrop
                 >
                   <div>
                     <div class="mb-3 text-right small">
@@ -318,6 +341,8 @@
                       :items="exceptionTable"
                       bordered
                       sticky-header="385px"
+                      show-empty
+                      :empty-text="$t('no_data_to_display')"
                     ></b-table>
                   </div>
                 </b-modal>
@@ -382,6 +407,7 @@ export default {
       chartName: "",
       geoJson: null,
       plotType: null,
+      drillTable: {},
       cObjFull: false,
       drillDown: false,
       drillDownPoint: 0,
@@ -423,7 +449,7 @@ export default {
       return this.$i18n.t("chart") + " " + this.$i18n.t("name");
     },
     allMethods() {
-      return this.chartData.methodSeries && this.chartData.methodSeries.length
+      return this.chartData?.methodSeries?.length
         ? this.chartData.methodSeries.map((m) => ({
             text: m.name,
             value: m.name,
@@ -539,7 +565,8 @@ export default {
       let isRRChart = false;
       if (
         this.cObj?.series?.length &&
-        this.subTab?.group?.includes("-CT-") &&
+        (this.subTab?.group?.includes("-CT-") ||
+          this.subTab?.group?.includes("-FAC-CTFacility")) &&
         this.chartConfigData?.chartOptions
       ) {
         if (
@@ -574,6 +601,42 @@ export default {
         this.cObj.series.length && this.dataFetched && this.viewType === "table"
       );
     },
+    downloadCSV() {
+      let t = JSON.parse(JSON.stringify(this.items));
+      if (this.chartConfigData?.chartOptions?.chartDrillDown) {
+        this.cObj.drilldown.series.forEach((s) => {
+          let isD = t.findIndex((d) => d[this.$i18n.t("period")] === s.period);
+          if (isD >= 0 && s.data.length) {
+            s.data.forEach((item) => {
+              t[isD] = {
+                ...t[isD],
+                [`${item.name} [${s.sName}]`]: item.y,
+              };
+            });
+          }
+        });
+        //* When we pass only Items array to download plugin, it download the data based on "keys" available in the first object of the array
+        //* When we don't have drill-down data for the very first object in the table array, it fails to download the drill-down data for the other objects from the table
+        //* This is to add the missing keys in the first object of the table
+        let bigObj = {};
+        t.forEach((d) => {
+          if (Object.keys(bigObj).length < Object.keys(d).length) {
+            bigObj = d;
+          }
+        });
+        Object.keys(bigObj).forEach((k) => {
+          if (!Object.keys(t[0]).includes(k)) {
+            t[0][k] = null;
+          }
+        });
+      }
+      //To remove the extra "_showDetails" column
+      t = t.map((tIn) => {
+        let { _showDetails, ...rest } = tIn;
+        return rest;
+      });
+      return t;
+    },
   },
   watch: {
     chartData: {
@@ -588,7 +651,7 @@ export default {
         }
         if (
           !["SOURCE_DIFF"].includes(
-            this.chartConfigData.chartOptions.chartCalculation
+            this.chartConfigData?.chartOptions?.chartCalculation
           )
         ) {
           this.dataSort(this.defaultSort);
@@ -607,9 +670,8 @@ export default {
         newValue && newValue.length ? newValue[0].value : null;
     },
     selectedMethod(newValue) {
-      let isFound = this.cObj.methodSeries.findIndex(
-        (m) => m.name === newValue
-      );
+      let isFound =
+        this.cObj?.methodSeries?.findIndex((m) => m.name === newValue) || -1;
       if (isFound >= 0) {
         this.cObj.series = this.cObj.methodSeries[isFound].data;
         this.$nextTick(() => {
@@ -642,6 +704,7 @@ export default {
         ) {
           this.fields = [];
           this.items = [];
+          this.drillDown = false;
         }
       },
       deep: true,
@@ -670,8 +733,10 @@ export default {
           };
         });
       }
-      this.cObj.tooltip.pointFormat =
-        '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b><br/>';
+      if (this.cObj.chart.type !== "packedbubble" && this.cObj?.tooltip) {
+        this.cObj.tooltip.pointFormat =
+          '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b><br/>';
+      }
       if (value.includes("stack")) {
         this.cObj.plotOptions.series.stacking = value.includes("percent")
           ? "percent"
@@ -760,8 +825,8 @@ export default {
           tableData = this.chartData.tableData;
         } else {
           let tableKey = this.chartType.includes("period")
-            ? "Period"
-            : "Location";
+            ? this.$i18n.t("period")
+            : this.$i18n.t("location");
           this.fields = [tableKey];
           this.cObj.series.forEach((s) => {
             if (!s.isBenchmark) {
@@ -776,14 +841,14 @@ export default {
                   if (itemFoundIndex >= 0) {
                     tableData[itemFoundIndex] = {
                       ...tableData[itemFoundIndex],
-                      [s.xMethod]: d.x,
-                      [s.yMethod]: d.y,
+                      [s.xMethod]: d.x?.toLocaleString() || d.x,
+                      [s.yMethod]: d.y?.toLocaleString() || d.y,
                     };
                   } else {
                     tableData.push({
                       [tableKey]: d.name,
-                      [s.xMethod]: d.x,
-                      [s.yMethod]: d.y,
+                      [s.xMethod]: d.x?.toLocaleString() || d.x,
+                      [s.yMethod]: d.y?.toLocaleString() || d.y,
                     });
                   }
                 });
@@ -791,8 +856,8 @@ export default {
                   let d = this.cObj.natData[0];
                   tableData.unshift({
                     [tableKey]: d.name,
-                    [s.xMethod]: d.x,
-                    [s.yMethod]: d.y,
+                    [s.xMethod]: d.x?.toLocaleString() || d.x,
+                    [s.yMethod]: d.y?.toLocaleString() || d.y,
                     _cellVariants: {
                       [tableKey]: "info",
                       [s.xMethod]: "info",
@@ -817,12 +882,15 @@ export default {
                         ? `${s.lText}: ${d[2]} & -${s.lText}: ${d[0]}`
                         : this.plotType === "packedbubble"
                         ? d.value
-                        : d.y,
+                        : d.y?.toLocaleString() || d.y,
                     };
                   } else {
                     tableData.push({
                       [tableKey]: d.name,
-                      [n]: this.plotType === "packedbubble" ? d.value : d.y,
+                      [n]:
+                        this.plotType === "packedbubble"
+                          ? d.value?.toLocaleString() || d.value
+                          : d.y?.toLocaleString() || d.y,
                     });
                   }
                 });
@@ -848,7 +916,7 @@ export default {
                 if (itemFoundIndex >= 0) {
                   tableData[itemFoundIndex] = {
                     ...tableData[itemFoundIndex],
-                    [n]: avg,
+                    [n]: avg?.toLocaleString() || avg,
                     _cellVariants: {
                       ...tableData[itemFoundIndex]["_cellVariants"],
                       [n]: "info",
@@ -857,7 +925,7 @@ export default {
                 } else {
                   tableData.push({
                     [tableKey]: this.$i18n.t("avg"),
-                    [n]: avg,
+                    [n]: avg?.toLocaleString() || avg,
                     _cellVariants: {
                       [n]: "info",
                     },
@@ -892,6 +960,12 @@ export default {
               } else {
                 return t;
               }
+            });
+          }
+          if (this.chartConfigData.chartOptions.chartDrillDown) {
+            this.fields.push({
+              key: "show_details",
+              label: this.$i18n.t("viewMore"),
             });
           }
         }
@@ -1032,7 +1106,7 @@ export default {
                     _this.drillDownPoint = s.y * 1;
                   }
                   if (s.y * 1 < y * 1) {
-                    let v = s.y ? `${s.y}%`: this.$i18n.t("noData")
+                    let v = s.y ? `${s.y}%` : _this.$i18n.t("noData");
                     outlier.push(`${s.name} (${v})`);
                   }
                 });
@@ -1043,11 +1117,12 @@ export default {
                     _this.$i18n.t("noRegionsFound"),
                   ];
                 }
-                let txt =
-                  _this.chartConfigData.chartOptions.drillCalculation ===
-                  "DEFAULT"
-                    ? `${this.options.series[0].name} (${e.seriesOptions.name}): ${y}%`
-                    : `${e.seriesOptions.name}: ${y}%`;
+                // let txt =
+                //   _this.chartConfigData.chartOptions.drillCalculation ===
+                //   "DEFAULT"
+                //     ? `${this.options.series[0].name} (${e.seriesOptions.name}): ${y}%`
+                //     : `${e.seriesOptions.name}: ${y}%`;
+                let txt = `${e.seriesOptions.name}: ${y}%`;
                 this.yAxis[0].addPlotLine({
                   id: "p1",
                   value: y,
@@ -1064,7 +1139,10 @@ export default {
                     align: "center",
                     y: _this.cObj.chart.type.includes("bar") ? 150 : -5,
                     style: {
-                      color: "#f6f6f6",
+                      color:
+                        _this.$store.getters.getTheme === "white"
+                          ? "#000"
+                          : "#f6f6f6",
                     },
                   },
                 });
@@ -1075,6 +1153,8 @@ export default {
                   mainSeries = {
                     name: e.seriesOptions.name,
                     type: e.seriesOptions.type,
+                    period: e.seriesOptions.period,
+                    sName: e.seriesOptions.sName,
                     data: [],
                     visible: true,
                     color: "#7cb5ec",
@@ -1107,22 +1187,32 @@ export default {
                   minus2SD.push({
                     name: d.name,
                     y: dLow,
+                    locationID: d.locationID,
+                    levelID: d.levelID,
+                    period: d.period,
                   });
                   plus2SD.push({
                     name: d.name,
                     y: dHigh,
+                    locationID: d.locationID,
+                    levelID: d.levelID,
+                    period: d.period,
                   });
                   mainSeries.data.push({
                     name: d.name,
                     y: dY,
                     color: d.color,
                     locationID: d.locationID,
+                    levelID: d.levelID,
+                    period: d.period,
                   });
                 });
                 let obj1 = {
                     name: _this.$i18n.t("min2SD", {
                       standardDeviation,
                     }),
+                    period: e.seriesOptions.period,
+                    sName: e.seriesOptions.sName,
                     data: minus2SD,
                     type: "line",
                     visible: true,
@@ -1143,6 +1233,8 @@ export default {
                     name: _this.$i18n.t("max2SD", {
                       standardDeviation,
                     }),
+                    period: e.seriesOptions.period,
+                    sName: e.seriesOptions.sName,
                     data: plus2SD,
                     type: "line",
                     visible: true,
@@ -1191,6 +1283,12 @@ export default {
                       };
                     }
                   }
+                }
+              },
+              click: function (e) {
+                if (_this.drillDown) {
+                  _this.drillDown = false;
+                  _this.updateToolBar(e);
                 }
               },
             },
@@ -1256,6 +1354,60 @@ export default {
         });
       });
       this.cObj.yAxis.min = m;
+    },
+    addValues(row) {
+      let drillItems = [];
+      let filterSubItems = this.cObj.drilldown.series.filter(
+        (items) => items.period === row.item[this.$i18n.t("period")]
+      );
+      filterSubItems.forEach((s) => {
+        s.data.map((item) => {
+          let isD = drillItems.findIndex(
+            (d) => d[this.$i18n.t("location")] === item.name
+          );
+          if (isD >= 0) {
+            drillItems[isD] = {
+              ...drillItems[isD],
+              [`${s.name}`]: item.y,
+            };
+          } else {
+            drillItems.push({
+              [this.$i18n.t("location")]: item.name,
+              [`${s.name}`]: item.y,
+            });
+          }
+        });
+      });
+      this.drillTable[row.item[this.$i18n.t("period")]] = drillItems;
+      row.toggleDetails();
+    },
+    async updateToolBar(e) {
+      let childObj = [
+        {
+          id: e.point.options.levelID + "/" + e.point.options.locationID,
+          name: e.point.options.name,
+          label: e.point.options.name,
+          children: null,
+          level: e.point.options.levelID,
+          parent: {
+            id: this.locationPeriod.location.split("/")[1],
+            name: this.locationPeriod.locationName,
+          },
+        },
+      ];
+      let obj = {
+        id: e.point.options.levelID + "/" + e.point.options.locationID,
+        monthYear: ["monthly"].includes(this.locationPeriod.periodType)
+          ? this.$moment(e.point.options.period, "YYYYMM").format("YYYY-MM")
+          : ["financialYear", "financialYearJuly"].includes(
+              this.locationPeriod.periodType
+            )
+          ? e.point.options.period.slice(0, 4)
+          : e.point.options.period,
+        pType: this.locationPeriod.periodType,
+        children: childObj,
+      };
+      this.$emit("updateToolBar", obj);
     },
   },
   created() {

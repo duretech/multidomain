@@ -264,7 +264,7 @@ export default {
     };
   },
   watch: {
-    "$store.state.activeTab": function (newValue) {
+    "$store.getters.getActiveTab": function (newValue) {
       if (newValue === "create-new-module") {
         this.$refs.dynamicModule.openCreateModal();
       }
@@ -316,10 +316,10 @@ export default {
       this.savedModules = modules;
     },
     grantRevokeAdminAccess(id) {
-      this.$store.state.loading = true;
+      this.$store.commit("setLoading", true);
       let key = this.generateKey("interactive");
 
-      let saveConfig = service.getSavedConfig(key);
+      let saveConfig = service.getSavedConfig({ tableKey: key });
       saveConfig.then((resp) => {
         let index = 0;
         let b = resp.data.map((d, i) => {
@@ -333,8 +333,8 @@ export default {
             return d;
           }
         });
-        service.updateConfig(b, key).then(() => {
-          this.$store.state.loading = false;
+        service.updateConfig({ data: b, tableKey: key }).then(() => {
+          this.$store.commit("setLoading", false);
           let success = this.$i18n.t("accessGranted");
           let text = this.$i18n.t("grantSuccess");
           if (!b[index].adminAccess) {
@@ -355,7 +355,7 @@ export default {
         key1 = this.generateKey("dynamicModules");
 
       service
-        .getSavedConfig(key1)
+        .getSavedConfig({ tableKey: key1 })
         .then((res) => {
           let programs = [],
             modules = [];
@@ -385,7 +385,7 @@ export default {
         });
 
       service
-        .getSavedConfig(key)
+        .getSavedConfig({ tableKey: key })
         .then((res) => {
           let b = JSON.parse(JSON.stringify(res.data));
           b = b.filter((d) => d.user !== this.$store.getters.getLoggedInUserId);
@@ -430,9 +430,12 @@ export default {
         cancelButtonText: this.$i18n.t("cancelbtn"),
       }).then((result) => {
         if (result.value) {
-          this.$store.state.loading = true;
+          this.$store.commit("setLoading", true);
           this.bookmarks = this.bookmarks.filter((d) => d.name !== name);
-          let response = service.updateConfig(this.bookmarks, key);
+          let response = service.updateConfig({
+            data: this.bookmarks,
+            tableKey: key,
+          });
           response.then((response) => {
             this.showAlert(response);
           });
@@ -440,13 +443,13 @@ export default {
       });
     },
     previewBookmark(name, model, bookmarks) {
-      this.$store.state.loading = true;
+      this.$store.commit("setLoading", true);
       let b = this[bookmarks].find((d) => d.name === name);
       this.chartData = b.chartData;
       this.chartName = name;
       setTimeout(() => {
         this.$bvModal.show(model);
-        this.$store.state.loading = false;
+        this.$store.commit("setLoading", false);
       }, 100);
     },
     //This is to show success/error alert message
@@ -456,14 +459,14 @@ export default {
           title: this.$i18n.t("deleted"),
           text: this.$i18n.t("favDeleteSuccess"),
         });
-        this.$store.state.loading = false;
+        this.$store.commit("setLoading", false);
       } else {
         this.sweetAlert({
           title: this.$i18n.t("error"),
           text: `${response.data.message}`,
         });
 
-        this.$store.state.loading = false;
+        this.$store.commit("setLoading", false);
         return;
       }
     },

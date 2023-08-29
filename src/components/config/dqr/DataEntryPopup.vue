@@ -101,7 +101,7 @@ export default {
         }); //Mixin method
 
         service
-          .getSavedConfig(key)
+          .getSavedConfig({ tableKey: key })
           .then((response) => {
             let transData =
               typeof response.data.rows == "string"

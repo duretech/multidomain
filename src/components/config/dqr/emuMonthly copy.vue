@@ -2,23 +2,23 @@
   <div>
     <div :class="'card-body ' + chartBySubtype">
       <div class="form-group row">
-        <label for="catInformation" class="col-sm-4 col-form-label">{{
+        <label for="finalYear" class="col-sm-4 col-form-label">{{
           $t("catInformation")
         }}</label>
         <div class="col-sm-8">
           <b-input-group>
             <vue-editor
-              v-model="cData.categoryInfo[$i18n.locale]"
-              v-if="cData?.categoryInfo?.[$i18n.locale]"
-              :state="cData?.categoryInfo?.[$i18n.locale]?.length !== 0"
+              v-model="categoryInfo[$i18n.locale]"
+              :state="
+                categoryInfo &&
+                categoryInfo[$i18n.locale] &&
+                categoryInfo[$i18n.locale].length !== 0
+              "
               :editorToolbar="customToolbar"
               disabled
             ></vue-editor>
             <b-input-group-append is-text>
-              <Translations
-                :transText.sync="cData.categoryInfo"
-                type="editor"
-              />
+              <Translations :transText.sync="categoryInfo" type="editor" />
             </b-input-group-append>
           </b-input-group>
         </div>
@@ -27,7 +27,7 @@
         <label class="col-sm-4 col-form-label">{{ $t("emu_mon_quest") }}</label>
         <div class="col-sm-8">
           <div class="">
-            <select class="form-control" v-model="cData.dataOnContraceptive">
+            <select class="form-control" v-model="dataOnContraceptive">
               <option value="Yes">{{ $t("yes") }}</option>
               <option value="No">{{ $t("no") }}</option>
             </select>
@@ -35,7 +35,35 @@
         </div>
       </div>
       <transition name="slide-fade">
-        <div v-if="cData.dataOnContraceptive == 'Yes'">
+        <div v-if="dataOnContraceptive == 'Yes'">
+          <div class="form-group row hide">
+            <label for="initialYear" class="col-sm-4 col-form-label">{{
+              $t("emu_initial_year_quest")
+            }}</label>
+            <div class="col-sm-8">
+              <input
+                type="number"
+                class="form-control"
+                id="initialYear"
+                placeholder=""
+                v-model="initialYear"
+              />
+            </div>
+          </div>
+          <div class="form-group row hide">
+            <label for="finalYear" class="col-sm-4 col-form-label">{{
+              $t("emu_final_year_quest")
+            }}</label>
+            <div class="col-sm-8">
+              <input
+                type="number"
+                class="form-control"
+                id="finalYear"
+                placeholder=""
+                v-model="finalYear"
+              />
+            </div>
+          </div>
           <div class="accordion mb-2" role="tablist">
             <b-card no-body class="mb-1">
               <b-card-header
@@ -55,16 +83,13 @@
               >
                 <b-card-body>
                   <b-card-text>
-                    <div
-                      class="row mt-lg-n3 mb-2"
-                      v-if="cData.chartData.length"
-                    >
+                    <div class="row mt-lg-n3 mb-2" v-if="chartData.length">
                       <div class="col">
                         <div class="card">
                           <div class="card-body">
                             <div
                               class="row border-bottomgrey"
-                              v-for="(chart, index) in cData.chartData"
+                              v-for="(chart, index) in chartData"
                               :key="index"
                             >
                               <div class="col-12 accordion-delete">
@@ -96,6 +121,11 @@
                                         chartByType
                                       "
                                     >
+                                      <!-- <i
+                                        class="fa fa-cog f-s-20px pr-2"
+                                        v-b-tooltip.hover
+                                        :title="$t('dataMapping')"
+                                      ></i> -->
                                       <img
                                         src="@/assets/images/icons/adminsetting-icon.svg"
                                         :style="{ filter: filterColor }"
@@ -104,7 +134,7 @@
                                         :title="$t('dataMapping')"
                                       />
                                       {{
-                                        cData.chartData[index].indicator.name[
+                                        chartData[index].indicator.name[
                                           $i18n.locale
                                         ]
                                       }}
@@ -141,16 +171,17 @@
                                               class="form-control"
                                               placeholder=""
                                               v-model="
-                                                cData.chartData[index].indicator
-                                                  .name[$i18n.locale]
+                                                chartData[index].indicator.name[
+                                                  $i18n.locale
+                                                ]
                                               "
                                               disabled
                                             />
                                             <b-input-group-append is-text>
                                               <Translations
                                                 :transText.sync="
-                                                  cData.chartData[index]
-                                                    .indicator.name
+                                                  chartData[index].indicator
+                                                    .name
                                                 "
                                               />
                                             </b-input-group-append>
@@ -168,8 +199,7 @@
                                             class="form-control"
                                             placeholder=""
                                             v-model="
-                                              cData.chartData[index].indicator
-                                                .color
+                                              chartData[index].indicator.color
                                             "
                                           />
                                         </div>
@@ -179,8 +209,7 @@
                                             class="form-control"
                                             placeholder=""
                                             v-model="
-                                              cData.chartData[index].indicator
-                                                .color
+                                              chartData[index].indicator.color
                                             "
                                           />
                                         </div>
@@ -192,10 +221,9 @@
                                         >
                                         <div class="col-sm-7">
                                           <b-form-checkbox
-                                            checked="cData.chartData[index].indicator.visible"
+                                            checked="chartData[index].indicator.visible"
                                             v-model="
-                                              cData.chartData[index].indicator
-                                                .visible
+                                              chartData[index].indicator.visible
                                             "
                                             name="check-button"
                                             switch
@@ -240,7 +268,7 @@
                                                   class="col-12"
                                                   v-for="(
                                                     subIndicator, ind
-                                                  ) in cData.chartData[index]
+                                                  ) in chartData[index]
                                                     .indicator.subIndicator"
                                                   :key="ind"
                                                 >
@@ -266,6 +294,15 @@
                                                         "
                                                         class="pr-2"
                                                       >
+                                                        <!-- <i
+                                                          class="fa fa-link f-s-20px"
+                                                          v-b-tooltip.hover
+                                                          :title="
+                                                            $t(
+                                                              'link_IndicatorsData_Elements'
+                                                            )
+                                                          "
+                                                        ></i> -->
                                                         <img
                                                           src="@/assets/images/icons/adminlink-icon.svg"
                                                           class="mr-2 cursor-pointer f-s-0-875rem w-auto mt-lg-n1"
@@ -281,7 +318,7 @@
                                                         />
                                                       </a>
                                                       <span>{{
-                                                        cData.chartData[index]
+                                                        chartData[index]
                                                           .indicator
                                                           .subIndicator[ind]
                                                           .name[$i18n.locale]
@@ -339,8 +376,7 @@
                                                                       class="form-control"
                                                                       placeholder=""
                                                                       v-model="
-                                                                        cData
-                                                                          .chartData[
+                                                                        chartData[
                                                                           index
                                                                         ]
                                                                           .indicator
@@ -358,8 +394,7 @@
                                                                     >
                                                                       <Translations
                                                                         :transText.sync="
-                                                                          cData
-                                                                            .chartData[
+                                                                          chartData[
                                                                             index
                                                                           ]
                                                                             .indicator
@@ -389,8 +424,7 @@
                                                                     class="form-control"
                                                                     placeholder=""
                                                                     v-model="
-                                                                      cData
-                                                                        .chartData[
+                                                                      chartData[
                                                                         index
                                                                       ]
                                                                         .indicator
@@ -408,8 +442,7 @@
                                                                     class="form-control"
                                                                     placeholder=""
                                                                     v-model="
-                                                                      cData
-                                                                        .chartData[
+                                                                      chartData[
                                                                         index
                                                                       ]
                                                                         .indicator
@@ -423,8 +456,7 @@
                                                               <div
                                                                 class="form-group row"
                                                                 v-if="
-                                                                  typeof cData
-                                                                    .chartData[
+                                                                  typeof chartData[
                                                                     index
                                                                   ].indicator
                                                                     .subIndicator[
@@ -448,8 +480,7 @@
                                                                   <select
                                                                     class="form-control"
                                                                     v-model="
-                                                                      cData
-                                                                        .chartData[
+                                                                      chartData[
                                                                         index
                                                                       ]
                                                                         .indicator
@@ -507,8 +538,8 @@
                                                             </div>
                                                             <div class="col-12">
                                                               <AddMapping
-                                                                :matrixList="
-                                                                  matrixList
+                                                                :metrixList="
+                                                                  metrixList
                                                                 "
                                                                 :dataSetsList="
                                                                   dataSetsList
@@ -527,8 +558,7 @@
                                                                   index
                                                                 "
                                                                 :mappingType.sync="
-                                                                  cData
-                                                                    .chartData[
+                                                                  chartData[
                                                                     index
                                                                   ].indicator
                                                                     .subIndicator[
@@ -536,8 +566,7 @@
                                                                   ].type
                                                                 "
                                                                 :selectedDE.sync="
-                                                                  cData
-                                                                    .chartData[
+                                                                  chartData[
                                                                     index
                                                                   ].indicator
                                                                     .subIndicator[
@@ -592,13 +621,13 @@
               >
                 <b-card-body>
                   <b-card-text>
-                    <div class="row" v-if="cData.derivedCharts.length">
+                    <div class="row" v-if="derivedCharts.length">
                       <div class="col">
                         <div class="card">
                           <div class="">
                             <div
                               class="mb-2"
-                              v-for="(derived, ind) in cData.derivedCharts"
+                              v-for="(derived, ind) in derivedCharts"
                               :key="ind"
                             >
                               <h6 v-if="ind === 0">
@@ -610,29 +639,20 @@
 
                               <div class="form-group row" v-if="ind === 0">
                                 <label
-                                  for="catInformation"
+                                  for="finalYear"
                                   class="col-sm-3 col-form-label"
                                   >{{ $t("catInformation") }}</label
                                 >
                                 <div class="col-sm-9">
                                   <b-input-group>
                                     <vue-editor
-                                      v-model="
-                                        cData.tabCategoryInfo[0][$i18n.locale]
-                                      "
+                                      v-model="tabCategoryInfo[0][$i18n.locale]"
                                       :editorToolbar="customToolbar"
                                       disabled
-                                      v-if="
-                                        cData?.tabCategoryInfo?.[0]?.[
-                                          $i18n.locale
-                                        ]
-                                      "
                                     />
                                     <b-input-group-append is-text>
                                       <Translations
-                                        :transText.sync="
-                                          cData.tabCategoryInfo[0]
-                                        "
+                                        :transText.sync="tabCategoryInfo[0]"
                                         type="editor"
                                       />
                                     </b-input-group-append>
@@ -641,29 +661,20 @@
                               </div>
                               <div class="form-group row p-2" v-if="ind === 3">
                                 <label
-                                  for="catInformation"
+                                  for="finalYear"
                                   class="col-sm-3 col-form-label"
                                   >{{ $t("catInformation") }}</label
                                 >
                                 <div class="col-sm-9">
                                   <b-input-group>
                                     <vue-editor
-                                      v-model="
-                                        cData.tabCategoryInfo[1][$i18n.locale]
-                                      "
+                                      v-model="tabCategoryInfo[1][$i18n.locale]"
                                       :editorToolbar="customToolbar"
                                       disabled
-                                      v-if="
-                                        cData?.tabCategoryInfo?.[1]?.[
-                                          $i18n.locale
-                                        ]
-                                      "
                                     />
                                     <b-input-group-append is-text>
                                       <Translations
-                                        :transText.sync="
-                                          cData.tabCategoryInfo[1]
-                                        "
+                                        :transText.sync="tabCategoryInfo[1]"
                                         type="editor"
                                       />
                                     </b-input-group-append>
@@ -745,6 +756,7 @@
                                 <transition name="slide-fade">
                                   <div
                                     v-if="!derived.chartOptions.disableChart"
+                                    
                                   >
                                     <div class="row m-0 mb-2">
                                       <div class="col-sm-12 col-lg-12">
@@ -814,9 +826,7 @@
                                         class="col-sm-12 col-lg-6"
                                         v-if="derived.chartOptions.title"
                                       >
-                                        <div
-                                          class="form-group row translate-iconheight"
-                                        >
+                                        <div class="form-group row translate-iconheight">
                                           <label
                                             class="col-sm-6 col-form-label"
                                             >{{ $t("chart_title") }}</label
@@ -870,9 +880,7 @@
                                         class="col-sm-12 col-lg-6"
                                         v-if="derived.chartOptions.xAxis"
                                       >
-                                        <div
-                                          class="form-group row translate-iconheight"
-                                        >
+                                        <div class="form-group row translate-iconheight">
                                           <label
                                             for="inputChartSubtitle"
                                             class="col-sm-5 col-form-label"
@@ -937,9 +945,7 @@
                                         class="col-sm-12 col-lg-6"
                                         v-if="derived.chartOptions.xAxis"
                                       >
-                                        <div
-                                          class="form-group row translate-iconheight"
-                                        >
+                                        <div class="form-group row translate-iconheight">
                                           <label
                                             class="col-sm-6 col-form-label"
                                             >{{ $t("x_axis") }}</label
@@ -993,9 +999,7 @@
                                         class="col-sm-12 col-lg-6"
                                         v-if="derived.chartOptions.yAxis"
                                       >
-                                        <div
-                                          class="form-group row translate-iconheight"
-                                        >
+                                        <div class="form-group row translate-iconheight">
                                           <label
                                             class="col-sm-5 col-form-label"
                                             >{{ $t("y_axis") }}</label
@@ -1136,6 +1140,7 @@
   </div>
 </template>
 <script>
+import emuMonthly from "@/config/emuMonthlyConfig.js";
 import service from "@/service";
 import DynamicImageMixin from "@/helpers/DynamicImageMixin";
 import { VueEditor } from "vue2-editor";
@@ -1144,15 +1149,14 @@ import ReFetchConfigMixin from "@/helpers/ReFetchConfigMixin";
 import VueEditorOptionMixin from "@/helpers/VueEditorOptionMixin";
 export default {
   props: [
-    "matrixList",
-    "chartByType",
-    "dqrResponse",
-    "dataSetsList",
     "chartByModule",
-    "globalMapping",
+    "chartByType",
     "chartBySubtype",
     "indicatorsList",
     "dataElementsList",
+    "dataSetsList",
+    "metrixList",
+    "globalMapping",
   ],
   mixins: [DynamicImageMixin, ReFetchConfigMixin, VueEditorOptionMixin],
   components: {
@@ -1167,10 +1171,31 @@ export default {
       ),
   },
   data() {
+    // console.log(this.chartBySubtype, this.indicatorsList)
+    // console.log(config[this.chartByModule][this.chartByType]);
+    let cData =
+      emuMonthly[this.chartByModule][this.chartByType][this.chartBySubtype];
     return {
-      cData: {},
+      dataOnContraceptive: cData.dataOnContraceptive
+        ? cData.dataOnContraceptive
+        : "Yes",
+
+      initialYear: cData.initialYear
+        ? cData.initialYear
+        : new Date().getFullYear(),
+
+      finalYear: cData.finalYear ? cData.finalYear : new Date().getFullYear(),
+
+      chartData: cData.chartData ? cData.chartData : [],
+
+      derivedCharts: cData.derivedCharts ? cData.derivedCharts : [],
+
       chartInfoMaxLength: 200,
+
       chartTitleMaxLength: 100,
+      categoryInfo: cData.categoryInfo ? cData.categoryInfo : "",
+      tabCategoryInfo: cData.tabCategoryInfo ? cData.tabCategoryInfo : [{}, {}],
+      originalData: null,
       isDataFetched: false,
     };
   },
@@ -1181,38 +1206,81 @@ export default {
       });
     },
   },
-  watch: {
-    dqrResponse: {
-      handler(newValue) {
-        if (newValue) {
-          this.getConfigData();
-        }
-      },
-      deep: true,
-    },
-  },
+  watch: {},
   methods: {
+    getUpdatedMapping(updatedMapping, ismatchFound) {
+      if (ismatchFound) {
+        this.chartData = updatedMapping;
+        this.$nextTick(() => {
+          this.updateConfigData();
+        });
+      } else {
+        this.sweetAlert({
+          title: this.$i18n.t("oops"),
+          text: this.$i18n.t("no_match_found"),
+        });
+      }
+    },
     //This is to fetch config data on page load
     getConfigData() {
-      this.cData =
-        this.dqrResponse?.[this.chartByType]?.[this.chartBySubtype] || {};
-      if (Object.keys(this.cData).length) {
-        this.isDataFetched = true;
-      }
+      // console.log("data initial",[this.chartBySubtype],JSON.stringify(config))
+      let key = this.generateKey(this.chartByModule);
+
+      let response = service.getSavedConfig({ tableKey: key });
+      response
+        .then((response) => {
+          // console.log(response)
+          this.$emit("getBGInfo", response.data);
+          if (
+            response.data[this.chartByType] &&
+            response.data[this.chartByType][this.chartBySubtype]
+          ) {
+            let data = response.data[this.chartByType][this.chartBySubtype];
+            this.dataOnContraceptive = data.dataOnContraceptive
+              ? data.dataOnContraceptive
+              : this.dataOnContraceptive;
+            this.initialYear = data.initialYear
+              ? data.initialYear
+              : this.initialYear;
+            this.finalYear = data.finalYear ? data.finalYear : this.finalYear;
+            this.chartData = data.chartData ? data.chartData : this.chartData;
+            // ? merge(this.chartData, data.chartData)
+            this.derivedCharts = data.derivedCharts
+              ? data.derivedCharts
+              : this.derivedCharts;
+            // ? merge(this.derivedCharts, data.derivedCharts)
+            this.categoryInfo = data.categoryInfo
+              ? data.categoryInfo
+              : this.categoryInfo;
+            this.tabCategoryInfo = data.tabCategoryInfo
+              ? data.tabCategoryInfo
+              : this.tabCategoryInfo;
+            this.originalData = JSON.parse(JSON.stringify(data));
+          }
+          this.isDataFetched = true;
+          this.$store.commit("setLoading", false);
+        })
+        .catch((err) => {
+          console.log("Config not found...");
+          this.isDataFetched = true;
+          this.$store.commit("setLoading", false);
+          this.reFetchConfig(err);
+        });
     },
     //This is to update config data on click of save button
     async updateConfigData() {
       this.$store.commit("setLoading", true);
+
+      let saveData = false;
+
       let dCharts = [];
-      if (this.cData.derivedCharts.length) {
-        dCharts = this.cData.derivedCharts.map(async (d, index) => {
+      if (this.derivedCharts.length) {
+        dCharts = this.derivedCharts.map(async (d, index) => {
           let cid = "";
           if (d.chartOptions && !d.chartOptions.cid) {
             try {
               let resp = await service.createDHISChart(
-                `${this.chartByModule} ${
-                  d.chartOptions.chartName[this.$i18n.locale]
-                }`
+                `${this.chartByModule} ${d.chartOptions.chartName}`
               );
               if (resp.data.status === "OK") {
                 cid = resp.data.response.uid;
@@ -1234,64 +1302,109 @@ export default {
       }
 
       let chartBySubtypeData = {
-        ...this.cData,
+        dataOnContraceptive: this.dataOnContraceptive,
+        initialYear: this.initialYear,
+        finalYear: this.finalYear,
+        categoryInfo: this.categoryInfo,
+        tabCategoryInfo: this.tabCategoryInfo,
         derivedCharts: dCharts,
+        chartData: this.chartData,
       };
       let key = this.generateKey(this.chartByModule);
 
-      let saveConfig = service.getSavedConfig({ tableKey: key });
-      saveConfig
-        .then((res) => {
-          let configData = res.data;
-          if (configData[this.chartByType]) {
-            configData[this.chartByType][this.chartBySubtype] = configData[
-              this.chartByType
-            ][this.chartBySubtype]
-              ? assign(
-                  configData[this.chartByType][this.chartBySubtype],
-                  chartBySubtypeData
-                )
-              : chartBySubtypeData;
-          } else {
-            configData[this.chartByType] = {
-              [this.chartBySubtype]: chartBySubtypeData,
-            };
-          }
-          let response = service.updateConfig({
-            data: configData,
-            tableKey: key,
-          });
-          response
-            .then((response) => {
-              if (response.data.status === "OK") {
-                this.sweetAlert({
-                  title: this.$i18n.t("data_saved_successfully"),
-                });
-                this.$emit("updatedData", configData);
-              } else {
+      let allKeys = service.getAllKeys({});
+      allKeys.then((keys) => {
+        if (keys.data.includes(key)) {
+          let saveConfig = service.getSavedConfig({ tableKey: key });
+          saveConfig.then((res) => {
+            let configData = res.data;
+            // console.log("configData",configData);
+            if (configData[this.chartByType]) {
+              configData[this.chartByType][this.chartBySubtype] = configData[
+                this.chartByType
+              ][this.chartBySubtype]
+                ? assign(
+                    configData[this.chartByType][this.chartBySubtype],
+                    chartBySubtypeData
+                  )
+                : chartBySubtypeData;
+            } else {
+              configData[this.chartByType] = {
+                [this.chartBySubtype]: chartBySubtypeData,
+              };
+            }
+            let configChanges = {};
+            // let configChanges = audit.configAudit(
+            //   this.originalData,
+            //   configData[this.chartByType][this.chartBySubtype]
+            // );
+            // console.log("configChanges", configChanges)
+            let response = service.updateConfig({
+              data: configData,
+              tableKey: key,
+            });
+            response
+              .then((response) => {
+                if (response.data.status === "OK") {
+                  // console.log("response update ", response.data)
+                  this.sweetAlert({
+                    title: this.$i18n.t("data_saved_successfully"),
+                  });
+                  this.getConfigData();
+
+                  this.$store.commit("setLoading", false);
+                } else {
+                  this.sweetAlert({
+                    title: this.$i18n.t("error"),
+                    text: `${response.data.message}`,
+                  });
+
+                  this.$store.commit("setLoading", false);
+                  return;
+                }
+              })
+              .catch((error) => {
                 this.sweetAlert({
                   title: this.$i18n.t("error"),
-                  text: `${response.data.message}`,
                 });
-              }
+
+                this.$store.commit("setLoading", false);
+                return;
+              });
+          });
+        } else {
+          let ministrial = {
+            [this.chartByType]: {
+              [this.chartBySubtype]: chartBySubtypeData,
+            },
+          };
+          let response = service.saveConfig({
+            data: ministrial,
+            tableKey: key,
+          });
+          response.then((response) => {
+            if (response.data.status === "OK") {
+              // console.log("response save ", response.data)
+              this.sweetAlert({
+                title: this.$i18n.t("data_saved_successfully"),
+              });
+
               this.$store.commit("setLoading", false);
-            })
-            .catch((error) => {
+            } else {
               this.sweetAlert({
                 title: this.$i18n.t("error"),
+                text: `${response.data.message}`,
               });
               this.$store.commit("setLoading", false);
-            });
-        })
-        .catch((error) => {
-          this.sweetAlert({
-            title: this.$i18n.t("error"),
+              return;
+            }
           });
-          this.$store.commit("setLoading", false);
-        });
+        }
+      });
     },
   },
   created() {
+    this.$store.commit("setLoading", true);
     this.getConfigData();
   },
 };

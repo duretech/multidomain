@@ -11,14 +11,7 @@
               <!-- mb-0 class removed to remove fa-plus icon from right corner -->
               <h2 class="">
                 <button
-                  class="
-                    btn btn-link
-                    p-0
-                    w-100
-                    text-left text-uppercase
-                    color-grey
-                    f-s-0-875rem
-                  "
+                  class="btn btn-link p-0 w-100 text-left text-uppercase color-grey f-s-0-875rem"
                   type="button"
                   data-toggle="collapse"
                   :data-target="
@@ -34,12 +27,11 @@
                     v-b-tooltip.hover
                     :title="$t('dataMapping')"
                   ></i> -->
-                    <img
-                                        
-                  src="@/assets/images/icons/adminsetting-icon.svg"
-                  :style="{ filter: filterColor }"
-                  class="pr-2 cursor-pointer f-s-20px mb-lg-1"
-                  v-b-tooltip.hover
+                  <img
+                    src="@/assets/images/icons/adminsetting-icon.svg"
+                    :style="{ filter: filterColor }"
+                    class="pr-2 cursor-pointer f-s-20px mb-lg-1"
+                    v-b-tooltip.hover
                     :title="$t('dataMapping')"
                   />
                   {{
@@ -50,7 +42,7 @@
                 </button>
               </h2>
             </div>
-           
+
             <div
               :id="'collapseChartSettings' + index + type + subType"
               class="collapse"
@@ -76,135 +68,163 @@
               </div>
               <div class="row m-0 mb-lg-n3">
                 <div class="col-12 p-b-15px">
-                  
                   <div class="accordion no-header" role="tablist">
                     <b-card no-body class="mb-1">
-                      <b-card-header header-tag="header" class="p-1 map-header f-s-0-875rem font-weight-bold" role="tab">
-                        <b-button block v-b-toggle.accordion-cyp1 variant="info" class="button-add"> {{ $t("dataMapping") }}</b-button>
+                      <b-card-header
+                        header-tag="header"
+                        class="p-1 map-header f-s-0-875rem font-weight-bold"
+                        role="tab"
+                      >
+                        <b-button
+                          block
+                          v-b-toggle.accordion-cyp1
+                          variant="info"
+                          class="button-add"
+                        >
+                          {{ $t("dataMapping") }}</b-button
+                        >
                       </b-card-header>
-                      <b-collapse id="accordion-cyp1" visible accordion="my-cypaccordion" role="tabpanel" class="border-module">
+                      <b-collapse
+                        id="accordion-cyp1"
+                        visible
+                        accordion="my-cypaccordion"
+                        role="tabpanel"
+                        class="border-module"
+                      >
                         <b-card-body class="mb-25px">
                           <b-card-text>
                             <div
-                  class="col-12"
-                  v-for="(subIndicator, ind) in chart.indicator.subIndicator"
-                  :key="ind"
-                >
-                  <div class="row">
-                    <div class="col">
-                      <div class="form-check form-check-inline mr-0 hide">
-                        <div class="pure-checkbox">
-                          <input
-                            name="checkbox"
-                            type="checkbox"
-                            :id="'checkbox1' + index + type + subType + ind"
-                          />
-                          <label
-                            :for="'checkbox1' + index + type + subType + ind"
-                          ></label>
-                        </div>
-                      </div>
-                      <a
-                        data-toggle="collapse"
-                        :href="
-                          '#additionalSettingsCollapse' +
-                          ind +
-                          index +
-                          type +
-                          subType
-                        "
-                        role="button"
-                        aria-expanded="false"
-                        :aria-controls="
-                          'additionalSettingsCollapse' +
-                          ind +
-                          index +
-                          type +
-                          subType
-                        "
-                        class="pr-2"
-                        >
-                        <!-- <i
+                              class="col-12"
+                              v-for="(subIndicator, ind) in chart.indicator
+                                .subIndicator"
+                              :key="ind"
+                            >
+                              <div class="row">
+                                <div class="col">
+                                  <div
+                                    class="form-check form-check-inline mr-0 hide"
+                                  >
+                                    <div class="pure-checkbox">
+                                      <input
+                                        name="checkbox"
+                                        type="checkbox"
+                                        :id="
+                                          'checkbox1' +
+                                          index +
+                                          type +
+                                          subType +
+                                          ind
+                                        "
+                                      />
+                                      <label
+                                        :for="
+                                          'checkbox1' +
+                                          index +
+                                          type +
+                                          subType +
+                                          ind
+                                        "
+                                      ></label>
+                                    </div>
+                                  </div>
+                                  <a
+                                    data-toggle="collapse"
+                                    :href="
+                                      '#additionalSettingsCollapse' +
+                                      ind +
+                                      index +
+                                      type +
+                                      subType
+                                    "
+                                    role="button"
+                                    aria-expanded="false"
+                                    :aria-controls="
+                                      'additionalSettingsCollapse' +
+                                      ind +
+                                      index +
+                                      type +
+                                      subType
+                                    "
+                                    class="pr-2"
+                                  >
+                                    <!-- <i
                           class="fa fa-link f-s-20px"
                           v-b-tooltip.hover
                           :title="$t('link_IndicatorsData_Elements')"
                         ></i
                       > -->
-                      <img						
-                      src="@/assets/images/icons/adminlink-icon.svg"
-                      class="mr-2 cursor-pointer f-s-0-875rem w-auto"
-                      :style="{ filter: filterColor }"
-                      v-b-tooltip.hover
-                    :title="$t('link_IndicatorsData_Elements')"
-                    />
-                    </a>
-                      <span>{{
-                        Array.isArray(subIndicator.name)
-                          ? $t(`${subIndicator.name[0]}`)
-                          : $t(`${subIndicator.name}`)
-                      }}</span>
-                    </div>
-                  </div>
-                 
-                  <div class="row mb-3 border-main">
-                    <div class="col-lg-12">
-                      <div
-                        class="collapse mt-3"
-                        :id="
-                          'additionalSettingsCollapse' +
-                          ind +
-                          index +
-                          type +
-                          subType
-                        "
-                        :aria-labelledby="
-                          'additionalSettingsCollapse' +
-                          ind +
-                          index +
-                          type +
-                          subType
-                        "
-                      >
-                        <div
-                          class="
-                          card-header default-card-border-radius f-s-0-875rem
-                          p-10px accordion-header1 f-s-0-875rem font-weight-bold bt-10"
-                        >
-                          {{ $t("settings") }}
-                        </div>
-                        <div class="card card-body admin-emucard">
-                          <div class="row">
-                            <div class="col-12">
-                              <div class="form-group row">
-                                <label class="col-sm-5 col-form-label">{{
-                                  $t("cyp")
-                                }}</label>
-                                <div class="col-sm-7">
-                                  <input
-                                    type="text"
-                                    class="form-control"
-                                    placeholder=""
-                                    v-model="subIndicator.cyp"
-                                  />
+                                    <img
+                                      src="@/assets/images/icons/adminlink-icon.svg"
+                                      class="mr-2 cursor-pointer f-s-0-875rem w-auto"
+                                      :style="{ filter: filterColor }"
+                                      v-b-tooltip.hover
+                                      :title="
+                                        $t('link_IndicatorsData_Elements')
+                                      "
+                                    />
+                                  </a>
+                                  <span>{{
+                                    Array.isArray(subIndicator.name)
+                                      ? $t(`${subIndicator.name[0]}`)
+                                      : $t(`${subIndicator.name}`)
+                                  }}</span>
+                                </div>
+                              </div>
+
+                              <div class="row mb-3 border-main">
+                                <div class="col-lg-12">
+                                  <div
+                                    class="collapse mt-3"
+                                    :id="
+                                      'additionalSettingsCollapse' +
+                                      ind +
+                                      index +
+                                      type +
+                                      subType
+                                    "
+                                    :aria-labelledby="
+                                      'additionalSettingsCollapse' +
+                                      ind +
+                                      index +
+                                      type +
+                                      subType
+                                    "
+                                  >
+                                    <div
+                                      class="card-header default-card-border-radius f-s-0-875rem p-10px accordion-header1 f-s-0-875rem font-weight-bold bt-10"
+                                    >
+                                      {{ $t("settings") }}
+                                    </div>
+                                    <div class="card card-body admin-emucard">
+                                      <div class="row">
+                                        <div class="col-12">
+                                          <div class="form-group row">
+                                            <label
+                                              class="col-sm-5 col-form-label"
+                                              >{{ $t("cyp") }}</label
+                                            >
+                                            <div class="col-sm-7">
+                                              <input
+                                                type="text"
+                                                class="form-control"
+                                                placeholder=""
+                                                v-model="subIndicator.cyp"
+                                              />
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
                                 </div>
                               </div>
                             </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
                           </b-card-text>
-                          
                         </b-card-body>
                       </b-collapse>
                     </b-card>
-                
-                    
                   </div>
                 </div>
-                
               </div>
             </div>
             <div class="bordertop-grey mt-2"></div>
@@ -231,24 +251,24 @@ import merge from "lodash/merge";
 import assign from "lodash/assign";
 import DynamicImageMixin from "@/helpers/DynamicImageMixin";
 import ReFetchConfigMixin from "@/helpers/ReFetchConfigMixin";
-import globalFactorsConfig from "@/config/globalFactorsConfig.js";
+// import globalFactorsConfig from "@/config/globalFactorsConfig.js";
 export default {
   props: ["module", "type", "subType"],
   mixins: [DynamicImageMixin, ReFetchConfigMixin],
   data() {
     return {
       originalCypdata: [],
-      chartData: globalFactorsConfig[this.type][this.subType].chartData,
+      chartData: null,
     };
   },
   methods: {
     //This is to fetch config data on page load
     getConfigData() {
-      this.$store.state.loading = true;
+      this.$store.commit("setLoading", true);
       // console.log("data initial",[this.chartBySubtype],JSON.stringify(config))
       let key = this.generateKey(this.module);
 
-      let response = service.getSavedConfig(key);
+      let response = service.getSavedConfig({ tableKey: key });
       response
         .then((response) => {
           // console.log("response",response)
@@ -262,16 +282,16 @@ export default {
               : this.chartData;
             this.originalCypdata = JSON.parse(JSON.stringify(this.chartData));
           }
-          this.$store.state.loading = false;
+          this.$store.commit("setLoading", false);
         })
         .catch((err) => {
           console.log("Config not found...");
-          this.$store.state.loading = false;
+          this.$store.commit("setLoading", false);
           this.reFetchConfig(err);
         });
     },
     updateConfigData() {
-      this.$store.state.loading = true;
+      this.$store.commit("setLoading", true);
       let cyp = {
         chartData: this.chartData,
       };
@@ -280,10 +300,10 @@ export default {
 
       // console.log("cyp", metaConfigData)
 
-      let allKeys = service.getAllKeys();
+      let allKeys = service.getAllKeys({});
       allKeys.then((keys) => {
         if (keys.data.includes(key)) {
-          let saveConfig = service.getSavedConfig(key);
+          let saveConfig = service.getSavedConfig({ tableKey: key });
           saveConfig.then((res) => {
             let configData = res.data;
             // console.log("configData",configData);
@@ -304,7 +324,10 @@ export default {
             //   configData[this.type][this.subType].chartData
             // );
             // console.log("configChanges", configChanges);
-            let response = service.updateConfig(configData, key);
+            let response = service.updateConfig({
+              data: configData,
+              tableKey: key,
+            });
             response
               .then((response) => {
                 if (response.data.status === "OK") {
@@ -318,14 +341,14 @@ export default {
                   this.originalCypdata = JSON.parse(
                     JSON.stringify(this.chartData)
                   );
-                  this.$store.state.loading = false;
+                  this.$store.commit("setLoading", false);
                 } else {
                   this.sweetAlert({
                     title: this.$i18n.t("error"),
                     text: `${response.data.message}`,
                   });
 
-                  this.$store.state.loading = false;
+                  this.$store.commit("setLoading", false);
                   return;
                 }
               })
@@ -334,7 +357,7 @@ export default {
                   title: this.$i18n.t("error"),
                 });
 
-                this.$store.state.loading = false;
+                this.$store.commit("setLoading", false);
                 return;
               });
           });
@@ -345,7 +368,10 @@ export default {
             },
           };
           // console.log("cyp in", cyp)
-          let response = service.saveConfig(configData, key);
+          let response = service.saveConfig({
+            data: configData,
+            tableKey: key,
+          });
           response.then((response) => {
             if (response.data.status === "OK") {
               // console.log("response save ", response.data)
@@ -356,13 +382,13 @@ export default {
                 payload: configData,
               });
               this.originalCypdata = JSON.parse(JSON.stringify(this.chartData));
-              this.$store.state.loading = false;
+              this.$store.commit("setLoading", false);
             } else {
               this.sweetAlert({
                 title: this.$i18n.t("error"),
                 text: `${response.data.message}`,
               });
-              this.$store.state.loading = false;
+              this.$store.commit("setLoading", false);
               return;
             }
           });
@@ -371,11 +397,7 @@ export default {
     },
   },
   created() {
-    // console.log("created")
-    this.getConfigData(); //Remove / add $store.state.loading in updated when you enable / disable this call
-  },
-  updated() {
-    // this.$store.state.loading = false
+    this.getConfigData();
   },
 };
 </script>

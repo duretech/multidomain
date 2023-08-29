@@ -4,6 +4,7 @@ import store from "@/store";
 import service from "@/service";
 import regression from "regression";
 import merge from "lodash/merge";
+import NepaliDate from "nepali-date-converter";
 
 export const getDateRange = ({
   sendPeriod,
@@ -16,10 +17,10 @@ export const getDateRange = ({
     let periodValue = moment(sendPeriod, "YYYY").format("YYYY");
     period = [periodValue];
     for (let i = 1; i < periodLength * 1; i++) {
-      if (periodValue - i < applicationFinalYear) {
+      if (periodValue - i <= applicationFinalYear) {
         break;
       }
-      period.push(periodValue - i);
+      period.push((periodValue - i).toString());
     }
   } else if (
     periodType === "financialYear" ||
@@ -31,7 +32,7 @@ export const getDateRange = ({
     period = [`${currentYear}${pText}`];
     for (let i = 1; i < periodLength * 1; i++) {
       currentYear = currentYear - 1;
-      if (currentYear < applicationFinalYear) {
+      if (currentYear <= applicationFinalYear) {
         break;
       }
       period.push(`${currentYear}${pText}`);
@@ -43,7 +44,7 @@ export const getDateRange = ({
         .subtract(i, "Q")
         .format("YYYY[Q]Q");
       let cYear = currentYear.split("Q")[0];
-      if (cYear < applicationFinalYear) {
+      if (cYear <= applicationFinalYear) {
         break;
       }
       period.push(currentYear);
@@ -69,10 +70,10 @@ export const getAppFinalYear = () => {
     : new Date().getFullYear();
 };
 
-export const translateDate = ({
+export const translateDateOld = ({
   rawDate,
   periodType,
-  monthlyFormat = "MMM YYYY",
+  monthlyFormat = "MMMM YYYY",
 }) => {
   let quarters = {
       Q1: ["Jan", "Mar"],
@@ -89,7 +90,8 @@ export const translateDate = ({
       Q3: ["juil.", "sept."],
       Q4: ["oct.", "déc."],
     };
-    (years = ["mars", "avril"]), (yearsJuly = ["juin", "juil."]);
+    years = ["mars", "avril"];
+    yearsJuly = ["juin", "juil."];
   }
   let formattedPeriod = null;
   if (periodType === "monthly") {
@@ -119,7 +121,19 @@ export const translateDate = ({
   }
   return formattedPeriod;
 };
+export const translateDate = ({ rawDate }) => {
+  let rDate = rawDate?.split("-").join("") || rawDate;
+  return store.getters.getPeriodData?.[rDate]?.["name"] || rawDate;
+};
+export const translateAlphatoNum = (alphaDate) => {
+  let allPeriod = store.getters.getPeriodData;
+  let returnPeriod = alphaDate;
+  returnPeriod = Object.keys(allPeriod).find(
+    (mnt) => allPeriod[mnt]["name"] == alphaDate
+  );
 
+  return returnPeriod ? returnPeriod : alphaDate;
+};
 export const formatSingleDate = ({ rawDate, periodType }) => {
   let currPeriod = null;
   if (periodType === "monthly") {
@@ -341,16 +355,20 @@ export const capitalize = (string) => {
     ? string.charAt(0).toUpperCase() + string.slice(1).toLowerCase()
     : "";
 };
+export const exName = (str, exStr) => {
+  let lastIndex = str.trim().lastIndexOf(exStr);
+  if (lastIndex >= 0 && str.trim().endsWith(exStr)) {
+    str = str.substring(0, lastIndex).trim();
+  }
+  return str;
+};
 
 export const excludeName = (str) => {
   let appSet = store.getters.getAppSettings;
   if (appSet?.exLocNames?.length) {
     appSet.exLocNames.sort((a, b) => b.level - a.level);
     appSet.exLocNames.forEach((l) => {
-      let lastIndex = str.lastIndexOf(l.text);
-      if (lastIndex >= 0) {
-        str = str.substring(0, lastIndex).trim();
-      }
+      str = exName(str, l.text);
     });
   }
   return str;
@@ -362,19 +380,47 @@ export const pTypeList = ({ id = "id", label = "label" }) => {
     { [id]: "quarterly", [label]: i18n.t("quarterly") },
     { [id]: "yearly", [label]: i18n.t("yearly") },
   ];
-  if (store.state.financialYear.includes("July")) {
+  if (store.getters.getFinancialYear.includes("July")) {
     pType.push({
       [id]: "financialYearJuly",
       [label]: i18n.t("financialYearJuly"),
     });
   }
-  if (store.state.financialYear.includes("April")) {
+  if (store.getters.getFinancialYear.includes("April")) {
     pType.push({
       [id]: "financialYear",
       [label]: i18n.t("financialYear"),
     });
   }
   return pType;
+};
+/**
+ * @author Ravindra Bagul
+ * @description Perform operations on date.
+ * * Convert Date -> Timestamp
+ * * Convert Timestamp -> Date
+ * * Subtract n days from Date
+ * @param isTimestamp - flag to convert Date to timestamp
+ * @param t - timestamp
+ * @param f - number of days to subtract
+ * @returns timestamp/date
+ */
+export const getDateTimestamp = ({
+  isTimestamp = false,
+  t = null,
+  f = null,
+}) => {
+  let d = !isTimestamp && t ? new Date(t) : new Date();
+  d = d.toISOString().split("T")[0];
+  if (isTimestamp && !f) {
+    d = new Date(d).getTime();
+  }
+  if (f) {
+    d = new Date(d);
+    d.setDate(d.getDate() - f);
+    d = new Date(d).getTime();
+  }
+  return d;
 };
 
 export const generateException = ({
@@ -452,6 +498,7 @@ export const generateChart = ({
   currentPeriod,
   backgroundData,
   qualityThreshold,
+  levels,
 }) => {
   let pe = response.data.metaData.dimensions.pe;
   let ou =
@@ -601,20 +648,15 @@ export const generateChart = ({
       Object.keys(rData).forEach((d) => {
         if (d === location) {
           periodArr.forEach((p, pInd) => {
-            let name = formatSeasonalPeriod({
-              rawData: p[0],
-              periodType,
-              type: "YYYY",
-            });
+            // let name = formatSeasonalPeriod({
+            //   rawData: p[0],
+            //   periodType,
+            //   type: "YYYY",
+            // });
+            let name = periodType == "yearly" ? p[0] : p[0].slice(0, 4);
+
             if (dx.name) {
-              name =
-                dx.name +
-                " - " +
-                formatSeasonalPeriod({
-                  rawData: p[0],
-                  periodType,
-                  type: "YYYY",
-                });
+              name = dx.name + " - " + name;
             }
             let color = Array.isArray(dx.color) ? dx.color[pInd] : dx.color;
             let visible = dx.visible;
@@ -628,19 +670,33 @@ export const generateChart = ({
             p.forEach((p) => {
               if (rData[d][p]) {
                 obj.data.push({
-                  name: formatSeasonalPeriod({
-                    rawData: p,
-                    periodType,
-                  }),
+                  // name: formatSeasonalPeriod({
+                  //   rawData: p,
+                  //   periodType,
+                  // }),
+                  name:
+                    periodType == "monthly"
+                      ? response.data.metaData.items[p].name.split(" ")[0]
+                      : periodType == "quarterly" ||
+                        periodType == "financialYear"
+                      ? response.data.metaData.items[p].name
+                      : name,
                   y: (rData[d][p] * 1).toFixed(2) * 1,
                   pe: p,
                 });
               } else {
                 obj.data.push({
-                  name: formatSeasonalPeriod({
-                    rawData: p,
-                    periodType,
-                  }),
+                  // name: formatSeasonalPeriod({
+                  //   rawData: p,
+                  //   periodType,
+                  // }),
+                  name:
+                    periodType == "monthly"
+                      ? response.data.metaData.items[p].name.split(" ")[0]
+                      : periodType == "quarterly" ||
+                        periodType == "financialYear"
+                      ? response.data.metaData.items[p].name
+                      : name,
                   y: null,
                   pe: p,
                 });
@@ -670,11 +726,11 @@ export const generateChart = ({
         };
 
         Object.keys(peFinalCount).forEach((d, j) => {
-          let formattedPeriod = translateDate({
-            rawDate: d,
-            periodType: periodType,
-          });
-
+          // let formattedPeriod = translateDate({
+          //   rawDate: d,
+          //   periodType: periodType,
+          // });
+          let formattedPeriod = response.data.metaData.items[d].name;
           obj.data.push({
             name: formattedPeriod,
             y:
@@ -736,18 +792,15 @@ export const generateChart = ({
               static_name: dx.static_name,
             };
             pe.forEach((p, i) => {
-              let prevPeriod = subtractNDate({
-                rawDate: p,
-                periodType: periodType,
-              });
-              let formCurrPeriod = translateDate({
-                rawDate: p,
-                periodType: periodType,
-              });
-              let formPrevPeriod = translateDate({
-                rawDate: prevPeriod,
-                periodType: periodType,
-              });
+              let formCurrPeriod = response.data.metaData.items[p].name;
+              let formPrevPeriod = null;
+              if (cData.drillCalculation === "PERIOD_DIFF" && i !== 0) {
+                let prevPeriod = subtractNDate({
+                  rawDate: p,
+                  periodType: periodType,
+                });
+                formPrevPeriod = response.data.metaData.items[prevPeriod].name;
+              }
               let drillText =
                 cData.drillCalculation === "PERIOD_DIFF" && i !== 0
                   ? `${name} ( ${formCurrPeriod} - ${formPrevPeriod} )`
@@ -760,6 +813,7 @@ export const generateChart = ({
                   // y: (rData[d][p] * 1).toFixed(2) * 1,
                   y: Math.round(rData[d][p]),
                   drillColor: color,
+                  sName: name,
                   drilldown: cData.chartDrillDown ? drillText : null,
                 });
               } else {
@@ -768,6 +822,7 @@ export const generateChart = ({
                   pe: p,
                   pePrev: i === 0 ? 0 : prevPeriod,
                   y: null,
+                  sName: name,
                   drilldown: null,
                 });
               }
@@ -786,6 +841,8 @@ export const generateChart = ({
               type: "column",
               name: rt.drilldown,
               data: [],
+              period: rt.name,
+              sName: rt.sName,
             };
             Object.keys(rData).forEach((d) => {
               let name =
@@ -828,6 +885,8 @@ export const generateChart = ({
                     color,
                     locationID: d,
                     originalY: rData[d][rt.pe] * 1,
+                    levelID: levels?.[1] || null,
+                    period: rt.pe,
                   });
                 }
               }
@@ -1293,10 +1352,11 @@ export const generateChart = ({
                 } */
 
             pe.forEach((p, ind) => {
-              let sMonth = translateDate({
-                rawDate: p,
-                periodType: periodType,
-              });
+              // let sMonth = translateDate({
+              //   rawDate: p,
+              //   periodType: periodType,
+              // });
+              let sMonth = response.data.metaData.items[p].name;
               oMethodFinalRegPeriod[sMethod][sRegion][sMonth] =
                 rData[m][n][p] || 0;
               aAvgTotalCyp[ind] =
@@ -1348,11 +1408,12 @@ export const generateChart = ({
           sum = rData[ou][currentPeriod] ? sum - rData[ou][currentPeriod] : sum;
           xAxisData[ou] = Math.round(sum / (periodLength * 1 - 1));
         });
-        let formattedPeriod = translateDate({
-            rawDate: currentPeriod,
-            periodType,
-          }),
-          pType = i18n.t("month");
+        // let formattedPeriod = translateDate({
+        //     rawDate: currentPeriod,
+        //     periodType,
+        //   }),
+        let formattedPeriod = response.data.metaData.items[currentPeriod].name;
+        pType = i18n.t("month");
         if (periodType === "monthly") {
           pType = i18n.t("month");
         } else if (periodType === "quarterly") {
@@ -1724,10 +1785,11 @@ export const generateChart = ({
           color: getColor(),
         };
         pe.forEach((p) => {
-          let formCurrPeriod = translateDate({
-            rawDate: p,
-            periodType: periodType,
-          });
+          // let formCurrPeriod = translateDate({
+          //   rawDate: p,
+          //   periodType: periodType,
+          // });
+          let formCurrPeriod = response.data.metaData.items[p].name;
           if (rData[d][p]) {
             obj.data.push({
               name: formCurrPeriod,
@@ -1758,4 +1820,88 @@ export const generateChart = ({
     });
   }
   return { cObj, benchmarkValue, r2, exceptionTable };
+};
+export const getAllPeriodRange = (periodData, FinalPeriodArray) => {
+  let nplYear = "";
+  let nplMonth = "";
+  let d = new Date();
+  if (store.getters.getAppSettings.calendar === "nepali") {
+    d = new NepaliDate(
+      new Date(d.getFullYear(), d.getMonth() + 1, d.getDate())
+    ).getBS();
+    nplMonth = d.month;
+    nplYear = d.year;
+    let zeroForMonth = nplMonth < 10 ? "0" + nplMonth : nplMonth;
+    d = d.year + "" + zeroForMonth;
+  }
+
+  let recentYearMonth = moment(d, "YYYYMM").format("YYYY-MM");
+  let substractedYearMonth = moment(d, "YYYYMM")
+    .subtract(periodData.backtrackedMonth * 1, "months")
+    .format("YYYY-MM");
+  let sStartYearMonth = moment(substractedYearMonth, "YYYY-MM")
+    .subtract(periodData.backtrackedYearLimit * 1 + 2, "years")
+    .format("YYYY-MM");
+  let sRecentYear = recentYearMonth.split("-")[0] * 1;
+  let sStartYear = sStartYearMonth.split("-")[0] * 1;
+  // let FinalPeriodArray = [sStartYear];
+  if (!FinalPeriodArray.includes(sStartYear)) FinalPeriodArray.push(sStartYear);
+
+  //pushing monthly periods
+  let startDate = moment(sStartYearMonth),
+    endDate = moment(recentYearMonth).add(1, "month"),
+    months = [];
+  while (startDate.isBefore(endDate)) {
+    if (!FinalPeriodArray.includes(startDate.format("YYYYMM")))
+      FinalPeriodArray.push(startDate.format("YYYYMM"));
+    startDate.add(1, "month");
+  }
+
+  //July Financial Years  and April financial Years
+  if (
+    store.getters.getFinancialYear.includes("July") ||
+    store.getters.getFinancialYear.includes("April")
+  ) {
+    for (let i = sRecentYear - 1; i >= sStartYear; i--) {
+      if (!FinalPeriodArray.includes(`${i}${store.getters.getFinancialYear}`))
+        FinalPeriodArray.push(`${i}${store.getters.getFinancialYear}`);
+    }
+  }
+
+  //pushing quarters
+  let currYear, currentQuarter, currentMonth;
+  if (store.getters.getAppSettings.calendar === "nepali") {
+    currentMonth = parseInt(nplMonth);
+    currYear = nplYear;
+    if (currentMonth > 1 && currentMonth <= 3) {
+      currentQuarter = 3;
+    } else if (currentMonth > 4 && currentMonth <= 6) {
+      currentQuarter = 4;
+    } else if (currentMonth > 7 && currentMonth <= 9) {
+      currentQuarter = 1;
+    } else if (currentMonth > 10 && currentMonth <= 12) {
+      currentQuarter = 2;
+    } else {
+      currentQuarter = "Invalid quarter";
+    }
+  } else {
+    let currYear = new Date().getFullYear(),
+      currentMonth = new Date().getMonth() + 1;
+    let currentQuarter = Math.ceil(currentMonth / 3);
+  }
+  let quarterLimit = sRecentYear * 1 === currYear * 1 ? currentQuarter : 4;
+  for (let i = sRecentYear; i >= sStartYear; i--) {
+    let quarterLimit = i * 1 === currYear * 1 ? currentQuarter : 4;
+    for (let j = quarterLimit; j >= 1; j--) {
+      if (!FinalPeriodArray.includes(`${i}Q${j}`))
+        FinalPeriodArray.push(`${i}Q${j}`);
+    }
+  }
+
+  //pushing annual years
+  while (sStartYear < sRecentYear) {
+    let year = ++sStartYear;
+    if (!FinalPeriodArray.includes(year)) FinalPeriodArray.push(year);
+  }
+  return FinalPeriodArray;
 };

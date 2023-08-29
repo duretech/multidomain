@@ -516,7 +516,7 @@ i {
   transition: all 1s;
 }
 .profilebox-upper {
-  color: var(--text-color) !important;
+  color: var(--color-black) !important;
   text-align: left;
 }
 .profilebox-upper-right {
@@ -546,7 +546,7 @@ i {
   font-size: 14px;
 }
 .profilename {
-  font-weight: 600;
+  font-weight: 300;
 }
 
 ul.profile-links {

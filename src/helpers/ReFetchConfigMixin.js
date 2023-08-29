@@ -6,10 +6,9 @@ export default {
   },
   methods: {
     reFetchConfig(err = null) {
-      console.log("err", err);
       if (
-        err.response.status >= 500 &&
-        err.response.status < 600 &&
+        err?.response?.status >= 500 &&
+        err?.response?.status < 600 &&
         this.errCount < 3
       ) {
         this.$swal({

@@ -35,6 +35,9 @@
             id="modal-bgImg"
             centered
             :title="$t('uploadBackgroundImage')"
+            :cancel-title="$t('cancelbtn')"
+            :ok-title="$t('ok')"
+            no-close-on-backdrop
           >
             <div class="row">
               <div class="col-lg-12">
@@ -92,6 +95,9 @@
               id="modal-logo"
               centered
               :title="$t('uploadApplicationLogo')"
+              :cancel-title="$t('cancelbtn')"
+              :ok-title="$t('ok')"
+              no-close-on-backdrop
             >
               <div class="row">
                 <div class="col-lg-12">
@@ -379,7 +385,7 @@ export default {
         });
         return;
       }
-      if (Object.keys(this.$store.getters.getDataStoreKeys).length === 0) {
+      if (Object.keys(this.$store.getters.getDataStoreKeys()).length === 0) {
         if (!this.isFromAdmin) {
           this.$store.commit(
             "setLoadingText",
@@ -387,7 +393,7 @@ export default {
           );
         }
         service
-          .getAllKeys()
+          .getAllKeys({})
           .then((response) => {
             this.$store.commit("setDataStoreKeys", response.data);
           })
@@ -449,7 +455,7 @@ export default {
         Object.keys(this.$store.getters.getUserPermissions).length === 0
       ) {
         let key = this.generateKey("userManagement");
-        service.getSavedConfig(key).then((res) => {
+        service.getSavedConfig({ tableKey: key }).then((res) => {
           let modulePermission = res?.data?.permission?.find(
             (d) =>
               d.id === this.$store.getters.getUserDetails.userCredentials.id
@@ -478,7 +484,7 @@ export default {
         let key = this.generateKey("applicationModule");
         // By default, we are calling the 'applicationSetup' config file using the local/language set in the 'this.$i18n.locale' global variable.
         service
-          .getSavedConfig(key)
+          .getSavedConfig({ tableKey: key })
           .then(async (response) => {
             if (this.$i18n.locale !== response.data.defaultLanguageLocale) {
               this.$i18n.locale = response.data.defaultLanguageLocale;
@@ -550,7 +556,7 @@ export default {
         }
         let key = this.generateKey("globalFactors");
 
-        let response = service.getSavedConfig(key);
+        let response = service.getSavedConfig({ tableKey: key });
         response
           .then((response) => {
             this.$store.commit("setGlobalFactors", {
@@ -621,6 +627,7 @@ export default {
     if (!this.isFromAdmin) {
       this.$store.commit("setLoadingText", this.$i18n.t("loadText")); //Setting loading text in store
     }
+    this.$store.commit("setIsMultiProgram", true); //Set this here to get encrypted value. Setting isMultiProgram variable in a store. This is used in Toolbar to show appropriate location
     this.getUserDetails();
   },
 };

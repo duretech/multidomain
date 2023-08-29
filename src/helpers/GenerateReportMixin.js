@@ -28,7 +28,7 @@ export default {
       });
       if (formValues) {
         this.isGenerating = true;
-        this.$store.state.loading = true;
+        this.$store.commit("setLoading", true);
         if (this.$refs[divName]) {
           setTimeout(async () => {
             let options = {
@@ -64,7 +64,7 @@ export default {
                 for (let i = 1; i <= totalPages; i++) {
                   if (i === totalPages) {
                     this.isGenerating = false;
-                    this.$store.state.loading = false;
+                    this.$store.commit("setLoading", false);
                   }
                 }
               })

@@ -22,6 +22,7 @@
           :locationPeriod="locationPeriod"
           :reportChartData="reportChartData"
           v-if="configData && locationPeriod"
+          @updateToolBar="updateToolBar" 
         />
       </b-container>
     </div>
@@ -30,6 +31,7 @@
       @getViewType="getViewType"
       :showSeasonal="showSeasonal"
       :showRegional="showRegional"
+      :updateLocPer="updateLocPer"
       :globalPeriodData="globalPeriodData"
       :IDLocationPeriod="IDLocationPeriod"
       @getLocationPeriod="getLocationPeriod"
@@ -42,8 +44,10 @@ import ResetMenuMixin from "@/helpers/ResetMenuMixin";
 import SummaryPage from "@/components/Summary/SummaryPage.vue";
 import DocumentTitleMixin from "@/helpers/DocumentTitleMixin";
 import ReFetchConfigMixin from "@/helpers/ReFetchConfigMixin";
+import UsesAnalyticsMixin from "@/helpers/UsesAnalyticsMixin";
 import LanguageChangeMixin from "@/helpers/LanguageChangeMixin";
 import EmitTourCallbackMixin from "@/helpers/EmitTourCallbackMixin";
+
 export default {
   props: [
     "activeTab",
@@ -65,17 +69,19 @@ export default {
     ResetMenuMixin,
     DocumentTitleMixin,
     ReFetchConfigMixin,
+    UsesAnalyticsMixin,
     LanguageChangeMixin,
     EmitTourCallbackMixin,
   ],
   data() {
     return {
-      globalPeriodData: null,
       showTrend: false,
+      configData: null,
+      updateLocPer: null,
       showSeasonal: false,
       showRegional: false,
-      configData: null,
       locationPeriod: null,
+      globalPeriodData: null,
     };
   },
   watch: {
@@ -172,7 +178,7 @@ export default {
         ? this.reportChartData.selectedDashboard
         : "";
       service
-        .getSavedConfig(key, false, namespace)
+        .getSavedConfig({ tableKey: key, namespace: namespace })
         .then((response) => {
           this.configData = response.data;
           this.$emit("getConfigData", response.data); //* Emit the config data to Sidebar component to generate sidebar navigation options
@@ -184,9 +190,14 @@ export default {
           this.reFetchConfig(err); //* In case of network error, shows the popup to refresh and fetch the summaryDashboard.json datastore file
         });
     },
+    updateToolBar(updatedVal){
+      this.updateLocPer = updatedVal
+    }
   },
-  created() {
-    this.$store.commit("setActiveTab", "sd-summary"); //* Default sidebar navigation option selector
+  async created() {
+    if (!this.reportChartData) {
+      this.$store.commit("setActiveTab", "sd-summary"); //* Default sidebar navigation option selector
+    }
     //Select the sidebar navigation option as selected from the Integrated dashboard
     if (this.activeTab) {
       this.$nextTick(() => {

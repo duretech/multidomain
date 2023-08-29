@@ -33,6 +33,7 @@
       :dataFetched="dataFetched"
       :defaultSort="defaultSort"
       @reloadChart="reloadChart"
+      @updateToolBar="updateToolBar"
       :chartConfigData="chartData"
       :exceptionTable="exceptionTable"
       :backgroundData="backgroundData"
@@ -53,6 +54,7 @@ import {
   methodMixChartConfig,
 } from "@/config/basicChartConfig";
 import {
+  exName,
   getChild,
   capitalize,
   excludeName,
@@ -96,6 +98,7 @@ export default {
   },
   data() {
     return {
+      metaData: null,
       r2: -1,
       source: null,
       outliers: null,
@@ -145,11 +148,14 @@ export default {
       return isMatrix;
     },
     selectedDate() {
-      return translateDate({
-        rawDate: this.locationPeriod.period,
-        periodType: this.locationPeriod.periodType,
-        monthlyFormat: "MMM YYYY",
+      let period = "";
+      period = translateDate({
+        rawDate: this.locationPeriod?.period || new Date(),
+        periodType: this.locationPeriod?.periodType || "monthly",
+        monthlyFormat: "MMMM YYYY",
+        periodText: this.locationPeriod.periodText,
       });
+      return period;
     },
     defaultSort() {
       return this.chartData.chartOptions.chartCategory === "regional"
@@ -193,8 +199,9 @@ export default {
     isChart() {
       let chart = false;
       if (
-        (!this.reportChartData &&
-          !this.dataFetched &&
+        !this.dataFetched &&
+        this.locationPeriod?.location &&
+        ((!this.reportChartData &&
           ((this.$route.name === "SummaryDashboard" &&
             ([
               this.subTab.summary.primaryChart,
@@ -210,13 +217,13 @@ export default {
                 this.isError)) ||
             (this.$route.name === "AnalyticalDashboard" &&
               (this.chartData.chartOptions.generateFlag ||
-                this.chartData.chartOptions.compareFlag ||
+                this.chartData.chartOptions.priorityIndicator ||
                 this.$store.getters.getActiveTab.includes(this.subTab.id) ||
                 this.isError)))) ||
-        (this.reportChartData &&
-          this.reportChartData.selectedSource === this.subTab.id &&
-          this.reportChartData.cid.split("/")[1] ===
-            this.chartData.chartOptions.cid)
+          (this.reportChartData &&
+            this.reportChartData.selectedSource === this.subTab.id &&
+            this.reportChartData.cid.split("/")[1] ===
+              this.chartData.chartOptions.cid))
       ) {
         chart = true;
       }
@@ -265,6 +272,7 @@ export default {
         ) {
           this.exceptionTable = null;
           this.dataFetched = false;
+          this.outliers = null;
           this.$nextTick(() => {
             this.matrixData = {};
             this.cObj = JSON.parse(JSON.stringify(commonChartConfig));
@@ -324,13 +332,16 @@ export default {
             obj.value = benchmarkValue;
           }
           if (b.includes("external")) {
+            obj.value = null; //Fallback when external data is not stored for the selected location
             let level = this.locationPeriod.location.split("/")[0],
               res = null;
             if (this.allExtData[level]) {
               res = this.allExtData[level];
             } else {
               try {
-                res = await service.getSavedConfig(`externalData_${level}`);
+                res = await service.getSavedConfig({
+                  tableKey: `externalData_${level}`,
+                });
                 res = res?.data || null;
                 this.$emit("setExtData", level, res);
               } catch (e) {
@@ -356,21 +367,23 @@ export default {
               }
             }
           }
-          obj.label.text = `${obj.label.text ? obj.label.text : obj.name} (${
-            obj.value
-          })`;
-          if (chartOptions.benchmarkInLegend) {
-            chartData.series.push({
-              ...obj,
-              type: "line",
-              data: [obj.value],
-              marker: {
-                enabled: false,
-              },
-              isBenchmark: true,
-            });
+          if (![null, ""].includes(obj.value)) {
+            obj.label.text = `${obj.label.text ? obj.label.text : obj.name} (${
+              obj.value
+            })`;
+            if (chartOptions.benchmarkInLegend) {
+              chartData.series.push({
+                ...obj,
+                type: "line",
+                data: [obj.value],
+                marker: {
+                  enabled: false,
+                },
+                isBenchmark: true,
+              });
+            }
+            plotLines.push(obj);
           }
-          plotLines.push(obj);
         }
       }
       if (plotLines.length) {
@@ -685,7 +698,8 @@ export default {
       standardDeviationValue,
     }) {
       if (
-        this.subTab.group.includes("-CT-") &&
+        (this.subTab.group.includes("-CT-") ||
+          this.subTab.group.includes("-FAC-CTFacility")) &&
         !["seasonal"].includes(cData.chartCategory)
       ) {
         let outObj = {
@@ -713,7 +727,8 @@ export default {
       }
       let outlier = false;
       if (
-        this.subTab.group.includes("-IC-") &&
+        (this.subTab.group.includes("-IC-") ||
+          this.subTab.group.includes("-FAC-ICFacility")) &&
         !["seasonal"].includes(cData.chartCategory)
       ) {
         let outObj = {
@@ -837,6 +852,7 @@ export default {
           .then(async (response) => {
             //Check if data is available
             if (response.data.rows.length) {
+              this.metaData = response.data.metaData.items;
               //special condition for the seasonal charts
               let periods =
                 cData.chartCategory === "seasonal"
@@ -899,6 +915,7 @@ export default {
                 backgroundData: this.subTab.backgroundData,
                 periodType: this.locationPeriod.periodType,
                 locationName: this.locationPeriod.locationName,
+                levels,
               });
               //set r2 value, used for scatter charts
               this.r2 = r2;
@@ -1018,6 +1035,7 @@ export default {
                             backgroundData: this.subTab.backgroundData,
                             periodType: this.locationPeriod.periodType,
                             locationName: child[i].name,
+                            levels,
                           });
                           obj = cObj;
                           if (i === child.length - 1) {
@@ -1046,8 +1064,48 @@ export default {
                       this.subTab.summary.primaryChart ===
                         this.chartData.chartOptions.id
                     ) {
+                      let cObjM = null;
+                      if (
+                        this.subTab.summary?.summaryText?.[
+                          this.locationPeriod.periodType
+                        ]?.[this.$i18n.locale].includes("METHOD_INCREASED") ||
+                        this.subTab.summary?.summaryText?.[
+                          this.locationPeriod.periodType
+                        ]?.[this.$i18n.locale].includes("METHOD_DECREASED")
+                      ) {
+                        let updatedCData = JSON.parse(JSON.stringify(cData));
+                        updatedCData = {
+                          ...updatedCData,
+                          chartDataSum: false,
+                          chartDrillDown: false,
+                        };
+                        let { catArray: updatedCatArray } =
+                          this.getMapping(updatedCData);
+                        let { cObj } = generateChart({
+                          cData: updatedCData,
+                          catArray: updatedCatArray,
+                          response,
+                          location,
+                          cObj: JSON.parse(JSON.stringify(commonChartConfig)),
+                          minOutlier,
+                          prevPeriod,
+                          isBenchmark,
+                          currentPeriod,
+                          wastageFactor,
+                          qualityThreshold,
+                          periodArr: periods,
+                          childArr: this.childArr,
+                          periodLength: this.periodLength,
+                          backgroundData: this.subTab.backgroundData,
+                          periodType: this.locationPeriod.periodType,
+                          locationName: this.locationPeriod.locationName,
+                          levels,
+                        });
+                        cObjM = cObj;
+                      }
                       this.sdSummary({
                         cData,
+                        cObjM,
                       });
                     }
                   } else if (this.$route.name === "DQRDashboard") {
@@ -1127,11 +1185,21 @@ export default {
                   standardDeviationValue,
                 });
               }
+              if (this.reportChartData) {
+                this.$emit("setReportChart", {
+                  cId: cData.id,
+                  id: this.subTab.id,
+                  chartData: this.cObj,
+                  chartConfigData: cData,
+                  chartCategory: cData.chartCategory,
+                  errorText: this.$i18n.t("no_data_to_display"),
+                });
+              }
             }
             this.abortController = null;
           })
           .catch((res) => {
-            if (res.response.status >= 500 && res.response.status < 600) {
+            if (res?.response?.status >= 500 && res?.response?.status < 600) {
               this.isError = true;
             }
             if (res.message !== "canceled" || !signal.aborted) {
@@ -1164,6 +1232,16 @@ export default {
                 standardDeviationValue,
               });
             }
+            if (this.reportChartData) {
+              this.$emit("setReportChart", {
+                cId: cData.id,
+                id: this.subTab.id,
+                chartData: this.cObj,
+                chartConfigData: cData,
+                chartCategory: cData.chartCategory,
+                errorText: this.$i18n.t("errorInData"),
+              });
+            }
           });
       } else {
         //if mapping not available
@@ -1188,6 +1266,16 @@ export default {
             isOutlier: false,
             currentPeriod,
             standardDeviationValue,
+          });
+        }
+        if (this.reportChartData) {
+          this.$emit("setReportChart", {
+            cId: cData.id,
+            id: this.subTab.id,
+            chartData: this.cObj,
+            chartConfigData: cData,
+            chartCategory: cData.chartCategory,
+            errorText: this.$i18n.t("maperror_msg"),
           });
         }
       }
@@ -1224,7 +1312,10 @@ export default {
       currentPeriod,
       standardDeviationValue,
     }) {
-      if (this.subTab.group.includes("-CT-")) {
+      if (
+        this.subTab.group.includes("-CT-") ||
+        this.subTab.group.includes("-FAC-CTFacility")
+      ) {
         let s =
           cObj.series.length &&
           cObj.series[0].data.find((obj) => obj.pe == currentPeriod);
@@ -1257,7 +1348,10 @@ export default {
           }
           this.$emit("summaryData", obj);
         }
-      } else if (this.subTab.group.includes("-CC-")) {
+      } else if (
+        this.subTab.group.includes("-CC-") ||
+        this.subTab.group.includes("-FAC-CCFacility")
+      ) {
         let factor = "<sup>2</sup>";
         let hoverText = this.$i18n.t("icc_hover", {
           r2Max,
@@ -1309,6 +1403,7 @@ export default {
       compareTracer,
       methodAvailability,
       lastRegions,
+      orgLevel,
     }) {
       let found = [], // an array to collect the strings that are found
         rxp = /{([^}]+)}/g,
@@ -1380,6 +1475,9 @@ export default {
             case "LAST_REGIONS":
               calculatedValues[f] = lastRegions;
               break;
+            case "ORG_LEVEL":
+              calculatedValues[f] = orgLevel;
+              break;
           }
         });
         found.forEach((f) => {
@@ -1429,6 +1527,13 @@ export default {
         methodAvailability: hRange,
       };
     },
+    getOrgLevel() {
+      let loc = this.locationPeriod.location.split("/");
+      let isLoc = this.$store.getters.getOrgLevels.find(
+        (o) => o.level === loc[0] * 1 + 1
+      );
+      return { orgLevel: isLoc ? isLoc.name : this.$i18n.t("noData") };
+    },
     getLastRegions(data, currDate) {
       let lastRegions = "";
       let isFound = data.find((d) => d.pe == currDate);
@@ -1456,7 +1561,7 @@ export default {
       }
       return { lastRegions };
     },
-    sdSummary({ cData, methodData = null, compareData = null }) {
+    sdSummary({ cData, methodData = null, compareData = null, cObjM = null }) {
       let {
         currDate,
         currForDate,
@@ -1468,14 +1573,12 @@ export default {
       let details = [];
       let methodIncreased = "",
         methodDecreased = "";
-
       if (methodData) {
         let emuMethodData = methodData.saveData;
         let emuMonthlyPeriod = methodData.saveCategories;
         let currentPeriodIndex = emuMonthlyPeriod.indexOf(currForDate);
         let currentMonthLastYearIndex = emuMonthlyPeriod.indexOf(prevYrForDate);
-
-        if (currentPeriodIndex && currentMonthLastYearIndex) {
+        if (currentPeriodIndex >= 0 && currentMonthLastYearIndex >= 0) {
           let methodValueInc = null,
             methodValueDesc = null;
           for (let i in emuMethodData) {
@@ -1488,6 +1591,31 @@ export default {
             } else if (methodDiff < methodValueDesc) {
               methodValueDesc = Number(methodDiff.toFixed(2));
               methodDecreased = emuMethodData[i].name;
+            }
+          }
+          methodIncreased = exName(methodIncreased, this.$i18n.t("EMU"));
+          methodDecreased = exName(methodDecreased, this.$i18n.t("EMU"));
+        }
+      }
+      if (cObjM) {
+        let methodValueInc = null,
+          methodValueDesc = null;
+        for (let i in cObjM.series) {
+          let currInd = cObjM.series[i].data.findIndex(
+            (c) => c.name === currForDate
+          );
+          let prevInd = cObjM.series[i].data.findIndex(
+            (c) => c.name === prevYrForDate
+          );
+          if (currInd >= 0 && prevInd >= 0) {
+            let methodDiff =
+              cObjM.series[i].data[currInd].y - cObjM.series[i].data[prevInd].y;
+            if (methodDiff > methodValueInc) {
+              methodValueInc = Number(methodDiff.toFixed(2));
+              methodIncreased = cObjM.series[i].name;
+            } else if (methodDiff < methodValueDesc) {
+              methodValueDesc = Number(methodDiff.toFixed(2));
+              methodDecreased = cObjM.series[i].name;
             }
           }
         }
@@ -1519,6 +1647,7 @@ export default {
             }
           }
           let { compareTracer, methodAvailability } = this.getTracer(prevValue);
+          let { orgLevel } = this.getOrgLevel();
           let { lastRegions } = this.getLastRegions(s.data, currDate);
 
           let { benchmarkValue, percentage, performanceBenchmarking } =
@@ -1549,10 +1678,18 @@ export default {
           //Add % sign in case it is percentage indicator
           change = change ? `${change}%` : change;
           lastChange = lastChange ? `${lastChange}%` : lastChange;
-          currValue = percentage && currValue ? `${currValue}%` : currValue;
-          prevValue = percentage && prevValue ? `${prevValue}%` : prevValue;
+          currValue =
+            percentage && currValue
+              ? `${currValue}%`
+              : currValue?.toLocaleString() || currValue;
+          prevValue =
+            percentage && prevValue
+              ? `${prevValue}%`
+              : prevValue?.toLocaleString() || currValue;
           prevYrValue =
-            percentage && prevYrValue ? `${prevYrValue}%` : prevYrValue;
+            percentage && prevYrValue
+              ? `${prevYrValue}%`
+              : prevYrValue?.toLocaleString() || prevYrValue;
 
           let { summaryText } = this.getSummaryText({
             indicatorName,
@@ -1571,6 +1708,7 @@ export default {
             compareTracer,
             methodAvailability,
             lastRegions,
+            orgLevel,
           });
 
           details.push({
@@ -1667,7 +1805,7 @@ export default {
         this.cObj.series.forEach((s) => {
           let pe = formatSeasonalPeriod({
             rawData: currDate,
-            periodType: this.locationPeriod.periodType,
+            periodType: this.locationPeriod?.periodType || "monthly",
             type: "YYYY",
           });
           if (
@@ -1690,20 +1828,12 @@ export default {
 
             let indicatorName = s.name;
             let benchmark = null;
-
-            if (cData.benchmarks && cData.benchmarks.length) {
-              let allBenchmarks =
-                this.$store.getters.getGlobalFactors().allBenchmarks;
-              cData.benchmarks.forEach((b) => {
-                if (!b.includes("national")) {
-                  let isFound = allBenchmarks.benchmarks.find((a) =>
-                    b.includes(a.id)
-                  );
-                  if (isFound) {
-                    benchmark = isFound.plotLine.value;
-                  }
-                }
-              });
+            if (
+              cData?.benchmarks?.length &&
+              this.cObj?.yAxis?.plotLines?.length
+            ) {
+              let len = this.cObj.yAxis.plotLines.length;
+              benchmark = this.cObj.yAxis.plotLines?.[len - 1]?.value || null;
             }
             let priorityFlagIndicator = null;
             if (
@@ -1722,9 +1852,17 @@ export default {
               prevForDate,
               indicatorName,
               change: change ? `${change}%` : change,
-              benchmark: benchmark ? `${benchmark}%` : benchmark,
-              currValue: percentage && currValue ? `${currValue}%` : currValue,
-              prevValue: percentage && prevValue ? `${prevValue}%` : prevValue,
+              benchmark: benchmark
+                ? `${benchmark}%`
+                : benchmark?.toLocaleString() || benchmark,
+              currValue:
+                percentage && currValue
+                  ? `${currValue}%`
+                  : currValue?.toLocaleString() || currValue,
+              prevValue:
+                percentage && prevValue
+                  ? `${prevValue}%`
+                  : prevValue?.toLocaleString() || prevValue,
               dataFetched: true,
               priorityFlagIndicator,
             });
@@ -1755,7 +1893,7 @@ export default {
       }
       this.$emit("summaryData", obj);
     },
-    getMapping() {
+    getMapping(updatedCData = null) {
       let catArray = [],
         de = [],
         rMapping = [],
@@ -1765,7 +1903,7 @@ export default {
         namespace = this.reportChartData.selectedDashboard;
       }
       let gSetting = this.$store.getters.getGlobalFactors(namespace),
-        cData = this.chartData.chartOptions;
+        cData = updatedCData ? updatedCData : this.chartData.chartOptions;
       if (
         gSetting.globalMappings &&
         gSetting.globalMappings.mappings &&
@@ -1779,10 +1917,24 @@ export default {
         rMapping = allMappings.filter((m) =>
           cData?.dataMapping?.includes(m.indicator.static_name)
         );
+        if (cData?.dataMapping?.length) {
+          rMapping = rMapping.sort(
+            (a, b) =>
+              cData.dataMapping.indexOf(a.indicator.static_name) -
+              cData.dataMapping.indexOf(b.indicator.static_name)
+          );
+        }
         if (!cData.isSingleSource) {
           rMapping2 = allMappings.filter((m) =>
             cData?.dataMapping2?.includes(m.indicator.static_name)
           );
+          if (cData?.dataMapping2?.length) {
+            rMapping2 = rMapping2.sort(
+              (a, b) =>
+                cData.dataMapping2.indexOf(a.indicator.static_name) -
+                cData.dataMapping2.indexOf(b.indicator.static_name)
+            );
+          }
         }
       }
       if (!cData.isSingleSource) {
@@ -1895,35 +2047,67 @@ export default {
             );
             catArray.push(mapObj);
           } else {
-            rMapping.forEach((element) => {
-              let color = element.indicator.color;
-              if (cData.chartCategory === "seasonal") {
-                color = [element.indicator.color, ...cData.seasonalColors];
-              }
-              let mapObj = {
-                name: element.indicator.name[this.$i18n.locale],
-                static_name: element.indicator.static_name,
-                color: color,
-                visible: !element.indicator.disable,
-                dx: [],
-                cyp: {},
-              };
-              element.indicator.subIndicator.forEach((subEle) => {
-                subEle.selectedDE.forEach((s) => {
-                  mapObj.cyp[s.id] = [
-                    "CYP",
-                    "PERIOD_DIFF_CYP",
-                    "OTHER_AVERAGE_CYP",
-                    "OTHER_MATRIX_TABLE_CYP",
-                  ].includes(cData.chartCalculation)
-                    ? subEle.cyp || 1
-                    : 1;
-                  de.push(s.id);
-                  mapObj.dx.push(s.id);
+            if (updatedCData) {
+              rMapping.forEach((element) => {
+                element.indicator.subIndicator.forEach((subEle) => {
+                  let color = subEle.color;
+                  if (cData.chartCategory === "seasonal") {
+                    color = [subEle.color, ...cData.seasonalColors];
+                  }
+                  let mapObj = {
+                    name: subEle.name[this.$i18n.locale],
+                    static_name: subEle.static_name,
+                    color: color,
+                    visible: true,
+                    dx: [],
+                    cyp: {},
+                  };
+                  subEle.selectedDE.forEach((s) => {
+                    mapObj.cyp[s.id] = [
+                      "CYP",
+                      "PERIOD_DIFF_CYP",
+                      "OTHER_AVERAGE_CYP",
+                      "OTHER_MATRIX_TABLE_CYP",
+                    ].includes(cData.chartCalculation)
+                      ? subEle.cyp || 1
+                      : 1;
+                    de.push(s.id);
+                    mapObj.dx.push(s.id);
+                  });
+                  catArray.push(mapObj);
                 });
               });
-              catArray.push(mapObj);
-            });
+            } else {
+              rMapping.forEach((element) => {
+                let color = element.indicator.color;
+                if (cData.chartCategory === "seasonal") {
+                  color = [element.indicator.color, ...cData.seasonalColors];
+                }
+                let mapObj = {
+                  name: element.indicator.name[this.$i18n.locale],
+                  static_name: element.indicator.static_name,
+                  color: color,
+                  visible: !element.indicator.disable,
+                  dx: [],
+                  cyp: {},
+                };
+                element.indicator.subIndicator.forEach((subEle) => {
+                  subEle.selectedDE.forEach((s) => {
+                    mapObj.cyp[s.id] = [
+                      "CYP",
+                      "PERIOD_DIFF_CYP",
+                      "OTHER_AVERAGE_CYP",
+                      "OTHER_MATRIX_TABLE_CYP",
+                    ].includes(cData.chartCalculation)
+                      ? subEle.cyp || 1
+                      : 1;
+                    de.push(s.id);
+                    mapObj.dx.push(s.id);
+                  });
+                });
+                catArray.push(mapObj);
+              });
+            }
           }
         }
       }
@@ -1933,6 +2117,20 @@ export default {
         catArray,
       };
     },
+    getFacility(subLevelID) {
+      let facilityLevelID = subLevelID;
+      let levels = this.$store.getters.getOrgLevels;
+      let facility = levels.find((o) =>
+        o.displayName.toLowerCase().includes("facility")
+      );
+      if (facility) {
+        facilityLevelID = facility.level;
+      } else {
+        let facilityLevels = levels.map((o) => o.level);
+        facilityLevelID = Math.max(...facilityLevels);
+      }
+      return facilityLevelID;
+    },
     async setValues() {
       if (this.abortController) {
         this.abortController.abort();
@@ -1941,10 +2139,19 @@ export default {
       //Set the location
       let loc = this.scorecardLocation
         ? this.scorecardLocation
-        : this.locationPeriod.location;
+        : this.locationPeriod?.location || "";
       let location = loc.split("/")[1];
       let levelID = loc.split("/")[0] * 1;
       let subLevelID = levelID + 1;
+      if (
+        this.$store.getters.getAppSettings.countryName === "SL" &&
+        this.subTab.group.includes("-FAC-")
+      ) {
+        let { levelID: lID } = service.getAllowedLocation();
+        if (levelID !== lID * 1) {
+          subLevelID = this.getFacility(subLevelID);
+        }
+      }
       let levels = [];
       //Get the mapping
       let { de, catArray } = this.getMapping();
@@ -1974,7 +2181,10 @@ export default {
         cData.chartCategory === "regionalTrend"
       ) {
         this.periodLength = 13;
-        if (this.subTab.group.includes("-IC-")) {
+        if (
+          this.subTab.group.includes("-IC-") ||
+          this.subTab.group.includes("-FAC-ICFacility")
+        ) {
           this.periodLength = 36;
         }
       }
@@ -2011,16 +2221,7 @@ export default {
       let facilityLevelID = subLevelID;
       //Based on "STOCK_OUT" / "AVAILABILITY" chart calculation from admin, "facilityLevelID" is calculated from the org levels
       if (["STOCK_OUT", "AVAILABILITY"].includes(cData.chartCalculation)) {
-        let levels = this.$store.getters.getOrgLevels;
-        let facility = levels.find((o) =>
-          o.displayName.toLowerCase().includes("facility")
-        );
-        if (facility) {
-          facilityLevelID = facility.level;
-        } else {
-          let facilityLevels = levels.map((o) => o.level);
-          facilityLevelID = Math.max(...facilityLevels);
-        }
+        facilityLevelID = this.getFacility(subLevelID);
       }
       //Set levels, to fetch the data from DHIS2
       if (cData.chartDrillDown) {
@@ -2053,21 +2254,21 @@ export default {
       }
       //Set range of periods
       let period = getDateRange({
-        sendPeriod: this.locationPeriod.period,
-        periodType: this.locationPeriod.periodType,
+        sendPeriod: this.locationPeriod?.period || new Date(),
+        periodType: this.locationPeriod?.periodType || "monthly",
         periodLength: this.periodLength,
       });
       let periodArr = period;
       period = period.reverse().join(";");
       //Get formatted selected date
       let currentPeriod = formatSingleDate({
-        rawDate: this.locationPeriod.period,
-        periodType: this.locationPeriod.periodType,
+        rawDate: this.locationPeriod?.period || new Date(),
+        periodType: this.locationPeriod?.periodType || "monthly",
       });
       //Get previous period that selected period
       let prevPeriod = subtractNDate({
-        rawDate: this.locationPeriod.period,
-        periodType: this.locationPeriod.periodType,
+        rawDate: this.locationPeriod?.period || new Date(),
+        periodType: this.locationPeriod?.periodType || "monthly",
       });
       //Call the calculation function
       this.getCharts({
@@ -2084,7 +2285,8 @@ export default {
       });
     },
     async getSummaryEMUChart(cData, emuResponse) {
-      let locationID = this.locationPeriod.location.split("/")[1],
+      let levelID = this.locationPeriod.location.split("/")[0],
+        locationID = this.locationPeriod.location.split("/")[1],
         locID = [],
         locIDLabels = [];
       let children = await this.getChildren({ location: locationID });
@@ -2097,6 +2299,8 @@ export default {
           });
         });
       }
+      let allMonthnameJson = this.$store.getters.getPeriodData;
+      this.metaData = allMonthnameJson;
       let emuData = null,
         emuDataKey = null;
       let emuMethodDataKey = null;
@@ -2154,7 +2358,7 @@ export default {
           } else {
             sourceKey = emuData.source
               ? emuData.source
-              : "EMU :Commodities to clients";
+              : "EMU :Commodities to Clients";
           }
           chartSource = sourceKey.split(":")[1];
           innerDataKey = "data";
@@ -2168,18 +2372,24 @@ export default {
 
           let formattedCatArray = [];
           if (this.locationPeriod.periodType === "monthly") {
-            emuData.saveCategories.forEach((c) =>
-              formattedCatArray.push(
-                this.$moment(c, "MMM YYYY").format("YYYYMM")
-              )
-            );
+            emuData.saveCategories.forEach((c) => {
+              Object.keys(allMonthnameJson).forEach((month) => {
+                if (allMonthnameJson[month]["name"] == c) {
+                  formattedCatArray.push(month);
+                }
+              });
+
+              // formattedCatArray.push(
+              //   this.$moment(c, "MMMM YYYY").format("YYYYMM")
+              // );
+            });
           }
           if (this.locationPeriod.periodType === "yearly") {
             formattedCatArray = emuData.categories;
           }
           let pe = getDateRange({
-            sendPeriod: this.locationPeriod.period,
-            periodType: this.locationPeriod.periodType,
+            sendPeriod: this.locationPeriod?.period || new Date(),
+            periodType: this.locationPeriod?.periodType || "monthly",
             periodLength: cData.chartCategory === "trend" ? 24 : 1,
           });
           pe = pe.reverse();
@@ -2194,33 +2404,40 @@ export default {
             series: [],
           };
           pe.forEach((p, i) => {
-            let formattedDate = translateDate({
-              rawDate: p,
-              periodType: this.locationPeriod.periodType,
+            let formattedDate = "";
+            let newDate = p.split("-").join("");
+            Object.keys(allMonthnameJson).forEach((month) => {
+              if (month == newDate) {
+                formattedDate = allMonthnameJson[month]["name"];
+              }
             });
             if (formattedCatArray.includes(p)) {
               let catIndex = formattedCatArray.indexOf(p);
               if (cData.chartCategory === "trend") {
                 let prevPeriod = subtractNDate({
                   rawDate: p,
-                  periodType: this.locationPeriod.periodType,
+                  periodType: this.locationPeriod?.periodType || "monthly",
                 });
-                let prevDate = translateDate({
-                  rawDate: prevPeriod,
-                  periodType: this.locationPeriod.periodType,
+                let prevDate = "";
+                let newDate = prevPeriod.split("-").join("");
+                Object.keys(allMonthnameJson).forEach((month) => {
+                  if (month == newDate) {
+                    prevDate = allMonthnameJson[month]["name"];
+                  }
                 });
                 let drillText =
                   cData.drillCalculation === "PERIOD_DIFF"
                     ? i === 0
                       ? `${emuObj.name} ( ${formattedDate} )`
                       : `${emuObj.name} ( ${formattedDate} - ${prevDate} )`
-                    : formattedDate;
+                    : `${emuObj.name} ( ${formattedDate} )`;
                 let prevCatIndex = formattedCatArray.indexOf(pe[i - 1]);
                 dataArr.push({
                   pe: p,
                   name: formattedDate,
                   y: emuObj.data[catIndex].toFixed(2) * 1,
                   drilldown: cData.chartDrillDown ? drillText : null,
+                  sName: emuObj.name,
                 });
                 if (cData.chartDrillDown) {
                   let drillObj = {
@@ -2228,6 +2445,8 @@ export default {
                     id: drillText,
                     type: "column",
                     data: [],
+                    period: formattedDate,
+                    sName: emuObj.name,
                   };
 
                   Object.keys(eData).forEach((locKey) => {
@@ -2263,6 +2482,8 @@ export default {
                           name: locName,
                           locationID: locKey,
                           originalY: currValue,
+                          levelID: levelID * 1 + 1,
+                          period: p,
                         });
                       } else {
                         console.log("EMU not found for location ", locName);
@@ -2275,7 +2496,7 @@ export default {
               if (cData.chartCategory === "regional") {
                 let formattedDate = formatSingleDate({
                   rawDate: p,
-                  periodType: this.locationPeriod.periodType,
+                  periodType: this.locationPeriod?.periodType || "monthly",
                 });
                 Object.keys(eData).forEach((locKey) => {
                   if (locID.includes(locKey)) {
@@ -2381,6 +2602,16 @@ export default {
               errorMsg: this.$i18n.t("noEmu"),
             });
           }
+          if (this.reportChartData) {
+            this.$emit("setReportChart", {
+              cId: cData.id,
+              id: this.subTab.id,
+              chartData: this.cObj,
+              chartConfigData: cData,
+              chartCategory: cData.chartCategory,
+              errorText: this.$i18n.t("no_data_to_display"),
+            });
+          }
         }
       } else {
         this.dataFetched = true;
@@ -2394,6 +2625,16 @@ export default {
             errorMsg: this.$i18n.t("noEmu"),
           });
         }
+        if (this.reportChartData) {
+          this.$emit("setReportChart", {
+            cId: cData.id,
+            id: this.subTab.id,
+            chartData: this.cObj,
+            chartConfigData: cData,
+            chartCategory: cData.chartCategory,
+            errorText: this.$i18n.t("no_data_to_display"),
+          });
+        }
       }
     },
     async getEMUNationalChart(cData, emuResponse) {
@@ -2401,13 +2642,16 @@ export default {
       let children = await this.getChildren({ location: locationID[1] });
       let emuModule = { ...emuResponse },
         parentName = this.locationPeriod.locationName,
-        loc = locationID[1],
-        period = translateDate({
-          rawDate: this.locationPeriod.period,
-          periodType: this.locationPeriod.periodType,
-          monthlyFormat: "MMM YYYY",
-        });
+        loc = locationID[1];
+      let period = "";
+      let allMonthnameJson = this.$store.getters.getPeriodData;
+      let newDate = this.locationPeriod.period.split("-").join("");
 
+      Object.keys(allMonthnameJson).forEach((month) => {
+        if (month == newDate) {
+          period = allMonthnameJson[month]["name"];
+        }
+      });
       let categories = [],
         series = [],
         catIds = [];
@@ -2459,11 +2703,11 @@ export default {
                   totalSeriesObj.data.push(data["data"][index]);
                 }
               });
-              let methodTable = JSON.parse(
-                JSON.stringify(emuModule.methodTable)
-              );
+              let methodTable =
+                typeof emuModule.methodTable === "string"
+                  ? JSON.parse(emuModule.methodTable)
+                  : emuModule.methodTable;
               //we can use compUsers key from emuannaul
-              methodTable = JSON.parse(methodTable);
               if (methodTable[ids]) {
                 methodTable[ids] = methodTable[ids].slice(
                   0,
@@ -2496,21 +2740,28 @@ export default {
                     methodColorsObj[subMName] = emuColors[subMName];
                   }
                   //methodColorsObj[newName] = emuColors[y[this.$i18n.t('sub_method')]]
+
+                  if (!methodSeriesObj[newName]) {
+                    methodSeriesObj[newName] = [];
+                  }
+                  val = 0;
+
                   Object.keys(y).forEach((yr) => {
                     yr = yr.trim();
                     let computePop = this.population.rows.find(
                       (obj) => obj[1] == yr && obj[2] == ids
                     );
                     if (yr == period) {
-                      y[yr] = y[yr]
+                      let inneryearVal = y[yr]
                         ? y[yr].split(",").join("")
                         : y[" " + yr + " "].split(",").join("");
-                      val = computePop[3]
-                        ? ((y[yr] / Number(computePop[3])) * 100).toFixed(2) * 1
-                        : 0;
-                    }
-                    if (!methodSeriesObj[newName]) {
-                      methodSeriesObj[newName] = [];
+                      val =
+                        computePop && computePop[3]
+                          ? (
+                              (inneryearVal / Number(computePop[3])) *
+                              100
+                            ).toFixed(2) * 1
+                          : 0;
                     }
                   });
                   methodSeriesObj[newName].push({
@@ -2720,11 +2971,17 @@ export default {
       let locationID = this.locationPeriod.location.split("/");
       let emuModule = { ...emuResponse },
         loc = locationID[1],
-        period = translateDate({
-          rawDate: this.locationPeriod.period,
-          periodType: this.locationPeriod.periodType,
-          monthlyFormat: "MMM YYYY",
-        });
+        period = "";
+
+      let newDate = this.locationPeriod.period.split("-").join("");
+      let allMonthnameJson = this.$store.getters.getPeriodData;
+
+      Object.keys(allMonthnameJson).forEach((month) => {
+        if (month == newDate) {
+          period = allMonthnameJson[month]["name"];
+        }
+      });
+      
       let categories = [],
         series = [];
       let totalLegend =
@@ -2759,10 +3016,10 @@ export default {
               totalSeriesObj.data = data["data"];
             }
           });
-          let methodTable = emuModule.methodTable
-            ? JSON.parse(JSON.stringify(emuModule.methodTable))
-            : null;
-          methodTable = JSON.parse(methodTable);
+          let methodTable =
+            typeof emuModule.methodTable === "string"
+              ? JSON.parse(emuModule.methodTable)
+              : emuModule.methodTable;
           if (methodTable[loc]) {
             methodTable[loc] = methodTable[loc].slice(
               0,
@@ -2811,11 +3068,13 @@ export default {
                       val = y[yr]
                         ? y[yr].split(",").join("")
                         : y[" " + yr + " "].split(",").join("");
-                      val = computePop[3]
-                        ? ((Number(val) / Number(computePop[3])) * 100).toFixed(
-                            2
-                          ) * 1
-                        : 0;
+                      val =
+                        computePop && computePop[3]
+                          ? (
+                              (Number(val) / Number(computePop[3])) *
+                              100
+                            ).toFixed(2) * 1
+                          : 0;
                     }
                   }
                 });
@@ -2919,11 +3178,19 @@ export default {
       this.cObj.source = source;
       let noCatSeries = series.map((s) => ({
         ...s,
-        data: s.data.map((d, i) => ({
-          name: categories[i],
-          pe: this.$moment(categories[i], "MMM YYYY").format("YYYYMM"),
-          y: d,
-        })),
+        data: s.data.map((d, i) => {
+          let numberP = "";
+          Object.keys(allMonthnameJson).forEach((month) => {
+            if (allMonthnameJson[month]["name"] == categories[i]) {
+              numberP = month;
+            }
+          });
+          return {
+            name: categories[i],
+            pe: numberP,
+            y: d,
+          };
+        }),
       }));
       this.cObj.series = noCatSeries;
       this.cObj = this.setMetaData({
@@ -2948,11 +3215,16 @@ export default {
       let emuModule = { ...emuResponse },
         parentName = this.locationPeriod.locationName,
         loc = locationID[1],
-        period = translateDate({
-          rawDate: this.locationPeriod.period,
-          periodType: this.locationPeriod.periodType,
-          monthlyFormat: "MMM YYYY",
-        });
+        period = "";
+      let newDate = this.locationPeriod.period.split("-").join("");
+      let allMonthnameJson = this.$store.getters.getPeriodData;
+
+      Object.keys(allMonthnameJson).forEach((month) => {
+        if (month == newDate) {
+          period = allMonthnameJson[month]["name"];
+        }
+      });
+      
       let dataKey = {};
       if (this.locationPeriod.periodType === "yearly") {
         if (emuModule.compEMU) {
@@ -3008,10 +3280,10 @@ export default {
                 }
               });
 
-              let methodTable = emuModule.methodTable
-                ? JSON.parse(JSON.stringify(emuModule.methodTable))
-                : null;
-              methodTable = JSON.parse(methodTable);
+              let methodTable =
+                typeof emuModule.methodTable === "string"
+                  ? JSON.parse(emuModule.methodTable)
+                  : emuModule.methodTable;
               if (methodTable[ids]) {
                 methodTable[ids] = methodTable[ids].slice(
                   0,
@@ -3049,6 +3321,7 @@ export default {
                     if (!methodSeriesObj[newName]) {
                       methodSeriesObj[newName] = [];
                     }
+                    val = 0;
                     let computePop = this.population.rows.find(
                       (obj) => obj[1] == yr && obj[2] == ids
                     );
@@ -3057,15 +3330,17 @@ export default {
                       yr != [" " + this.$i18n.t("methods") + " "] &&
                       yr == period
                     ) {
-                      val = y[yr]
+                      let innerValYear = y[yr]
                         ? y[yr].split(",").join("")
                         : y[" " + yr + " "].split(",").join("");
 
-                      val = computePop[3]
-                        ? ((Number(val) / Number(computePop[3])) * 100).toFixed(
-                            2
-                          ) * 1
-                        : 0;
+                      val =
+                        computePop && computePop[3]
+                          ? (
+                              (Number(innerValYear) / Number(computePop[3])) *
+                              100
+                            ).toFixed(2) * 1
+                          : 0;
                     }
                   });
                   methodSeriesObj[newName].push({
@@ -3085,6 +3360,9 @@ export default {
               let tIndex = emuTrend[ids]["saveCategories"].indexOf(period);
               dataKey[ids]["saveData"].forEach((data) => {
                 if (data.name == this.$i18n.t("EMU")) {
+                  //Calculate EMU Variation like average value between two emu like dec 2020 and dec 2019 as
+                  //dec 2020 - dec 2019 /12 so calculated value is change variation in evry month
+
                   totalSeriesObj.data.push(
                     (
                       (data["data"][index] - data["data"][index - 12]) /
@@ -3210,11 +3488,16 @@ export default {
       let emuModule = { ...emuResponse },
         parentName = this.locationPeriod.locationName,
         loc = locationID[1],
-        period = translateDate({
-          rawDate: this.locationPeriod.period,
-          periodType: this.locationPeriod.periodType,
-          monthlyFormat: "MMM YYYY",
-        });
+        period = "";
+      let newDate = this.locationPeriod.period.split("-").join("");
+      let allMonthnameJson = this.$store.getters.getPeriodData;
+
+      Object.keys(allMonthnameJson).forEach((month) => {
+        if (month == newDate) {
+          period = allMonthnameJson[month]["name"];
+        }
+      });
+     
 
       let categories = [],
         series = [],
@@ -3267,10 +3550,10 @@ export default {
                   totalSeriesObj.data.push(data["data"][index]);
                 }
               });
-              let methodTable = JSON.parse(
-                JSON.stringify(emuModule.methodTable)
-              );
-              methodTable = JSON.parse(methodTable);
+              let methodTable =
+                typeof emuModule.methodTable === "string"
+                  ? JSON.parse(emuModule.methodTable)
+                  : emuModule.methodTable;
               if (methodTable[ids]) {
                 methodTable[ids] = methodTable[ids].slice(
                   0,
@@ -3312,9 +3595,11 @@ export default {
                       y[yr] = y[yr]
                         ? y[yr].split(",").join("")
                         : y[" " + yr + " "].split(",").join("");
-                      val = computePop[3]
-                        ? ((y[yr] / Number(computePop[3])) * 100).toFixed(2) * 1
-                        : 0;
+                      val =
+                        computePop && computePop[3]
+                          ? ((y[yr] / Number(computePop[3])) * 100).toFixed(2) *
+                            1
+                          : 0;
                     }
                     if (!methodSeriesObj[newName]) {
                       methodSeriesObj[newName] = [];
@@ -3596,17 +3881,18 @@ export default {
       let emuModule = { ...emuResponse },
         parentName = this.locationPeriod.locationName,
         loc = locationID[1],
-        period = translateDate({
-          rawDate: this.locationPeriod.period,
-          periodType: this.locationPeriod.periodType,
-          monthlyFormat: "MMM YYYY",
-        }),
+        period = "",
         so = "";
+      let newDate = this.locationPeriod.period.split("-").join("");
+      let allMonthnameJson = this.$store.getters.getPeriodData;
+      period = allMonthnameJson[newDate]["name"];
 
       let dataKey = {};
       if (this.locationPeriod.periodType === "yearly") {
-        dataKey = JSON.parse(JSON.stringify(emuModule.methodTable));
-        dataKey = JSON.parse(dataKey);
+        dataKey =
+          typeof emuModule.methodTable === "string"
+            ? JSON.parse(emuModule.methodTable)
+            : emuModule.methodTable;
         so =
           emuModule.compEMU && JSON.parse(emuModule.compEMU)[loc]
             ? JSON.parse(emuModule.compEMU)[loc].source
@@ -3661,7 +3947,11 @@ export default {
                       ? y[yr].toString().split(",").join("")
                       : y[" " + yr + " "].toString().split(",").join("");
                     let val =
-                      ((innerval / Number(computePop[3])) * 100).toFixed(2) * 1;
+                      computePop && computePop[3]
+                        ? ((innerval / Number(computePop[3])) * 100).toFixed(
+                            2
+                          ) * 1
+                        : 0;
                     sumVal[ids] += val;
                   }
                 });
@@ -3699,9 +3989,10 @@ export default {
                     val = y[yr]
                       ? y[yr].toString().split(",").join("")
                       : y[" " + yr + " "].toString().split(",").join("");
-                    val = computePop[3]
-                      ? ((val / Number(computePop[3])) * 100).toFixed(2) * 1
-                      : 0;
+                    val =
+                      computePop && computePop[3]
+                        ? ((val / Number(computePop[3])) * 100).toFixed(2) * 1
+                        : 0;
                   }
 
                   if (!methodSeriesObj[newName]) {
@@ -3919,9 +4210,12 @@ export default {
                       : id[" " + key + " "].toString().split(",").join("");
 
                     id[key] =
-                      ((Number(id[key]) / Number(computePop[3])) * 100).toFixed(
-                        2
-                      ) * 1;
+                      computePop && computePop[3]
+                        ? (
+                            (Number(id[key]) / Number(computePop[3])) *
+                            100
+                          ).toFixed(2) * 1
+                        : 0;
 
                     dataObj[ids][method][key] = id[key];
                   }
@@ -3997,12 +4291,15 @@ export default {
       this.matrixData.source = so;
       this.matrixData["categories"] = categories;
       this.matrixData["avgAnnualGrowthData"] = seriesObj;
+      this.matrixData["allMonthNameJson"] = this.$store.getters.getPeriodData;
       this.dataFetched = true;
     },
     getEMUChart(isFilter = false) {
       let emuResponse = JSON.parse(JSON.stringify(this.emuData));
+
       emuResponse =
         emuResponse[`${this.locationPeriod.periodType}_${this.$i18n.locale}`];
+
       let cData = this.chartData.chartOptions;
       if (emuResponse && emuResponse !== "Error") {
         if (cData) {
@@ -4074,6 +4371,9 @@ export default {
           }
         }
       }
+    },
+    updateToolBar(updatedVal) {
+      this.$emit("updateToolBar", updatedVal);
     },
   },
   created() {

@@ -1,15 +1,25 @@
 <template>
   <div class="">
     <div class="map-header mb-3">
-      <div class="row map-section">
-        <div class="col-3">
+      <b-row>
+        <b-col sm="4">
           <div v-if="locationPeriod">
-            <h6 class="map-title pt-0">
-              {{ locationPeriod.locationName }}
+            <h6 class="summary-chart-title mb-0">
+              <i
+                class="fa fa-info-circle cursor-pointer chart-info mr-2 ml-2"
+                aria-hidden="true"
+                v-b-popover.hover.rightbottom="{
+                  variant: 'info',
+                  content: mapConfigData?.chartInfo?.[$i18n.locale] || '',
+                  title: selectedInd,
+                  html: true,
+                }"
+              ></i
+              >{{ locationPeriod.locationName }}
             </h6>
           </div>
-        </div>
-        <div class="col-9">
+        </b-col>
+        <b-col sm="8">
           <div
             class="ml-2"
             v-if="indList.length > 0"
@@ -23,8 +33,8 @@
               :options="indList"
             ></b-form-select>
           </div>
-        </div>
-      </div>
+        </b-col>
+      </b-row>
     </div>
     <MapComponent
       v-if="dataFetched"
@@ -34,7 +44,7 @@
       :allGeoJson="allGeoJson"
       :selectedInd="selectedInd"
       :locationPeriod="locationPeriod"
-      :mapConfigData="subTab.mapSetting[0].chartOptions"
+      :mapConfigData="mapConfigData"
       @isJsonFetched="isJsonFetched = true"
     />
     <div
@@ -43,9 +53,17 @@
     >
       <b-spinner type="grow" label="Spinning"></b-spinner>
     </div>
-    <div v-if="dataFetched" class="text-right">
-      <span> {{ locationPeriod.locationName }}: {{ locValue }} </span>
-    </div>
+    <b-row class="small" v-if="dataFetched">
+      <b-col v-if="dataFetched">
+        <strong>
+          {{ locationPeriod.locationName }}: {{ locValue.toLocaleString() }}
+        </strong>
+      </b-col>
+      <b-col class="text-right" v-if="mapConfigData?.source?.[$i18n.locale]">
+        {{ $t("source") }}:
+        {{ mapConfigData?.source?.[$i18n.locale] || $t("NA") }}
+      </b-col>
+    </b-row>
   </div>
 </template>
 <script>
@@ -54,7 +72,7 @@ import {
   getChild,
   getDateRange,
   generateChart,
-  translateDate,
+  // translateDate,
 } from "@/components/Common/commonFunctions";
 import { commonChartConfig } from "@/config/basicChartConfig";
 
@@ -102,6 +120,12 @@ export default {
       }
       return val;
     },
+    mapConfigData() {
+      let obj = this.subTab.mapSetting.find(
+        (m) => m.chartOptions.chartName[this.$i18n.locale] === this.selectedInd
+      );
+      return obj ? obj.chartOptions : {};
+    },
   },
   watch: {
     isChart(newValue) {
@@ -137,11 +161,18 @@ export default {
       deep: true,
     },
     locationPeriod: {
-      handler() {
-        this.dataFetched = false;
-        this.selectedInd = "";
-        this.indList = [];
-        this.chartData = JSON.parse(JSON.stringify(commonChartConfig));
+      handler(newValue, oldValue) {
+        if (
+          oldValue &&
+          (newValue.location !== oldValue.location ||
+            newValue.periodType !== oldValue.periodType ||
+            newValue.period !== oldValue.period)
+        ) {
+          this.dataFetched = false;
+          this.selectedInd = "";
+          this.indList = [];
+          this.chartData = JSON.parse(JSON.stringify(commonChartConfig));
+        }
       },
       deep: true,
     },
@@ -176,14 +207,23 @@ export default {
         };
         children.unshift(obj);
         let emuModule = { ...emuResponse },
-          period = translateDate({
-            rawDate: this.locationPeriod.period,
-            periodType: this.locationPeriod.periodType,
-            monthlyFormat: "MMM YYYY",
-          });
+          period = "";
+        let allMonthnameJson = this.$store.getters.getPeriodData;
+
+        let newDate = this.locationPeriod.period.split("-").join("");
+        Object.keys(allMonthnameJson).forEach((month) => {
+          if (month == newDate) {
+            period = allMonthnameJson[month]["name"];
+          }
+        });
 
         let series = [];
-        let totalLegend = this.$i18n.t("total-EMU");
+        let totalLegend =
+          this.subTab.mapSetting[0].chartOptions.chartName[this.$i18n.locale];
+        this.indList.push({
+          value: totalLegend,
+          text: totalLegend,
+        });
         this.selectedInd = totalLegend;
         let totalSeriesObj = {
           name: totalLegend,
@@ -266,36 +306,36 @@ export default {
             ({ mapping }) => mapping || []
           )
         );
-        rMapping = allMappings.filter((m) =>
-          this.subTab.mapSetting[0].chartOptions.dataMapping.includes(
-            m.indicator.static_name
-          )
-        );
-      }
-      if (rMapping.length) {
-        rMapping.forEach((element, i) => {
+        this.subTab.mapSetting.forEach((m, mInd) => {
           let mapObj = {
-            name: element.indicator.name[this.$i18n.locale],
-            color: element.indicator.color,
-            visible: !element.indicator.disable,
+            name: m.chartOptions.chartName[this.$i18n.locale],
+            color: null,
+            visible: true,
             dx: [],
             cyp: {},
           };
-          element.indicator.subIndicator.forEach((subEle) => {
-            subEle.selectedDE.forEach((s) => {
-              de.push(s.id);
-              mapObj.dx.push(s.id);
-              mapObj.cyp[s.id] = 1;
-            });
-          });
           this.indList.push({
-            value: element.indicator.name[this.$i18n.locale],
-            text: element.indicator.name[this.$i18n.locale],
+            value: m.chartOptions.chartName[this.$i18n.locale],
+            text: m.chartOptions.chartName[this.$i18n.locale],
           });
-          if (i === 0) {
-            this.selectedInd = element.indicator.name[this.$i18n.locale];
+          if (mInd === 0) {
+            this.selectedInd = m.chartOptions.chartName[this.$i18n.locale];
           }
-          catArray.push(mapObj);
+          rMapping = allMappings.filter((mAll) =>
+            m.chartOptions.dataMapping.includes(mAll.indicator.static_name)
+          );
+          if (rMapping.length) {
+            rMapping.forEach((element, i) => {
+              element.indicator.subIndicator.forEach((subEle) => {
+                subEle.selectedDE.forEach((s) => {
+                  de.push(s.id);
+                  mapObj.dx.push(s.id);
+                  mapObj.cyp[s.id] = 1;
+                });
+              });
+            });
+            catArray.push(mapObj);
+          }
         });
       }
       de = de.join(";");

@@ -2,7 +2,7 @@
 
     padding-top: 12%;
     background-color: var(--bg-main-color) !important;
-   
+    
     .modal-title {
         font-size: var(--font-size-sub-heading);
     }
@@ -371,7 +371,7 @@
    
 
     .border-greytheme{
-        height: 97% !important;
+        height: 98% !important;
         overflow-y: auto;
         margin-bottom: 15px !important;
     }
@@ -443,4 +443,9 @@ and (-webkit-min-device-pixel-ratio: 1) {
     }
 }
 
-
+// When we have added a chart in the modal (using our generic "HighChartComponentDynamic" component) and we toggle the table view, 
+// the "modal-open" class is getting removed from the "body" html tag resulting the modal stops scrolling
+// to handle the modal scroll we have added this hack
+[data-modal-open-count="1"] .modal {
+    overflow-y: auto;
+}

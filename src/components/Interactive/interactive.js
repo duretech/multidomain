@@ -1,4 +1,4 @@
-import { translateDate } from "@/components/Common/commonFunctions";
+// import { translateDate } from "@/components/Common/commonFunctions";
 const renameKeys = (obj) => {
   const keyValues = Object.keys(obj)
     .map((key) => {
@@ -334,9 +334,10 @@ export default {
               let isFound = selectedPeriod.find((pe) => pe.id == p);
               if (isFound) {
                 frmtData = isFound.text;
-              } else {
-                frmtData = translateDate({ rawDate: p, periodType });
               }
+              // else {
+              //   frmtData = p;
+              // }
             }
             if (Object.keys(rData[d]).includes(p)) {
               if (Object.keys(rData[d][p]).includes(s)) {
@@ -595,9 +596,10 @@ export default {
               let isFound = selectedPeriod.find((pe) => pe.id == p);
               if (isFound) {
                 frmtData = isFound.text;
-              } else {
-                frmtData = translateDate({ rawDate: p, periodType });
               }
+              // else {
+              //   frmtData = p;
+              // }
             }
             if (Object.keys(rData[d]).includes(p)) {
               obj.data.push({

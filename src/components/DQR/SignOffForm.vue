@@ -30,7 +30,7 @@
                 :disabled="isViewForm"
                 v-model="question.answer"
                 plain
-                class="d-flex align-item-center"
+                class="d-flex align-item-center sign-form"
               >
                 <b-form-radio
                   :value="opt.value"

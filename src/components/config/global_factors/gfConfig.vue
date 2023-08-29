@@ -57,7 +57,7 @@
                   :indicatorsList="indicatorsList"
                   :dataElementsList="dataElementsList"
                   :dataSetsList="dataSetsList"
-                  :metrixList="metrixList"
+                  :matrixList="matrixList"
                 />
               </b-card>
             </div>
@@ -159,7 +159,7 @@ export default {
     "indicatorsList",
     "dataElementsList",
     "dataSetsList",
-    "metrixList",
+    "matrixList",
   ],
   components: {
     period,

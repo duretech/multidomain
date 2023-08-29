@@ -97,7 +97,7 @@
     }
 
     .purple-btn {
-        background   : var(--primary-color-button) 0% 0% no-repeat padding-box;
+        background-color   : var(--primary-color-button);
         border-radius: 4px !important;
         border-color : var(--primary-color-button) !important;
         font-size    : 12px;
@@ -113,6 +113,9 @@
 
     .home-dqr {
         position: relative;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: wrap !important;
     }
 
     .dqr-content {

@@ -42,10 +42,22 @@
               <template>
                 <div class="accordion" role="tablist">
                   <b-card no-body class="mb-1">
-                    <b-card-header header-tag="header" class="p-1 map-header f-s-0-875rem font-weight-bold" role="tab">
-                      <b-button block v-b-toggle.accordion-1 variant="info">  {{ tabName }}</b-button>
+                    <b-card-header
+                      header-tag="header"
+                      class="p-1 map-header f-s-0-875rem font-weight-bold"
+                      role="tab"
+                    >
+                      <b-button block v-b-toggle.accordion-1 variant="info">
+                        {{ tabName }}</b-button
+                      >
                     </b-card-header>
-                    <b-collapse id="accordion-1" visible accordion="my-accordion" role="tabpanel" class="border-module">
+                    <b-collapse
+                      id="accordion-1"
+                      visible
+                      accordion="my-accordion"
+                      role="tabpanel"
+                      class="border-module"
+                    >
                       <b-card-body>
                         <b-card-text>
                           <b-row>
@@ -90,7 +102,9 @@
                                         <label class="col-sm-4 col-form-label"
                                           >{{ $t("displayName")
                                           }}<sup
-                                            ><span class="text-danger">*</span></sup
+                                            ><span class="text-danger"
+                                              >*</span
+                                            ></sup
                                           ></label
                                         >
                                         <div class="col-sm-8 translate-height">
@@ -99,7 +113,9 @@
                                               type="text"
                                               class="form-control"
                                               placeholder=""
-                                              v-model="formData.name[$i18n.locale]"
+                                              v-model="
+                                                formData.name[$i18n.locale]
+                                              "
                                               disabled
                                             />
                                             <b-input-group-append is-text>
@@ -113,24 +129,31 @@
                                     </b-col>
                                     <b-col sm="6" v-if="type !== 'indicators'">
                                       <div class="form-group row">
-                                        <label class="col-sm-4 col-form-label">{{
-                                          $t("groupDesc")
-                                        }}</label>
+                                        <label
+                                          class="col-sm-4 col-form-label"
+                                          >{{ $t("groupDesc") }}</label
+                                        >
                                         <div class="col-sm-8">
                                           <b-input-group>
                                             <b-form-textarea
                                               id="textarea"
                                               v-model="
-                                                formData.description[$i18n.locale]
+                                                formData.description[
+                                                  $i18n.locale
+                                                ]
                                               "
-                                              :placeholder="$t('enterGroupDesc')"
+                                              :placeholder="
+                                                $t('enterGroupDesc')
+                                              "
                                               rows="3"
                                               max-rows="6"
                                               disabled
                                             ></b-form-textarea>
                                             <b-input-group-append is-text>
                                               <Translations
-                                                :transText.sync="formData.description"
+                                                :transText.sync="
+                                                  formData.description
+                                                "
                                               />
                                             </b-input-group-append>
                                           </b-input-group>
@@ -142,7 +165,9 @@
                                         <label class="col-sm-4 col-form-label"
                                           >{{ $t("group")
                                           }}<sup
-                                            ><span class="text-danger">*</span></sup
+                                            ><span class="text-danger"
+                                              >*</span
+                                            ></sup
                                           ></label
                                         >
                                         <div class="col-sm-8">
@@ -151,7 +176,9 @@
                                             v-model="formData.groupId"
                                           >
                                             <option
-                                              v-for="group in getOpt(this.groups)"
+                                              v-for="group in getOpt(
+                                                this.groups
+                                              )"
                                               :key="group.id"
                                               :value="group.id"
                                             >
@@ -163,13 +190,18 @@
                                     </b-col>
                                     <b-col
                                       sm="6"
-                                      v-if="type === 'indicators' && formData.groupId"
+                                      v-if="
+                                        type === 'indicators' &&
+                                        formData.groupId
+                                      "
                                     >
                                       <div class="form-group row">
                                         <label class="col-sm-4 col-form-label"
                                           >{{ $t("subGroup")
                                           }}<sup
-                                            ><span class="text-danger">*</span></sup
+                                            ><span class="text-danger"
+                                              >*</span
+                                            ></sup
                                           ></label
                                         >
                                         <div class="col-sm-8">
@@ -193,21 +225,28 @@
                                     </b-col>
                                     <b-col sm="6" v-if="type === 'indicators'">
                                       <div class="form-group row">
-                                        <label class="col-sm-4 col-form-label">{{
-                                          $t("source")
-                                        }}</label>
-                                        <div class="col-sm-8 translate-adminheight">
+                                        <label
+                                          class="col-sm-4 col-form-label"
+                                          >{{ $t("source") }}</label
+                                        >
+                                        <div
+                                          class="col-sm-8 translate-adminheight"
+                                        >
                                           <b-input-group>
                                             <input
                                               type="text"
                                               class="form-control"
                                               placeholder=""
-                                              v-model="formData.source[$i18n.locale]"
+                                              v-model="
+                                                formData.source[$i18n.locale]
+                                              "
                                               disabled
                                             />
                                             <b-input-group-append is-text>
                                               <Translations
-                                                :transText.sync="formData.source"
+                                                :transText.sync="
+                                                  formData.source
+                                                "
                                               />
                                             </b-input-group-append>
                                           </b-input-group>
@@ -216,9 +255,10 @@
                                     </b-col>
                                     <b-col sm="12" v-if="type === 'indicators'">
                                       <div class="form-group row mb-0">
-                                        <label class="col-sm-2 col-form-label">{{
-                                          $t("scales")
-                                        }}</label>
+                                        <label
+                                          class="col-sm-2 col-form-label"
+                                          >{{ $t("scales") }}</label
+                                        >
                                         <div class="col-sm-10">
                                           <b-tabs
                                             content-class="mt-3"
@@ -238,7 +278,9 @@
                                                 <div class="row pb-2 pt-2">
                                                   <div class="col-4 mb-3">
                                                     <div class="input-group">
-                                                      <div class="input-group-prepend">
+                                                      <div
+                                                        class="input-group-prepend"
+                                                      >
                                                         <div
                                                           class="input-group-text p-1"
                                                         >
@@ -246,7 +288,9 @@
                                                             type="color"
                                                             class="form-control w-40px mt-lg-n1"
                                                             placeholder=""
-                                                            v-model="paletteColor"
+                                                            v-model="
+                                                              paletteColor
+                                                            "
                                                             style="
                                                               border-top-right-radius: 0px;
                                                               border-bottom-right-radius: 0px;
@@ -259,12 +303,16 @@
                                                         class="form-control"
                                                         placeholder=""
                                                         v-model="paletteColor"
-                                                        style="margin-left: -4px"
+                                                        style="
+                                                          margin-left: -4px;
+                                                        "
                                                       />
                                                     </div>
                                                   </div>
                                                   <div class="col-8">
-                                                    <div class="row color-admingroup">
+                                                    <div
+                                                      class="row color-admingroup"
+                                                    >
                                                       <div class="col-6">
                                                         <div
                                                           class="input-group p-0-5px"
@@ -276,7 +324,9 @@
                                                               class="input-group-text p-1 px-2 cursor-pointer"
                                                               v-b-tooltip.hover
                                                               :title="
-                                                                $t('percentageInfo')
+                                                                $t(
+                                                                  'percentageInfo'
+                                                                )
                                                               "
                                                             >
                                                               <i
@@ -290,11 +340,15 @@
                                                             max="99"
                                                             class="form-control col-4"
                                                             placeholder=""
-                                                            v-model="percentageLight"
+                                                            v-model="
+                                                              percentageLight
+                                                            "
                                                           />
                                                           <b-form-input
                                                             id="percentageLight-range-1"
-                                                            v-model="percentageLight"
+                                                            v-model="
+                                                              percentageLight
+                                                            "
                                                             class="form-control"
                                                             type="range"
                                                             min="-99"
@@ -313,7 +367,9 @@
                                                             <div
                                                               class="input-group-text p-1 px-2 cursor-pointer"
                                                               v-b-tooltip.hover
-                                                              :title="$t('shadesInfo')"
+                                                              :title="
+                                                                $t('shadesInfo')
+                                                              "
                                                             >
                                                               <i
                                                                 class="fa fa-info f-s-0-875rem"
@@ -326,11 +382,15 @@
                                                             max="9"
                                                             class="form-control col-4"
                                                             placeholder=""
-                                                            v-model="shadesNumber"
+                                                            v-model="
+                                                              shadesNumber
+                                                            "
                                                           />
                                                           <b-form-input
                                                             id="shadesNumber-range-1"
-                                                            v-model="shadesNumber"
+                                                            v-model="
+                                                              shadesNumber
+                                                            "
                                                             class="form-control mx-1"
                                                             type="range"
                                                             min="4"
@@ -342,49 +402,65 @@
                                                     </div>
                                                   </div>
                                                 </div>
-                                                <div class="row pb-4 color-shades">
-                                                  <div class="col-8">
-                                                    <div class="row mx-0 palettee1">
+                                                <div
+                                                  class="row pb-4 color-shades"
+                                                >
+                                                  <div class="col-7">
+                                                    <div
+                                                      class="row mx-0 palettee1"
+                                                    >
                                                       <div
                                                         class="p-3 border"
-                                                        v-for="(shade, i) in shades"
+                                                        v-for="(
+                                                          shade, i
+                                                        ) in shades"
                                                         :key="i"
                                                         :style="{
-                                                          'background-color': shade,
+                                                          'background-color':
+                                                            shade,
                                                         }"
                                                       ></div>
                                                     </div>
                                                   </div>
-                                                  <div class="col-4 text-right">
+                                                  <div class="col-5 text-right">
                                                     <b-button
                                                       class="black-btn btn-sm mx-1 admin-greybtn"
                                                       @click.prevent.stop="
                                                         applyPalette(levelIndex)
                                                       "
-                                                      >{{ $t("apply") }}</b-button
+                                                      >{{
+                                                        $t("apply")
+                                                      }}</b-button
                                                     >
                                                     <b-button
                                                       class="black-btn blue-btn btn-sm"
                                                       @click.prevent.stop="
                                                         applyPalette('all')
                                                       "
-                                                      >{{ $t("applyAll") }}</b-button
+                                                      >{{
+                                                        $t("applyAll")
+                                                      }}</b-button
                                                     >
                                                   </div>
                                                 </div>
                                                 <div class="row pb-4">
                                                   <div class="col-12">
-                                                    <div class="cursor-pointer small">
+                                                    <div
+                                                      class="cursor-pointer small"
+                                                    >
                                                       <span
                                                         @click="
-                                                          showShades = !showShades
+                                                          showShades =
+                                                            !showShades
                                                         "
                                                         ><u>{{
                                                           $t("predefinedColors")
                                                         }}</u></span
                                                       >
                                                     </div>
-                                                    <transition name="slide-fade">
+                                                    <transition
+                                                      name="slide-fade"
+                                                    >
                                                       <div
                                                         v-if="showShades"
                                                         class="border p-2 border-radius-4px"
@@ -404,7 +480,9 @@
                                                           "
                                                         >
                                                           <div class="col-5">
-                                                            <div class="row mx-0">
+                                                            <div
+                                                              class="row mx-0"
+                                                            >
                                                               <div
                                                                 class="p-3 border col"
                                                                 v-for="(
@@ -418,7 +496,9 @@
                                                               ></div>
                                                             </div>
                                                           </div>
-                                                          <div class="col-7 text-right">
+                                                          <div
+                                                            class="col-7 text-right"
+                                                          >
                                                             <b-button
                                                               class="black-btn btn-sm mx-1"
                                                               @click.prevent.stop="
@@ -456,14 +536,18 @@
                                                   <div class="col-7">
                                                     <b-form-checkbox
                                                       checked="levelScale.isAutoRange"
-                                                      v-model="levelScale.isAutoRange"
+                                                      v-model="
+                                                        levelScale.isAutoRange
+                                                      "
                                                       name="check-button"
                                                       switch
                                                       size="lg"
                                                       @change="
                                                         autoScaling(
                                                           levelIndex,
-                                                          formData.name[$i18n.locale],
+                                                          formData.name[
+                                                            $i18n.locale
+                                                          ],
                                                           levelScale.isAutoRange
                                                         )
                                                       "
@@ -489,14 +573,21 @@
                                                       <input
                                                         type="text"
                                                         class="form-control"
-                                                        :placeholder="$t('label')"
+                                                        :placeholder="
+                                                          $t('label')
+                                                        "
                                                         v-model="
-                                                          levelScale.scales[scaleIndex]
-                                                            .scaleLabel[$i18n.locale]
+                                                          levelScale.scales[
+                                                            scaleIndex
+                                                          ].scaleLabel[
+                                                            $i18n.locale
+                                                          ]
                                                         "
                                                         disabled
                                                       />
-                                                      <b-input-group-append is-text>
+                                                      <b-input-group-append
+                                                        is-text
+                                                      >
                                                         <Translations
                                                           :transText.sync="
                                                             levelScale.scales[
@@ -517,11 +608,14 @@
                                                       type="text"
                                                       class="form-control"
                                                       :placeholder="
-                                                        $t('placeholderLowRange')
+                                                        $t(
+                                                          'placeholderLowRange'
+                                                        )
                                                       "
                                                       v-model="
-                                                        levelScale.scales[scaleIndex]
-                                                          .lowScale
+                                                        levelScale.scales[
+                                                          scaleIndex
+                                                        ].lowScale
                                                       "
                                                       :disabled="
                                                         scaleIndex === 0 &&
@@ -540,9 +634,12 @@
                                                           levelIndex,
                                                           scaleIndex,
                                                           'low',
-                                                          levelScale.scales[scaleIndex]
-                                                            .lowScale,
-                                                          formData.name[$i18n.locale]
+                                                          levelScale.scales[
+                                                            scaleIndex
+                                                          ].lowScale,
+                                                          formData.name[
+                                                            $i18n.locale
+                                                          ]
                                                         )
                                                       "
                                                     />
@@ -557,11 +654,14 @@
                                                       type="text"
                                                       class="form-control"
                                                       :placeholder="
-                                                        $t('placeholderHighRange')
+                                                        $t(
+                                                          'placeholderHighRange'
+                                                        )
                                                       "
                                                       v-model="
-                                                        levelScale.scales[scaleIndex]
-                                                          .highScale
+                                                        levelScale.scales[
+                                                          scaleIndex
+                                                        ].highScale
                                                       "
                                                       :class="{
                                                         'border-danger':
@@ -569,15 +669,20 @@
                                                             `high${levelIndex}${scaleIndex}`
                                                           ),
                                                       }"
-                                                      :disabled="levelScale.isAutoRange"
+                                                      :disabled="
+                                                        levelScale.isAutoRange
+                                                      "
                                                       @change="
                                                         validateInput(
                                                           levelIndex,
                                                           scaleIndex,
                                                           'high',
-                                                          levelScale.scales[scaleIndex]
-                                                            .highScale,
-                                                          formData.name[$i18n.locale]
+                                                          levelScale.scales[
+                                                            scaleIndex
+                                                          ].highScale,
+                                                          formData.name[
+                                                            $i18n.locale
+                                                          ]
                                                         )
                                                       "
                                                     />
@@ -589,8 +694,12 @@
                                                         levelScale.isAutoRange,
                                                     }"
                                                   >
-                                                    <div class="input-group-prepend">
-                                                      <div class="input-group-text p-1">
+                                                    <div
+                                                      class="input-group-prepend"
+                                                    >
+                                                      <div
+                                                        class="input-group-text p-1"
+                                                      >
                                                         <input
                                                           type="color"
                                                           class="form-control w-40px mt-lg-n1"
@@ -612,8 +721,9 @@
                                                       class="form-control"
                                                       placeholder=""
                                                       v-model="
-                                                        levelScale.scales[scaleIndex]
-                                                          .scaleColor
+                                                        levelScale.scales[
+                                                          scaleIndex
+                                                        ].scaleColor
                                                       "
                                                       style="margin-left: -4px"
                                                     />
@@ -626,8 +736,12 @@
                                                   {{ $t("addbtn") }}
                                                 </button>
                                                 <button
-                                                  v-if="levelScale.scales.length > 4"
-                                                  @click="removeScale(levelIndex)"
+                                                  v-if="
+                                                    levelScale.scales.length > 4
+                                                  "
+                                                  @click="
+                                                    removeScale(levelIndex)
+                                                  "
                                                   class="btn black-btn btn-sm btn-secondary"
                                                 >
                                                   {{ $t("deletebtn") }}
@@ -680,7 +794,9 @@
                                               </b-form-select>
                                             </div>
                                             <div class="to-levels mb-2">
-                                              <span class="small">{{ $t("to") }}</span>
+                                              <span class="small">{{
+                                                $t("to")
+                                              }}</span>
                                               <b-form-select
                                                 v-model="selectedTreeLevel"
                                                 size="sm"
@@ -702,7 +818,9 @@
                                                 class="mt-1"
                                                 style="font-size: 0.6875rem"
                                               >
-                                                <strong>{{ $t("note") }}: </strong>
+                                                <strong
+                                                  >{{ $t("note") }}:
+                                                </strong>
                                                 {{ $t("multiSelectNote") }}
                                               </div>
                                             </div>
@@ -713,15 +831,24 @@
                                                   v-model="selectedCopyOption"
                                                   name="copy-options"
                                                 >
-                                                  <b-form-checkbox value="labels">{{
-                                                    $t("labels")
-                                                  }}</b-form-checkbox>
-                                                  <b-form-checkbox value="range">{{
-                                                    $t("range")
-                                                  }}</b-form-checkbox>
-                                                  <b-form-checkbox value="colors">{{
-                                                    $t("colors")
-                                                  }}</b-form-checkbox>
+                                                  <b-form-checkbox
+                                                    value="labels"
+                                                    >{{
+                                                      $t("labels")
+                                                    }}</b-form-checkbox
+                                                  >
+                                                  <b-form-checkbox
+                                                    value="range"
+                                                    >{{
+                                                      $t("range")
+                                                    }}</b-form-checkbox
+                                                  >
+                                                  <b-form-checkbox
+                                                    value="colors"
+                                                    >{{
+                                                      $t("colors")
+                                                    }}</b-form-checkbox
+                                                  >
                                                 </b-form-checkbox-group>
                                               </b-form-group>
                                             </div>
@@ -747,31 +874,40 @@
                                           <b-input-group>
                                             <b-form-textarea
                                               id="inputChartInfo"
-                                              v-model="formData.chartInfo[$i18n.locale]"
+                                              v-model="
+                                                formData.chartInfo[$i18n.locale]
+                                              "
                                               :state="
                                                 formData.chartInfo &&
-                                                formData.chartInfo[$i18n.locale] &&
+                                                formData.chartInfo[
+                                                  $i18n.locale
+                                                ] &&
                                                 formData.chartInfo[$i18n.locale]
                                                   .length !== 0 &&
                                                 formData.chartInfo[$i18n.locale]
                                                   .length <= chartInfoMaxLength
                                               "
-                                              :placeholder="chartInfoPlaceholder"
+                                              :placeholder="
+                                                chartInfoPlaceholder
+                                              "
                                               rows="3"
                                               :maxlength="chartInfoMaxLength"
                                               disabled
                                             ></b-form-textarea>
                                             <b-input-group-append is-text>
                                               <Translations
-                                                :transText.sync="formData.chartInfo"
+                                                :transText.sync="
+                                                  formData.chartInfo
+                                                "
                                               />
                                             </b-input-group-append>
                                           </b-input-group>
                                           <span
                                             >{{
                                               formData.chartInfo[$i18n.locale]
-                                                ? formData.chartInfo[$i18n.locale]
-                                                    .length
+                                                ? formData.chartInfo[
+                                                    $i18n.locale
+                                                  ].length
                                                 : 0
                                             }}/{{ chartInfoMaxLength }}</span
                                           >
@@ -780,9 +916,10 @@
                                     </b-col>
                                     <b-col sm="6">
                                       <div class="form-group row">
-                                        <label class="col-sm-4 col-form-label">{{
-                                          $t("visible")
-                                        }}</label>
+                                        <label
+                                          class="col-sm-4 col-form-label"
+                                          >{{ $t("visible") }}</label
+                                        >
                                         <div class="col-sm-8">
                                           <b-form-checkbox
                                             checked="formData.visible"
@@ -804,9 +941,10 @@
                                       "
                                     >
                                       <div class="form-group row">
-                                        <label class="col-sm-4 col-form-label">{{
-                                          $t("useSavedEMU")
-                                        }}</label>
+                                        <label
+                                          class="col-sm-4 col-form-label"
+                                          >{{ $t("useSavedEMU") }}</label
+                                        >
                                         <div class="col-sm-8">
                                           <b-form-checkbox
                                             v-model="formData.isSavedData"
@@ -821,7 +959,8 @@
                                     <b-col
                                       sm="12"
                                       v-if="
-                                        !formData.isSavedData && type === 'indicators'
+                                        !formData.isSavedData &&
+                                        type === 'indicators'
                                       "
                                     >
                                       <div class="form-group row">
@@ -829,7 +968,11 @@
                                           <div
                                             class="card-header map-header f-s-0-875rem p-10px accordion-header1 f-s-0-875rem font-weight-bold bt-10"
                                           >
-                                            {{ $t("indicators_Data_Elements_Mapping") }}
+                                            {{
+                                              $t(
+                                                "indicators_Data_Elements_Mapping"
+                                              )
+                                            }}
                                           </div>
                                         </div>
                                         <div
@@ -839,12 +982,16 @@
                                           ) in formData.subIndicator"
                                           :key="ind"
                                         >
-                                          <div class="card card-body admin-emucard">
+                                          <div
+                                            class="card card-body admin-emucard"
+                                          >
                                             <AddMapping
-                                              :metrixList="metrixList"
+                                              :matrixList="matrixList"
                                               :dataSetsList="dataSetsList"
                                               :indicatorsList="indicatorsList"
-                                              :dataElementsList="dataElementsList"
+                                              :dataElementsList="
+                                                dataElementsList
+                                              "
                                               :modalKey="
                                                 'add-mapping' +
                                                 ('chartBySubtype' + type) +
@@ -855,7 +1002,8 @@
                                                 formData.subIndicator[ind].type
                                               "
                                               :selectedDE.sync="
-                                                formData.subIndicator[ind].selectedDE
+                                                formData.subIndicator[ind]
+                                                  .selectedDE
                                               "
                                               v-if="isDataFetched"
                                             />
@@ -875,7 +1023,9 @@
                                           class="btn-dark blue-btn"
                                           :disabled="disableBtn"
                                           >{{
-                                            editData ? $t("update") : $t("savebtn")
+                                            editData
+                                              ? $t("update")
+                                              : $t("savebtn")
                                           }}</b-button
                                         >
                                       </div>
@@ -892,7 +1042,10 @@
                                 <table class="table table-bordered">
                                   <thead class="thead-dark">
                                     <tr>
-                                      <th scope="col" v-if="type === 'indicators'">
+                                      <th
+                                        scope="col"
+                                        v-if="type === 'indicators'"
+                                      >
                                         {{ $t("indicator") }}
                                       </th>
                                       <th scope="col" v-if="type !== 'groups'">
@@ -930,7 +1083,8 @@
                                                 src="@/assets/images/icons/editActive.svg"
                                                 :style="{ filter: filterColor }"
                                                 class="mt-lg-n1 w-14"
-                                                v-b-tooltip.hover title="Edit"
+                                                v-b-tooltip.hover
+                                                title="Edit"
                                               />
                                               <!-- <span class="px-1">
                                                 {{ $t("edit") }}
@@ -940,12 +1094,15 @@
                                               size="sm"
                                               variant="secondary"
                                               class="cursor-pointer deleteBtn mx-3"
-                                              @click="deleteEntry(data.formData)"
+                                              @click="
+                                                deleteEntry(data.formData)
+                                              "
                                             >
                                               <img
                                                 src="@/assets/images/icons/admindelete-icon.svg"
                                                 :style="{ filter: filterColor }"
-                                                v-b-tooltip.hover title="Delete"
+                                                v-b-tooltip.hover
+                                                title="Delete"
                                               />
                                               <!-- <span class="px-1">
                                                 {{ $t("deletebtn") }}
@@ -974,15 +1131,11 @@
                             </b-col>
                           </b-row>
                         </b-card-text>
-                       
                       </b-card-body>
                     </b-collapse>
                   </b-card>
-              
-                
                 </div>
               </template>
-              
             </div>
           </b-card-text>
         </b-tab>
@@ -1005,7 +1158,7 @@ export default {
     "addBtnTxt",
     "addFrmTxt",
     "editFrmTxt",
-    "metrixList",
+    "matrixList",
     "dataSetsList",
     "isDataFetched",
     "indicatorsList",
@@ -1130,46 +1283,37 @@ export default {
       if (this.type === "groups") {
         filteredD = this.groupedData.filter(
           (a) =>
-            a.gName &&
-            a.gName[this.$i18n.locale] &&
-            a.gName[this.$i18n.locale]
-              .toLowerCase()
-              .includes(this.searchName.toLowerCase())
+            a.gName?.[this.$i18n.locale]
+              ?.toLowerCase()
+              .includes(this.searchName.toLowerCase()) ||
+            !a.gName?.[this.$i18n.locale]
         );
       }
       if (this.type === "subGroups") {
         filteredD = this.groupedData.filter(
           (a) =>
-            (a.sgName &&
-              a.sgName[this.$i18n.locale] &&
-              a.sgName[this.$i18n.locale]
-                .toLowerCase()
-                .includes(this.searchName.toLowerCase())) ||
-            (a.gName &&
-              a.gName[this.$i18n.locale] &&
-              a.gName[this.$i18n.locale]
-                .toLowerCase()
-                .includes(this.searchName.toLowerCase()))
+            a.sgName?.[this.$i18n.locale]
+              ?.toLowerCase()
+              .includes(this.searchName.toLowerCase()) ||
+            !a.sgName?.[this.$i18n.locale] ||
+            a.gName?.[this.$i18n.locale]
+              ?.toLowerCase()
+              .includes(this.searchName.toLowerCase())
         );
       }
       if (this.type === "indicators") {
         filteredD = this.groupedData.filter(
           (a) =>
-            (a.indName &&
-              a.indName[this.$i18n.locale] &&
-              a.indName[this.$i18n.locale]
-                .toLowerCase()
-                .includes(this.searchName.toLowerCase())) ||
-            (a.gName &&
-              a.gName[this.$i18n.locale] &&
-              a.gName[this.$i18n.locale]
-                .toLowerCase()
-                .includes(this.searchName.toLowerCase())) ||
-            (a.sgName &&
-              a.sgName[this.$i18n.locale] &&
-              a.sgName[this.$i18n.locale]
-                .toLowerCase()
-                .includes(this.searchName.toLowerCase()))
+            a.indName?.[this.$i18n.locale]
+              ?.toLowerCase()
+              .includes(this.searchName.toLowerCase()) ||
+            !a.indName?.[this.$i18n.locale] ||
+            a.gName?.[this.$i18n.locale]
+              ?.toLowerCase()
+              .includes(this.searchName.toLowerCase()) ||
+            a.sgName?.[this.$i18n.locale]
+              ?.toLowerCase()
+              .includes(this.searchName.toLowerCase())
         );
       }
       return filteredD.slice(
@@ -1184,12 +1328,16 @@ export default {
           let isFound = groups.find((g) => g.id === gId);
           if (isFound) {
             isFound.subGroups.forEach((sub) => {
-              grp.push({ id: sub.id, name: sub.name });
+              if (sub.name?.[this.$i18n.locale]) {
+                grp.push({ id: sub.id, name: sub.name });
+              }
             });
           }
         } else {
           groups.forEach((g) => {
-            grp.push({ id: g.id, name: g.name });
+            if (g.name?.[this.$i18n.locale]) {
+              grp.push({ id: g.id, name: g.name });
+            }
           });
         }
         return grp;
@@ -1465,7 +1613,7 @@ export default {
       this.$store.commit("setLoading", true);
       let key = this.generateKey("mapVisualization");
       let pData = this.formData;
-      let oConfig = service.getSavedConfig(key);
+      let oConfig = service.getSavedConfig({ tableKey: key });
       oConfig
         .then((response) => {
           let data = response.data;
@@ -1524,7 +1672,7 @@ export default {
             });
           }
           service
-            .updateConfig(data, key)
+            .updateConfig({ data: data, tableKey: key })
             .then((response) => {
               if (response.data.status === "OK") {
                 this.sweetAlert({
@@ -1553,7 +1701,7 @@ export default {
           if (this.type == "groups") {
             let data = [this.formData];
             service
-              .saveConfig(data, key)
+              .saveConfig({ data: data, tableKey: key })
               .then((res) => {
                 if (res.data.status === "OK") {
                   this.sweetAlert({

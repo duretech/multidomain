@@ -40,10 +40,10 @@ export default {
     sorting: "Sorting",
     from: "From",
     to: "To",
-    chart_title: "Chart Title",
-    chart_title2: "Chart 2 Title",
-    chart_subtitle: "Chart Subtitle",
-    chart_subtitle2: "Chart 2 Subtitle",
+    chart_title: "Title",
+    chart_title2: "Title 2",
+    chart_subtitle: "Subtitle",
+    chart_subtitle2: "Subtitle 2",
     export_options: "Export Options",
     fileName_placeholder: "File Name",
     legends: "Legends",
@@ -72,7 +72,7 @@ export default {
     fileTypeMismatch: "File type mismatch",
     selectValidImage: "Please select valid image file!",
     moduleDeleted: "Module has been deleted.",
-    chartSynced: "Chart synced successfully!",
+    chartSynced: "Synced successfully!",
     moduleUpdated: "Module updated successfully!",
     moduleCreated: "Module created successfully!",
     nameYourBookmark: "Name your bookmark",
@@ -84,7 +84,7 @@ export default {
     bookmarkName: "Your bookmark name is {name}",
     changeName: "Change Name ?",
     warnMessage: "You need to select 1 option",
-    saveChartAsFav: "Save Chart As Favorite",
+    saveChartAsFav: "Save as Favorite",
     noRegionsFound: "No regions found!",
     usersPermissionDeleteSuccess: "User permissions deleted successfully!",
     left: "Left",
@@ -116,6 +116,7 @@ export default {
     quarter: "Quarter",
     year: "Year",
     financialYear: "Financial Year (Start April)",
+    financialYearNepal: "Financial Year (Start Shr)",
     emu_annual: "EMU Annual",
     low: "Low",
     medium: "Medium",
@@ -146,7 +147,9 @@ export default {
     indicator: "Indicator",
     view_key_indicators_variations: "View key indicators variations",
     trend: "Trend",
+    Y: "Y",
     Q: "Q",
+    M: "M",
     Monthly_view: "Monthly view",
     Quaterly_view: "Quarterly view",
     Yearly_view: "Yearly view",
@@ -163,6 +166,7 @@ export default {
     description: "Description",
     admin: "Admin",
     viewMore: "View More",
+    viewLess: "View Less",
     dashboard: "Dashboard",
     saved: "Saved Favorites",
     mapVisualization: "Map Visualization",
@@ -270,8 +274,8 @@ export default {
     x_axis: "X-axis Title",
     y_axis: "Y-axis Title",
     dataLabels: "Data Labels",
-    chartHeading: "Chart Heading",
-    chartInformation: "Chart Information",
+    chartHeading: "Heading",
+    chartInformation: "Information",
     displayName: "Display Name",
     visible: "Visible",
     disable: "Disable",
@@ -528,7 +532,7 @@ export default {
     dashboardIndicator: "Dashboard Indicator",
     wide: "Wide",
     grid: "Grid",
-    map: "MAP",
+    map: "Map",
     maperror_msg: "Mapping not available",
     resetMap: "Reset Map",
     highchartmsg_footer1: "Value < -5% Lower than prior month/year",
@@ -783,7 +787,7 @@ export default {
     eventDataItems: "Event Data Items",
     programIndicators: "Program Indicators",
     update: "Update",
-    chartType: "Chart Type",
+    chartType: "Type",
     layout: "Layout",
     move: "Move",
     moveAll: "Move All",
@@ -864,7 +868,6 @@ export default {
     signOffQ: "Sign Off Questions",
     mapSettings: "Map Settings",
     noAvailable: "Settings not available.",
-    addChart: "Please add chart setting using",
     btn: "button",
     showGroups: "Show Groups",
     noOpt: "There are no options",
@@ -959,7 +962,7 @@ export default {
     increaseFont: "Increase Font Size",
     seasonalTrend: "Seasonal Trend",
     regionalTrend: "Regional Trend",
-    cType: "Please select chart type",
+    cType: "Please select type",
     clusterBar: "Cluster Bar",
     emuNatBench: "EMU with National Benchmark",
     emuAvg: "EMU Average",
@@ -982,35 +985,49 @@ export default {
     funOpt2Hover:
       "The <code>{COMPARE_LAST_PERIOD}</code> will be replaced by <code>increased/decreased/remain constant</code> after comparing the <strong>current period value</strong> with <strong>previous period value</strong>.",
     funOpt3: "Compare Last Year Same Month Value",
-    funOpt3Hover: "",
+    funOpt3Hover:
+      "Will be replaced by <code>increased/decreased/similar</code>",
     funOpt4: "Current Period Value",
-    funOpt4Hover: "",
+    funOpt4Hover: "Will be replaced by the <code>selected period</code>",
     funOpt5: "Last Period Value",
-    funOpt5Hover: "",
+    funOpt5Hover:
+      "Will be replaced by the value in the last period of the selected period type",
     funOpt6: "Last Year Period",
-    funOpt6Hover: "",
+    funOpt6Hover: "Will be replaced by same month of the last year",
     funOpt7: "Last Year Period Value",
-    funOpt7Hover: "",
+    funOpt7Hover: "Will be replaced by value of same month of the last year",
     funOpt8: "Increased Method Use",
-    funOpt8Hover: "",
+    funOpt8Hover:
+      "Will be replaced by <code>method name</code> which has greatest increase among methods",
     funOpt9: "Decreased Method Use",
-    funOpt9Hover: "",
+    funOpt9Hover:
+      "Will be replaced by <code>method name</code> which has greatest decrease among methods",
     funOpt10: "Compare with Other Indicator",
-    funOpt10Hover: "",
+    funOpt10Hover:
+      "Will be relaced by <code>similar to/lower than/higher than</code>",
     funOpt11: "Compare with Other Indicator Name",
-    funOpt11Hover: "",
+    funOpt11Hover:
+      "Will be replaced by <code>name of the indicator</code> that it is compared with",
     funOpt12: "Compare with Tracer Method",
-    funOpt12Hover: "",
+    funOpt12Hover: "Will be replaced by <code>high/low/moderate</code>",
     funOpt13: "Method availability of FP uptake",
-    funOpt13Hover: "",
+    funOpt13Hover:
+      "Will be replaced by <code>Method availability may constrain growth of FP uptake/method availability could constrain growth of FP uptake/method availability is not constraining growth of FP uptake</code>",
     funOpt14: "Show last 5 regions",
-    funOpt14Hover: "",
+    funOpt14Hover:
+      "Will be replaced by <code>names of the last 5 regions</code>",
+    funOpt15: "Org Level Name",
+    funOpt15Hover: "Will be replaced by <code>organization level name</code>",
+    funOpt16: "Current Period",
+    funOpt16Hover: "",
+    funOpt17: "Last Period",
+    funOpt17Hover: "",
     emuSettings: "EMU Settings",
     noAction: "No action available on benchmarks",
     noDataPeriod: "Data not available for selected period",
     rError: "Error in R{factor} calculation",
     noEmu: "EMU data not found",
-    configError: "Chart config fetching error",
+    configError: "Config fetching error",
     emuNotAvailable: "EMU not applicable to the selected period type",
     flagMsg:
       "<strong>Flag:</strong> {benchmark} sub-national areas are moving in a different direction than the national trend in priority indicator",
@@ -1086,6 +1103,30 @@ export default {
     comOptional: "Comment (Optional)",
     readMore: "Read More",
     readLess: "Read Less",
+    byFacility: "By Facility",
+    CTFacility: "Reporting Rate by Facility",
+    ICFacility: "Internal Consistency by Facility",
+    CCFacility: "Correlation Rate by Facility",
+    IndGroup: "Select indicator group",
+    DEGroup: "Select data element group",
+    DSGroup: "Select data set group",
+    ProgGroup: "Select program",
+    basePeriodInfo:
+      "The base period refers to the number of month to be backtracked with reference to the period set up for the application in the Admin.",
+    mapScaleInfo:
+      "This is a dynamic legend, which auto-scales the five categories based on data that changes in the indicator and period. The scale will change if the range of values changes.",
+    today: "Today",
+    nDays: "Last {n} Days",
+    allTime: "All Time",
+    uAnalytics: "Uses Analytics",
+    uniqueOnly: "Unique per Day",
+    mByUser: "Modules Visited by User",
+    mByLocUser: "Modules Visited",
+    mByLoc: "Modules Visited by Location",
+    uByLoc: "Users by Location",
+    uByDate: "Users per Day",
+    tCount: "Count",
+    chartDetails: "Chart Details",
   },
   fr: {
     backTo: "ᐊ Retour à", //checked
@@ -1120,10 +1161,10 @@ export default {
     sorting: "Triage", //checked
     from: "De", //checked
     to: "À", //checked
-    chart_title: "Titre du Graphique", //checked
-    chart_title2: "Titre du Graphique 2", //checked
-    chart_subtitle: "Sous-titre du graphique", //checked
-    chart_subtitle2: "Sous-titre du Graphique 2", //checked
+    chart_title: "Titre", //checked
+    chart_title2: "Titre 2", //checked
+    chart_subtitle: "Sous-titre", //checked
+    chart_subtitle2: "Sous-titre 2", //checked
     export_options: "Options d'exportation", //checked
     fileName_placeholder: "Nom du fichier", //checked
     legends: "Légende de la carte", //checked
@@ -1155,7 +1196,7 @@ export default {
     fileTypeMismatch: "Incompatibilité de type de fichier", //checked
     selectValidImage: "Veuillez sélectionner un fichier image valide !", //checked
     moduleDeleted: "Le module a été supprimé.", //checked
-    chartSynced: "Graphique synchronisé avec succès !",
+    chartSynced: "Synchronisé avec succès !",
     moduleUpdated: "Module mis à jour avec succès !", //checked
     moduleCreated: "Module créé avec succès !", //checked
     nameYourBookmark: "Nommez votre signet", //checked
@@ -1167,7 +1208,7 @@ export default {
     bookmarkName: "Le nom de votre signet est {name}", //checked
     changeName: "Changer de nom ?", //checked
     warnMessage: "Vous devez sélectionner 1 option", //checked
-    saveChartAsFav: "Enregistrer le graphique comme favori", //checked
+    saveChartAsFav: "Enregistrer comme favori", //checked
     noRegionsFound: "Aucune région trouvée !", //checked
     usersPermissionDeleteSuccess:
       "Les autorisations utilisateur ont été supprimées avec succès!", //checked
@@ -1248,6 +1289,7 @@ export default {
     description: "Description", //checked
     admin: "Administrateur", //checked
     viewMore: "Afficher plus", //checked
+    viewLess: "Montrer moins",
     dashboard: "TABLEAU DE BORD", //checked
     saved: "Favoris enregistrés", //checked
     mapVisualization: "Visualisation de la carte", //checked
@@ -1359,8 +1401,8 @@ export default {
     x_axis: "Titre Axe-X", //checked
     y_axis: "Titre Axe-Y", //checked
     dataLabels: "Étiquettes de données", //checked
-    chartHeading: "Rubrique du tableau", //checked
-    chartInformation: "Informations sur le graphique", //checked
+    chartHeading: "Titre",
+    chartInformation: "Informations", //checked
     displayName: "Nom d'affichage", //checked
     visible: "Visible", //checked
     disable: "désactiver", //checked
@@ -1511,7 +1553,7 @@ export default {
     editTranslation: "Modifier la traduction", //checked
     revert: "Revenir", //checked
     selectTranslation: "Sélectionnez la traduction à modifier", //checked
-    condom: "Préservatif", //checked
+    condom: "Préservatifs", //checked
     region: "Région", //checked
     fp_visits: "Visites de PF", //checked
     commodities_to_clients: "Produits aux clients", //checked
@@ -1625,7 +1667,7 @@ export default {
     dashboardIndicator: "Indicateur de tableau de bord", //checked
     wide: "Large", //checked
     grid: "Grille", //checked
-    map: "CARTE", //checked
+    map: "Carte", //checked
     maperror_msg: "Cartographie non disponible", //checked
     resetMap: "Réinitialiser la carte", //checked
     highchartmsg_footer1:
@@ -1888,7 +1930,7 @@ export default {
     eventDataItems: "Éléments de données d'événement", //checked
     programIndicators: "Indicateurs du programme", //checked
     update: "Mise à jour", //checked
-    chartType: "Type de graphique", //checked
+    chartType: "Type", //checked
     layout: "Disposition", //checked
     move: "déplacer", //checked
     moveAll: "Tout déplacer", //checked
@@ -1968,7 +2010,6 @@ export default {
     signOffQ: "Questions de signature", //checked
     mapSettings: "Paramètres de la carte", //checked
     noAvailable: "Paramètres non disponibles.", //checked
-    addChart: "Veuillez ajouter un paramètre de graphique à l'aide de", //checked
     btn: "bouton", //checked
     showGroups: "Afficher les groupes", //checked
     noOpt: "Il n'y a pas d'options", //checked
@@ -2067,7 +2108,7 @@ export default {
     increaseFont: "Augmenter la taille de la police",
     seasonalTrend: "Tendance saisonnière",
     regionalTrend: "Tendance régionale",
-    cType: "Veuillez sélectionner le type de graphique",
+    cType: "Veuillez sélectionner le type",
     clusterBar: "Barre de cluster",
     emuNatBench: "EUM avec référence nationale",
     emuAvg: "Moyenne de EUM",
@@ -2091,35 +2132,49 @@ export default {
     funOpt2Hover:
       "Le <code>{COMPARE_LAST_PERIOD}</code> sera remplacé par <code>augmentation/diminution/reste constant</code> après avoir comparé la <strong>valeur de la période actuelle</strong> avec la <strong>valeur de la période précédente</strong>.",
     funOpt3: "Comparer la valeur du même mois de l’année dernière",
-    funOpt3Hover: "",
+    funOpt3Hover: "Sera remplacé par <code>augmenté/diminué/similaire</code>",
     funOpt4: "Valeur de la période en cours",
-    funOpt4Hover: "",
+    funOpt4Hover: "Sera remplacé par la <code>période sélectionnée</code>",
     funOpt5: "Valeur de la dernière période",
-    funOpt5Hover: "",
+    funOpt5Hover:
+      "Sera remplacé par la valeur de la dernière période du type de période sélectionné",
     funOpt6: "Période de l’année dernière",
-    funOpt6Hover: "",
+    funOpt6Hover: "Sera remplacé par le même mois de l'année dernière",
     funOpt7: "Valeur de la période de l’année dernière",
-    funOpt7Hover: "",
+    funOpt7Hover:
+      "Sera remplacé par la valeur du même mois de l'année dernière",
     funOpt8: "Utilisation accrue de la méthode",
-    funOpt8Hover: "",
+    funOpt8Hover:
+      "Sera remplacé par <code>nom de la méthode</code> qui a la plus grande augmentation parmi les méthodes",
     funOpt9: "Diminution de l’utilisation de la méthode",
-    funOpt9Hover: "",
+    funOpt9Hover:
+      "Sera remplacé par <code>nom de la méthode</code> qui a la plus forte diminution parmi les méthodes",
     funOpt10: "Comparer avec d’autres indicateurs",
-    funOpt10Hover: "",
+    funOpt10Hover:
+      "Sera remplacé par <code>semblable à/inférieur à/supérieur à</code>",
     funOpt11: "Comparer avec d’autres noms d’indicateurs",
-    funOpt11Hover: "",
+    funOpt11Hover:
+      "Sera remplacé par le <code>nom de l'indicateur</code> auquel il est comparé",
     funOpt12: "Comparer avec la méthode Tracer",
-    funOpt12Hover: "",
+    funOpt12Hover: "Sera remplacé par <code>élevé/faible/modéré</code>",
     funOpt13: "Disponibilité de la méthode de l’adoption de la PF",
-    funOpt13Hover: "",
+    funOpt13Hover:
+      "Sera remplacé par <code>La disponibilité des méthodes peut limiter la croissance de l'adoption de la PF/la disponibilité des méthodes pourrait limiter la croissance de l'adoption de la PF/la disponibilité des méthodes ne limite pas la croissance de l'adoption de la PF</code>",
     funOpt14: "Afficher les 5 dernières régions",
-    funOpt14Hover: "",
+    funOpt14Hover:
+      "Seront remplacés par les <code>noms des 5 dernières régions</code>",
+    funOpt15: "Nom du niveau d'organisation",
+    funOpt15Hover: "Sera remplacé par <code>org. noms de niveau</code>",
+    funOpt16: "Current Period",
+    funOpt16Hover: "",
+    funOpt17: "Last Period",
+    funOpt17Hover: "",
     emuSettings: "Paramètres de l'UEM",
     noAction: "Aucune action disponible sur les benchmarks",
     noDataPeriod: "Données non disponibles pour la période sélectionnée",
     rError: "Erreur dans le calcul du R{facteur}",
     noEmu: "Données de l’UEM introuvables",
-    configError: "Erreur de récupération de la configuration du graphique",
+    configError: "Erreur de récupération de la configuration",
     emuNotAvailable: "UEM non applicable au type de période sélectionné",
     flagMsg:
       "<strong>Indicateur :</strong> les zones infranationales {benchmark} évoluent dans une direction différente de la tendance nationale de l'indicateur prioritaire",
@@ -2198,5 +2253,29 @@ export default {
     comOptional: "Commentaire (facultatif)",
     readMore: "En savoir plus",
     readLess: "Lire moins",
+    byFacility: "par strucutre",
+    CTFacility: "Taux de déclaration par installation",
+    ICFacility: "Cohérence interne par installation",
+    CCFacility: "Taux de corrélation par établissement",
+    IndGroup: "Sélectionner le groupe d'indicateurs",
+    DEGroup: "Sélectionner un groupe d'éléments de données",
+    DSGroup: "Sélectionner le groupe d'ensembles de données",
+    ProgGroup: "Sélectionnez le programme",
+    basePeriodInfo:
+      "La période de base fait référence au nombre de mois à revenir en arrière par rapport à la période configurée pour l'application dans l'Admin.",
+    mapScaleInfo:
+      "Il s'agit d'une légende dynamique, qui met à l'échelle automatiquement les cinq catégories en fonction des données qui changent dans l'indicateur et la période. L'échelle changera si la plage de valeurs change.",
+    today: "Aujourd'hui",
+    nDays: "{n} derniers jours",
+    allTime: "Tout le temps",
+    uAnalytics: "Utilise l'analytique",
+    uniqueOnly: "Unique par jour",
+    mByUser: "Modules visités par l'utilisateur",
+    mByLocUser: "Modules visités",
+    mByLoc: "Modules visités par emplacement",
+    uByLoc: "Utilisateurs par emplacement",
+    uByDate: "Utilisateurs par jour",
+    tCount: "Nombre",
+    chartDetails: "Détails du graphique",
   },
 };

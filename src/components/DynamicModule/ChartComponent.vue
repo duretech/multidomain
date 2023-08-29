@@ -83,8 +83,10 @@
                   class="mb-0"
                   :bordered="true"
                   hover
+                  show-empty
                   :items="table.items"
                   :fields="table.fields"
+                  :empty-text="$t('no_data_to_display')"
                   :style="{ 'max-height': tableHeight + 'px !important' }"
                   v-if="chart && chart.series.length > 0"
                 >

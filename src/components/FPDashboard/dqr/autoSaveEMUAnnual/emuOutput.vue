@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="row me-15" v-bind:style="getSourceClass()">
-      <div class="col-lg-12">
+      <div class="col-lg-12 mb-4">
         <div class="btn condom-filter pointer-none">
           <span
             v-for="(option, i) in options"
@@ -12,7 +12,7 @@
           </span>
         </div>
         <div class="top-date-page-div">
-          <span class="btn pointer-events-none color-white">
+          <span class="btn pointer-events-none color-white pointer-none">
             {{ startYear }} - {{ endYear }}
           </span>
         </div>
@@ -20,47 +20,64 @@
     </div>
 
     <div class="row dashboardchart-container emu-dqr m-2">
-      <div
-        v-bind:class="getClass()"
-        v-if="emuMcprComparisionChart"
-        class="border-right"
-      >
+      <div v-bind:class="getClass()" class="border-right">
         <card-component
+          v-if="emuMcprComparisionChart"
           :chartdata="emuMcprComparisionChart"
           :canComment="canComment"
           :loggedInUserId="loggedInUserId"
           defaultSort="JAN-DEC"
           sorting="type3"
         />
+        <div class="card" v-else>
+          <div
+            class="card-body pb-0 h-410px align-items-center d-flex justify-content-center"
+          >
+            <b-spinner type="grow" label="Spinning"></b-spinner>
+          </div>
+        </div>
       </div>
 
-      <div v-bind:class="getClass()" v-if="annualAvgComparisionChart">
+      <div v-bind:class="getClass()">
         <card-component
+          v-if="annualAvgComparisionChart"
           :chartdata="annualAvgComparisionChart"
           :canComment="canComment"
           :loggedInUserId="loggedInUserId"
           defaultSort="A-Z"
           sorting="type4"
         />
+        <div class="card" v-else>
+          <div
+            class="card-body pb-0 h-410px align-items-center d-flex justify-content-center"
+          >
+            <b-spinner type="grow" label="Spinning"></b-spinner>
+          </div>
+        </div>
       </div>
     </div>
 
     <div class="row dashboardchart-container emu-dqr m-2">
-      <div
-        v-bind:class="getClass()"
-        v-if="annualComparisionOfMethods"
-        class="border-right"
-      >
+      <div v-bind:class="getClass()" class="border-right">
         <card-component
+          v-if="annualComparisionOfMethods"
           :chartdata="annualComparisionOfMethods"
           :canComment="canComment"
           :loggedInUserId="loggedInUserId"
           defaultSort="A-Z"
           sorting="type4"
         />
+        <div class="card" v-else>
+          <div
+            class="card-body pb-0 h-410px align-items-center d-flex justify-content-center"
+          >
+            <b-spinner type="grow" label="Spinning"></b-spinner>
+          </div>
+        </div>
       </div>
-      <div v-bind:class="getClass()" v-if="annualuserTrendsDataByMethods">
+      <div v-bind:class="getClass()">
         <card-component
+          v-if="annualuserTrendsDataByMethods"
           :chartdata="annualuserTrendsDataByMethods"
           :ddOptions="userMethodList"
           @handleFilterChange="handleUserMthdChange"
@@ -69,12 +86,18 @@
           defaultSort="JAN-DEC"
           sorting="type3"
         />
+        <div class="card" v-else>
+          <div
+            class="card-body pb-0 h-410px align-items-center d-flex justify-content-center"
+          >
+            <b-spinner type="grow" label="Spinning"></b-spinner>
+          </div>
+        </div>
       </div>
-      <loader v-else />
     </div>
     <div class="row dashboardchart-container">
       <div class="col-lg-12 col-xl-12 m-b-40px">
-        <div class="card mb-25px">
+        <div class="mb-25px">
           <div class="card-header p-10px text-decoration-none">
             <div class="row no-gutters p-0-15px">
               <div class="col-lg-12 col-md-12 p-t-4px">
@@ -274,14 +297,15 @@
     </div>
     <div class="row dashboardchart-container">
       <div class="col-lg-12 col-xl-12 m-b-40px">
-        <div class="card mb-25px mt-25px">
-          <div class="card-header p-10px text-decoration-none">
+        <div class="mb-25px mt-25px">
+          <div class="card-header p-10px text-decoration-none bg-transparent">
             <div class="row no-gutters p-0-15px">
               <div class="col-lg-11 col-md-11 p-t-4px">
                 {{ $t("emu_output_12") }}
               </div>
               <div class="col-lg-1 col-md-1">
                 <download-csv
+                  v-if="items && items.length"
                   class="btn color-white cursor-pointer w-100 p-0"
                   :data="items"
                 >
@@ -310,19 +334,29 @@
           <div class="card-body p-4">
             <div class="table-responsive">
               <b-table
+                v-if="items && items.length"
                 striped
                 sticky-header
                 hover
                 :items="items"
                 :fields="fields"
+                show-empty
+                :empty-text="$t('no_data_to_display')"
               ></b-table>
+              <div class="card" v-else>
+                <div
+                  class="card-body pb-0 h-410px align-items-center d-flex justify-content-center"
+                >
+                  <b-spinner type="grow" label="Spinning"></b-spinner>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
     <a
-      class="btn black-btn pointer-events-none color-white mx-4 save-emubtn mt-25px"
+      class="btn black-btn pointer-events-none color-white mx-4 blue-btn mt-25px float-right"
       @click="saveFinalEMU"
       style="margin-bottom: 30px"
     >
@@ -658,11 +692,6 @@ export default {
           "line"
         );
       }
-      console.log(
-        this.saveuserTrendsByMethods,
-        this.saveuserTrendsByMethods,
-        "----"
-      );
     },
     getMethodData() {
       localStorage.setItem("methodCategory", this.category);
@@ -723,13 +752,12 @@ export default {
       this.saveAnnualAvgComp.source = this.category;
       this.saveCompareMethods.source = this.category;
       // this.userTrendsDataByMethods.source = this.category
-      //console.log(this.$store.state.methodTable)
       let dataStore = {};
       let key = this.generateKey(`annualEMU_${this.$i18n.locale}`);
-      let allKeys = service.getAllKeys();
+      let allKeys = service.getAllKeys({});
       allKeys.then((keys) => {
         if (keys.data.includes(key)) {
-          let oConfig = service.getSavedConfig(key);
+          let oConfig = service.getSavedConfig({ tableKey: key });
           oConfig.then((response) => {
             let oResponse = response.data;
             if (oResponse["compEMU"]) {
@@ -803,29 +831,36 @@ export default {
             }
             if (oResponse["methodTable"]) {
               oResponse["methodTable"] = JSON.parse(oResponse["methodTable"]);
-              //console.log(this.$store.state.methodTable)
               if (oResponse["methodTable"][this.location.split("/")[1]]) {
                 oResponse["methodTable"][this.location.split("/")[1]] = this
-                  .$store.state.methodTable
-                  ? this.$store.state.methodTable[this.location.split("/")[1]]
+                  .$store.getters.getEMUMethodTable
+                  ? this.$store.getters.getEMUMethodTable[
+                      this.location.split("/")[1]
+                    ]
                   : null;
               } else {
                 oResponse["methodTable"] = {
                   ...oResponse["methodTable"],
-                  [this.location.split("/")[1]]: this.$store.state.methodTable
-                    ? this.$store.state.methodTable[this.location.split("/")[1]]
+                  [this.location.split("/")[1]]: this.$store.getters
+                    .getEMUMethodTable
+                    ? this.$store.getters.getEMUMethodTable[
+                        this.location.split("/")[1]
+                      ]
                     : null,
                 };
               }
             } else {
               oResponse["methodTable"] = {
-                [this.location.split("/")[1]]: this.$store.state.methodTable
-                  ? this.$store.state.methodTable[this.location.split("/")[1]]
+                [this.location.split("/")[1]]: this.$store.getters
+                  .getEMUMethodTable
+                  ? this.$store.getters.getEMUMethodTable[
+                      this.location.split("/")[1]
+                    ]
                   : null,
               };
             }
             //if(oResponse['methodTable']){
-            //    oResponse['methodTable'] = this.$store.state.methodTable
+            //    oResponse['methodTable'] = this.$store.getters.getEMUMethodTable
             //}
             oResponse["emuColors"] = JSON.parse(
               localStorage.getItem("emuColors")
@@ -837,12 +872,16 @@ export default {
             oResponse["compUsers"] = JSON.stringify(oResponse["compUsers"]);
             oResponse["usersTrend"] = JSON.stringify(oResponse["usersTrend"]);
             oResponse["methodTable"] = JSON.stringify(oResponse["methodTable"]);
+
             // console.log(oResponse)
-            service.updateConfig(oResponse, key).then(() => {
-              this.$store.commit("setEMUMethodTable", null);
-              this.$store.commit("setEMUColors", null);
-              this.$emit("saveEMUAuto", this.location);
-            });
+            service
+              .updateConfig({ data: oResponse, tableKey: key })
+              .then(() => {
+                this.$store.commit("setEMUMethodTable", null);
+                this.$store.commit("setEMUColors", null);
+                console.log("saveEMUAuto", this.location);
+                this.$emit("saveEMUAuto", this.location);
+              });
 
             // this.saveLocalStorage(key, this.emuMcprComparisionChart, 'compEMU')
             // this.saveLocalStorage(key, this.annualAvgComparisionChart, 'compAvgAnuual')
@@ -863,8 +902,11 @@ export default {
               [this.location.split("/")[1]]: this.saveuserTrendsByMethods,
             },
             methodTable = {
-              [this.location.split("/")[1]]: this.$store.state.methodTable
-                ? this.$store.state.methodTable[this.location.split("/")[1]]
+              [this.location.split("/")[1]]: this.$store.getters
+                .getEMUMethodTable
+                ? this.$store.getters.getEMUMethodTable[
+                    this.location.split("/")[1]
+                  ]
                 : null,
             };
 
@@ -876,7 +918,7 @@ export default {
             methodTable: JSON.stringify(methodTable),
             emuColors: JSON.parse(localStorage.getItem("emuColors")),
           };
-          service.saveConfig(dataStore, key).then(() => {
+          service.saveConfig({ data: dataStore, tableKey: key }).then(() => {
             this.$store.commit("setEMUMethodTable", null);
             this.$store.commit("setEMUColors", null);
             this.$emit("saveEMUAuto", this.location);
@@ -918,6 +960,8 @@ export default {
   padding: 12px 12px;
   background-color: var(--new-header-color);
   border-color: var(--new-header-color);
+  margin-left: 36px;
+    margin-bottom: -1px;
 
   span {
     padding: 0;
@@ -926,6 +970,7 @@ export default {
     border-right: 1px solid var(--border-grey-color);
     margin-right: 14px;
     padding-right: 12px;
+   
   }
   span:last-child {
     border-right: 0px solid var(--border-grey-color);

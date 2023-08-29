@@ -8,8 +8,8 @@ import merge from "lodash/merge";
 Vue.use(VueI18n);
 
 const i18n = new VueI18n({
-  locale: store.state.localLang || "en", // by default set the locale
-  fallbackLocale: store.state.localLang || "en", // fallback locale
+  locale: store.getters.getLocalLang || "en", // by default set the locale
+  fallbackLocale: store.getters.getLocalLang || "en", // fallback locale
   silentTranslationWarn: process.env.NODE_ENV === "production" ? true : false, // disable the warnings
 });
 export default i18n;
@@ -18,7 +18,7 @@ let loadedLanguages = []; //To hold which languages are loaded
 
 export function initI18n() {
   //Get the default language from Datastore on first load, even before mounting the Vue main instance.
-  return loadLanguage(store.state.localLang).then(() => i18n);
+  return loadLanguage(store.getters.getLocalLang).then(() => i18n);
 }
 
 /**
@@ -36,16 +36,16 @@ function setI18nLanguage(lang) {
 
 /**
  * @author Ravindra Bagul
- * @description Fetch translations.json datastore file 
+ * @description Fetch translations.json datastore file
  * and merge with translations.js file store at `@/locale/translations.js` path.
  * @param lang - language
  * @returns the set language
  */
 export function loadLanguage(lang = "en") {
   // If the language was already loaded
-  store.state.loading = true;
+  store.commit("setLoading", true);
   if (lang && loadedLanguages.includes(lang)) {
-    store.state.loading = false;
+    store.commit("setLoading", false);
     return Promise.resolve(setI18nLanguage(lang));
   }
   // If the language hasn't been loaded yet
@@ -55,7 +55,7 @@ export function loadLanguage(lang = "en") {
   ).then(async (res) => {
     // Check if translation file is present in the Datastore
     return await service
-      .getSavedConfig(`translations`)
+      .getSavedConfig({ tableKey: "translations" })
       .then((data) => {
         // If translation file is present in Datastore, then merge the file with the static file
         let mergedTranslations = merge(res.default, data.data);
@@ -63,7 +63,7 @@ export function loadLanguage(lang = "en") {
           i18n.setLocaleMessage(l, mergedTranslations[l]);
           loadedLanguages.push(l);
         });
-        store.state.loading = false;
+        store.commit("setLoading", false);
         return setI18nLanguage(lang);
       })
       .catch(() => {
@@ -77,7 +77,7 @@ export function loadLanguage(lang = "en") {
           loadedLanguages.push(l);
         });
         // loadedLanguages.push(lang);
-        store.state.loading = false;
+        store.commit("setLoading", false);
         return setI18nLanguage(lang);
       });
   });

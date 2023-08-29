@@ -9,7 +9,7 @@ export default {
     getExtData(level) {
       if (!this.allExtData[level]) {
         service
-          .getSavedConfig(`externalData_${level}`)
+          .getSavedConfig({ tableKey: `externalData_${level}` })
           .then((response) => {
             this.$set(this.allExtData, level, response.data);
           })

@@ -204,7 +204,9 @@
                                 responsive
                                 hover
                                 bordered
+                                show-empty
                                 :items="row.item.scoreDetails"
+                                :empty-text="$t('no_data_to_display')"
                               ></b-table>
                             </b-card>
                           </template>
@@ -243,7 +245,7 @@
                   </b-row>
                 </div>
               </div>
-              <div class="mb-sm-4 mt-4">
+              <div class="mt-4">
                 <b-row>
                   <template v-if="scoreBox.length === 0">
                     <b-col sm="4" v-for="i in 3" :key="'dummy' + i">
@@ -262,11 +264,12 @@
                   </template>
                   <b-col
                     :sm="dynamicCols"
+                    class="mb-3"
                     v-for="(menu, i) in scoreBox"
                     :key="'menu' + i"
                   >
                     <b-card class="inner-card">
-                      <template #header class="inner-header pb-0">
+                      <template #header>
                         <h6 class="mb-0 pl-1 fs-19-1920">
                           {{ menu.tabName }}
                         </h6>
@@ -323,7 +326,11 @@
                       </b-card-body>
                     </b-card>
                   </b-col>
-                  <b-col sm="12" class="pt-4 analytic">
+                  <b-col
+                    sm="12"
+                    class="analytic"
+                    v-if="$store.getters.getNamespace.includes('_fp-dashboard')"
+                  >
                     <b-card class="inner-card">
                       <template #header class="inner-header">
                         <h6 class="mb-0 pl-1 fs-19-1920 text-center">
@@ -603,7 +610,7 @@
           />
         </div>
         <b-container class="dqr-charts p-0 m-0">
-          <template v-if="configData && isChildFetched">
+          <template v-if="showCharts">
             <div
               v-for="(subTab, i) in configData.subTabs"
               :key="subTab.group + i"
@@ -625,6 +632,7 @@
                       @setExtData="setExtData"
                       :allExtData="allExtData"
                       @summaryData="summaryData"
+                      @updateToolBar="updateToolBar"
                       @setReportChart="setReportChart"
                       :locationPeriod="locationPeriod"
                       :reportChartData="reportChartData"
@@ -638,7 +646,7 @@
           </template>
           <template
             v-if="
-              !(configData && isChildFetched) &&
+              !showCharts &&
               !['emuMonthlyTab', 'emuAnnualTab'].includes(
                 $store.getters.getActiveTab
               )
@@ -714,6 +722,7 @@ import ScrollPageMixin from "@/helpers/ScrollPageMixin";
 import DynamicImageMixin from "@/helpers/DynamicImageMixin";
 import StaticColorMixin from "@/helpers/StaticColorMixin";
 import loadLocChildMixin from "@/helpers/LoadLocationChildMixin";
+import NepaliDate from "nepali-date-converter";
 export default {
   props: [
     "sideMenu",
@@ -798,6 +807,9 @@ export default {
     };
   },
   computed: {
+    showCharts() {
+      return this.configData && this.isChildFetched;
+    },
     dhsColor() {
       return this.staticColors["dhsColor"];
     },
@@ -805,8 +817,13 @@ export default {
       return this.staticColors["emuColor"];
     },
     dynamicCols() {
-      let cols =
-        this.scoreBox.length === 3 ? 4 : this.scoreBox.length === 2 ? 6 : 12;
+      let cols = 12;
+      if (this.scoreBox.length === 2 || this.scoreBox.length === 4) {
+        cols = 6;
+      }
+      if (this.scoreBox.length === 3) {
+        cols = 4;
+      }
       return cols;
     },
     getHeight() {
@@ -885,8 +902,9 @@ export default {
                   count: 1,
                 };
                 let catDetails = count[c.tabName][s.tabName];
-
-                let foundIndex = catDetails.findIndex((c) => c.title === t);
+                let foundIndex = catDetails.findIndex(
+                  (c) => c.title === this.$i18n.t(`${t}`)
+                );
                 if (foundIndex >= 0) {
                   let updatedDotDetails = {
                     ...catDetails[foundIndex],
@@ -910,21 +928,26 @@ export default {
         : null;
       let box = tab ? tab.subTabs : [];
       if (box.length) {
-        box = box.map((b) => ({
+        let innerBox = [];
+        box.forEach((b) => {
+          let isSubTabs = b.subTabs.filter((st) => st.isSummary);
+          if (isSubTabs.length) {
+            innerBox.push(b);
+          }
+        });
+        box = innerBox.map((b) => ({
           ...b,
-          subTabs: b.subTabs
-            .filter((st) => st.isSummary)
-            .map((st) => {
-              let isFound = this.scores.findIndex((s) => s.id === st.id);
-              st.navLink = `${tab.group}-${tab.id}-${b.id}-${st.id}`;
-              if (isFound >= 0) {
-                st = {
-                  ...st,
-                  scoreDetails: this.scores[isFound],
-                };
-              }
-              return st;
-            }),
+          subTabs: b.subTabs.map((st) => {
+            let isFound = this.scores.findIndex((s) => s.id === st.id);
+            st.navLink = `${tab.group}-${tab.id}-${b.id}-${st.id}`;
+            if (isFound >= 0) {
+              st = {
+                ...st,
+                scoreDetails: this.scores[isFound],
+              };
+            }
+            return st;
+          }),
         }));
       }
       return box;
@@ -942,7 +965,7 @@ export default {
       return translateDate({
         rawDate: this.locationPeriod.period,
         periodType: this.locationPeriod.periodType,
-        monthlyFormat: "MMM YYYY",
+        monthlyFormat: "MMMM YYYY",
       });
     },
     qualityScore() {
@@ -998,6 +1021,14 @@ export default {
           forms = forms.concat(tabs);
         });
       }
+      forms.sort((a, b) => {
+        // Turn your strings into dates, and then subtract them
+        // to get a value that is either negative, positive, or zero.
+        return (
+          this.$moment(b.updatedAt, "MMMM Do YYYY, h:mm:ss a").valueOf() -
+          this.$moment(a.updatedAt, "MMMM Do YYYY, h:mm:ss a").valueOf()
+        );
+      });
       return forms;
     },
   },
@@ -1127,6 +1158,9 @@ export default {
     },
   },
   methods: {
+    updateToolBar(updatedVal) {
+      this.$emit("updateToolBar", updatedVal);
+    },
     setExtData(level, obj) {
       this.allExtData[level] = obj;
     },
@@ -1161,7 +1195,7 @@ export default {
     updateScorecard(periodValue) {
       let key = this.generateKey("dqrScorecard");
       service
-        .getSavedConfig(key)
+        .getSavedConfig({ tableKey: key })
         .then((res) => {
           let scorecardData = res.data;
           if (!scorecardData[this.$store.getters.getActiveTab.split("-")[0]]) {
@@ -1181,7 +1215,10 @@ export default {
               ].push(sd);
             }
           });
-          let response = service.updateConfig(scorecardData, key);
+          let response = service.updateConfig({
+            data: scorecardData,
+            tableKey: key,
+          });
           response
             .then((response) => {
               if (response.data.status === "OK") {
@@ -1205,7 +1242,10 @@ export default {
             [this.$store.getters.getActiveTab.split("-")[0]]:
               this.scorecardDetails,
           };
-          let response = service.saveConfig(scorecardData, key);
+          let response = service.saveConfig({
+            data: scorecardData,
+            tableKey: key,
+          });
           response.then((response) => {
             if (response.data.status === "OK") {
               this.currentScorecard = this.scorecardDetails.filter(
@@ -1337,7 +1377,7 @@ export default {
         this.scorecardsFetching = true;
         let key = this.generateKey("dqrScorecard");
         service
-          .getSavedConfig(key)
+          .getSavedConfig({ tableKey: key })
           .then((res) => {
             this.scorecardData = res.data;
             this.scorecardsFetching = false;
@@ -1497,16 +1537,18 @@ export default {
   },
   created() {
     this.userDetails = this.$store.getters.getUserDetails;
-    this.appResponse = this.$store.getters.getApplicationModule(
-      this.$store.getters.getIsMultiProgram
-    );
-    this.globalResponse = this.$store.getters.getGlobalFactors();
-    this.debugging = this.appResponse.debugging
-      ? this.appResponse.debugging
-      : false;
-    this.debuggingLevel = this.appResponse.debuggingLevel
-      ? this.appResponse.debuggingLevel
-      : "API";
+    if (!this.reportChartData) {
+      this.appResponse = this.$store.getters.getApplicationModule(
+        this.$store.getters.getIsMultiProgram
+      );
+      this.globalResponse = this.$store.getters.getGlobalFactors();
+      this.debugging = this.appResponse.debugging
+        ? this.appResponse.debugging
+        : false;
+      this.debuggingLevel = this.appResponse.debuggingLevel
+        ? this.appResponse.debuggingLevel
+        : "API";
+    }
   },
 };
 </script>

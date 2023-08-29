@@ -357,7 +357,9 @@ input[type="range"]::-webkit-slider-runnable-track {
 		padding: 4px 9px;
 		margin-bottom: 3%;
 		color: var(--text-color);
-
+		display: flex;
+		align-items: center;
+		justify-content: end;
 		&:hover {
 			color: var(--text-color);
 			background-color: var(--primary-color-button);
@@ -382,9 +384,9 @@ input[type="range"]::-webkit-slider-runnable-track {
 .list-of-cards {
 	// background: var(--signoff-bottom-card);
 	padding: 12px;
-	height: calc(100vh - 100px);
+	height: calc(100vh - 150px);
 	overflow-x: hidden;
-	overflow-y:hidden;
+	overflow-y:auto;
 	// scrollbar-color: 0 0 1px var(--signoff-scrollbar-color) !important;
 	// scrollbar-width: thin;
 	position: relative;
@@ -447,6 +449,7 @@ input[type="range"]::-webkit-slider-runnable-track {
 
 .list-of-cards.question_view{
 	height: auto !important;
+	overflow-y:hidden;
 }
 
 .question-answer{ 
@@ -457,6 +460,10 @@ input[type="range"]::-webkit-slider-runnable-track {
 }
    .comment-area{
 	color: var(--text-color) !important;
+   }
+
+   .sign-form{
+	flex-wrap: wrap;
    }
 
 }

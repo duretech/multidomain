@@ -3,7 +3,7 @@
     <b-button
       class="btn-fixed dec-btn"
       @click="decreaseFont"
-      :disabled="$store.state.baseFontSize === $store.state.defaultFontSize - 3"
+      :disabled="$store.getters.getBaseFontSize === $store.getters.getDefaultFontSize - 3"
     >
       <span v-b-tooltip.hover :title="$t('decreaseFont')">A-</span>
     </b-button>
@@ -13,7 +13,7 @@
     <b-button
       class="btn-fixed inc-btn"
       @click="increaseFont"
-      :disabled="$store.state.baseFontSize === $store.state.defaultFontSize + 3"
+      :disabled="$store.getters.getBaseFontSize === $store.getters.getDefaultFontSize + 3"
       ><span v-b-tooltip.hover :title="$t('increaseFont')"> A+ </span></b-button
     >
   </div>
@@ -21,19 +21,19 @@
 <script>
 export default {
   watch: {
-    "$store.state.baseFontSize": function (newValue) {
+    "$store.getters.getBaseFontSize": function (newValue) {
       document.getElementById("mainHTML").style.fontSize = `${newValue}px`;
     },
   },
   methods: {
     decreaseFont() {
-      this.$store.commit("setBaseFontSize", this.$store.state.baseFontSize - 1);
+      this.$store.commit("setBaseFontSize", this.$store.getters.getBaseFontSize - 1);
     },
     resetFont() {
-      this.$store.commit("setBaseFontSize", this.$store.state.defaultFontSize);
+      this.$store.commit("setBaseFontSize", this.$store.getters.getDefaultFontSize);
     },
     increaseFont() {
-      this.$store.commit("setBaseFontSize", this.$store.state.baseFontSize + 1);
+      this.$store.commit("setBaseFontSize", this.$store.getters.getBaseFontSize + 1);
     },
   },
 };

@@ -74,6 +74,34 @@
                                 <b-col sm="12" lg="6" class="mb-3">
                                   <b-row>
                                     <b-col sm="5"
+                                      ><label :for="`identifier-${eInd}`">{{
+                                        $t("identifier")
+                                      }}</label>
+                                    </b-col>
+                                    <b-col sm="7">
+                                      <b-input-group :id="`identifier-${eInd}`">
+                                        <b-form-input
+                                          type="text"
+                                          v-model="
+                                            eData.identifier[$i18n.locale]
+                                          "
+                                          disabled
+                                          v-if="
+                                            eData.identifier?.[$i18n.locale]
+                                          "
+                                        ></b-form-input>
+                                        <b-input-group-append is-text>
+                                          <Translations
+                                            :transText.sync="eData.identifier"
+                                          />
+                                        </b-input-group-append>
+                                      </b-input-group>
+                                    </b-col>
+                                  </b-row>
+                                </b-col>
+                                <b-col sm="12" lg="6" class="mb-3">
+                                  <b-row>
+                                    <b-col sm="5"
                                       ><label :for="`displayName-${eInd}`">{{
                                         $t("name")
                                       }}</label>
@@ -153,22 +181,30 @@
                     >
                       {{ $t("noBenchmark") }}
                     </b-col>
+                    <b-col
+                      sm="12"
+                      class="text-center"
+                      v-if="allExtData.length === 0"
+                    >
+                      {{ $t("addExtData") }}
+                      <code>{{ $t("addbtn") }}</code> {{ $t("btnBelow") }}
+                    </b-col>
+                    <b-col sm="12" class="text-right pt-3">
+                      <b-button
+                        class="black-btn save-btn btn-sm mr-0"
+                        @click="addExtData"
+                        >{{ $t("addbtn") }}</b-button
+                      >
+                    </b-col>
                   </b-card-text>
                 </b-card-body>
               </b-collapse>
             </b-card>
           </div>
         </b-col>
-        <b-col sm="12" class="text-center" v-if="allExtData.length === 0">
-          {{ $t("addExtData") }}
-          <code>{{ $t("addbtn") }}</code> {{ $t("btnBelow") }}
-        </b-col>
         <b-col sm="12" class="text-right pt-3">
-          <b-button class="black-btn ml-2" @click="addExtData">{{
-            $t("addbtn")
-          }}</b-button>
           <b-button
-            class="black-btn save-btn ml-2"
+            class="black-btn save-btn mr-0"
             @click="updateConfigData"
             v-if="allExtData.length"
             >{{ $t("savebtn") }}</b-button
@@ -188,12 +224,13 @@
 import service from "@/service";
 import DynamicImageMixin from "@/helpers/DynamicImageMixin";
 import ReFetchConfigMixin from "@/helpers/ReFetchConfigMixin";
-import { randomString } from "@/components/Common/commonFunctions";
+import { getColor, randomString } from "@/components/Common/commonFunctions";
 
 const dataConfig = {
   id: null,
+  identifier: {},
   displayName: {},
-  color: "#000000",
+  color: getColor(),
 };
 export default {
   props: ["module", "type", "subType"],
@@ -257,45 +294,49 @@ export default {
       this.allExtData.push({
         ...config,
         id: randomString(16),
+        identifier: { [this.$i18n.locale]: this.$i18n.t("default") },
         displayName: { [this.$i18n.locale]: this.$i18n.t("default") },
       });
     },
     //This is to fetch config data on page load
     getConfigData() {
-      this.$store.state.loading = true;
+      this.$store.commit("setLoading", true);
       let key = this.generateKey(this.module);
 
-      let response = service.getSavedConfig(key);
+      let response = service.getSavedConfig({ tableKey: key });
       response
         .then((response) => {
           if (response.data[this.type][this.subType]) {
             this.allExtData = response.data[this.type][this.subType];
           }
-          this.$store.state.loading = false;
+          this.$store.commit("setLoading", false);
         })
         .catch((err) => {
           console.log("Config not found...", err);
-          this.$store.state.loading = false;
+          this.$store.commit("setLoading", false);
           this.reFetchConfig(err);
         });
     },
     updateConfigData() {
-      this.$store.state.loading = true;
+      this.$store.commit("setLoading", true);
       let extData = this.allExtData;
 
       let key = this.generateKey(this.module);
 
-      let allKeys = service.getAllKeys();
+      let allKeys = service.getAllKeys({});
       allKeys.then((keys) => {
         if (keys.data.includes(key)) {
-          let saveConfig = service.getSavedConfig(key);
+          let saveConfig = service.getSavedConfig({ tableKey: key });
           saveConfig.then((res) => {
             let configData = res.data;
             if (!configData[this.type]) {
               configData[this.type] = {};
             }
             configData[this.type][this.subType] = extData;
-            let response = service.updateConfig(configData, key);
+            let response = service.updateConfig({
+              data: configData,
+              tableKey: key,
+            });
             response
               .then((response) => {
                 if (response.data.status === "OK") {
@@ -305,14 +346,14 @@ export default {
                   this.$store.commit("setGlobalFactors", {
                     payload: configData,
                   });
-                  this.$store.state.loading = false;
+                  this.$store.commit("setLoading", false);
                 } else {
                   this.sweetAlert({
                     title: this.$i18n.t("error"),
                     text: `${response.data.message}`,
                   });
 
-                  this.$store.state.loading = false;
+                  this.$store.commit("setLoading", false);
                   return;
                 }
               })
@@ -322,7 +363,7 @@ export default {
                   text: error,
                 });
 
-                this.$store.state.loading = false;
+                this.$store.commit("setLoading", false);
                 return;
               });
           });
@@ -332,7 +373,10 @@ export default {
               [this.subType]: extData,
             },
           };
-          let response = service.saveConfig(configData, key);
+          let response = service.saveConfig({
+            data: configData,
+            tableKey: key,
+          });
           response.then((response) => {
             if (response.data.status === "OK") {
               this.sweetAlert({
@@ -341,13 +385,13 @@ export default {
               this.$store.commit("setGlobalFactors", {
                 payload: configData,
               });
-              this.$store.state.loading = false;
+              this.$store.commit("setLoading", false);
             } else {
               this.sweetAlert({
                 title: this.$i18n.t("error"),
                 text: `${response.data.message}`,
               });
-              this.$store.state.loading = false;
+              this.$store.commit("setLoading", false);
               return;
             }
           });

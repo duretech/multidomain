@@ -21,7 +21,7 @@
               ref="addedChart"
             />
             <div
-              class="text-center d-flex justify-content-center align-items-center"
+              class="text-center d-flex justify-content-center align-items-center noDataInfo"
               v-if="errorText"
             >
               {{ errorText }}
@@ -70,6 +70,10 @@
 </template>
 <script>
 import { basicChartConfig } from "@/config/basicChartConfig";
+import {
+  translateAlphatoNum,
+  translateDate,
+} from "@/components/Common/commonFunctions";
 
 export default {
   props: [
@@ -318,7 +322,7 @@ export default {
           this.cObj = obj.chartObj;
           this.cObj.chart.height = this.chartHeight;
           if (obj.chartObj.series.length === 0) {
-            this.errorText = this.$i18n.t("chartDisabled");
+            this.errorText = obj.errorText ?? this.$i18n.t("chartDisabled");
           }
         } else {
           this.errorText = this.$i18n.t("chartDisabled");
@@ -440,9 +444,7 @@ export default {
             let formatedCatArray = [];
             for (let i = 23; i >= 0; i--) {
               if (i === 0) {
-                pe.push(
-                  this.$moment(this.sendPeriod, "YYYYMM").format("YYYYMM")
-                );
+                pe.push(this.sendPeriod);
               } else {
                 pe.push(
                   this.$moment(this.sendPeriod, "YYYYMM")
@@ -452,9 +454,7 @@ export default {
               }
             }
             emuChart.saveCategories.forEach((c) => {
-              formatedCatArray.push(
-                this.$moment(c, "MMM YYYY").format("YYYYMM")
-              );
+              formatedCatArray.push(translateAlphatoNum(c));
             });
 
             emuChart.saveData.forEach((c) => {
@@ -465,7 +465,7 @@ export default {
               };
 
               pe.forEach((p) => {
-                let formatedDate = this.$moment(p, "YYYYMM").format("MMM YYYY");
+                let formatedDate = translateDate({ rawDate: p });
                 if (formatedCatArray.includes(p)) {
                   let catIndex = formatedCatArray.indexOf(p);
 

@@ -40,7 +40,7 @@
                 label="displayName"
                 :placeholder="subPlaceholderText"
                 :hide-selected="true"
-                :options="metrixList"
+                :options="matrixList"
                 :searchable="true"
                 :allow-empty="false"
                 class="mt-2"
@@ -95,7 +95,7 @@
             <div class="text-right pt-3">
               <b-button
                 :disabled="!selectedDataSource"
-                class="black-btn blue-btn"
+                class="black-btn blue-btn btn-sm"
                 @click="addDE"
                 >{{ $t("addbtn") }}
               </b-button>
@@ -167,7 +167,7 @@ export default {
     "indicatorsList",
     "dataElementsList",
     "dataSetsList",
-    "metrixList",
+    "matrixList",
   ],
   mixins: [DynamicImageMixin],
   data() {

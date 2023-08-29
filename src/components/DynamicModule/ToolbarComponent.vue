@@ -99,6 +99,7 @@ import Treeselect from "@riophae/vue-treeselect";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 import { pTypeList } from "@/components/Common/commonFunctions";
 import loadLocChildMixin from "@/helpers/LoadLocationChildMixin";
+import NepaliDate from "nepali-date-converter";
 export default {
   props: ["globalPeriodData", "showToolbarOnTablet"],
   components: {
@@ -108,14 +109,30 @@ export default {
   mixins: [loadLocChildMixin],
   data() {
     let period = this.globalPeriodData;
+    console.log(this.globalPeriodData)
+    let d,e;
+    if (this.$store.getters.getAppSettings.calendar === "nepali") {
+      let a = period.backtrackedDate.split("-")
+      let b = period.backtrackedLimitedDate.split("-")
+        d = new NepaliDate(new Date(a[0] , a[1] + 1, 16)).getBS()
+        e = new NepaliDate(new Date(b[0] , b[1] + 1, 16)).getBS()
+        let nplMonth = d.month;
+        let nplYear = d.year;
+        let nplLimitedDateMonth = e.month;
+        let nplLimitedDateYear = e.year;
+        let zeroForMonth = nplMonth < 10 ? "0" + nplMonth : nplMonth;
+        let zeroForMonthLimitedDate = nplLimitedDateMonth < 10 ? "0" + nplLimitedDateMonth : nplLimitedDateMonth;
+        d = nplYear + "" + zeroForMonth;
+        e = nplLimitedDateYear + "" + zeroForMonthLimitedDate;
+      }
     return {
       source: "NA",
-      monthYear: this.$moment(
+      monthYear: this.$store.getters.getAppSettings.calendar === "nepali" ? d : this.$moment(
         new Date(period.backtrackedDate),
         "YYYYMM"
       ).format("YYYY-MM"),
-      allowedStartDate: period ? new Date(period.backtrackedDate) : null,
-      allowedFinalDate: period ? new Date(period.backtrackedLimitedDate) : null,
+      allowedStartDate: this.$store.getters.getAppSettings.calendar === "nepali" ? d : period ? new Date(period.backtrackedDate) : null,
+      allowedFinalDate: this.$store.getters.getAppSettings.calendar === "nepali" ? e : period ? new Date(period.backtrackedLimitedDate) : null,
       locationList: [],
       location: "",
       label: "",
@@ -181,14 +198,29 @@ export default {
         this.setCurrentPeriod("financialYearJuly");
       } else if (newValue === "quarterly") {
         this.setCurrentPeriod("quarterly");
+      } else if(newValue === "monthly"){
+        this.period = ['2070-07','2080-07']
+      } else if(newValue === "yearly"){
+        this.period = ['2070','2080']
       }
     },
   },
   methods: {
     disableDate(date) {
       let format = this.pType == "yearly" ? "YYYY" : "YYYYMM";
-      let dStart = this.$moment(new Date(), format).format(format);
-      let d1 = this.$moment(date, format).format(format);
+      let dStart,d1;
+      d1 = this.$moment(date, format).format(format);
+      console.log("d1", d1)
+      if (this.$store.getters.getAppSettings.calendar === "nepali") {
+        let d = new Date();
+        d = new NepaliDate(new Date(d.getFullYear() , d.getMonth() + 1, d.getDate())).getBS()
+        let zeroForMonth = d.month < 10 ? "0" + d.month : d.month;
+        d = d.year + "" + zeroForMonth 
+        dStart = this.$moment(d, format).format(format)
+      }
+      else{
+        dStart = this.$moment(new Date(), format).format(format);
+      }
       return d1 > dStart;
     },
     sendDetails() {
@@ -210,8 +242,16 @@ export default {
       this.value = [this.level + "/" + this.location];
     },
     setCurrentPeriod(type, initialSelect = false) {
+      let d = new NepaliDate(
+        new Date(new Date().getFullYear(), new Date().getMonth() + 1, new Date().getDate())
+      ).getBS();
+
       let currentYear = new Date().getFullYear(),
         currentMonth = new Date().getMonth() + 1;
+      if (this.$store.getters.getAppSettings.calendar === "nepali") {
+        currentYear = d.year;
+        currentMonth = d.month;
+      }
       let currentQuarter = Math.ceil(currentMonth / 3);
       if (type === "financialYear" || type === "financialYearJuly") {
         if (currentMonth <= 4) {
@@ -223,6 +263,9 @@ export default {
         if (type === "financialYear") {
           let months =
             this.$i18n.locale === "fr" ? ["avril", "mars"] : ["Apr", "Mar"];
+            if (this.$store.getters.getAppSettings.calendar === "nepali") {
+            months = ["Shr", "Asa"];
+          }
           this.periodOptions.push({
             text: `${months[0]} ${i} - ${months[1]} ${i + 1}`,
             value: `${i}April`,
@@ -251,6 +294,26 @@ export default {
             Q3: ["Jul", "Sep"],
             Q4: ["Oct", "Dec"],
           };
+          if (this.$store.getters.getAppSettings.calendar === "nepali") {
+            years = {
+              Q1: ["Asa", "Shr"],
+              Q2: ["Bhd", "Asw"],
+              Q3: ["Kar", "Man"],
+              Q4: ["Bai", "Jes"],
+            };
+
+            if (currentMonth > 1 && currentMonth <= 3) {
+            currentQuarter = 3;
+          } else if (currentMonth > 4 && currentMonth <= 6) {
+            currentQuarter = 4;
+          } else if (currentMonth > 7 && currentMonth <= 9) {
+            currentQuarter = 1;
+          } else if (currentMonth > 10 && currentMonth <= 12) {
+            currentQuarter = 2;
+          } else {
+            currentQuarter = "Invalid quarter";
+          }
+          }
           if (this.$i18n.locale === "fr") {
             years = {
               Q1: ["janv.", "mars"],
@@ -283,8 +346,8 @@ export default {
   created() {
     this.pTypeOptions = pTypeList({});
     if (
-      this.$store.state.financialYear.length === 1 &&
-      this.$store.state.financialYear.includes("July")
+      this.$store.getters.getFinancialYear.length === 1 &&
+      this.$store.getters.getFinancialYear.includes("July")
     ) {
       this.pType = "financialYearJuly";
     }
@@ -304,6 +367,29 @@ export default {
             "oct.",
             "nov.",
             "déc.",
+          ],
+          // janv.	févr.	mars	avril	mai	juin	juil.	août	sept.	oct.	nov.	déc.
+          //https://web.library.yale.edu/cataloging/months get abbrevation from here for othe locales
+        },
+      };
+    }
+
+    if(this.$store.getters.getAppSettings.calendar === "nepali"){
+      this.lang = {
+        formatLocale: {
+          monthsShort: [
+            "Bai",
+            "Jes",
+            "Asa",
+            "Shr", 
+            "Bhd",
+            "Asw",
+            "Kar",
+            "Man",
+            "Pou",
+            "Mag",
+            "Fal",
+            "Cha",
           ],
           // janv.	févr.	mars	avril	mai	juin	juil.	août	sept.	oct.	nov.	déc.
           //https://web.library.yale.edu/cataloging/months get abbrevation from here for othe locales

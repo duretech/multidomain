@@ -31,8 +31,8 @@ export default {
         Object.keys(store.getters.getAppSettings).length !== 0 &&
         !store.getters.getAppSettings.country
       ) {
-        let appId = store.state.appId ? store.state.appId : "",
-          appUserId = store.state.appUserId ? store.state.appUserId : "";
+        let appId = store.getters.getAppId ? store.getters.getAppId : "",
+          appUserId = store.getters.getAppUserId ? store.getters.getAppUserId : "";
         if (appId && appUserId) {
           innerKey = isAppUserId
             ? `${appUserId}_${appId}_${innerKey}`

@@ -163,6 +163,14 @@
     padding: 1.25rem;
   }
 
+} 
+
+.emu-annual {
+
+  .card-header {
+    background-color: transparent !important;
+    border-color: transparent !important;
+  }
 }
 
 
@@ -529,12 +537,6 @@
 
 .colorBox.active {
   border: 1px solid var(--border-grey-color);
-}
-
-.collapse-section-border{
-    .cursor-pointer{
-        color: var(--color-black);
-    }
 }
 
  .userMappingTable {

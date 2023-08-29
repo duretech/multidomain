@@ -145,7 +145,7 @@
                       </div>
                       <div v-else>
                         <AddMapping
-                          :metrixList="metrixList"
+                          :matrixList="matrixList"
                           :dataSetsList="dataSetsList"
                           :indicatorsList="indicatorsList"
                           :dataElementsList="dataElementsList"
@@ -193,7 +193,7 @@ export default {
     "dataElementsList",
     "updateDEName",
     "dataSetsList",
-    "metrixList",
+    "matrixList",
     "bgDataSource",
     "bgDataType",
   ],

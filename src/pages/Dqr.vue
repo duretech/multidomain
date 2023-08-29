@@ -17,6 +17,7 @@
         :preFetchData="preFetchData"
         :selectedData="selectedData"
         @updatedConfig="updatedConfig"
+        @updateToolBar="updateToolBar"
         :locationPeriod="locationPeriod"
         :reportChartData="reportChartData"
         @setReportChart="setReportChart"
@@ -28,6 +29,7 @@
           this.$store.getters.getActiveTab
         )
       "
+      :updateLocPer="updateLocPer"
       :IDLocationPeriod="IDLocationPeriod"
       :globalPeriodData="globalPeriodData"
       @getLocationPeriod="getLocationPeriod"
@@ -40,6 +42,7 @@ import dqr from "@/components/DQR/dqr";
 import ResetMenuMixin from "@/helpers/ResetMenuMixin";
 import DocumentTitleMixin from "@/helpers/DocumentTitleMixin";
 import ReFetchConfigMixin from "@/helpers/ReFetchConfigMixin";
+import UsesAnalyticsMixin from "@/helpers/UsesAnalyticsMixin";
 import LanguageChangeMixin from "@/helpers/LanguageChangeMixin";
 import EmitTourCallbackMixin from "@/helpers/EmitTourCallbackMixin";
 
@@ -65,6 +68,7 @@ export default {
     ResetMenuMixin,
     DocumentTitleMixin,
     ReFetchConfigMixin,
+    UsesAnalyticsMixin,
     LanguageChangeMixin,
     EmitTourCallbackMixin,
   ],
@@ -72,6 +76,7 @@ export default {
     return {
       configData: null,
       dqrResponse: null,
+      updateLocPer: null,
       locationPeriod: {},
       globalPeriodData: {},
     };
@@ -79,15 +84,30 @@ export default {
   watch: {},
   computed: {
     selectedData() {
-      let id = this.$store.getters.getActiveTab.split("-");
-      let data =
-        this.configData && this.configData.length
-          ? this.configData.find((c) => c.group === id[0] && c.id === id[1])
-          : null;
+      let data = null;
+      if (this.reportChartData) {
+        if (this.configData) {
+          let isTab = this.configData.findIndex(
+            (t) => t.id === this.reportChartData.selectedCategory
+          );
+          if (isTab >= 0) {
+            data = this.configData[isTab];
+          }
+        }
+      } else {
+        let id = this.$store.getters.getActiveTab.split("-");
+        data =
+          this.configData && this.configData.length
+            ? this.configData.find((c) => c.group === id[0] && c.id === id[1])
+            : null;
+      }
       return data ? data : null;
     },
   },
   methods: {
+    updateToolBar(updatedVal) {
+      this.updateLocPer = updatedVal;
+    },
     setReportChart(obj) {
       this.$emit("setReportChart", {
         chartObj: obj.chartData,
@@ -95,6 +115,7 @@ export default {
         showLabels: obj.showLabels,
         r2: obj.r2,
         cid: [this.reportChartData.cid],
+        errorText: obj.errorText,
       });
     },
     getLocationPeriod(locPeObj) {
@@ -114,7 +135,7 @@ export default {
       if (this.$store.getters.getNamespace.includes("_fp-dashboard")) {
         let key1 = this.generateKey("dqrModule");
         service
-          .getSavedConfig(key1)
+          .getSavedConfig({ tableKey: key1 })
           .then((dqrResponse) => {
             this.dqrResponse = dqrResponse.data;
             //Before destroy we need to reset the value
@@ -132,7 +153,7 @@ export default {
         ? this.reportChartData.selectedDashboard
         : "";
       service
-        .getSavedConfig(key, false, namespace)
+        .getSavedConfig({ tableKey: key, namespace: namespace })
         .then((response) => {
           this.configData = response.data;
           this.$emit("getConfigData", response.data);
@@ -171,7 +192,7 @@ export default {
         : "";
       let key = this.generateKey("globalFactors");
       await service
-        .getSavedConfig(key, false, namespace)
+        .getSavedConfig({ tableKey: key, namespace: namespace })
         .then((response) => {
           this.$store.commit("setGlobalFactors", {
             payload: response.data,
@@ -190,7 +211,7 @@ export default {
       this.getConfigData();
     } else {
       this.configData = this.reportConfigData;
-      this.setTab();
+      // this.setTab();
     }
   },
 };

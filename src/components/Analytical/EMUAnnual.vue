@@ -125,8 +125,15 @@ export default {
       deep: true,
     },
     locationPeriod: {
-      handler() {
-        this.getEMUChart();
+      handler(newValue, oldValue) {
+        if (
+          oldValue &&
+          (newValue.location !== oldValue.location ||
+            newValue.periodType !== oldValue.periodType ||
+            newValue.period !== oldValue.period)
+        ) {
+          this.getEMUChart();
+        }
       },
       deep: true,
     },
@@ -247,7 +254,10 @@ export default {
           sMethod;
         this.userMethodList = aCategories.length
           ? aCategories.filter(
-              (el) => !["type", "isPeriodChart", "reportChartType"].includes(el)
+              (el) =>
+                !["type", "isPeriodChart", "reportChartType", "cid"].includes(
+                  el
+                )
             )
           : [];
         if (p_bFlag) {
@@ -277,13 +287,13 @@ export default {
     getConfig() {
       let key = this.generateKey("dqrModule");
       service
-        .getSavedConfig(key)
+        .getSavedConfig({ tableKey: key })
         .then((response) => {
           this.$emit("setDQRResponse", response.data);
         })
         .catch((res) => {
           console.log("catch error", res);
-          if (this.$store.state.isAdmin) {
+          if (this.$store.getters.getIsAdmin) {
             // Popup message to set the configurations
             this.$swal({
               title: this.$i18n.t("configurationnotavailable"),

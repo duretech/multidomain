@@ -47,7 +47,8 @@
                     $store.getters.getNamespace.includes('_fp-dashboard')) ||
                     ($store.getters.getIsMultiProgram &&
                       $store.getters.getNamespace ===
-                        $store.getters.getAppSettings.tableName))
+                        $store.getters.getAppSettings.tableName)) &&
+                  $store.getters.getAppSettings.isIC
                 "
                 @click="showTabsBtns(true)"
               >
@@ -91,13 +92,14 @@
 <script>
 import service from "@/service";
 import DocumentTitleMixin from "@/helpers/DocumentTitleMixin";
+import UsesAnalyticsMixin from "@/helpers/UsesAnalyticsMixin";
 import LanguageChangeMixin from "@/helpers/LanguageChangeMixin";
 import headerComponent from "@/components/config/headerComponent";
 import dataMapping from "@/components/config/config_new/data_mapping";
 import userManagement from "@/components/config/config_new/user_management";
 import applicationSetup from "@/components/config/config_new/application_setup";
 import indicatorCalculator from "@/components/config/config_new/indicator_calculator";
-import bgDataConfig from "@/config/globalFactorsConfig.js";
+
 export default {
   props: ["preFetchData"],
   components: {
@@ -107,7 +109,7 @@ export default {
     applicationSetup,
     indicatorCalculator,
   },
-  mixins: [DocumentTitleMixin, LanguageChangeMixin],
+  mixins: [DocumentTitleMixin, UsesAnalyticsMixin, LanguageChangeMixin],
   data() {
     return {
       orgList: [],
@@ -115,7 +117,7 @@ export default {
       showTabsBtn: false,
       lastScrollPosition: 0,
       isGlobalConfigSet: false,
-      bgDataConfig: bgDataConfig,
+      bgDataConfig: null,
     };
   },
   computed: {
@@ -126,6 +128,7 @@ export default {
       let flag = false;
       if (
         this.showTabsBtn &&
+        this.bgDataConfig &&
         this.bgDataConfig.showingTabs &&
         !this.bgDataConfig.showingTabs.ssToEmu &&
         !this.bgDataConfig.showingTabs.facilityOfferingFp &&
@@ -168,11 +171,15 @@ export default {
       this.lastScrollPosition = currentScrollPosition;
     },
     setOrgData(orgList) {
-      this.levelIDList = orgList.filter(
-        (org) =>
-          org.level >=
-          this.$store.getters.getUserDetails.dataViewOrganisationUnits[0].level
-      );
+      let filterLevel =
+          this.$store.getters.getUserDetails.dataViewOrganisationUnits[0].level,
+        defaultLevelID = this.$store.getters.getApplicationModule(
+          this.$store.getters.getIsMultiProgram
+        ).defaultLevelID;
+      if (filterLevel < defaultLevelID) {
+        filterLevel = defaultLevelID;
+      }
+      this.levelIDList = orgList.filter((org) => org.level >= filterLevel);
       this.orgList = orgList;
     },
   },
@@ -187,41 +194,49 @@ export default {
     }
     //Get global factors
     if (
-      this.$store.getters.getNamespace ===
-      this.$store.getters.getAppSettings.tableName
+      ((!this.$store.getters.getIsMultiProgram &&
+        this.$store.getters.getNamespace.includes("_fp-dashboard")) ||
+        (this.$store.getters.getIsMultiProgram &&
+          this.$store.getters.getNamespace ===
+            this.$store.getters.getAppSettings.tableName)) &&
+      this.$store.getters.getAppSettings.isIC
     ) {
       let key = this.generateKey("globalFactors");
-      service.getSavedConfig(key, false, "fp-dashboard").then((resp) => {
-        if (resp && resp.data) this.bgDataConfig = resp.data;
-        if (!this.bgDataConfig.showingTabs) {
-          this.bgDataConfig.showingTabs = {};
-          this.bgDataConfig.showingTabs["ssToEmu"] = {};
-          this.bgDataConfig.showingTabs["facilityOfferingFp"] = {};
-          this.bgDataConfig.showingTabs["daysOfStockout"] = {};
-          this.bgDataConfig.showingTabs["newAcceptorsLessThan20"] = {};
-          this.bgDataConfig.showingTabs["HealthAreaOfferingCD"] = {};
+      service
+        .getSavedConfig({ tableKey: key, namespace: "fp-dashboard" })
+        .then((resp) => {
+          if (resp && resp.data) this.bgDataConfig = resp.data;
+          if (!this.bgDataConfig.showingTabs) {
+            this.bgDataConfig.showingTabs = {};
+            this.bgDataConfig.showingTabs["ssToEmu"] = {};
+            this.bgDataConfig.showingTabs["facilityOfferingFp"] = {};
+            this.bgDataConfig.showingTabs["daysOfStockout"] = {};
+            this.bgDataConfig.showingTabs["newAcceptorsLessThan20"] = {};
+            this.bgDataConfig.showingTabs["HealthAreaOfferingCD"] = {};
 
-          this.bgDataConfig.showingTabs["ssToEmu"]["name"] =
-            "SS to EMU Annual-Monthly Mapping";
-          this.bgDataConfig.showingTabs["facilityOfferingFp"]["name"] =
-            "Facilities offering FP";
-          this.bgDataConfig.showingTabs["daysOfStockout"]["name"] =
-            "Days of Stockout";
-          this.bgDataConfig.showingTabs["newAcceptorsLessThan20"]["name"] =
-            "New Acceptors less than 20";
-          this.bgDataConfig.showingTabs["HealthAreaOfferingCD"]["name"] =
-            "Health Areas offering Community Distribution";
-          this.bgDataConfig.showingTabs["ssToEmu"]["value"] = false;
-          this.bgDataConfig.showingTabs["facilityOfferingFp"]["value"] = false;
-          this.bgDataConfig.showingTabs["daysOfStockout"]["value"] = false;
-          this.bgDataConfig.showingTabs["newAcceptorsLessThan20"][
-            "value"
-          ] = false;
-          this.bgDataConfig.showingTabs["HealthAreaOfferingCD"][
-            "value"
-          ] = false;
-        }
-      });
+            this.bgDataConfig.showingTabs["ssToEmu"]["name"] =
+              "SS to EMU Annual-Monthly Mapping";
+            this.bgDataConfig.showingTabs["facilityOfferingFp"]["name"] =
+              "Facilities offering FP";
+            this.bgDataConfig.showingTabs["daysOfStockout"]["name"] =
+              "Days of Stockout";
+            this.bgDataConfig.showingTabs["newAcceptorsLessThan20"]["name"] =
+              "New Acceptors less than 20";
+            this.bgDataConfig.showingTabs["HealthAreaOfferingCD"]["name"] =
+              "Health Areas offering Community Distribution";
+            this.bgDataConfig.showingTabs["ssToEmu"]["value"] = false;
+            this.bgDataConfig.showingTabs["facilityOfferingFp"][
+              "value"
+            ] = false;
+            this.bgDataConfig.showingTabs["daysOfStockout"]["value"] = false;
+            this.bgDataConfig.showingTabs["newAcceptorsLessThan20"][
+              "value"
+            ] = false;
+            this.bgDataConfig.showingTabs["HealthAreaOfferingCD"][
+              "value"
+            ] = false;
+          }
+        });
     }
   },
   mounted() {
@@ -243,5 +258,4 @@ export default {
 };
 </script>
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style lang="scss" scoped>
-</style>
+<style lang="scss" scoped></style>

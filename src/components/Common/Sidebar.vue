@@ -82,7 +82,6 @@
                   ))
               "
             >
-              <!-- :visible="$route.name === 'DQRDashboard' && tabInd === 0" -->
               <div v-if="$route.name === 'DQRDashboard'">
                 <b-button
                   class="sidebar-sub-menu-option fs-16-1920 my-3"
@@ -968,12 +967,7 @@
                   }"
                   @click="updateActiveTab('create-new-module')"
                 >
-                  <div class="fav-img">
-                    <!-- <img
-                      :src="require('@/assets/images/create_report.png')"
-                      class="side-icon-saved-fav pr-2"
-                    /> -->
-                  </div>
+                  <div class="fav-img"></div>
                   <div class="text-line">
                     {{ $t("subMenu_1") }}
                   </div>
@@ -990,12 +984,7 @@
                   }"
                   @click="updateActiveTab('view-module')"
                 >
-                  <div class="fav-img">
-                    <!-- <img
-                      :src="require('@/assets/images/view_report.png')"
-                      class="side-icon-saved-fav pr-2"
-                    /> -->
-                  </div>
+                  <div class="fav-img"></div>
                   <div class="text-line">
                     {{ $t("view_modules") }}
                   </div>
@@ -1020,14 +1009,7 @@
                   }"
                   @click="updateActiveTab('generate-new-report')"
                 >
-                  <div class="fav-img">
-                    <!-- <img
-                      :src="
-                        require('@/assets/images/icons/report_new_active_white.png')
-                      "
-                      class="side-icon-saved-fav pr-2"
-                    /> -->
-                  </div>
+                  <div class="fav-img"></div>
                   <div class="text-line pt-1">
                     {{ $t("exportbtn") }}
                   </div>
@@ -1051,12 +1033,7 @@
                   }"
                   @click="updateActiveTab('create-new-report')"
                 >
-                  <div class="fav-img">
-                    <!-- <img
-                      :src="require('@/assets/images/create_report.png')"
-                      class="side-icon-saved-fav pr-2"
-                    /> -->
-                  </div>
+                  <div class="fav-img"></div>
                   <div class="text-line pt-1">
                     {{ $t("createReport") }}
                   </div>
@@ -1080,12 +1057,7 @@
                   }"
                   @click="updateActiveTab('view-report')"
                 >
-                  <div class="fav-img">
-                    <!-- <img
-                      :src="require('@/assets/images/view_report.png')"
-                      class="side-icon-saved-fav pr-2"
-                    /> -->
-                  </div>
+                  <div class="fav-img"></div>
                   <div class="text-line pt-1">
                     {{ $t("viewReports") }}
                   </div>
@@ -1150,6 +1122,15 @@ export default {
                     c.chartOptions.dataMapping.length)) &&
                 !c.chartOptions.disable
             );
+            if (!isMapping && this.$route.name === "AnalyticalDashboard") {
+              isMapping = t.mapSetting.find(
+                (c) =>
+                  (c.chartOptions.isSavedData ||
+                    (c.chartOptions.dataMapping &&
+                      c.chartOptions.dataMapping.length)) &&
+                  !c.chartOptions.disable
+              );
+            }
             let isSummary = false,
               len = t.chartSetting.length;
             for (let i = 0; i < len; i++) {
@@ -1173,7 +1154,7 @@ export default {
                     isSummary,
                   });
                 } else {
-                  let gName = "";
+                  let gName = this.$i18n.t("default");
                   if (group === "CT") {
                     gName = this.$i18n.t("compTime");
                   }
@@ -1186,6 +1167,13 @@ export default {
                   if (group === "EC") {
                     gName = this.$i18n.t("eConsistency");
                   }
+                  if (group === "FAC") {
+                    gName = this.$i18n.t("byFacility");
+                  }
+                  if (group === "BENCH") {
+                    gName = this.$i18n.t("eConsistency");
+                  }
+
                   innerObj.subTabs.push({
                     id: group,
                     tabName: gName,

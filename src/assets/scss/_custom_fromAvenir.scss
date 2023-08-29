@@ -181,29 +181,7 @@
   accent-color:var(--custom-select-color) !important;
 }
 
-.appconfing-selectmodulecontainer.modRadio
-  .form-group
-  .pure-checkbox
-  input[type="radio"]
-  + label:before {
-  height: 30px;
-  width: 30px;
-  border-radius: 0;
-}
 
-.appconfing-selectmodulecontainer.modRadio
-  .form-group
-  .pure-checkbox
-  input[type="radio"]:checked
-  + label:after {
-  content: "\f00c";
-  color: var(--text-color);
-  border-radius: 0;
-  width: 26px;
-  height: 26px;
-  padding: 5px;
-  box-sizing: border-box;
-}
 
 .pure-checkbox input[type="radio"] + label {
   position: relative;
@@ -216,15 +194,6 @@
   cursor: pointer;
 }
 
-.appconfing-selectmodulecontainer.modRadio
-  .form-group
-  .pure-checkbox
-  input[type="radio"]
-  + label:before {
-  height: 30px;
-  width: 30px;
-  border-radius: 0;
-}
 
 .pure-checkbox input[type="radio"] + label:before {
   box-sizing: content-box;
@@ -256,34 +225,6 @@
   border-radius: 50%;
   transition: transform 200ms ease-out;
 }
-
-.appconfing-selectmodulecontainer.modRadio
-  .form-group
-  .pure-checkbox
-  input[type="radio"]
-  + label {
-  display: block;
-  font: normal normal normal 14px/1 FontAwesome;
-  font-size: inherit;
-  text-rendering: auto;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-.appconfing-selectmodulecontainer.modRadio
-  .form-group
-  .pure-checkbox
-  input[type="radio"]:checked
-  + label:after {
-  content: "";
-  color: var(--text-color);
-  border-radius: 0;
-  width: 26px;
-  height: 26px;
-  padding: 5px;
-  box-sizing: border-box;
-}
-
 
 @keyframes borderscale {
     50% {
@@ -838,13 +779,6 @@
     padding         : 5px !important;
 }
 
-.collapse-section-border {
-    //border                    : 1px solid rgb(221, 221, 221);
-    border                    : 1px solid var(--border-grey-color);
-    border-bottom-left-radius : 10px;
-    border-bottom-right-radius: 10px;
-}
-
 .default-card-border-radius {
     border-radius: calc(0.25rem - 1px) calc(0.25rem - 1px) 0 0 !important;
 }
@@ -997,6 +931,10 @@ div.collapse .card-header:hover {
     padding-top: 0px !important;
  }
  
+ .vue-treeselect__placeholder{
+    color: var(--text-color) !important;
+ }
+
  .vue2leaflet-map{
      background-color: transparent !important;
  }
@@ -1007,6 +945,10 @@ div.collapse .card-header:hover {
 
 .form-control.tabbarselect option{
     background-color: var(--new-footer-color);
+}
+
+.ql-editor.ql-blank::before{
+    color: var(--text-color) !important;
 }
 
 .ql-editor-text {
@@ -1746,7 +1688,7 @@ div.collapse .card-header:hover {
 }
 
 .vue-treeselect--searchable {
-    padding: 2px 2px;
+    padding: 0px 2px;
 }
 
 .sub_card-header {
@@ -2285,12 +2227,26 @@ select {
         color           : rgba(255, 255, 255, 0.7) !important;
         border-radius   : 0 10px 10px 10px;
         padding         : 1rem !important;
+        border-color: var(--border-grey-color) !important;
 
         p {
             font-size: 0.8125rem;
             color    : rgba(255, 255, 255, 0.7) !important;
             padding  : 0 !important;
         }
+    }
+
+    .summaryBtn,
+    .summaryBtn:hover,
+    .summaryBtn:focus{
+        border: 1px solid var(--border-grey-color);
+        border-radius: 10px!important;
+    }
+
+    .summaryBtn.active{
+        
+        border-radius: 10px 10px 0 0!important;
+        background-color: transparent !important;
     }
 }
 
@@ -2309,6 +2265,7 @@ select {
         text-overflow     : ellipsis;
         font-size         : 1rem;
         line-height       : 1.2rem;
+        color: var(--text-color);
     }
 }
 
@@ -2793,10 +2750,6 @@ a#leafletEasyPrint {
     stroke-linecap : square;
     stroke-linejoin: initial;
     stroke-width   : 1.7px;
-}
-
-.collapse-section-border .cursor-pointer {
-    color: var(--text-font-color) !important;
 }
 
 .btn-dark.disabled,

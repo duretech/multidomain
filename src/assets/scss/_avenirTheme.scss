@@ -344,13 +344,14 @@ table thead th{
 }
 
 #dqreporting .card-header,
-#benchmarking-sub-tab .card-header,
+
 #input_tab_content_commoditiesToClients .card-header,
 
 #benchmarking-comfacilities .card-header,
 #dqrSummary .emuchart .card-header,
 #input_tab_content_fp_visits .card-header,
 #output_tab_content_fp_visits .card-header,
+#input_tab_content_fp_users .card-header,
 #reporting_tab_content_commoditiesToClients .card-header,
 #reporting_tab_content_fp_visits .card-header,
 #benchmarking-fpemuoutput .card-header,
@@ -360,6 +361,10 @@ table thead th{
     border-color: transparent;
 }
 
+#benchmarking-sub-tab .card-header{
+    background-color: transparent !important;
+    border-color: transparent !important;
+}
 
 #dqreporting .card-body.offwhite-bg,
 #benchmarking-sub-tab .card-body.offwhite-bg,
@@ -381,6 +386,7 @@ table thead th{
 #reporting_tab_content_fp_visits .card,
 #reporting_tab_content_fp_visits .card-body,
 #benchmarking-fpemuoutput .card,
+
 #benchmarking-fpemuoutput .card-body,
 #benchmarking-sub-tabContent .card,
 #benchmarking-sub-tabContent .card-body,
@@ -389,6 +395,9 @@ table thead th{
     background-color: var(--new-footer-color) !important;
 }
 
+.emu-annual p{
+    color: var(--text-color) !important;
+}
 #input_tab_content_commoditiesToClients .row.px-3.pt-2,
 #dqrSummary .emuchart .row.px-3.pt-2,
 #reporting_tab_content_commoditiesToClients .row.px-3.pt-2{

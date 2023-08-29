@@ -72,9 +72,10 @@
                         :options="fpWomenPopulation"
                       ></b-form-select>
                     </div>
+                    <!-- removed d-flex  card for 'hide' class prperty css to be get applied for -->
 
                     <div
-                      class="d-flex justify-content-between align-items-center my-3"
+                      class="justify-content-between align-items-center my-3 hide"
                     >
                       <div class="w-50">
                         {{ $t("completeService") }}
@@ -85,6 +86,7 @@
                         required
                       ></b-form-input>
                     </div>
+                    <!-- Hided above year field as global period setting is getting used -->
                     <div
                       class="d-flex justify-content-between align-items-center my-3"
                     >
@@ -195,6 +197,7 @@
         hide-footer
         centered
         :title="$t('selectLocation')"
+        no-close-on-backdrop
       >
         <div class="d-block text-left default-btn">
           <h5>{{ $t("selectLocation") }}</h5>

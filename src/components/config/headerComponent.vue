@@ -18,7 +18,13 @@
         >
           {{ $t("setTabs") }}
         </b-button>
-        <b-modal id="setSubTabsPopUp" hide-footer centered>
+        <b-modal
+          id="setSubTabsPopUp"
+          hide-footer
+          centered
+          no-close-on-backdrop
+          v-if="$store.getters.getAppSettings.isIC && bgDataConfig"
+        >
           <template #modal-title>{{ $t("setTabsIC") }}</template>
           <div
             v-for="(item, itemName) in bgDataConfig.showingTabs"
@@ -155,6 +161,7 @@
                     centered
                     :title="$t('UploadIcon')"
                     hide-footer
+                    no-close-on-backdrop
                   >
                     <p class="my-4">
                       <input
@@ -530,7 +537,7 @@ export default {
       this.selectedModule = null;
     },
     exportAuditLogs() {
-      this.$store.state.loading = true;
+      this.$store.commit("setLoading", true);
       audit.downloadLogs(this.selectedModule);
       this.exportPopup = false;
     },
@@ -556,7 +563,7 @@ export default {
       });
     },
     async addTranslations() {
-      this.$store.state.loading = true;
+      this.$store.commit("setLoading", true);
       this.fields = [];
       this.translationArray = [];
       this.langSequence = [this.$i18n.locale];
@@ -581,12 +588,12 @@ export default {
         mergedData = staticData.default || {},
         proceed = true;
       await service
-        .getSavedConfig(`translations`, false, "", true)
+        .getSavedConfig({ tableKey: "translations", isDefault: true })
         .then(async (results) => {
           mergedData = merge(staticData.default, results.data);
         })
         .catch((res) => {
-          this.$store.state.loading = false;
+          this.$store.commit("setLoading", false);
           if (!res.message.includes("404")) {
             proceed = false;
             this.sweetAlert({
@@ -615,7 +622,7 @@ export default {
         //   (t) => !t[this.$i18n.locale].includes("{")
         // );
         this.$nextTick(() => {
-          this.$store.state.loading = false;
+          this.$store.commit("setLoading", false);
           this.addTranslation = true;
         });
       }
@@ -625,7 +632,7 @@ export default {
       this.editObj = JSON.parse(JSON.stringify(data.item));
     },
     saveEdit(translationArray = null) {
-      this.$store.state.loading = true;
+      this.$store.commit("setLoading", true);
       let updatedData = [];
       if (translationArray) {
         this.translationArray.forEach((t) => {
@@ -646,7 +653,7 @@ export default {
         });
       }
       service
-        .getSavedConfig(`translations`, false, "", true)
+        .getSavedConfig({ tableKey: "translations", isDefault: true })
         .then((results) => {
           let data = results.data;
           if (translationArray) {
@@ -672,9 +679,13 @@ export default {
             });
           }
           service
-            .updateConfig(data, `translations`, false, "", true)
+            .updateConfig({
+              data: data,
+              tableKey: "translations",
+              isDefault: true,
+            })
             .then((res) => {
-              this.$store.state.loading = false;
+              this.$store.commit("setLoading", false);
               this.$swal({
                 title: this.$i18n.t("data_saved_successfully"),
                 confirmButtonText: this.$i18n.t("ok"),
@@ -686,7 +697,7 @@ export default {
               });
             })
             .catch((res) => {
-              this.$store.state.loading = false;
+              this.$store.commit("setLoading", false);
               this.sweetAlert({
                 title: this.$i18n.t("error"),
                 text: res,
@@ -718,9 +729,9 @@ export default {
             });
           }
           service
-            .saveConfig(data, `translations`)
+            .saveConfig({ data: data, tableKey: "translations" })
             .then((res) => {
-              this.$store.state.loading = false;
+              this.$store.commit("setLoading", false);
               this.$swal({
                 title: this.$i18n.t("data_saved_successfully"),
                 confirmButtonText: this.$i18n.t("ok"),
@@ -732,7 +743,7 @@ export default {
               });
             })
             .catch((res) => {
-              this.$store.state.loading = false;
+              this.$store.commit("setLoading", false);
               this.sweetAlert({
                 title: this.$i18n.t("error"),
                 text: res,
@@ -748,11 +759,11 @@ export default {
       this.langVar = {};
     },
     downloadConfig() {
-      this.$store.state.loading = true;
-      service.getAllKeys().then(async (res) => {
+      this.$store.commit("setLoading", true);
+      service.getAllKeys({}).then(async (res) => {
         let zip = new JSZip();
         for (const file of res.data) {
-          const contents = await service.getSavedConfig(file);
+          const contents = await service.getSavedConfig({ tableKey: file });
 
           zip.file(`${file}.json`, JSON.stringify(contents.data));
         }
@@ -763,7 +774,7 @@ export default {
               "lll"
             )}.zip`
           );
-          this.$store.state.loading = false;
+          this.$store.commit("setLoading", false);
           this.sweetAlert({
             title: this.$i18n.t("backupDatastoreSuccess"),
           });
@@ -775,7 +786,11 @@ export default {
       this.$store.commit("setLoading", true);
       let key = this.generateKey("globalFactors");
       service
-        .updateConfig(this.bgDataConfig, key, false, "fp-dashboard")
+        .updateConfig({
+          data: this.bgDataConfig,
+          tableKey: key,
+          namespace: "fp-dashboard",
+        })
         .then((resp) => {
           if (resp.data.status === "OK") {
             this.$store.commit("setLoading", false);
@@ -787,7 +802,11 @@ export default {
         })
         .catch((err) => {
           service
-            .saveConfig(this.bgDataConfig, key, false, "fp-dashboard")
+            .saveConfig({
+              data: this.bgDataConfig,
+              tableKey: key,
+              namespace: "fp-dashboard",
+            })
             .then((resp) => {
               if (resp.data.status === "OK") {
                 this.$store.commit("setLoading", false);
@@ -808,7 +827,7 @@ export default {
     },
   },
   created() {
-    this.$store.state.loading = false;
+    this.$store.commit("setLoading", false);
     this.exportOptions = [
       { text: this.$i18n.t("applicationSetup"), value: "app" },
       {

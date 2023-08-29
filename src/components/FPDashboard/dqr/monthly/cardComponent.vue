@@ -2,9 +2,9 @@
   <fullscreen v-model="inputChartsFull" ref="fullscreen" class="fullContainer">
     <div class="position-relative fullContent">
       <loader v-if="showLoader" />
-      <div class="card" v-if="chartdata">
+      <div class="card emu-component" v-if="chartdata">
         <div
-          class="card-header px-2 py-1 text-decoration-none"
+          class="px-2 py-1 text-decoration-none"
           :class="{ 'bg-transparent color-black border': noOptions }"
         >
           <div class="row no-gutters" :class="{ 'text-center': noOptions }">
@@ -40,6 +40,7 @@
               v-if="!noOptions && !inputChartsFull"
             >
               <ChartOptions
+                v-if="chartOptions?.series?.length"
                 :sorting="sorting"
                 @dataSort="dataSort"
                 :defaultSort="defaultSort"
@@ -85,7 +86,7 @@
         <div class="card-body pb-0 h-410px">
           <template v-if="chartOptions && viewType == 'chart'">
             <highcharts
-              v-if="chartOptions.series && chartOptions.series.length"
+              v-if="chartOptions?.series?.length"
               :options="chartOptions"
               ref="inputCharts"
               :redraw="true"
@@ -105,13 +106,19 @@
                 :bordered="true"
                 style="max-height: 400px !important"
                 :sort-compare="sortDate"
+                show-empty
+                :empty-text="$t('no_data_to_display')"
               ></b-table>
             </div>
           </div>
         </div>
-        <div class="card-footer text-right" v-if="!bShowIcons">
-          <!-- <p class="m-0">Source: <span>{{chartdata.source}}</span></p> -->
-          <p class="m-0 source-line">{{ $t("source") }}: <span>DHIS2</span></p>
+        <div
+          class="card-footer text-right"
+         
+        >
+        
+          <span class="source-line"  v-if="!bShowIcons && chartOptions?.series?.length">{{ $t("source") }}: <span>DHIS2</span></span>
+          <!-- to be set from admin -->
         </div>
       </div>
     </div>
@@ -135,8 +142,6 @@ export default {
     "cardTitle",
     "yAxis",
     "noOptions",
-    "canComment",
-    "loggedInUserId",
     "showSource",
     "inMD",
     "defaultSort",
@@ -251,24 +256,6 @@ export default {
           // "agreCategories"
         }
       });
-
-      if (this.chartName == "monthSpecific") {
-        // var chart = this.$refs.inputCharts.chart;
-        // let max = chart.options.xAxis[0].max;
-        // let catLen = chart.options.series[0].data.length - 1;
-        // chart.options.xAxis[0].max = null
-        // chart.options.xAxis[0].min = 0
-        // if (catLen > 11 && this.setExtreme && this.calsType === "method") {
-        //   chart.xAxis[0].setExtremes(0, catLen);
-        // }
-        // this.$refs.inputCharts.chart.redraw();
-        //  var chart = this.$refs.inputCharts.chart;
-        //   let max = chart.options.xAxis[0].max;
-        //   let catLen = chart.options.series[0].data.length - 1;
-        //   if (catLen > 11) {
-        //     chart.xAxis[0].setExtremes(0, catLen);
-        //   }
-      }
     },
     methodSelected(newV) {
       this.selected = newV;
@@ -304,8 +291,8 @@ export default {
         // internal sort compare routine for fields keys other than `myDateField`
         return null; // or false
       }
-      let aDate = this.$moment(a[key], "MMM YYYY");
-      let bDate = this.$moment(b[key], "MMM YYYY");
+      let aDate = this.$moment(a[key], "MMMM YYYY");
+      let bDate = this.$moment(b[key], "MMMM YYYY");
       if (aDate.isValid && bDate.isValid) {
         if (aDate < bDate) {
           return -1;
@@ -431,7 +418,11 @@ export default {
           if (tableData[0] != undefined) {
             this.exportData = tableData[0]["data"];
             tableData[0]["data"].forEach((key) => {
-              Object.keys(key).forEach((field) => {
+              let keyArr =
+                this.chartName == "monthSpecific"
+                  ? Object.keys(key).sort().reverse()
+                  : Object.keys(key);
+              keyArr.forEach((field) => {
                 if (this.newFields.indexOf(field) == -1) {
                   this.newFields.push(field);
                   if (
@@ -1043,32 +1034,6 @@ export default {
           }),
         }));
       } else {
-        // let aTemp = this.chartdata.categories;
-        // if (aTemp.length > 1) {
-        //   let aDate = null,
-        //     bDate = null;
-
-        //   if (sort == "JAN-DEC" || sort == "DEC-JAN") {
-        //     aDate = this.$moment(aTemp[0], "MMM YYYY").format("MMYYYY");
-        //     bDate = this.$moment(aTemp[1], "MMM YYYY").format("MMYYYY");
-        //   } else {
-        //     aDate = aTemp[0];
-        //     bDate = aTemp[1];
-        //   }
-        //   // let aDate = this.$moment(aTemp[0], "MMM YYYY").format("MMYYYY")
-        //   if (
-        //     (aDate < bDate && (sort == "DEC-JAN" || sort == "Z-A")) ||
-        //     (aDate > bDate && (sort == "JAN-DEC" || sort == "A-Z"))
-        //   ) {
-        //     let i,
-        //       aData = this.chartdata.data,
-        //       nLen = aData.length;
-        //     for (i = 0; i < nLen; i++) {
-        //       aData[i].data.reverse();
-        //     }
-        //     aTemp.reverse();
-        //   }
-        // }
         let chartOptions = this.chartOptions;
         let aCats = chartOptions.xAxis.categories,
           i,
@@ -1245,5 +1210,10 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+  font-size: var(--font-small);
+  color: var(--home-main-color) !important;
+    fill: var(--home-main-color) !important;
+    font-weight: 400 !important;
 }
+
 </style>

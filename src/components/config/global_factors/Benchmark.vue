@@ -309,6 +309,7 @@
                                 </b-col>
                               </b-row>
                             </b-card-body>
+                           
                           </b-collapse>
                         </b-card>
                       </div>
@@ -324,7 +325,14 @@
                     </b-col>
                   </b-card-text>
                 </b-card-body>
+                <b-col sm="12" class="text-right pb-3">
+                  <b-button class="black-btn save-btn btn-sm" @click="addBenchmark">{{
+                    $t("addbtn")
+                  }}</b-button>
+                  
+                </b-col>
               </b-collapse>
+              
             </b-card>
           </div>
         </b-col>
@@ -333,9 +341,9 @@
           <code>{{ $t("addbtn") }}</code> {{ $t("btnBelow") }}
         </b-col>
         <b-col sm="12" class="text-right pt-3">
-          <b-button class="black-btn ml-2" @click="addBenchmark">{{
+          <!-- <b-button class="black-btn ml-2" @click="addBenchmark">{{
             $t("addbtn")
-          }}</b-button>
+          }}</b-button> -->
           <b-button
             class="black-btn save-btn ml-2"
             @click="updateConfigData"
@@ -397,7 +405,7 @@ export default {
         if (gSetting?.allExtData?.extData?.length) {
           gSetting.allExtData.extData.forEach((m) => {
             arr.push({
-              text: m.displayName[this.$i18n.locale],
+              text: m.identifier[this.$i18n.locale],
               value: m.id,
             });
           });
@@ -486,10 +494,10 @@ export default {
     },
     //This is to fetch config data on page load
     getConfigData() {
-      this.$store.state.loading = true;
+      this.$store.commit("setLoading", true);
       let key = this.generateKey(this.module);
 
-      let response = service.getSavedConfig(key);
+      let response = service.getSavedConfig({ tableKey: key });
       response
         .then((response) => {
           if (response.data[this.type][this.subType]) {
@@ -507,24 +515,24 @@ export default {
             this.benchmarks = list;
             this.originalBenchmarks = JSON.parse(JSON.stringify(list));
           }
-          this.$store.state.loading = false;
+          this.$store.commit("setLoading", false);
         })
         .catch((err) => {
           console.log("Config not found...", err);
-          this.$store.state.loading = false;
+          this.$store.commit("setLoading", false);
           this.reFetchConfig(err);
         });
     },
     updateConfigData() {
-      this.$store.state.loading = true;
+      this.$store.commit("setLoading", true);
       let benchmarks = this.benchmarks;
 
       let key = this.generateKey(this.module);
 
-      let allKeys = service.getAllKeys();
+      let allKeys = service.getAllKeys({});
       allKeys.then((keys) => {
         if (keys.data.includes(key)) {
-          let saveConfig = service.getSavedConfig(key);
+          let saveConfig = service.getSavedConfig({ tableKey: key });
           saveConfig.then((res) => {
             let configData = res.data;
             if (!configData[this.type]) {
@@ -536,7 +544,10 @@ export default {
             //   this.originalBenchmarks,
             //   configData[this.type][this.subType]
             // );
-            let response = service.updateConfig(configData, key);
+            let response = service.updateConfig({
+              data: configData,
+              tableKey: key,
+            });
             response
               .then((response) => {
                 if (response.data.status === "OK") {
@@ -549,14 +560,14 @@ export default {
                   this.originalBenchmarks = JSON.parse(
                     JSON.stringify(this.benchmarks)
                   );
-                  this.$store.state.loading = false;
+                  this.$store.commit("setLoading", false);
                 } else {
                   this.sweetAlert({
                     title: this.$i18n.t("error"),
                     text: `${response.data.message}`,
                   });
 
-                  this.$store.state.loading = false;
+                  this.$store.commit("setLoading", false);
                   return;
                 }
               })
@@ -566,7 +577,7 @@ export default {
                   text: error,
                 });
 
-                this.$store.state.loading = false;
+                this.$store.commit("setLoading", false);
                 return;
               });
           });
@@ -576,7 +587,10 @@ export default {
               [this.subType]: benchmarks,
             },
           };
-          let response = service.saveConfig(configData, key);
+          let response = service.saveConfig({
+            data: configData,
+            tableKey: key,
+          });
           response.then((response) => {
             if (response.data.status === "OK") {
               this.sweetAlert({
@@ -588,13 +602,13 @@ export default {
               this.originalBenchmarks = JSON.parse(
                 JSON.stringify(this.benchmarks)
               );
-              this.$store.state.loading = false;
+              this.$store.commit("setLoading", false);
             } else {
               this.sweetAlert({
                 title: this.$i18n.t("error"),
                 text: `${response.data.message}`,
               });
-              this.$store.state.loading = false;
+              this.$store.commit("setLoading", false);
               return;
             }
           });

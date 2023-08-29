@@ -41,7 +41,7 @@
           type="indicators"
           :orgList="orgList"
           :langList="langList"
-          :metrixList="metrixList"
+          :matrixList="matrixList"
           @updateData="updateData"
           :dataSetsList="dataSetsList"
           :isDataFetched="isDataFetched"
@@ -65,7 +65,7 @@ export default {
   props: [
     "orgList",
     "langList",
-    "metrixList",
+    "matrixList",
     "dataSetsList",
     "indicatorsList",
     "dataElementsList",
@@ -139,7 +139,7 @@ export default {
       this.$store.commit("setLoading", true);
       let key = this.generateKey("mapVisualization");
 
-      let oConfig = service.getSavedConfig(key);
+      let oConfig = service.getSavedConfig({ tableKey: key });
       oConfig
         .then((response) => {
           let oResponse = response.data;

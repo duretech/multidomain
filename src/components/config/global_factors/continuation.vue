@@ -15,14 +15,7 @@
               <!-- mb-0 class removed to remove fa-plus icon from right corner -->
               <h2 class="">
                 <button
-                  class="
-                    btn btn-link
-                    p-0
-                    w-100
-                    text-left text-uppercase
-                    color-grey
-                    f-s-0-875rem
-                  "
+                  class="btn btn-link p-0 w-100 text-left text-uppercase color-grey f-s-0-875rem"
                   type="button"
                   data-toggle="collapse"
                   :data-target="
@@ -39,19 +32,18 @@
                     :title="$t('dataMapping')"
                   ></i> -->
                   <img
-                                        
-                                    src="@/assets/images/icons/adminsetting-icon.svg"
-                                    :style="{ filter: filterColor }"
-                                    class="pr-2 cursor-pointer f-s-20px mb-lg-1"
-                                    v-b-tooltip.hover
-                                      :title="$t('dataMapping')"
-                                    />
+                    src="@/assets/images/icons/adminsetting-icon.svg"
+                    :style="{ filter: filterColor }"
+                    class="pr-2 cursor-pointer f-s-20px mb-lg-1"
+                    v-b-tooltip.hover
+                    :title="$t('dataMapping')"
+                  />
 
                   {{ $t(`${name}`) }}
                 </button>
               </h2>
             </div>
-           
+
             <div
               :id="'collapseChartSettings' + index + type + subType"
               class="collapse"
@@ -151,9 +143,7 @@
               <div class="row m-0 mt-4 mb-2">
                 <div class="col-12 p-b-15px">
                   <div
-                    class="
-                    card-header default-card-border-radius color-black f-s-0-875rem p-10px accordion-header1 f-s-0-875rem font-weight-bold bt-10
-                    "
+                    class="card-header default-card-border-radius color-black f-s-0-875rem p-10px accordion-header1 f-s-0-875rem font-weight-bold bt-10"
                   >
                     {{ $t("dataMapping") }}
                     {{
@@ -249,7 +239,6 @@ import merge from "lodash/merge";
 import assign from "lodash/assign";
 import DynamicImageMixin from "@/helpers/DynamicImageMixin";
 import ReFetchConfigMixin from "@/helpers/ReFetchConfigMixin";
-import globalFactorsConfig from "@/config/globalFactorsConfig.js";
 
 export default {
   props: ["module", "type", "subType"],
@@ -257,7 +246,7 @@ export default {
   data() {
     return {
       originalContinuationData: [],
-      continuation: globalFactorsConfig[this.type][this.subType],
+      continuation: null,
     };
   },
   methods: {
@@ -288,11 +277,11 @@ export default {
     },
     //This is to fetch config data on page load
     getConfigData() {
-      this.$store.state.loading = true;
+      this.$store.commit("setLoading", true);
       // console.log("data initial",[this.chartBySubtype],JSON.stringify(config))
       let key = this.generateKey(this.module);
 
-      let response = service.getSavedConfig(key);
+      let response = service.getSavedConfig({ tableKey: key });
       response
         .then((response) => {
           if (response.data[this.type][this.subType]) {
@@ -303,26 +292,26 @@ export default {
               JSON.stringify(this.continuation)
             );
           }
-          this.$store.state.loading = false;
+          this.$store.commit("setLoading", false);
         })
         .catch((err) => {
           console.log("Config not found...");
-          this.$store.state.loading = false;
+          this.$store.commit("setLoading", false);
           this.reFetchConfig(err);
         });
     },
     updateConfigData() {
-      this.$store.state.loading = true;
+      this.$store.commit("setLoading", true);
 
       let key = this.generateKey(this.module);
       //console.log(metaConfigData, "metaConfigData")
 
-      let allKeys = service.getAllKeys();
+      let allKeys = service.getAllKeys({});
       allKeys
         .then((keys) => {
           // console.log("keys",keys)
           if (keys.data.includes(key)) {
-            let saveConfig = service.getSavedConfig(key);
+            let saveConfig = service.getSavedConfig({ tableKey: key });
             saveConfig.then((res) => {
               let configData = res.data;
               // console.log("configData",configData);
@@ -347,7 +336,10 @@ export default {
               //   configData[this.type][this.subType]
               // );
 
-              let response = service.updateConfig(configData, key);
+              let response = service.updateConfig({
+                data: configData,
+                tableKey: key,
+              });
               response
                 .then((response) => {
                   if (response.data.status === "OK") {
@@ -361,14 +353,14 @@ export default {
                     this.originalContinuationData = JSON.parse(
                       JSON.stringify(this.continuation)
                     );
-                    this.$store.state.loading = false;
+                    this.$store.commit("setLoading", false);
                   } else {
                     this.sweetAlert({
                       title: this.$i18n.t("error"),
                       text: `${response.data.message}`,
                     });
 
-                    this.$store.state.loading = false;
+                    this.$store.commit("setLoading", false);
                     return;
                   }
                 })
@@ -377,7 +369,7 @@ export default {
                     title: this.$i18n.t("error"),
                   });
 
-                  this.$store.state.loading = false;
+                  this.$store.commit("setLoading", false);
                   return;
                 });
             });
@@ -388,7 +380,10 @@ export default {
                 [this.subType]: this.continuation,
               },
             };
-            let response = service.saveConfig(configData, key);
+            let response = service.saveConfig({
+              data: configData,
+              tableKey: key,
+            });
             response.then((response) => {
               if (response.data.status === "OK") {
                 // console.log("response save ", response.data)
@@ -401,20 +396,20 @@ export default {
                 this.originalContinuationData = JSON.parse(
                   JSON.stringify(this.continuation)
                 );
-                this.$store.state.loading = false;
+                this.$store.commit("setLoading", false);
               } else {
                 this.sweetAlert({
                   title: this.$i18n.t("error"),
                   text: `${response.data.message}`,
                 });
-                this.$store.state.loading = false;
+                this.$store.commit("setLoading", false);
                 return;
               }
             });
           }
         })
         .catch(() => {
-          this.$store.state.loading = false;
+          this.$store.commit("setLoading", false);
           this.sweetAlert({
             title: this.$i18n.t("error"),
             text: this.$i18n.t("table_not_found"),
@@ -423,11 +418,7 @@ export default {
     },
   },
   created() {
-    // console.log("created")
-    this.getConfigData(); //Remove / add $store.state.loading in updated when you enable / disable this call
-  },
-  updated() {
-    // this.$store.state.loading = false
+    this.getConfigData();
   },
 };
 </script>

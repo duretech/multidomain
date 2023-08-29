@@ -10,6 +10,7 @@ const dqrConfig = {
         bgDataSource: "Datastore",
         defaultDataType: [],
         emuSaveType: "Custom",
+        adjustmentFactor: "No",
         locArr: [],
         backgroundIndicators: [
           {

@@ -1,4 +1,5 @@
 import i18n from "@/i18n.js";
+import store from "@/store";
 export default {
   calculateAvgMethodMix: (
     { avgAnnualGrowthData, avgTotalCypData, categories },
@@ -14,6 +15,7 @@ export default {
   ) => {
     // console.log(avgAnnualGrowthData,avgTotalCypData,moment(p_period, 'YYYYMM').subtract(12, 'months').format('MMM YYYY'));
     // console.log(avgAnnualGrowthData,avgTotalCypData,categories,p_period,p_months,p_flag, locale, totalCYPText,methodTableHeaderName, methodSeq, periodType)
+    let allMonthNameJson = store.getters.getPeriodData;
     let aSeries = [],
       aTable = [],
       aMethodCats = [],
@@ -37,10 +39,12 @@ export default {
       (years = ["mars", "avril"]), (yearsJuly = ["juin", "juil."]);
     }
     if (periodType === "monthly") {
-      sPrevPer = moment(p_period, "YYYYMM").format("MMM YYYY");
-      sNextPer = moment(p_period, "YYYYMM")
+      p_period = p_period.split("-").join("");
+      sPrevPer = allMonthNameJson[p_period]["name"];
+      let subDate = moment(p_period, "YYYYMM")
         .subtract(p_months, "months")
-        .format("MMM YYYY");
+        .format("YYYYMM");
+      sNextPer = allMonthNameJson[subDate]["name"];
     }
     if (periodType === "yearly") {
       sPrevPer = moment(p_period, "YYYY").format("YYYY");
@@ -173,7 +177,7 @@ export default {
     };
   },
   calculateAvgEMUMethodMix: (
-    { categories, avgAnnualGrowthData },
+    { categories, avgAnnualGrowthData, allMonthNameJson },
     p_period,
     p_months,
     methodTableHeaderName,
@@ -204,10 +208,23 @@ export default {
       (years = ["mars", "avril"]), (yearsJuly = ["juin", "juil."]);
     }
     if (periodType === "monthly") {
-      sPrevPer = moment(p_period, "MMM YYYY").format("MMM YYYY");
-      sNextPer = moment(p_period, "MMM YYYY")
+      //NEED SOME LOGIC FOR NEPALI
+      let sNextPerNumeric, numericPrevPeriod;
+      Object.keys(allMonthNameJson).forEach((month) => {
+        if (allMonthNameJson[month]["name"] == p_period) {
+          sPrevPer = allMonthNameJson[month]["name"];
+          numericPrevPeriod = month;
+        }
+      });
+      // sPrevPer = moment(p_period, "MMMM YYYY").format("MMMM YYYY");
+      sNextPerNumeric = moment(numericPrevPeriod, "YYYYMM")
         .subtract(p_months, "months")
-        .format("MMM YYYY");
+        .format("YYYYMM");
+      Object.keys(allMonthNameJson).forEach((month) => {
+        if (month == sNextPerNumeric) {
+          sNextPer = allMonthNameJson[month]["name"];
+        }
+      });
     }
     if (periodType === "yearly") {
       sPrevPer = moment(p_period, "YYYY").format("YYYY");
@@ -244,7 +261,6 @@ export default {
         .subtract(p_months, "Q")
         .format("YYYY[Q]Q");
     }
-
     for (let i in avgAnnualGrowthData) {
       let oTemp = { name: i, data: [] },
         oRow = { [methodTableHeaderName]: i };
@@ -252,12 +268,13 @@ export default {
       categories.forEach((ele, ind) => {
         let nInt;
         if ((i, avgAnnualGrowthData[i][ele])) {
-          nInt =
-            (
-              ((avgAnnualGrowthData[i][ele][sNextPer] || 0) -
-                (avgAnnualGrowthData[i][ele][sPrevPer] || 0)) /
-              (avgAnnualGrowthData[i][ele][sPrevPer] || 0)
-            ).toFixed(2) * 1;
+          nInt = avgAnnualGrowthData[i][ele][sPrevPer]
+            ? (
+                ((avgAnnualGrowthData[i][ele][sNextPer] || 0) -
+                  (avgAnnualGrowthData[i][ele][sPrevPer] || 0)) /
+                (avgAnnualGrowthData[i][ele][sPrevPer] || 0)
+              ).toFixed(2) * 1
+            : 0;
         }
 
         oTemp.data[ind] = nInt;
@@ -266,7 +283,6 @@ export default {
       aSeries.push(oTemp);
       aTable.push(oRow);
     }
-
     return {
       series: aSeries,
       table: aTable,

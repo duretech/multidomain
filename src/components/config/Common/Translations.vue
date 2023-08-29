@@ -18,7 +18,7 @@
       no-close-on-backdrop
       centered
     >
-      <div>
+      <div class="adminsection-modal">
         <div class="mb-4 small" v-if="type === 'summary'">
           <strong>{{ $t("note") }}:&nbsp;</strong>{{ $t("transNote") }}
         </div>
@@ -129,8 +129,8 @@ export default {
         }
         summaryFunList.push({
           value: "CURRENT_PERIOD",
-          text: "Current Period",
-          hoverText: "",
+          text: this.$i18n.t("funOpt16"),
+          hoverText: this.$i18n.t("funOpt16Hover"),
         });
         summaryFunList.push({
           value: "CURRENT_PERIOD_VALUE",
@@ -139,8 +139,8 @@ export default {
         });
         summaryFunList.push({
           value: "LAST_PERIOD",
-          text: "Last Period",
-          hoverText: "",
+          text: this.$i18n.t("funOpt17"),
+          hoverText: this.$i18n.t("funOpt17Hover"),
         });
         summaryFunList.push({
           value: "LAST_PERIOD_VALUE",
@@ -162,7 +162,7 @@ export default {
         if (
           this.$store.getters.getNamespace !== "multi_program_mnch-dashboard"
         ) {
-          if (subTabGroup === "EMU") {
+          // if (subTabGroup === "EMU") {
             summaryFunList.push({
               value: "METHOD_INCREASED",
               text: this.$i18n.t("funOpt8"),
@@ -173,7 +173,7 @@ export default {
               text: this.$i18n.t("funOpt9"),
               hoverText: this.$i18n.t("funOpt9Hover"),
             });
-          }
+          // }
           if (compareWith) {
             summaryFunList.push({
               value: "COMPARE_OTHER_INDICATOR",
@@ -197,6 +197,11 @@ export default {
             hoverText: this.$i18n.t("funOpt13Hover"),
           });
           if (isDrillDown) {
+            summaryFunList.push({
+              value: "ORG_LEVEL",
+              text: this.$i18n.t("funOpt15"),
+              hoverText: this.$i18n.t("funOpt15Hover"),
+            });
             summaryFunList.push({
               value: "LAST_REGIONS",
               text: this.$i18n.t("funOpt14"),

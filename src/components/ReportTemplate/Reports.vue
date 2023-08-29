@@ -22,8 +22,8 @@
                       {{ template.templateName }}
                     </h6>
                   </template>
-                  <div class="saved-report-card p-2">
-                    <div class="img-title-flex mt-1">
+                  <div class="saved-report-card">
+                    <div class="img-title-flex">
                       <div class="saved-report-card-img-container">
                         <img
                           alt="img"
@@ -45,12 +45,38 @@
                           <b>{{ $t("lastUpdated") }}:&nbsp; </b>
                           <span class="fw-400"> {{ template.updatedAt }} </span>
                         </b-row>
+                        <b-row class="card-details fs-17-2920">
+                          <b>{{ $t("orgLevel") }}:&nbsp; </b>
+                          <span class="fw-400">
+                            {{ getValue(template.orgUnitLevel, "orgUnitList") }}
+                          </span>
+                        </b-row>
+                        <b-row class="card-details fs-17-2920">
+                          <b>{{ $t("updateFrequencyType") }}:&nbsp; </b>
+                          <span class="fw-400">
+                            {{
+                              getValue(
+                                template.updateFrequencyType,
+                                "pTypeOptions"
+                              )
+                            }}
+                          </span>
+                        </b-row>
+                        <b-row class="card-details fs-17-2920">
+                          <b>{{ $t("basePeriod") }}:&nbsp; </b>
+                          <span class="fw-400">
+                            {{
+                              getValue(template.basePeriod, "basePeriodList")
+                            }}
+                          </span>
+                        </b-row>
                       </div>
                     </div>
                     <div
                       class="saved-report-card-opt"
                       v-if="
-                        template.createdByID === $store.state.loggedInUserId
+                        template.createdByID ===
+                        $store.getters.getLoggedInUserId
                       "
                     >
                       <div
@@ -99,8 +125,6 @@
                     </div>
                     <div class="saved-report-card-opt" v-else>
                       {{ $t("notOwnerReport") }}
-
-                      {{ $t("notOwner") }}
                     </div>
                   </div>
                 </b-card>
@@ -131,7 +155,7 @@
             class="img-fluid mt-xl-n1"
           />
           <span class="mx-1">
-            {{ isGenerating ? $t("scorecardGenerating") : $t("exportbtn") }}
+            {{ isGenerating ? $t("scorecardGenerating") : $t("downloadIcon") }}
           </span>
         </button>
       </div>
@@ -162,6 +186,7 @@
             class="report-theme"
             configKey="selectedCharts"
             :otherChartObj="otherChartObj"
+            :selectedPeriod="selectedPeriod"
             :layout.sync="selectedTemplateObj"
             @getCanvasHeight="getCanvasHeight"
             @getOtherChartObj="getOtherChartObj"
@@ -355,7 +380,18 @@
           </div>
           <div class="form-group mb-1 row">
             <label class="col-sm-6 col-form-label">
-              {{ $t("basePeriod") }}<sup class="color-red">*</sup>
+              <sup
+                ><i
+                  class="fa fa-info-circle color-white cursor-pointer chart-info"
+                  aria-hidden="true"
+                  v-b-popover.hover.rightbottom="{
+                    variant: 'info',
+                    content: $t('basePeriodInfo') || '',
+                    title: $t('basePeriod'),
+                    html: true,
+                  }"
+                ></i></sup
+              >{{ $t("basePeriod") }}<sup class="color-red">*</sup>
             </label>
             <div class="col-sm-6">
               <b-form-select
@@ -400,7 +436,12 @@ import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 import DynamicImageMixin from "@/helpers/DynamicImageMixin";
 import ReFetchConfigMixin from "@/helpers/ReFetchConfigMixin";
 import loadLocChildMixin from "@/helpers/LoadLocationChildMixin";
-import { pTypeList, randomString } from "@/components/Common/commonFunctions";
+import { getAllPeriodRange } from "@/components/Common/commonFunctions";
+import {
+  pTypeList,
+  randomString,
+  translateDate,
+} from "@/components/Common/commonFunctions";
 const originalTemplateObj = {
   templateId: "",
   templateName: "",
@@ -426,6 +467,7 @@ export default {
       options: [],
       configData: {},
       reportList: [],
+      filterLevel: 0,
       orgUnitList: [],
       loadingText: "",
       otherChartObj: [],
@@ -462,7 +504,7 @@ export default {
       ),
   },
   watch: {
-    "$store.state.activeTab": function (newValue) {
+    "$store.getters.getActiveTab": function (newValue) {
       if (newValue === "create-new-report") {
         this.createReportModal(false);
       }
@@ -471,6 +513,8 @@ export default {
       }
       if (newValue === "view-report") {
         this.savedTemplatesVisible = !this.savedTemplatesVisible;
+      } else {
+        this.savedTemplatesVisible = false;
       }
     },
     selectedLocation(newValue) {
@@ -521,6 +565,21 @@ export default {
     },
   },
   computed: {
+    selectedPeriod() {
+      let dType =
+          this.selectedTemplateTempObj?.updateFrequencyType || "monthly",
+        d = this.calculatedPeriod?.[dType] || null;
+      return d && dType
+        ? ", " +
+            translateDate({
+              rawDate:
+                this.calculatedPeriod?.[
+                  this.selectedTemplateTempObj.updateFrequencyType
+                ],
+              periodType: this.selectedTemplateTempObj.updateFrequencyType,
+            })
+        : "";
+    },
     createReportDisabled() {
       return (
         this.templateObj.templateName &&
@@ -540,6 +599,14 @@ export default {
     },
   },
   methods: {
+    getValue(data = 0, key) {
+      let name = data;
+      let isData = this[key].find((o) => o.value === data);
+      if (isData) {
+        name = isData.text;
+      }
+      return name;
+    },
     getCanvasHeight(h) {
       this.canvasHeight = h;
     },
@@ -562,7 +629,7 @@ export default {
         focusConfirm: true,
         showCancelButton: true,
         reverseButtons: true,
-        confirmButtonText: this.$i18n.t("exportbtn"),
+        confirmButtonText: this.$i18n.t("downloadIcon"),
         cancelButtonText: this.$i18n.t("cancelbtn"),
         preConfirm: () => {
           return [document.getElementById("fileName").value];
@@ -571,7 +638,7 @@ export default {
 
       if (formValues) {
         this.isGenerating = true;
-        this.$store.state.loading = true;
+        this.$store.commit("setLoading", true);
         if (this.$refs[divName]) {
           setTimeout(async () => {
             let options = {
@@ -597,7 +664,7 @@ export default {
                 for (let i = 1; i <= totalPages; i++) {
                   if (i === totalPages) {
                     this.isGenerating = false;
-                    this.$store.state.loading = false;
+                    this.$store.commit("setLoading", false);
                   }
                 }
               })
@@ -652,9 +719,13 @@ export default {
         if (Object.keys(this.$store.getters.getGlobalFactors(n)).length === 0) {
           aNamespaces.push(nameSpaces[i]);
           let key = this.generateKey("globalFactors");
-          nPromises.push(service.getSavedConfig(key, false, nameSpaces[i]));
+          nPromises.push(
+            service.getSavedConfig({ tableKey: key, namespace: nameSpaces[i] })
+          );
         }
       });
+      let pPromises = [],
+        FinalPeriodArray = [];
       Promise.allSettled(nPromises).then((results) => {
         results.forEach((response, i) => {
           if (response.status === "fulfilled") {
@@ -662,9 +733,56 @@ export default {
               payload: response.value.data,
               namespace: aNamespaces[i],
             });
+            FinalPeriodArray = getAllPeriodRange(
+              response.value.data.period.Period,
+              FinalPeriodArray
+            );
+            let locationID = this.selectedLocation.split("/")[1],
+              des = null;
+            for (let map in response.data.globalMappings.mappings) {
+              let mappingData = response.data.globalMappings.mappings[map];
+              for (let innerMap in mappingData["mapping"]) {
+                let innerMapData =
+                  response.data.globalMappings.mappings[map]["mapping"][
+                    innerMap
+                  ]["indicator"]["subIndicator"];
+                if (
+                  innerMapData[0] &&
+                  innerMapData[0]["selectedDE"].length > 0
+                ) {
+                  des = innerMapData[0]["selectedDE"][0]["id"];
+                  break;
+                }
+              }
+              if (des != null) break;
+            }
+            pPromises.push(
+              service.getAnalyticalIndicatorData(
+                des,
+                locationID,
+                FinalPeriodArray.join(";"),
+                false,
+                true
+              )
+            );
           }
         });
       });
+      Promise.allSettled(pPromises).then((results) => {
+        results.forEach((response, i) => {
+          if (response.status === "fulfilled") {
+            let finalPeriodData = {};
+            FinalPeriodArray.forEach((pe) => {
+              finalPeriodData[pe] =
+                response.value?.data?.metaData?.items?.[pe] || pe;
+            });
+            this.$store.commit("setPeriodData", finalPeriodData);
+          } else {
+            console.log("Error in fetching period data...");
+          }
+        });
+      });
+
       let promises = [];
       moduleKeys.forEach((m, i) => {
         let configKey = m.split("/")[0];
@@ -675,7 +793,9 @@ export default {
           configKey = `annualEMU_${this.$i18n.locale}`;
         }
         let key = this.generateKey(configKey);
-        promises.push(service.getSavedConfig(key, false, nameSpaces[i]));
+        promises.push(
+          service.getSavedConfig({ tableKey: key, namespace: nameSpaces[i] })
+        );
       });
       Promise.allSettled(promises).then((results) => {
         results.forEach((response, i) => {
@@ -689,43 +809,25 @@ export default {
         });
       });
     },
-    createReportModal(fromEditModule = false) {
+    async createReportModal(fromEditModule = false) {
       if (!fromEditModule) {
         this.templateObj = { ...originalTemplateObj };
       }
       this.createReportPopup = true;
-      let filterLevel =
-        this.$store.getters.getUserDetails.dataViewOrganisationUnits[0].level;
-      if (
-        filterLevel <
-        this.$store.getters.getApplicationModule(
-          this.$store.getters.getIsMultiProgram
-        ).defaultLevelID
-      ) {
-        filterLevel = this.$store.getters.getApplicationModule(
-          this.$store.getters.getIsMultiProgram
-        ).defaultLevelID;
-      }
       if (!this.orgUnitList.length) {
-        service.getOrganisationUnitLevels().then((orgList) => {
-          this.orgUnitList = orgList.data
-            .filter((org) => org.level >= filterLevel)
-            .sort((a, b) =>
-              a.level < b.level ? -1 : a.level > b.level ? 1 : 0
-            )
-            .map((org) => ({ text: org.name, value: org.level }));
-          if (!fromEditModule) {
-            this.templateObj.orgUnitLevel = filterLevel;
-          }
-        });
-      } else {
-        if (!fromEditModule) {
-          this.templateObj.orgUnitLevel = filterLevel;
+        try {
+          let orgList = await service.getOrganisationUnitLevels();
+          this.setOrgData(orgList.data);
+        } catch (e) {
+          console.log("Error in fetching org levels...", e);
         }
+      }
+      if (!fromEditModule) {
+        this.templateObj.orgUnitLevel = this.filterLevel;
       }
     },
     createReport() {
-      this.$store.state.loading = true;
+      this.$store.commit("setLoading", true);
       this.templateObj.templateId = this.templateObj.templateId
         ? this.templateObj.templateId
         : randomString(16);
@@ -738,7 +840,7 @@ export default {
         : `${this.$store.getters.getUserDetails.firstName} ${this.$store.getters.getUserDetails.surname}`;
       this.templateObj.createdByID = this.templateObj.createdByID
         ? this.templateObj.createdByID
-        : this.$store.state.loggedInUserId;
+        : this.$store.getters.getLoggedInUserId;
       this.templateObj.details = this.templateObj.details
         ? this.templateObj.details
         : originalTemplateObj.details;
@@ -746,7 +848,7 @@ export default {
 
       let key = this.generateKey("reportTemplates");
       service
-        .getSavedConfig(key)
+        .getSavedConfig({ tableKey: key })
         .then((res) => {
           let reportTemplates = res.data;
           let templateIndex = res.data.findIndex(
@@ -757,19 +859,23 @@ export default {
           } else {
             reportTemplates = [...res.data, this.templateObj];
           }
-          service.updateConfig(reportTemplates, key).then((response) => {
-            this.reportTemplates = reportTemplates.filter(
-              (r) => r.locale === this.$i18n.locale
-            );
-            this.handleResponse(response);
-          });
+          service
+            .updateConfig({ data: reportTemplates, tableKey: key })
+            .then((response) => {
+              this.reportTemplates = reportTemplates.filter(
+                (r) => r.locale === this.$i18n.locale
+              );
+              this.handleResponse(response);
+            });
         })
         .catch(() => {
           console.log("Report templates not found, adding new...");
-          service.saveConfig([this.templateObj], key).then((response) => {
-            this.reportTemplates = [this.templateObj];
-            this.handleResponse(response);
-          });
+          service
+            .saveConfig({ data: [this.templateObj], tableKey: key })
+            .then((response) => {
+              this.reportTemplates = [this.templateObj];
+              this.handleResponse(response);
+            });
         });
     },
     handleResponse(response) {
@@ -785,13 +891,13 @@ export default {
         if (this.cloneReport) {
           this.cloneReport = false;
         }
-        this.$store.state.loading = false;
+        this.$store.commit("setLoading", false);
       } else {
         this.sweetAlert({
           title: this.$i18n.t("error"),
           text: `${response.data.message}`,
         });
-        this.$store.state.loading = false;
+        this.$store.commit("setLoading", false);
         return;
       }
     },
@@ -804,7 +910,7 @@ export default {
       this.reportTemplates = [];
       let key = this.generateKey("reportTemplates");
       service
-        .getSavedConfig(key)
+        .getSavedConfig({ tableKey: key })
         .then((res) => {
           this.reportTemplates = res.data.filter(
             (r) => r.locale === this.$i18n.locale
@@ -878,35 +984,58 @@ export default {
         cancelButtonText: this.$i18n.t("cancelbtn"),
       }).then((result) => {
         if (result.value) {
-          this.$store.state.loading = true;
+          this.$store.commit("setLoading", true);
           let key = this.generateKey("reportTemplates");
           service
-            .getSavedConfig(key)
+            .getSavedConfig({ tableKey: key })
             .then((res) => {
               let reportTemplates = res.data.filter((t) => t.templateId != id);
-              service.updateConfig(reportTemplates, key).then((response) => {
-                this.handleResponse(response);
-                this.reportTemplates = reportTemplates.filter(
-                  (r) => r.locale === this.$i18n.locale
-                );
-                if (
-                  this.selectedTemplateObj &&
-                  this.selectedTemplateObj.templateId === id
-                ) {
-                  this.selectedTemplateObj = null;
-                  this.isReportGenerated = false;
-                }
-              });
+              service
+                .updateConfig({ data: reportTemplates, tableKey: key })
+                .then((response) => {
+                  this.handleResponse(response);
+                  this.reportTemplates = reportTemplates.filter(
+                    (r) => r.locale === this.$i18n.locale
+                  );
+                  if (
+                    this.selectedTemplateObj &&
+                    this.selectedTemplateObj.templateId === id
+                  ) {
+                    this.selectedTemplateObj = null;
+                    this.isReportGenerated = false;
+                  }
+                });
             })
             .catch(() => {
               console.log("Error while deleting template...");
-              this.$store.state.loading = false;
+              this.$store.commit("setLoading", false);
             });
         }
       });
     },
+    setOrgData(orgList) {
+      this.orgUnitList = orgList
+        .filter((org) => org.level >= this.filterLevel)
+        .sort((a, b) => (a.level < b.level ? -1 : a.level > b.level ? 1 : 0))
+        .map((org) => ({ text: org.name, value: org.level }));
+    },
   },
   created() {
+    this.filterLevel =
+      this.$store.getters.getUserDetails.dataViewOrganisationUnits[0].level;
+    let defaultLevelID = this.$store.getters.getApplicationModule(
+      this.$store.getters.getIsMultiProgram
+    ).defaultLevelID;
+    if (this.filterLevel < defaultLevelID) {
+      this.filterLevel = defaultLevelID;
+    }
+    if (this.$store.getters.getOrgLevels) {
+      this.setOrgData(this.$store.getters.getOrgLevels);
+    } else {
+      service.getOrganisationUnitLevels().then((orgList) => {
+        this.setOrgData(orgList.data);
+      });
+    }
     this.options = JSON.parse(
       JSON.stringify(this.$store.getters.getLocationList)
     );

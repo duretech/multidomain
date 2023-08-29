@@ -41,6 +41,8 @@
         :fields="fields"
         responsive
         class="methodsTable"
+        show-empty
+        :empty-text="$t('no_data_to_display')"
       />
     </div>
     <div class="card-footer text-right mb-4">
@@ -65,7 +67,6 @@ export default {
   ],
   mixins: [DynamicImageMixin],
   data() {
-    //console.log(this.source, this.location)
     return {
       fields: null,
       rows: null,
@@ -84,7 +85,6 @@ export default {
   methods: {
     getDesiredDataFormat() {
       let methodSeq = this.methodSeq;
-      console.log(methodSeq, this.newData, "methodSeq----------------");
       let i,
         oData = this.newData,
         aFinalCats = [],
@@ -179,7 +179,6 @@ export default {
 
       this.rows.push(oRows1);
       this.rows.push(oRows2);
-      console.log(this.rows, "final o/p table in in/op tab");
       let aSource = {
         [this.$i18n.t("emu_output_5")]: "Commodities_Client",
         [this.$i18n.t("emu_output_7")]: "Visits",

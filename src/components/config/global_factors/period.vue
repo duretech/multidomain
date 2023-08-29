@@ -100,12 +100,21 @@
 import service from "@/service";
 import ReFetchConfigMixin from "@/helpers/ReFetchConfigMixin";
 import globalFactorsConfig from "@/config/globalFactorsConfig.js";
+import NepaliDate from "nepali-date-converter";
 
 export default {
   props: ["module", "type", "subType"],
   mixins: [ReFetchConfigMixin],
   data() {
-    let currentDateLong = this.$moment().format();
+    let newMonth = new NepaliDate(new Date()).getBS().month + 1;
+    let currentDateLong =
+      this.$store.getters.getAppSettings.calendar === "nepali"
+        ? `${new NepaliDate(new Date()).getBS().year}-${
+            newMonth < 10 ? "0" : ""
+          }${newMonth}-${
+            new NepaliDate(new Date()).getBS().date < 10 ? "0" : ""
+          }${new NepaliDate(new Date()).getBS().date}`
+        : this.$moment().format();
     let format = this.$moment(currentDateLong, "YYYYMM").format("YYYY-MM");
     let periodSettings = globalFactorsConfig[this.type][this.subType]
       ? globalFactorsConfig[this.type][this.subType]
@@ -156,11 +165,11 @@ export default {
   methods: {
     //This is to fetch config data on page load
     getConfigData() {
-      this.$store.state.loading = true;
+      this.$store.commit("setLoading", true);
       // console.log("data initial",[this.chartBySubtype],JSON.stringify(config))
       let key = this.generateKey(this.module);
 
-      let response = service.getSavedConfig(key);
+      let response = service.getSavedConfig({ tableKey: key });
       response
         .then((response) => {
           if (response.data[this.type][this.subType]) {
@@ -181,16 +190,16 @@ export default {
               ? periodSettings.backtrackedLimitedDate
               : this.backtrackedLimitedDate;
           }
-          this.$store.state.loading = false;
+          this.$store.commit("setLoading", false);
         })
         .catch((err) => {
           console.log("Config not found...");
-          this.$store.state.loading = false;
+          this.$store.commit("setLoading", false);
           this.reFetchConfig(err);
         });
     },
     updateConfigData() {
-      this.$store.state.loading = true;
+      this.$store.commit("setLoading", true);
 
       let key = this.generateKey(this.module);
 
@@ -203,12 +212,12 @@ export default {
 
       // console.log(metaConfigData, "metaConfigData")
 
-      let allKeys = service.getAllKeys();
+      let allKeys = service.getAllKeys({});
       allKeys
         .then((keys) => {
           // console.log("keys", keys)
           if (keys.data.includes(key)) {
-            let saveConfig = service.getSavedConfig(key);
+            let saveConfig = service.getSavedConfig({ tableKey: key });
             saveConfig.then((res) => {
               let configData = res.data;
               // console.log("configData",configData);
@@ -225,7 +234,10 @@ export default {
               //   this.originalPerioddata,
               //   configData[this.type][this.subType]
               // );
-              let response = service.updateConfig(configData, key);
+              let response = service.updateConfig({
+                data: configData,
+                tableKey: key,
+              });
               response
                 .then((response) => {
                   if (response.data.status === "OK") {
@@ -239,14 +251,14 @@ export default {
                     this.originalPerioddata = JSON.parse(
                       JSON.stringify(periodSettings)
                     );
-                    this.$store.state.loading = false;
+                    this.$store.commit("setLoading", false);
                   } else {
                     this.sweetAlert({
                       title: this.$i18n.t("error"),
                       text: `${response.data.message}`,
                     });
 
-                    this.$store.state.loading = false;
+                    this.$store.commit("setLoading", false);
                     return;
                   }
                 })
@@ -255,7 +267,7 @@ export default {
                     title: this.$i18n.t("error"),
                   });
 
-                  this.$store.state.loading = false;
+                  this.$store.commit("setLoading", false);
                   return;
                 });
             });
@@ -266,7 +278,10 @@ export default {
                 [this.subType]: periodSettings,
               },
             };
-            let response = service.saveConfig(configData, key);
+            let response = service.saveConfig({
+              data: configData,
+              tableKey: key,
+            });
             response.then((response) => {
               if (response.data.status === "OK") {
                 // console.log("response save ", response.data)
@@ -279,20 +294,20 @@ export default {
                 this.originalPerioddata = JSON.parse(
                   JSON.stringify(periodSettings)
                 );
-                this.$store.state.loading = false;
+                this.$store.commit("setLoading", false);
               } else {
                 this.sweetAlert({
                   title: this.$i18n.t("error"),
                   text: `${response.data.message}`,
                 });
-                this.$store.state.loading = false;
+                this.$store.commit("setLoading", false);
                 return;
               }
             });
           }
         })
         .catch(() => {
-          this.$store.state.loading = false;
+          this.$store.commit("setLoading", false);
           this.sweetAlert({
             title: this.$i18n.t("error"),
             text: this.$i18n.t("table_not_found"),
@@ -301,15 +316,10 @@ export default {
     },
   },
   created() {
-    // console.log("created")
-    this.getConfigData(); //Remove / add $store.state.loading in updated when you enable / disable this call
-
+    this.getConfigData();
     this.backtrackedLimitedDate = this.$moment(this.backtrackedDate, "YYYYMM")
       .subtract(this.backtrackedYearLimit, "years")
       .format("YYYY-MM");
-  },
-  updated() {
-    // this.$store.state.loading = false
   },
 };
 </script>

@@ -12,6 +12,7 @@
       centered
       :title="$t('admin')"
       :ok-title="$t('ok')"
+      no-close-on-backdrop
     >
       <b-row>
         <b-col sm="4" class="sub-head">{{ $t("selectDashboard") }}</b-col>

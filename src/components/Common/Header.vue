@@ -277,8 +277,13 @@
                 </span>
               </template>
               <b-dropdown-text class="text-center font-14 mt-2">
-                <b-avatar variant="primary"></b-avatar>
-                <div class="text-capitalize pt-1">
+                <div class="profilebox-upper">
+                  <div class="profilebox-upper-left">
+                    <div class="text-body">{{ profileInitials }}</div>
+                  </div>
+                </div>
+                <!-- <b-avatar variant="primary"></b-avatar> -->
+                <div class="text-capitalize">
                   {{ userName }}
                 </div>
                 <div>
@@ -331,6 +336,21 @@
                 />
                 <span class="mx-1">{{ $t("Updates") }}</span>
               </b-dropdown-item-button>
+              <b-dropdown-item-button
+                class="mx-3 font-14"
+                @click="showAnalytics = true"
+                v-if="
+                  $store.getters.getAppSettings.isAnalytics &&
+                  $store.getters.getIsAdmin
+                "
+              >
+                <img
+                  src="@/assets/images/icons/usesAnalytics.svg"
+                  class="setImgclear mr-2 pr-1 w-17px"
+                  :style="{ filter: filterColor }"
+                />
+                <span class="mx-1">{{ $t("uAnalytics") }}</span>
+              </b-dropdown-item-button>
               <b-dropdown-divider></b-dropdown-divider>
               <b-dropdown-item-button class="mx-3 font-14 text-center">
                 <span class="mx-1">{{ $t("theme") }}</span>
@@ -373,7 +393,12 @@
         :isDisableFlash="isDisableFlash"
       />
     </template>
-    <b-modal :title="$t('trainings')" v-model="showManuals" hide-footer>
+    <b-modal
+      :title="$t('trainings')"
+      v-model="showManuals"
+      hide-footer
+      no-close-on-backdrop
+    >
       <div class="my-3" :class="{ 'text-center': manuals.length === 0 }">
         <template v-if="manuals.length">
           <ul>
@@ -389,6 +414,11 @@
         </template>
       </div>
     </b-modal>
+    <Analytics
+      v-if="showAnalytics"
+      :showModal="showAnalytics"
+      @hideModal="showAnalytics = false"
+    />
   </div>
 </template>
 <script>
@@ -406,6 +436,7 @@ export default {
       showModal: true,
       allFlashData: [],
       showManuals: false,
+      showAnalytics: false,
     };
   },
   components: {
@@ -422,8 +453,16 @@ export default {
       import(
         /*webpackChunkName: 'AdminPopup'*/ "@/components/Common/AdminPopup"
       ),
+    Analytics: () =>
+      import(/*webpackChunkName: 'Analytics'*/ "@/components/Common/Analytics"),
   },
   computed: {
+    profileInitials() {
+      let p = "",
+        u = this.$store.getters.getUserDetails;
+      p = u.firstName[0].toUpperCase() + u.surname[0].toUpperCase();
+      return p;
+    },
     manuals() {
       let m = [];
       if (this.$store.getters.getAppSettings?.userManuals?.length) {
@@ -455,7 +494,7 @@ export default {
     },
     currentTheme: {
       get: function () {
-        return this.$store.state.defaultColorTheme;
+        return this.$store.getters.getTheme;
       },
       set: function (newValue) {
         this.$store.commit("setTheme", newValue);
@@ -550,7 +589,7 @@ export default {
       this.showModal = false;
     },
     backToDHIS() {
-      window.location.href = `${this.$store.state.baseURL}/`;
+      window.location.href = `${this.$store.getters.getBaseURL}/`;
     },
     activateTour() {
       this.$emit("activateTour");
@@ -598,5 +637,16 @@ export default {
 <style lang="scss">
 .b-dropdown-text {
   padding: 0.25rem 0 !important;
+}
+.profilebox-upper-left {
+  display: inline-block;
+  margin: 15px 20px;
+  vertical-align: top;
+  width: 50px;
+  font-size: 20px;
+  padding: 10px 12px;
+  height: 50px;
+  background: var(--text-subfont-color);
+  border-radius: 50%;
 }
 </style>

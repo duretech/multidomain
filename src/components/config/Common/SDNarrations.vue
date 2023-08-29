@@ -7,7 +7,7 @@
       <b-col sm="9">
         <b-form-checkbox
           :id="`summary-visible-${i}-${j}`"
-          class="mr-n2 mb-n1"
+          class="mr-n2 mb-n1 ml-40px"
           switch
           v-model="summary.disable"
         >
@@ -191,6 +191,15 @@ export default {
             });
           }
         });
+        charts = charts.length
+          ? charts
+          : [
+              {
+                value: null,
+                disabled: true,
+                text: this.$i18n.t("no_data_to_display"),
+              },
+            ];
         return charts;
       };
     },
@@ -215,6 +224,15 @@ export default {
             }
           });
         });
+        charts = charts.length
+          ? charts
+          : [
+              {
+                value: null,
+                disabled: true,
+                text: this.$i18n.t("no_data_to_display"),
+              },
+            ];
         return charts;
       };
     },
@@ -254,6 +272,15 @@ export default {
             });
           }
         }
+        arr = arr.length
+          ? arr
+          : [
+              {
+                value: null,
+                disabled: true,
+                text: this.$i18n.t("no_data_to_display"),
+              },
+            ];
         return arr;
       };
     },
@@ -264,11 +291,20 @@ export default {
         if (gSetting?.allExtData?.extData?.length) {
           gSetting.allExtData.extData.forEach((m) => {
             arr.push({
-              text: m.displayName[this.$i18n.locale],
+              text: m.identifier[this.$i18n.locale],
               value: m.id,
             });
           });
         }
+        arr = arr.length
+          ? arr
+          : [
+              {
+                value: null,
+                disabled: true,
+                text: this.$i18n.t("no_data_to_display"),
+              },
+            ];
         return arr;
       };
     },

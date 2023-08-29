@@ -135,7 +135,6 @@ export default {
     },
     drawTable() {
       let dataObj = JSON.parse(this.tabData);
-      //console.log(dataObj)
 
       let incObj = {};
 
@@ -153,7 +152,6 @@ export default {
       let reqDataInc = dataObj.data.find((obj) =>
         obj.name.includes(this.$i18n.t("includeCondoms"))
       );
-      console.log(reqDataInc, "reqData in datatable");
       reqDataInc.data.forEach((innerObj, ind) => {
         // obj.data.forEach((innerObj,ind) =>{
         if (this.fields.indexOf(" " + dataObj.categories[ind] + " ") == -1) {
@@ -166,7 +164,6 @@ export default {
       let reqDataExc = dataObj.data.find((obj) =>
         obj.name.includes(this.$i18n.t("excludeCondoms"))
       );
-      console.log(reqDataExc, "reqData in datatable");
       reqDataExc.data.forEach((innerObj, ind) => {
         // obj.data.forEach((innerObj,ind) =>{
 
@@ -180,7 +177,6 @@ export default {
       this.items.push(incObj);
       this.items.push(exObj);
       this.items.push(popObj);
-      console.log(this.items, this.fields, "in datatable");
     },
   },
   mounted() {

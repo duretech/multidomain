@@ -197,10 +197,12 @@ export default {
         this.tableChartMethods = oChartTable.methods;
         this.tableChartData = aHighChartTable;
       } else {
-        let period = translateDate({
-          rawDate: this.locationPeriod.period,
-          periodType: this.locationPeriod.periodType,
-          monthlyFormat: "MMM YYYY",
+        let period = "";
+        let newDate = this.locationPeriod.period.split("-").join("");
+        Object.keys(this.matrixPData["allMonthNameJson"]).forEach((month) => {
+          if (month == newDate) {
+            period = this.matrixPData["allMonthNameJson"][month]["name"];
+          }
         });
         let oChartTable = geoCalc.calculateAvgEMUMethodMix(
             this.matrixPData,

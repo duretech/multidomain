@@ -292,6 +292,15 @@
   border: 1px solid var(--border-grey-color) !important;
   border-radius: 5px !important;
   background-color: transparent !important;
+  height: 97% !important;
+    overflow-y: auto;
+    
+}
+
+.emu-component {
+    .card-footer{
+        height: 50px;
+    }
 }
 
 .emu-tablehighlight{
@@ -310,11 +319,29 @@
  
 }
 
-
-
 .benchmark-new.border-bottom,
 .benchmark-emu.border-bottom{
     border-bottom: 1px solid var(--border-grey-color) !important;
+}
+
+
+// emu section css
+
+#benchmarking-sub-tab .nav-link:hover,
+#benchmarking-sub-tab .nav-link:focus{
+    border-color: transparent;
+}
+
+#benchmarking-sub-tab .nav-tabs{
+    border-bottom-color: var(--border-grey-color) !important;
+}
+
+.benchmarkpart .nav-tabs{
+    margin-bottom: 2%;
+}
+
+#benchmarking-sub-tab .summary-dqr{
+    margin: 3% 3% 3% 0% !important;
 }
 
 .bg-data .card
@@ -353,7 +380,7 @@
     }
 
     .quillWrapper{
-        width: 92.1%;
+        width: 89%;
     }
 }
 
@@ -380,6 +407,10 @@
     height: 36.7px;
 }
 
+
+.translate-iconheight .input-group-append {
+    height: 36.5px;
+}
 
 //footer new CSS
 
@@ -605,7 +636,10 @@
         padding: 5px 16px;
         border-radius: 5px !important;
     }
-
+    
+    .charts-tabs .nav-tabs .nav-link:last-child{
+        margin-top: 10px;
+    }
     .charts-tabs .nav-tabs{
         border-color: transparent !important;
     }
@@ -713,6 +747,8 @@
     
    
 .admin-side {
+
+    
     .dashboardchart-container .card{
         background-color: var(--primary-bg-color) !important;
         border: none;
@@ -743,6 +779,16 @@
     }
     
 }  
+
+.adminsection-modal {
+    .btn-primary,
+    .btn-primary:active {
+        color: var(--text-color) !important;
+        background-color: var(--export-btn-color) !important;
+        border-color: var(--export-btn-color) !important;
+    }
+}
+
 
 
 .adminConfig{ 
@@ -837,19 +883,10 @@
     .md_nested_tabs .border{
         border-radius: 5px !important;
         border: 1px solid var(--border-grey-color) !important;
-        
-        .collapse-section-border{
-            border: 1px solid var(--footer-components-color ) !important;
-        }
     }
 
     .adminConfig .md_nested_tabs .border{
         border: transparent !important;
-    }
-
-    .dqremu-admin .md_nested_tabs .border .collapse-section-border{
-        border-bottom-left-radius: 0px !important;
-        border-bottom-right-radius: 0px !important;
     }
 
 }
@@ -906,14 +943,6 @@
 .contin-acc .card {
     border-bottom-right-radius: 0 !important;
      border-bottom-left-radius: 0 !important;
-}
-
-.md_nested_tabs .collapse-section-border,
-.map-admin .map-fpadmin,
-.map-fpborder,
-#collapseChartSettings .indicator-main,
-.scalesTabSection .card-body{
-border: 1px solid var(--footer-components-color ) !important;
 }
 
 .datamappingtopcar,
@@ -1017,6 +1046,11 @@ border: 1px solid var(--footer-components-color ) !important;
 .card-border1 .card{
     border-bottom-left-radius: 0px !important;
     border-bottom-right-radius: 0px !important;
+}
+
+.Visits .accordion .card-header{
+    border-top-left-radius: 10px !important;
+    border-top-right-radius: 10px !important;
 }
 
 
@@ -1134,6 +1168,11 @@ border: 1px solid var(--footer-components-color ) !important;
    right: -12px !important;
 }
 
+#sntch_webchat{
+    bottom: 0px!important; 
+    right: 0px!important;
+}
+
 .modaladmin-heading{
     h5{
         font-size: var(--font-p) !important;
@@ -1154,4 +1193,14 @@ border: 1px solid var(--footer-components-color ) !important;
     visibility: visible;
     // border: 2px solid var(--border-grey-color);
 }
+
+#addSection .grid-layout-section span,
+.myDivToPrint p{
+    color: var(--text-color) !important;
+}
+
+
+
+
+
 

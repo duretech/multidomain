@@ -67,8 +67,8 @@
           chartName="monthSpecific"
           :caltype="calType"
           :canComment="canComment"
-          defaultSort="A-Z"
-          :sorting="['0-1', '1-0', 'A-Z', 'Z-A']"
+          defaultSort="Z-A"
+          sorting="type2"
           :setExtreme="true"
         />
         <template v-else>
@@ -82,7 +82,11 @@
 import service from "@/service";
 import { commonChartConfig } from "@/config/basicChartConfig";
 import cardComponent from "@/components/FPDashboard/dqr/monthly/cardComponent";
-
+import NepaliDate from "nepali-date-converter";
+import {
+  translateDate,
+  translateAlphatoNum,
+} from "@/components/Common/commonFunctions";
 export default {
   props: ["emuData", "dqrResponse", "locationPeriod"],
   components: {
@@ -141,8 +145,15 @@ export default {
       deep: true,
     },
     locationPeriod: {
-      handler() {
-        this.getEMUChart();
+      handler(newValue, oldValue) {
+        if (
+          oldValue &&
+          (newValue.location !== oldValue.location ||
+            newValue.periodType !== oldValue.periodType ||
+            newValue.period !== oldValue.period)
+        ) {
+          this.getEMUChart();
+        }
       },
       deep: true,
     },
@@ -156,6 +167,8 @@ export default {
 
       let locId = this.locationPeriod.location.split("/")[1];
       let emuData = JSON.parse(JSON.stringify(this.emuData));
+      let allMonthNameJson = this.$store.getters.getPeriodData;
+
       let totalEMU =
         typeof emuData[`monthly_${this.$i18n.locale}`]["totalEMU"] === "string"
           ? JSON.parse(emuData[`monthly_${this.$i18n.locale}`]["totalEMU"])
@@ -165,13 +178,27 @@ export default {
         let savedEMU = this.dqrResponse.emu_monthly.Background_Data.autoSaveEMU;
         let dqrData = this.dqrResponse.emu_monthly[savedEMU].derivedCharts;
         let d = new Date();
+        if (this.$store.getters.getAppSettings.calendar === "nepali") {
+          d = new NepaliDate(
+            new Date(d.getFullYear(), d.getMonth() + 1, d.getDate())
+          ).getBS();
+          let nplMonth = d.month;
+          let nplYear = d.year;
+          let zeroForMonth = nplMonth < 10 ? "0" + nplMonth : nplMonth;
+          d = d.year + "" + zeroForMonth;
+        }
         let defaultDate = this.$moment(d, "YYYYMM").subtract(
           this.globalPeriodData.backtrackedMonth * 1,
           "months"
         );
-        let selectedDate = this.$moment(defaultDate, "YYYYMM").format(
-          "MMM YYYY"
-        );
+        // let selectedDate = this.$moment(defaultDate, "YYYYMM").format(
+        //   "MMMM YYYY"
+        // );
+        // let selectedDate = translateDate({
+        //   rawDate: defaultDate,
+        //   periodType: "monthly",
+        //   monthlyFormat: "MMMM YYYY",
+        // });
         let totalEMUChartData = totalEMU[locId] ? totalEMU[locId] : null;
         if (totalEMUChartData) {
           let data = dqrData.find(
@@ -199,21 +226,17 @@ export default {
               formatedCatArray = [];
             for (let i = 23; i >= 0; i--) {
               if (i === 0) {
-                pe.push(
-                  this.$moment(selectedDate, "MMM YYYY").format("YYYYMM")
-                );
+                pe.push(this.$moment(defaultDate, "YYYYMM").format("YYYYMM"));
               } else {
                 pe.push(
-                  this.$moment(selectedDate, "MMM YYYY")
+                  this.$moment(defaultDate, "YYYYMM")
                     .subtract(i, "months")
                     .format("YYYYMM")
                 );
               }
             }
             totalEMUChartData.saveCategories.forEach((c) =>
-              formatedCatArray.push(
-                this.$moment(c, "MMM YYYY").format("YYYYMM")
-              )
+              formatedCatArray.push(translateAlphatoNum(c))
             );
             let items = [],
               fields = [];
@@ -234,7 +257,7 @@ export default {
               let methodName = sData.name;
               fields.push(methodName);
               pe.forEach((p, i) => {
-                let formatedDate = this.$moment(p, "YYYYMM").format("MMM YYYY");
+                let formatedDate = allMonthNameJson[p]["name"];
                 if (formatedCatArray.includes(p)) {
                   let catIndex = formatedCatArray.indexOf(p);
                   obj.data.push(reqData[catIndex]);
@@ -256,29 +279,7 @@ export default {
               });
               items.push(innObj);
             });
-            // let reqData = totalEMUChartData.saveData[0].data;
-            // let obj = {
-            //   name: totalEMUChartData.saveData[0].name,
-            //   data: [],
-            // };
-            // let items = [],
-            //   fields = [];
-            // fields.push(
-            //   { key: "Period", value: this.$i18n.t("period") },
-            //   {
-            //     key: "Value",
-            //     value: this.$i18n.t("value"),
-            //   }
-            // );
-            // pe.forEach((p, i) => {
-            //   let formatedDate = this.$moment(p, "YYYYMM").format("MMM YYYY");
-            //   if (formatedCatArray.includes(p)) {
-            //     let catIndex = formatedCatArray.indexOf(p);
-            //     obj.data.push(reqData[catIndex]);
-            //     totalEMUChartData.categories.push(formatedDate);
-            //     items.push({ Period: formatedDate, Value: reqData[catIndex] });
-            //   }
-            // });
+
             totalEMUChartData["fields"] = fields;
             totalEMUChartData["tableData"] = [
               {
@@ -324,21 +325,17 @@ export default {
               formatedCatArray = [];
             for (let i = 23; i >= 0; i--) {
               if (i === 0) {
-                pe.push(
-                  this.$moment(selectedDate, "MMM YYYY").format("YYYYMM")
-                );
+                pe.push(this.$moment(defaultDate, "YYYYMM").format("YYYYMM"));
               } else {
                 pe.push(
-                  this.$moment(selectedDate, "MMM YYYY")
+                  this.$moment(defaultDate, "YYYYMM")
                     .subtract(i, "months")
                     .format("YYYYMM")
                 );
               }
             }
             trendsChartData.saveCategories.forEach((c) =>
-              formatedCatArray.push(
-                this.$moment(c, "MMM YYYY").format("YYYYMM")
-              )
+              formatedCatArray.push(translateAlphatoNum(c))
             );
             let items = [],
               agreItems = [],
@@ -353,7 +350,7 @@ export default {
               let methodName = sData.trans_name ? sData.trans_name : sData.name;
               fields.push(methodName);
               pe.forEach((p, i) => {
-                let formatedDate = this.$moment(p, "YYYYMM").format("MMM YYYY");
+                let formatedDate = allMonthNameJson[p]["name"];
                 if (formatedCatArray.includes(p)) {
                   let catIndex = formatedCatArray.indexOf(p);
                   obj.data.push(reqData[catIndex]);
@@ -375,7 +372,7 @@ export default {
               let methodName = sData.trans_name ? sData.trans_name : sData.name;
               //fields.push(methodName)
               pe.forEach((p, i) => {
-                let formatedDate = this.$moment(p, "YYYYMM").format("MMM YYYY");
+                let formatedDate = allMonthNameJson[p]["name"];
                 if (formatedCatArray.includes(p)) {
                   let catIndex = formatedCatArray.indexOf(p);
                   obj.data.push(reqData[catIndex]);
@@ -396,7 +393,7 @@ export default {
                 let methodName = sData.trans_name
                   ? sData.trans_name
                   : sData.name;
-                innObj[methodName] = reqData[i] ? reqData[i] : null;
+                innObj[methodName] = reqData[i] ? reqData[i] : 0;
               });
               items.push(innObj);
               trendsChartData.agreData.forEach((sData) => {
@@ -404,7 +401,7 @@ export default {
                 let methodName = sData.trans_name
                   ? sData.trans_name
                   : sData.name;
-                agreObj[methodName] = reqData[i] ? reqData[i] : null;
+                agreObj[methodName] = reqData[i] ? reqData[i] : 0;
               });
               agreItems.push(agreObj);
             });
@@ -480,21 +477,17 @@ export default {
               formatedCatArray = [];
             for (let i = 23; i >= 0; i--) {
               if (i === 0) {
-                pe.push(
-                  this.$moment(selectedDate, "MMM YYYY").format("YYYYMM")
-                );
+                pe.push(this.$moment(defaultDate, "YYYYMM").format("YYYYMM"));
               } else {
                 pe.push(
-                  this.$moment(selectedDate, "MMM YYYY")
+                  this.$moment(defaultDate, "YYYYMM")
                     .subtract(i, "months")
                     .format("YYYYMM")
                 );
               }
             }
             methodTrendsChartData.saveCategories.forEach((c) =>
-              formatedCatArray.push(
-                this.$moment(c, "MMM YYYY").format("YYYYMM")
-              )
+              formatedCatArray.push(translateAlphatoNum(c))
             );
             methodTrendsChartData.saveData.forEach((sData) => {
               let reqData = sData.data;
@@ -506,7 +499,7 @@ export default {
               let methodName = sData.trans_name ? sData.trans_name : sData.name;
               fields.push(methodName);
               pe.forEach((p, i) => {
-                let formatedDate = this.$moment(p, "YYYYMM").format("MMM YYYY");
+                let formatedDate = allMonthNameJson[p]["name"];
                 if (formatedCatArray.includes(p)) {
                   let catIndex = formatedCatArray.indexOf(p);
                   obj.data.push(reqData[catIndex]);
@@ -527,7 +520,7 @@ export default {
               let methodName = sData.trans_name ? sData.trans_name : sData.name;
               //fields.push(methodName)
               pe.forEach((p, i) => {
-                let formatedDate = this.$moment(p, "YYYYMM").format("MMM YYYY");
+                let formatedDate = allMonthNameJson[p]["name"];
                 if (formatedCatArray.includes(p)) {
                   let catIndex = formatedCatArray.indexOf(p);
                   obj.data.push(reqData[catIndex]);
@@ -548,14 +541,14 @@ export default {
                 let methodName = sData.trans_name
                   ? sData.trans_name
                   : sData.name;
-                innObj[methodName] = reqData[i] ? reqData[i] : null;
+                innObj[methodName] = reqData[i] ? reqData[i] : 0;
               });
               methodTrendsChartData.agreData.forEach((sData) => {
                 let reqData = sData.data;
                 let methodName = sData.trans_name
                   ? sData.trans_name
                   : sData.name;
-                agreObj[methodName] = reqData[i] ? reqData[i] : null;
+                agreObj[methodName] = reqData[i] ? reqData[i] : 0;
               });
               items.push(innObj);
               agreItems.push(agreObj);
@@ -636,13 +629,13 @@ export default {
     getConfig() {
       let key = this.generateKey("dqrModule");
       service
-        .getSavedConfig(key)
+        .getSavedConfig({ tableKey: key })
         .then((response) => {
           this.$emit("setDQRResponse", response.data);
         })
         .catch((res) => {
           console.log("catch error", res);
-          if (this.$store.state.isAdmin) {
+          if (this.$store.getters.getIsAdmin) {
             // Popup message to set the configurations
             this.$swal({
               title: this.$i18n.t("configurationnotavailable"),

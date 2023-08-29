@@ -36,8 +36,7 @@
                               aria-controls="collapseOne"
                             >
                               {{ $t("initialSetup") }}
-                              <span class="float-right">
-                              </span>
+                              <span class="float-right"> </span>
                             </button>
                           </h2>
                         </div>
@@ -298,8 +297,7 @@
                               aria-controls="collapseTwo"
                             >
                               {{ $t("themeContent") }}
-                              <span class="float-right">
-                              </span>
+                              <span class="float-right"> </span>
                             </button>
                           </h2>
                         </div>
@@ -518,7 +516,7 @@ export default {
       this.$store.commit("setLoading", true);
       let key = this.generateKey("applicationModule");
       service
-        .getSavedConfig(key)
+        .getSavedConfig({ tableKey: key })
         .then((response) => {
           let data = response.data,
             locationID = data.defaultLocationID[0],
@@ -561,7 +559,7 @@ export default {
     //This is to update Global Config data in datastore
     updateGlobalConfigData() {
       // return
-      this.$store.state.loading = true;
+      this.$store.commit("setLoading", true);
 
       let applicationModule = {
         ...this.applicationModule,
@@ -570,10 +568,13 @@ export default {
       let key = this.generateKey("applicationModule");
 
       service
-        .getSavedConfig(key)
+        .getSavedConfig({ tableKey: key })
         .then((res) => {
           let configData = assign(res.data, applicationModule);
-          let response = service.updateConfig(configData, key);
+          let response = service.updateConfig({
+            data: configData,
+            tableKey: key,
+          });
           response
             .then((response) => {
               if (response.data.status === "OK") {
@@ -584,7 +585,7 @@ export default {
                   text: `${response.data.message}`,
                 });
                 this.$emit("isGlobalConfigSet", false);
-                this.$store.state.loading = false;
+                this.$store.commit("setLoading", false);
                 return;
               }
             })
@@ -593,12 +594,15 @@ export default {
                 title: this.$i18n.t("error"),
               });
               this.$emit("isGlobalConfigSet", false);
-              this.$store.state.loading = false;
+              this.$store.commit("setLoading", false);
               return;
             });
         })
         .catch((error) => {
-          let response = service.saveConfig(applicationModule, key);
+          let response = service.saveConfig({
+            data: applicationModule,
+            tableKey: key,
+          });
           response.then((response) => {
             if (response.data.status === "OK") {
               this.setLocale();
@@ -608,14 +612,14 @@ export default {
                 text: `${response.data.message}`,
               });
               this.$emit("isGlobalConfigSet", false);
-              this.$store.state.loading = false;
+              this.$store.commit("setLoading", false);
               return;
             }
           });
         });
     },
     setLocale() {
-      this.$store.state.loading = false;
+      this.$store.commit("setLoading", false);
       this.$emit("isGlobalConfigSet", true);
       this.$swal({
         title: this.$i18n.t("data_saved_successfully"),

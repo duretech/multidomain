@@ -40,100 +40,50 @@
                   id="myDivToPrintLeft"
                 >
                   <div class="integratedSummaryCountWrap" ref="leftSummaryBox">
-                    <b-row class="pl-3 pr-3">
-                      <b-col sm="3" class="pr-1 pl-0" v-if="isFPModules">
-                        <div
-                          class="fs-17-1920 programName"
-                          :class="{ programNameDownload: exportingPdf }"
-                        >
-                          {{ $t("family_planning") }}
-                        </div>
-                        <div
-                          class="integratedBoxWrap purpleBox"
-                          :style="{ 'background-color': emuValueColor }"
-                        >
-                          <div class="textDivWrap">
-                            <p class="fs-17-1920 courseName">{{ $t("EMU") }}</p>
-                            <div class="fs-17-1920 courseCount" v-if="emuValue">
-                              {{
-                                emuValue === $t("NA")
-                                  ? emuValue
-                                  : `${emuValue}%`
-                              }}
-                            </div>
-                            <b-spinner
-                              type="grow"
-                              label="Spinning"
-                              v-else
-                            ></b-spinner>
-                            <p class="fs-17-1920 courseText">
-                              {{ $t("estimatedUse") }}
-                            </p>
-                            <div class="overlay">
-                              <div class="text">
-                                <div class="integratedDashboardOverlay">
-                                  <i
-                                    class="fa fa-bar-chart"
-                                    aria-hidden="true"
-                                  ></i
-                                  ><button
-                                    class="btn purple-btn fs-17-1920"
-                                    @click.prevent.stop="
-                                      goTo({
-                                        module: 'fp-dashboard',
-                                        setNamespace: true,
-                                        routeName: 'dashboard',
-                                        redirectDetails: {
-                                          routeName: 'SummaryDashboard',
-                                          locationPeriod: locationPeriod,
-                                        },
-                                      })
-                                    "
-                                  >
-                                    {{ $t("viewMore") }}
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
+                    <div>
+                      <b-row class="pl-3 pr-3">
+                        <b-col sm="3" class="pr-1 pl-0" v-if="isFPModules">
+                          <div
+                            class="fs-17-1920 programName"
+                            :class="{ programNameDownload: exportingPdf }"
+                          >
+                            {{ $t("family_planning") }}
                           </div>
-                        </div>
-                      </b-col>
-                      <template v-if="isMNCHModules && isMNCHSummaryModules">
-                        <b-col
-                          sm="3"
-                          class="px-0"
-                          v-for="(summary, i) in summaryScore"
-                          :key="'summary' + i"
-                        >
+                        </b-col>
+                        <b-col class="px-0">
                           <div
                             class="fs-17-1920 programName"
                             :class="{
                               programNameDownload: exportingPdf,
-                              hidden: i !== 0,
                             }"
+                            v-if="
+                              isMNCHModules &&
+                              isMNCHSummaryModules &&
+                              summaryScore.length
+                            "
                           >
                             {{ $t("maternalHealth") }}
                           </div>
+                        </b-col>
+                      </b-row>
+                      <b-row class="pl-3 pr-3">
+                        <b-col sm="3" class="pr-1 pl-0 mb-1" v-if="isFPModules">
                           <div
-                            class="integratedBoxWrap pinkBox"
-                            :style="{ 'background-color': summary.color }"
+                            class="integratedBoxWrap purpleBox"
+                            :style="{ 'background-color': emuValueColor }"
                           >
                             <div class="textDivWrap">
                               <p class="fs-17-1920 courseName">
-                                {{ summary.shortName }}
+                                {{ $t("EMU") }}
                               </p>
                               <div
                                 class="fs-17-1920 courseCount"
-                                v-if="
-                                  !isNaN(summary.value) && summary.value !== ''
-                                "
+                                v-if="emuValue"
                               >
                                 {{
-                                  summary.value === $t("NA")
-                                    ? summary.value
-                                    : `${summary.value}${
-                                        summary.percentIndicator ? "%" : ""
-                                      }`
+                                  emuValue === $t("NA")
+                                    ? emuValue
+                                    : `${emuValue}%`
                                 }}
                               </div>
                               <b-spinner
@@ -142,7 +92,7 @@
                                 v-else
                               ></b-spinner>
                               <p class="fs-17-1920 courseText">
-                                {{ summary.displayName }}
+                                {{ $t("estimatedUse") }}
                               </p>
                               <div class="overlay">
                                 <div class="text">
@@ -155,12 +105,11 @@
                                       class="btn purple-btn fs-17-1920"
                                       @click.prevent.stop="
                                         goTo({
-                                          module: 'mnch-dashboard',
+                                          module: 'fp-dashboard',
                                           setNamespace: true,
                                           routeName: 'dashboard',
                                           redirectDetails: {
                                             routeName: 'SummaryDashboard',
-                                            activeTab: summary.link,
                                             locationPeriod: locationPeriod,
                                           },
                                         })
@@ -174,8 +123,76 @@
                             </div>
                           </div>
                         </b-col>
-                      </template>
-                    </b-row>
+                        <template v-if="isMNCHModules && isMNCHSummaryModules">
+                          <div
+                            class="show-div"
+                            :class="{ 'maternal-health': !exportingPdf }"
+                          >
+                            <b-col
+                              sm="4"
+                              class="px-0 mb-1"
+                              v-for="(summary, i) in summaryScore"
+                              :key="'summary' + i"
+                            >
+                              <div
+                                class="integratedBoxWrap pinkBox"
+                                :style="{ 'background-color': summary.color }"
+                              >
+                                <div class="textDivWrap">
+                                  <p class="fs-17-1920 courseName">
+                                    {{ summary.shortName }}
+                                  </p>
+                                  <div
+                                    class="fs-17-1920 courseCount"
+                                    v-if="
+                                      !isNaN(summary.value) &&
+                                      summary.value !== ''
+                                    "
+                                  >
+                                    {{ getValue(summary) }}
+                                  </div>
+                                  <b-spinner
+                                    type="grow"
+                                    label="Spinning"
+                                    v-else
+                                  ></b-spinner>
+                                  <p class="fs-17-1920 courseText">
+                                    {{ summary.displayName }}
+                                  </p>
+                                  <div class="overlay">
+                                    <div class="text">
+                                      <div class="integratedDashboardOverlay">
+                                        <i
+                                          class="fa fa-bar-chart"
+                                          aria-hidden="true"
+                                        ></i
+                                        ><button
+                                          class="btn purple-btn fs-17-1920"
+                                          @click.prevent.stop="
+                                            goTo({
+                                              module: 'mnch-dashboard',
+                                              setNamespace: true,
+                                              routeName: 'dashboard',
+                                              redirectDetails: {
+                                                routeName: 'SummaryDashboard',
+                                                activeTab: summary.link,
+                                                locationPeriod: locationPeriod,
+                                              },
+                                            })
+                                          "
+                                        >
+                                          {{ $t("viewMore") }}
+                                        </button>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </b-col>
+                          </div>
+                        </template>
+                      </b-row>
+                    </div>
                   </div>
                   <b-row class="my-2" ref="leftNavOptions">
                     <b-col sm="12">
@@ -495,6 +512,7 @@ import Maps from "@/components/Maps/IntegratedFPMap.vue";
 import DynamicImageMixin from "@/helpers/DynamicImageMixin";
 import DocumentTitleMixin from "@/helpers/DocumentTitleMixin";
 import ReFetchConfigMixin from "@/helpers/ReFetchConfigMixin";
+import UsesAnalyticsMixin from "@/helpers/UsesAnalyticsMixin";
 import LanguageChangeMixin from "@/helpers/LanguageChangeMixin";
 import { integratedChartConfig } from "@/config/basicChartConfig";
 import FpIntegrated from "@/components/Highcharts/FpIntegrated.vue";
@@ -503,6 +521,8 @@ import {
   getChild,
   getDateRange,
   formatSingleDate,
+  translateDate,
+  getAllPeriodRange,
 } from "@/components/Common/commonFunctions";
 
 export default {
@@ -519,6 +539,7 @@ export default {
     DynamicImageMixin,
     DocumentTitleMixin,
     ReFetchConfigMixin,
+    UsesAnalyticsMixin,
     LanguageChangeMixin,
     EmitTourCallbackMixin,
   ],
@@ -645,8 +666,10 @@ export default {
       deep: true,
     },
     summaryScore(newValue) {
-      this.getSingleValue(newValue);
-      this.getIndMapData(newValue);
+      if (this.locationPeriod.location) {
+        this.getSingleValue(newValue);
+        this.getIndMapData(newValue);
+      }
     },
     mapData() {
       this.activeMapTitle = this.$i18n.t("EMU");
@@ -665,6 +688,17 @@ export default {
     },
   },
   methods: {
+    getValue(summary) {
+      let value = summary.value;
+      if (summary.value !== this.$i18n.t("NA")) {
+        if (summary.percentIndicator) {
+          value = `${value}%`;
+        } else {
+          value = value.toLocaleString();
+        }
+      }
+      return value;
+    },
     resetMap() {
       this.$refs.toolbar.resetMap();
     },
@@ -856,11 +890,10 @@ export default {
       if (this.isMNCHModules && this.isMNCHDQRModules) {
         if (!this.mnchScorecard) {
           try {
-            this.mnchScorecard = await service.getSavedConfig(
-              key,
-              false,
-              "mnch-dashboard"
-            );
+            this.mnchScorecard = await service.getSavedConfig({
+              tableKey: key,
+              namespace: "mnch-dashboard",
+            });
           } catch (e) {
             console.log("Error in fetching mnch scorecard...");
           }
@@ -917,11 +950,10 @@ export default {
       if (this.isFPModules && this.isFPDQRModules) {
         if (!this.fpScorecard) {
           try {
-            this.fpScorecard = await service.getSavedConfig(
-              key,
-              false,
-              "fp-dashboard"
-            );
+            this.fpScorecard = await service.getSavedConfig({
+              tableKey: key,
+              namespace: "fp-dashboard",
+            });
           } catch (e) {
             console.log("Error in fetching fp scorecard...");
           }
@@ -981,11 +1013,59 @@ export default {
       if (Object.keys(this.$store.getters.getGlobalFactors(n)).length === 0) {
         let key = this.generateKey("globalFactors");
         try {
-          let response = await service.getSavedConfig(key, false, n);
+          let response = await service.getSavedConfig({
+            tableKey: key,
+            namespace: n,
+          });
           this.$store.commit("setGlobalFactors", {
             payload: response.data,
             namespace: n,
           });
+          let FinalPeriodArray = [];
+          FinalPeriodArray = getAllPeriodRange(
+            response.data.period.Period,
+            FinalPeriodArray
+          );
+          let { locationID } = service.getAllowedLocation(),
+            des = null;
+          for (let map in response.data.globalMappings.mappings) {
+            let mappingData = response.data.globalMappings.mappings[map];
+            for (let innerMap in mappingData["mapping"]) {
+              let innerMapData =
+                response.data.globalMappings.mappings[map]["mapping"][innerMap][
+                  "indicator"
+                ]["subIndicator"];
+              if (innerMapData[0] && innerMapData[0]["selectedDE"].length > 0) {
+                des = innerMapData[0]["selectedDE"][0]["id"];
+                break;
+              }
+            }
+            if (des != null) break;
+          }
+          let finalPeriodData = this.$store.getters.getPeriodData ?? {};
+          //Check if we already have the formatted date in store
+          FinalPeriodArray = FinalPeriodArray.filter(
+            (p) => !finalPeriodData[p]
+          );
+          //Check if required params are available
+          if (FinalPeriodArray.length && locationID && des) {
+            let pRes = null;
+            try {
+              pRes = await service.getAnalyticalIndicatorData(
+                des,
+                locationID,
+                FinalPeriodArray.join(";"),
+                false,
+                true
+              );
+            } catch (err) {
+              console.log("Error in fetching periods from DHIS2...", err);
+            }
+            FinalPeriodArray.forEach((pe) => {
+              finalPeriodData[pe] = pRes?.data?.metaData?.items?.[pe] || pe;
+            });
+            this.$store.commit("setPeriodData", finalPeriodData); // Set the periods in store
+          }
         } catch (err) {
           this.reFetchConfig(err);
         }
@@ -994,11 +1074,59 @@ export default {
       if (Object.keys(this.$store.getters.getGlobalFactors(n)).length === 0) {
         let key = this.generateKey("globalFactors");
         try {
-          let response = await service.getSavedConfig(key, false, n);
+          let response = await service.getSavedConfig({
+            tableKey: key,
+            namespace: n,
+          });
           this.$store.commit("setGlobalFactors", {
             payload: response.data,
             namespace: n,
           });
+          let FinalPeriodArray = [];
+          FinalPeriodArray = getAllPeriodRange(
+            response.data.period.Period,
+            FinalPeriodArray
+          );
+          let { locationID } = service.getAllowedLocation(),
+            des = null;
+          for (let map in response.data.globalMappings.mappings) {
+            let mappingData = response.data.globalMappings.mappings[map];
+            for (let innerMap in mappingData["mapping"]) {
+              let innerMapData =
+                response.data.globalMappings.mappings[map]["mapping"][innerMap][
+                  "indicator"
+                ]["subIndicator"];
+              if (innerMapData[0] && innerMapData[0]["selectedDE"].length > 0) {
+                des = innerMapData[0]["selectedDE"][0]["id"];
+                break;
+              }
+            }
+            if (des != null) break;
+          }
+          let finalPeriodData = this.$store.getters.getPeriodData ?? {};
+          //Check if we already have the formatted date in store
+          FinalPeriodArray = FinalPeriodArray.filter(
+            (p) => !finalPeriodData[p]
+          );
+          //Check if required params are available
+          if (FinalPeriodArray.length && locationID && des) {
+            let pRes = null;
+            try {
+              pRes = await service.getAnalyticalIndicatorData(
+                des,
+                locationID,
+                FinalPeriodArray.join(";"),
+                false,
+                true
+              );
+            } catch (err) {
+              console.log("Error in fetching periods from DHIS2...", err);
+            }
+            FinalPeriodArray.forEach((pe) => {
+              finalPeriodData[pe] = pRes?.data?.metaData?.items?.[pe] || pe;
+            });
+            this.$store.commit("setPeriodData", finalPeriodData); // Set the periods in store
+          }
         } catch (err) {
           this.reFetchConfig(err);
         }
@@ -1006,7 +1134,10 @@ export default {
       if (this.isFPModules && this.isFPDQRModules) {
         let key = this.generateKey("dqrDashboard");
         await service
-          .getSavedConfig(key, false, "fp-dashboard")
+          .getSavedConfig({
+            tableKey: key,
+            namespace: "fp-dashboard",
+          })
           .then((res) => {
             res.data.forEach((s) => {
               let isMapping = false;
@@ -1044,7 +1175,10 @@ export default {
       if (this.isMNCHModules && this.isMNCHDQRModules) {
         let key = this.generateKey("dqrDashboard");
         await service
-          .getSavedConfig(key, false, "mnch-dashboard")
+          .getSavedConfig({
+            tableKey: key,
+            namespace: "mnch-dashboard",
+          })
           .then((res) => {
             res.data.forEach((s) => {
               let isMapping = false;
@@ -1096,7 +1230,10 @@ export default {
         }
         let key1 = this.generateKey("summaryDashboard");
         await service
-          .getSavedConfig(key1, false, "mnch-dashboard")
+          .getSavedConfig({
+            tableKey: key1,
+            namespace: "mnch-dashboard",
+          })
           .then((res) => {
             let summaryScore = [];
             res.data.forEach((d) => {
@@ -1156,11 +1293,10 @@ export default {
         if (!this.benchmarkData[loc[0]]) {
           let key = `benchmark_${loc[0]}`;
           try {
-            let bData = await service.getSavedConfig(
-              key,
-              false,
-              "mnch-dashboard"
-            );
+            let bData = await service.getSavedConfig({
+              tableKey: key,
+              namespace: "mnch-dashboard",
+            });
             let data =
               typeof bData.data.rows == "string"
                 ? decompress(JSON.parse(bData.data.rows))
@@ -1186,11 +1322,10 @@ export default {
         if (!this.benchmarkDataFP[loc[0]]) {
           let key = `benchmark_${loc[0]}`;
           try {
-            let bData = await service.getSavedConfig(
-              key,
-              false,
-              "fp-dashboard"
-            );
+            let bData = await service.getSavedConfig({
+              tableKey: key,
+              namespace: "fp-dashboard",
+            });
             let data =
               typeof bData.data.rows == "string"
                 ? decompress(JSON.parse(bData.data.rows))
@@ -1264,7 +1399,10 @@ export default {
         }
         let key = this.generateKey(configKey);
         try {
-          let res = await service.getSavedConfig(key, false, "fp-dashboard");
+          let res = await service.getSavedConfig({
+            tableKey: key,
+            namespace: "fp-dashboard",
+          });
           this.emuData[
             `${this.locationPeriod.periodType}_${this.$i18n.locale}`
           ] = res.data;
@@ -1334,9 +1472,7 @@ export default {
           if (emuObj) {
             let toolbarDate =
               this.locationPeriod.periodType === "monthly"
-                ? this.$moment(this.locationPeriod.period, "YYYY-MM").format(
-                    "MMM YYYY"
-                  )
+                ? translateDate({ rawDate: this.locationPeriod.period })
                 : this.locationPeriod.period;
             let isFound =
               this.locationPeriod.periodType === "monthly"
@@ -1392,9 +1528,7 @@ export default {
           if (emuObj) {
             let toolbarDate =
               this.locationPeriod.periodType === "monthly"
-                ? this.$moment(this.locationPeriod.period, "YYYY-MM").format(
-                    "MMM YYYY"
-                  )
+                ? translateDate({ rawDate: this.locationPeriod.period })
                 : this.locationPeriod.period;
             let isFound =
               this.locationPeriod.periodType === "monthly"
@@ -1442,7 +1576,7 @@ export default {
       });
 
       if (formValues) {
-        this.$store.state.loading = true;
+        this.$store.commit("setLoading", true);
         let canvas1 = await html2canvas(
           document.querySelector("#myDivToPrintLeft")
         );
@@ -1463,7 +1597,7 @@ export default {
           formValues[0] + "_" + this.$moment(new Date()).format("lll") + ".pdf"
         );
       }
-      this.$store.state.loading = false;
+      this.$store.commit("setLoading", false);
       this.exportingPdf = false;
     },
     verticalCanvases(cnv) {

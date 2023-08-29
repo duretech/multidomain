@@ -1,322 +1,279 @@
 <template>
   <div>
-    <loader v-if="bshowLoader" />
-    <div class="row mx-0">
+    <!-- <loader v-if="bshowLoader" /> -->
+    <div class="row mx-0 mt-2 mb-2 benchmarkpart">
       <div class="row col-lg-12 px-0">
-        <div class="col-lg-8">
-          <ul class="nav nav-pills mb-3 mx-3" role="tablist">
-            <li class="nav-item fs-19-1920" @click="changeFilter('input')">
-              <a
-                class="nav-link active analytical-tab-links fs-19-1920"
-                :id="'input_tab_link_' + tabName"
-                data-toggle="pill"
-                :href="'#input_tab_content_' + tabName"
-                role="tab"
-                :aria-controls="'input_tab_content_' + tabName"
-                aria-selected="true"
-                @click="getActiveTab('input')"
-              >
-                {{ $t("inputData") }}
-              </a>
-            </li>
-            <li class="nav-item fs-19-1920" @click="changeFilter('total')">
-              <a
-                class="nav-link analytical-tab-links fs-19-1920"
-                :id="'output_tab_link_' + tabName"
-                data-toggle="pill"
-                :href="'#output_tab_content_' + tabName"
-                role="tab"
-                :aria-controls="'output_tab_content_' + tabName"
-                aria-selected="false"
-                @click="getActiveTab('total')"
-              >
-                {{ $t("total-EMU") }}
-              </a>
-            </li>
-          </ul>
-        </div>
-      </div>
-      <div class="col-lg-12">
-        <div class="showStepBtn">
-          <a
-            v-if="activetab == 'total'"
-            :title="$t('showSteps')"
-            class="btn black-btn pointer-events-none color-white mt-4 float-left mb-5"
-            @click.prevent.stop="showSteps"
-          >
-            <img
-              :src="require('@/assets/images/icons/stepsd.svg')"
-              :style="{ filter: filterColor }"
-            />
-          </a>
-        </div>
-        <div class="saveEMUBtn">
-          <a
-            v-if="contName == autoSaveSource && activetab == 'total'"
-            class="btn blue-btn pointer-events-none color-white mt-4 float-left mb-5"
-            @click="saveFinalEMU"
-          >
-            {{ $t("save-EMU") }}
-          </a>
-        </div>
-        <div class="tab-content">
-          <div
-            class="tab-pane fade show active"
-            :id="'input_tab_content_' + tabName"
-            role="tabpanel"
-            :aria-labelledby="'input_tab_link_' + tabName"
-          >
-            <TabSummary
-              v-if="
-                tabCategoryInfo &&
-                tabCategoryInfo[0] &&
-                tabCategoryInfo[0][$i18n.locale] != null &&
-                tabCategoryInfo[0][$i18n.locale] != ''
-              "
-              :content="tabCategoryInfo[0][$i18n.locale]"
-              :contKey="'input' + contName"
-            />
-
-            <div class="row dashboardchart-container emu-dqr">
-              <div
-                v-bind:class="getClass()"
+        <div class="col-lg-12">
+          <b-tabs>
+            <b-tab title="Input Data" @click="getActiveTab('input')">
+              <TabSummary
                 v-if="
-                  (newUsersChartData &&
-                    backgroundData &&
-                    newUsersChartData.disable == false) ||
-                  (emuSaveType == 'Indicator_Calculator' && newUsersChartData)
+                  tabCategoryInfo &&
+                  tabCategoryInfo[0] &&
+                  tabCategoryInfo[0][$i18n.locale] != null &&
+                  tabCategoryInfo[0][$i18n.locale] != ''
                 "
-                class="border-right"
-              >
-                <card-component
-                  :signOffActive="signOffActive"
-                  :chartdata="newUsersChartData"
-                  :filter="true"
-                  :period="true"
-                  :methodSelected="selected"
-                  :canComment="canComment"
-                  :loggedInUserId="loggedInUserId"
-                  defaultSort="JAN-DEC"
-                  sorting="type3"
-                  :setExtreme="true"
-                />
-              </div>
-              <div
-                v-bind:class="getClass()"
-                v-if="
-                  (chartData &&
-                    backgroundData &&
-                    chartData.disable == false &&
-                    emuSaveType == 'Custom') ||
-                  (emuSaveType == 'Indicator_Calculator' && chartData)
-                "
-              >
-                <card-component
-                  :chartdata="chartData"
-                  :filter="true"
-                  :methodSelected="selected"
-                  :canComment="canComment"
-                  :loggedInUserId="loggedInUserId"
-                  defaultSort="JAN-DEC"
-                  sorting="type3"
-                  :setExtreme="true"
-                />
-              </div>
-            </div>
-            <div class="col-xl-12 mt-4">
-              <div class="row dashboardchart-container">
-                <div class="col-lg-12 col-xl-12 m-b-40px pl-0 pr-0">
-                  <div class="">
-                    <div class="card-header p-10px text-decoration-none">
-                      <div class="row no-gutters">
-                        <div class="col-lg-6 col-md-7 p-t-4px">
-                          <i
-                            class="fa fa-info-circle color-white cursor-pointer chart-info p-t-5px mr-2"
-                            aria-hidden="true"
-                            v-b-popover.hover.rightbottom="{
-                              variant: 'info',
-                              content:
-                                data['derivedCharts'][2]['chartOptions'][
-                                  'chartInfo'
-                                ],
-                              title:
-                                typeof data['derivedCharts'][2]['chartOptions'][
-                                  'chartName'
-                                ] == 'object'
-                                  ? data['derivedCharts'][2]['chartOptions'][
-                                      'chartName'
-                                    ][$i18n.locale]
-                                  : data['derivedCharts'][2]['chartOptions'][
-                                      'chartName'
-                                    ],
-                              html: true,
-                            }"
-                          ></i>
-                          {{
-                            typeof data["derivedCharts"][2]["chartOptions"][
-                              "chartName"
-                            ] == "object"
-                              ? data["derivedCharts"][2]["chartOptions"][
-                                  "chartName"
-                                ][$i18n.locale]
-                              : data["derivedCharts"][2]["chartOptions"][
-                                  "chartName"
-                                ]
-                          }}
-                        </div>
-                        <div class="col-lg-6 col-md-5 text-right">
-                          <div class="row no-gutters">
-                            <div class="col-lg-6 col-md-6 text-right"></div>
-                            <div class="col-lg-6 col-md-6 text-right">
-                              <download-csv
-                                :data="items"
-                                style="display: inline-block; margin-left: 10px"
-                                ><img
-                                  :src="
-                                    require('@/assets/images/icons/downloadActive.svg')
-                                  "
-                                  :style="{ filter: filterColor }"
-                                  class="img cursor-pointer"
-                                  v-b-tooltip.hover
-                                  :title="$t('downloadIcon')"
-                              /></download-csv>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+                :content="tabCategoryInfo[0][$i18n.locale]"
+                :contKey="'input' + contName"
+              />
+              <div class="row dashboardchart-container emu-dqr">
+                <div v-bind:class="getClass()" class="border-right">
+                  <card-component
+                    v-if="getVisibility(newUsersChartData)"
+                    :signOffActive="signOffActive"
+                    :chartdata="newUsersChartData"
+                    :filter="true"
+                    :period="true"
+                    :methodSelected="selected"
+                    defaultSort="JAN-DEC"
+                    sorting="type3"
+                    :setExtreme="true"
+                  />
+                  <div class="card" v-else>
+                    <div
+                      class="card-body pb-0 h-410px align-items-center d-flex justify-content-center"
+                    >
+                      <b-spinner type="grow" label="Spinning"></b-spinner>
                     </div>
-                    <div class="card-body">
-                      <div class="table-responsive" v-if="items.length">
-                        <b-table
-                          head-variant="light"
-                          sticky-header
-                          :items="items"
-                          :fields="filelds"
-                          stripped
-                          hover
-                          :sort-compare="sortDate"
-                        ></b-table>
-                      </div>
-                      <b-alert show v-else>{{
-                        $t("no_data_to_display")
-                      }}</b-alert>
+                  </div>
+                </div>
+                <div v-bind:class="getClass()">
+                  <card-component
+                    v-if="getVisibility(chartData)"
+                    :chartdata="chartData"
+                    :filter="true"
+                    :methodSelected="selected"
+                    defaultSort="JAN-DEC"
+                    sorting="type3"
+                    :setExtreme="true"
+                  />
+                  <div class="card" v-else>
+                    <div
+                      class="card-body pb-0 h-410px align-items-center d-flex justify-content-center"
+                    >
+                      <b-spinner type="grow" label="Spinning"></b-spinner>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-          <div
-            class="tab-pane fade"
-            :id="'output_tab_content_' + tabName"
-            role="tabpanel"
-            :aria-labelledby="'output_tab_link_' + tabName"
-          >
-            <TabSummary
-              v-if="
-                tabCategoryInfo &&
-                tabCategoryInfo[1] &&
-                tabCategoryInfo[1][$i18n.locale] != '' &&
-                tabCategoryInfo[1][$i18n.locale] != null
-              "
-              :content="tabCategoryInfo[1][$i18n.locale]"
-              :contKey="'total0' + contName"
-            />
-            <div class="row dashboardchart-container emu-dqr1">
-              <!--   ||
+              <div class="col-xl-12 mt-4">
+                <div class="row dashboardchart-container">
+                  <div class="col-lg-12 col-xl-12 m-b-40px pl-0 pr-0">
+                    <div class="">
+                      <div class="card-header p-10px text-decoration-none">
+                        <div class="row no-gutters">
+                          <div class="col-lg-6 col-md-7 p-t-4px">
+                            <i
+                              class="fa fa-info-circle color-white cursor-pointer chart-info p-t-5px mr-2"
+                              aria-hidden="true"
+                              v-b-popover.hover.rightbottom="{
+                                variant: 'info',
+                                content:
+                                  data['derivedCharts'][2]['chartOptions'][
+                                    'chartInfo'
+                                  ],
+                                title:
+                                  typeof data['derivedCharts'][2][
+                                    'chartOptions'
+                                  ]['chartName'] == 'object'
+                                    ? data['derivedCharts'][2]['chartOptions'][
+                                        'chartName'
+                                      ][$i18n.locale]
+                                    : data['derivedCharts'][2]['chartOptions'][
+                                        'chartName'
+                                      ],
+                                html: true,
+                              }"
+                            ></i>
+                            {{
+                              typeof data["derivedCharts"][2]["chartOptions"][
+                                "chartName"
+                              ] == "object"
+                                ? data["derivedCharts"][2]["chartOptions"][
+                                    "chartName"
+                                  ][$i18n.locale]
+                                : data["derivedCharts"][2]["chartOptions"][
+                                    "chartName"
+                                  ]
+                            }}
+                          </div>
+                          <div class="col-lg-6 col-md-5 text-right">
+                            <div class="row no-gutters" v-if="items.length">
+                              <div class="col-lg-6 col-md-6 text-right"></div>
+                              <div class="col-lg-6 col-md-6 text-right">
+                                <download-csv
+                                  :data="items"
+                                  style="
+                                    display: inline-block;
+                                    margin-left: 10px;
+                                  "
+                                  ><img
+                                    :src="
+                                      require('@/assets/images/icons/downloadActive.svg')
+                                    "
+                                    :style="{ filter: filterColor }"
+                                    class="img cursor-pointer"
+                                    v-b-tooltip.hover
+                                    :title="$t('downloadIcon')"
+                                /></download-csv>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="card-body">
+                        <div class="table-responsive" v-if="tableGenerated">
+                          <b-table
+                            head-variant="light"
+                            sticky-header
+                            :items="items"
+                            :fields="filelds"
+                            stripped
+                            hover
+                            :sort-compare="sortDate"
+                            show-empty
+                            :empty-text="$t('no_data_to_display')"
+                          ></b-table>
+                        </div>
+                        <div class="table-responsive" v-else>
+                          <b-spinner type="grow" label="Spinning"></b-spinner>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </b-tab>
+            <b-tab title="Total EMU" @click="getActiveTab('total')">
+              <div class="d-flex justify-content-end mb-2">
+                <div
+                  class="showStepBtn mx-2"
+                  v-if="
+                    finalCalculatedTable &&
+                    finalCalculatedTable.calculatedUsers &&
+                    finalCalculatedTable &&
+                    finalCalculatedTable.historicUsers &&
+                    finalCalculatedTable &&
+                    finalCalculatedTable.totalUsers
+                  "
+                >
+                  <a
+                    v-if="activetab == 'total'"
+                    :title="$t('showSteps')"
+                    class="btn black-btn pointer-events-none color-white"
+                    @click.prevent.stop="showSteps"
+                  >
+                    <img
+                      :src="require('@/assets/images/icons/stepsd.svg')"
+                      :style="{ filter: filterColor }"
+                    />
+                  </a>
+                </div>
+                <div class="saveEMUBtn">
+                  <a
+                    v-if="contName == autoSaveSource && activetab == 'total'"
+                    class="btn blue-btn pointer-events-none color-white"
+                    @click="saveFinalEMU"
+                  >
+                    {{ $t("save-EMU") }}
+                  </a>
+                </div>
+              </div>
+              <TabSummary
+                v-if="
+                  tabCategoryInfo &&
+                  tabCategoryInfo[1] &&
+                  tabCategoryInfo[1][$i18n.locale] != '' &&
+                  tabCategoryInfo[1][$i18n.locale] != null
+                "
+                :content="tabCategoryInfo[1][$i18n.locale]"
+                :contKey="'total0' + contName" />
+              <div>
+                <div class="row dashboardchart-container emu-dqr1">
+                  <!--   ||
                   emuSaveType != 'Custom' -->
 
-              <div
-                v-bind:class="getClass()"
-                v-if="
-                  (totalEMUChartData &&
-                    backgroundData &&
-                    totalEMUChartData.disable == false) ||
-                  (emuSaveType == 'Indicator_Calculator' && totalEMUChartData)
-                "
-                class="border-right"
-              >
-                <card-component
-                  :chartdata="totalEMUChartData"
-                  :canComment="canComment"
-                  :loggedInUserId="loggedInUserId"
-                  defaultSort="JAN-DEC"
-                  sorting="type3"
-                  :setExtreme="true"
-                />
-              </div>
-              <div
-                v-bind:class="getClass()"
-                v-if="
-                  (trendsChartData &&
-                    backgroundData &&
-                    trendsChartData.disable == false) ||
-                  (emuSaveType == 'Indicator_Calculator' && trendsChartData)
-                "
-              >
-                <card-component
-                  :chartdata="trendsChartData"
-                  :period="true"
-                  :canComment="canComment"
-                  :loggedInUserId="loggedInUserId"
-                  aggregate="true"
-                  chartName="trend"
-                  :caltype="caltype"
-                  defaultSort="JAN-DEC"
-                  sorting="type3"
-                  :setExtreme="true"
-                />
-              </div>
-            </div>
+                  <div v-bind:class="getClass()" class="border-right">
+                    <card-component
+                      v-if="getVisibility(totalEMUChartData)"
+                      :chartdata="totalEMUChartData"
+                      defaultSort="JAN-DEC"
+                      sorting="type3"
+                      :setExtreme="true"
+                    />
+                    <div class="card" v-else>
+                      <div
+                        class="card-body pb-0 h-410px align-items-center d-flex justify-content-center"
+                      >
+                        <b-spinner type="grow" label="Spinning"></b-spinner>
+                      </div>
+                    </div>
+                  </div>
 
-            <div class="row dashboardchart-container m-t-20px emu-dqr1">
-              <div
-                v-bind:class="getClass()"
-                v-if="
-                  (methodTrendsChartData &&
-                    backgroundData &&
-                    methodTrendsChartData.disable == false) ||
-                  (emuSaveType == 'Indicator_Calculator' &&
-                    methodTrendsChartData)
-                "
-                class="border-right"
-              >
-                <card-component
-                  :chartdata="methodTrendsChartData"
-                  :canComment="canComment"
-                  :loggedInUserId="loggedInUserId"
-                  aggregate="true"
-                  chartName="methodSpecific"
-                  :caltype="caltype"
-                  defaultSort="JAN-DEC"
-                  sorting="type3"
-                  :setExtreme="true"
-                />
-              </div>
-              <div
-                v-bind:class="getClass()"
-                v-if="
-                  (oneMonthEMUChartData &&
-                    backgroundData &&
-                    oneMonthEMUChartData.disable == false) ||
-                  (emuSaveType == 'Indicator_Calculator' &&
-                    oneMonthEMUChartData)
-                "
-              >
-                <card-component
-                  :chartdata="oneMonthEMUChartData"
-                  :canComment="canComment"
-                  :loggedInUserId="loggedInUserId"
-                  aggregate="true"
-                  chartName="monthSpecific"
-                  :caltype="caltype"
-                  defaultSort="Z-A"
-                  sorting="type2"
-                  :setExtreme="true"
-                />
-              </div>
-            </div>
-          </div>
+                  <div v-bind:class="getClass()">
+                    <card-component
+                      v-if="getVisibility(trendsChartData)"
+                      :chartdata="trendsChartData"
+                      :period="true"
+                      aggregate="true"
+                      chartName="trend"
+                      :caltype="caltype"
+                      defaultSort="JAN-DEC"
+                      sorting="type3"
+                      :setExtreme="true"
+                    />
+                    <div class="card" v-else>
+                      <div
+                        class="card-body pb-0 h-410px align-items-center d-flex justify-content-center"
+                      >
+                        <b-spinner type="grow" label="Spinning"></b-spinner>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row dashboardchart-container m-t-20px emu-dqr1">
+                  <div v-bind:class="getClass()" class="border-right">
+                    <card-component
+                      v-if="getVisibility(methodTrendsChartData)"
+                      :chartdata="methodTrendsChartData"
+                      aggregate="true"
+                      chartName="methodSpecific"
+                      :caltype="caltype"
+                      defaultSort="JAN-DEC"
+                      sorting="type3"
+                      :setExtreme="true"
+                    />
+                    <div class="card" v-else>
+                      <div
+                        class="card-body pb-0 h-410px align-items-center d-flex justify-content-center"
+                      >
+                        <b-spinner type="grow" label="Spinning"></b-spinner>
+                      </div>
+                    </div>
+                  </div>
+                  <div v-bind:class="getClass()">
+                    <card-component
+                      v-if="getVisibility(oneMonthEMUChartData)"
+                      :chartdata="oneMonthEMUChartData"
+                      aggregate="true"
+                      chartName="monthSpecific"
+                      :caltype="caltype"
+                      defaultSort="Z-A"
+                      sorting="type2"
+                      :setExtreme="true"
+                    />
+                    <div class="card" v-else>
+                      <div
+                        class="card-body pb-0 h-410px align-items-center d-flex justify-content-center"
+                      >
+                        <b-spinner type="grow" label="Spinning"></b-spinner>
+                      </div>
+                    </div>
+                  </div>
+                </div></div
+            ></b-tab>
+          </b-tabs>
         </div>
       </div>
     </div>
@@ -342,6 +299,8 @@
           :fields="finalCalculatedTable.calculatedUsers.fields"
           responsive
           class="methodsTable"
+          show-empty
+          :empty-text="$t('no_data_to_display')"
         />
         <strong>{{ $t("histUsers") }}</strong>
         <b-table
@@ -352,6 +311,8 @@
           :fields="finalCalculatedTable.historicUsers.fields"
           responsive
           class="methodsTable"
+          show-empty
+          :empty-text="$t('no_data_to_display')"
         />
         <strong>{{ $t("Total Users") }}</strong>
         <b-table
@@ -362,6 +323,8 @@
           :fields="finalCalculatedTable.totalUsers.fields"
           responsive
           class="methodsTable"
+          show-empty
+          :empty-text="$t('no_data_to_display')"
         />
       </div>
     </b-modal>
@@ -374,29 +337,24 @@ import dataM from "./dataMassaging.js";
 import cardComponent from "./cardComponent";
 import { decompress } from "compress-json";
 import DynamicImageMixin from "@/helpers/DynamicImageMixin";
+import NepaliDate from "nepali-date-converter";
+import {
+  translateDate,
+  translateAlphatoNum,
+} from "@/components/Common/commonFunctions";
 export default {
   props: [
     "dhsColor",
     "totalEMUColor",
-    "emuSaveType",
     "data",
-    "bAllWomen",
-    "tabName",
-    "tableName",
-    "startYear",
-    "endYear",
     "population",
     "location",
-    "locationName",
     "source",
-    "setData",
     "method",
     "signOffActive",
     "exportPosition",
     "contName",
-    "userDetails",
     "dqrResponse",
-    "appResponse",
     "globalResponse",
     "caltype",
   ],
@@ -409,12 +367,30 @@ export default {
       ),
   },
   created() {
-    this.loggedInUserId = this.userDetails.id;
-    this.canComment =
-      this.$store.getters.getIsAdmin ||
-      this.$store.getters.getAppSettings.bypassUser ||
-      this.$store.getters.getUserPermissions.canComment;
+    this.emuSaveType = this.dqrResponse.emu_monthly["Background_Data"][
+      "emuSaveType"
+    ]
+      ? this.dqrResponse.emu_monthly["Background_Data"]["emuSaveType"]
+      : "Custom"; //Indicator_Calculator or Custom
     let customCal = this.emuSaveType == "Custom";
+    let periodData = this.$store.getters.getGlobalFactors().period.Period;
+    let d = new Date();
+    if (this.$store.getters.getAppSettings.calendar === "nepali") {
+      d = new NepaliDate(
+        new Date(d.getFullYear(), d.getMonth() + 1, d.getDate())
+      ).getBS();
+      let nplMonth = d.month;
+      let nplYear = d.year;
+      let zeroForMonth = nplMonth < 10 ? "0" + nplMonth : nplMonth;
+      d = d.year + "" + zeroForMonth;
+    }
+    this.sourceEndYear = this.$moment(d, "YYYYMM")
+      .subtract(periodData.backtrackedMonth * 1, "months")
+      .format("YYYYMM");
+
+    this.sourceStartYear = this.$moment(this.sourceEndYear, "YYYYMM")
+      .subtract(periodData.backtrackedYearLimit * 1, "years")
+      .format("YYYYMM");
     if (customCal) {
       this.getBackgroundData();
 
@@ -426,15 +402,18 @@ export default {
     //  this.getGlobalConfig()
   },
   methods: {
+    getVisibility(tabData) {
+      return (
+        (tabData && this.backgroundData && tabData.disable == false) ||
+        (this.emuSaveType == "Indicator_Calculator" && tabData)
+      );
+    },
     showSteps() {
       this.viewSteps = true;
     },
     getActiveTab(tab) {
       this.activetab = tab;
       this.$emit("activeTabName", tab);
-    },
-    changeFilter(tab) {
-      this.filter = tab;
     },
     sortDate(a, b, key) {
       if (key !== this.$i18n.t("period")) {
@@ -444,8 +423,8 @@ export default {
         // internal sort compare routine for fields keys other than `myDateField`
         return null; // or false
       }
-      let aDate = this.$moment(a[key], "MMM YYYY");
-      let bDate = this.$moment(b[key], "MMM YYYY");
+      let aDate = translateDate(a[key]);
+      let bDate = translateDate(b[key]);
       if (aDate.isValid && bDate.isValid) {
         if (aDate < bDate) {
           return -1;
@@ -501,7 +480,8 @@ export default {
         let j = 0;
         let conObj = {};
         var prevval, count;
-        let nStart = this.sourceStartYear * 1,
+        let nStart =
+            this.$moment(this.sourceStartYear, "YYYYMM").format("YYYY") * 1,
           nEnd = nStart + 11,
           bisShortTerm =
             this.globalResponse.continuation[cat][key]["type"] == "Short Term",
@@ -553,29 +533,62 @@ export default {
         }
         oMonthContinuation[cat][key] = conObj;
       });
-      //  })
-      console.log("Monthwise continuation", oMonthContinuation);
       this.continuation = oMonthContinuation;
-      let locationID = this.appResponse.defaultLocationID[0];
-      if (
-        this.userDetails.dataViewOrganisationUnits[0].level >
-        this.appResponse.defaultLevelID
-      ) {
-        locationID = this.userDetails.dataViewOrganisationUnits[0].id;
-      }
-      this.appResponse.defaultLocationID = [locationID];
-      let oRet = dataM.getFormatedData(
-        this.data,
-        this.appResponse,
-        this.startYear
-      );
+      let oRet = dataM.getFormatedData(this.data);
       this.methodSeq = oRet.methodSeq;
       this.mainmethodSeq = oRet.mainmethodSeq;
       this.globalConfig = oRet.data;
+      console.log(this.globalConfig.chartArr, this.data, this.contName);
       if (this.globalConfig.chartArr.length) {
         this.getAllDataelemsData();
       } else {
         this.bshowLoader = false;
+        this.newUsersChartData = {
+          data: [],
+          categories: [],
+          tableData: [],
+          filter: [],
+          max: 11,
+        };
+        this.chartData = {
+          data: [],
+          categories: [],
+          tableData: [],
+          filter: [],
+          max: 11,
+        };
+        this.oneMonthEMUChartData = {
+          data: [],
+          categories: [],
+          tableData: [],
+          filter: [],
+          max: 11,
+        };
+        this.totalEMUChartData = {
+          data: [],
+          categories: [],
+          tableData: [],
+          filter: [],
+          max: 11,
+        };
+        this.trendsChartData = {
+          data: [],
+          categories: [],
+          tableData: [],
+          filter: [],
+          max: 11,
+        };
+        this.methodTrendsChartData = {
+          data: [],
+          categories: [],
+          tableData: [],
+          filter: [],
+          max: 11,
+        };
+        this.tableGenerated = true;
+        console.log(
+          "Global Config Chart Array not created for " + this.contName
+        );
       }
     },
 
@@ -603,13 +616,16 @@ export default {
         ind["indicator"]["subIndicator"].forEach((subind) => {
           let subIndName = Array.isArray(subind["static_name"])
             ? subind["static_name"][this.$i18n.locale]
+              ? subind["static_name"][this.$i18n.locale]
+              : subind["static_name"][0]
             : subind["static_name"];
           obj["subInd"].push(subIndName);
         });
         this.indDataSeq.push(obj);
       });
       let startDate = this.$moment(this.sourceStartYear),
-        endDate = this.$moment(this.sourceEndYear).add(1, "year"),
+        endDate = this.$moment(this.sourceEndYear).add(1, "month"),
+        // endDate = this.$moment(this.sourceEndYear).add(1, "year"),
         months = [];
 
       while (startDate.isBefore(endDate)) {
@@ -632,7 +648,7 @@ export default {
         popType = popType.toLowerCase();
         let key = `prevalence_${levelid}`;
         await service
-          .getSavedConfig(key)
+          .getSavedConfig({ tableKey: key })
           .then(async (backResp) => {
             let backResponse =
               backResp && typeof backResp.data.rows == "string"
@@ -645,7 +661,6 @@ export default {
               nNumber++;
 
               obj["subIndicators"].forEach((de) => {
-                // console.log(de, "selectedDatastoreDE");
                 let sKey =
                   typeof de.static_name == "object"
                     ? de.static_name[this.$i18n.locale]
@@ -702,7 +717,10 @@ export default {
             this.backgroundData = oData;
           })
           .catch((res) => {
-            console.log(res);
+            console.log(
+              res,
+              "Error in fetching background data like population"
+            );
             //this.showAlert();
             this.bShowLoader = false;
           });
@@ -732,7 +750,6 @@ export default {
             let sdes = ids.join(";");
             let rowYear = "";
             if (ids.length) {
-              // console.log(sdes, sLocId, sYear)
               await service
                 .getAnalyticalIndicatorData(sdes, sLocId, sYear)
                 .then((response) => {
@@ -762,8 +779,6 @@ export default {
         });
         this.backgroundData = oData;
       }
-      console.log("Backgraound data from ", fromDataStore);
-      console.log(JSON.parse(JSON.stringify(this.backgroundData)));
       this.getGlobalConfig();
     },
     /**
@@ -781,21 +796,33 @@ export default {
       let showAlert = false;
       let mainAlertSt = "";
       var startDate = this.$moment(this.sourceStartYear);
-      var endDate = this.$moment(this.sourceEndYear).add(1, "year");
+      var endDate = this.$moment(this.sourceEndYear).add(1, "month");
       var curDate = this.$moment(new Date());
+      let d = new Date();
+      if (this.$store.getters.getAppSettings.calendar === "nepali") {
+        d = new NepaliDate(
+          new Date(d.getFullYear(), d.getMonth() + 1, d.getDate())
+        ).getBS();
+        let nplMonth = d.month;
+        let nplYear = d.year;
+        let zeroForMonth = nplMonth < 10 ? "0" + nplMonth : nplMonth;
+        d = d.year + "" + zeroForMonth;
+        var curDate = this.$moment(d);
+      }
+
       while (startDate.isBefore(endDate) && startDate.isBefore(curDate)) {
         this.months.push(startDate.format("YYYYMM"));
         startDate.add(1, "month");
       }
       let mnt = this.months;
+
       for (i = 0; i < ncLen; i++) {
         let dataEle = aChart[i].dataElems;
         let j;
         for (j in dataEle) {
-          if (dataEle[j].de.length) nFlag1++;
+          if (dataEle[j].selectedDE.length) nFlag1++;
         }
       }
-      let combinedSDE = "";
       let sYear = mnt.join(";");
       for (i = 0; i < ncLen; i++) {
         let j,
@@ -807,13 +834,15 @@ export default {
             typeof aDe[j].trans_name == "object"
               ? aDe[j].trans_name[this.$i18n.locale]
               : aDe[j].trans_name;
-          // this.scaling[transName] = aDe[j].scaling;
-          let sdes = aDe[j].de.join(";"),
+          let sdesIDS = aDe[j].selectedDE.map((obj) => obj.id);
+          let sdes = sdesIDS.join(";"),
             nI = i,
             nJ = j;
           nFlag2++;
           let subinpName = aDe[j].name;
-          combinedSDE = combinedSDE != "" ? combinedSDE + ";" + sdes : sdes;
+          if (!sdesIDS.length) {
+            continue;
+          }
           await service
             .getAnalyticalIndicatorData(sdes, sLocId, sYear)
             .then((response) => {
@@ -825,12 +854,6 @@ export default {
                 if (!aChart[nI].charts) {
                   aChart[nI].charts = {};
                 }
-
-                let pe = response.data.metaData.dimensions.pe,
-                  sSubMethod = aChart[nI].dataElems[nJ].static_name;
-                // pe.forEach((key) => {
-                //   aChart[nI].charts[key] = aChart[nI].charts[key] || {};
-                // });
 
                 aChart[nI].charts = dataM.getChartFormatedData(
                   response.data,
@@ -844,8 +867,8 @@ export default {
               }
             })
             .catch((res) => {
-              console.log(res);
-              this.showAlert();
+              console.log(res, "Error in fetching mapped data elemets data");
+              //this.showAlert();
             });
         }
         mainAlertSt += alertSt;
@@ -858,7 +881,8 @@ export default {
       if (showAlert == true) {
         this.bshowLoader = false;
         this.sweetAlert({
-          html: this.$i18n.t("noData") + " - " + mainAlertSt,
+          html:
+            this.contName + " " + this.$i18n.t("noData") + " - " + mainAlertSt,
         });
       }
     },
@@ -946,7 +970,6 @@ export default {
               nSum = 0,
               l = 0,
               newUserVal = 0;
-
             while (nIndex > -1) {
               nSum += oVal[aMonths[l]] * oCont[aMonths[nIndex]];
               newUserVal = oVal[aMonths[l]];
@@ -963,8 +986,6 @@ export default {
       oUsers = oFinalVals;
       this.calculatedUsers = oUsers;
       this.inputNewUsers = oNewUsers;
-      console.log("Historic Users calculation needed users and New users");
-      console.log(oUsers, oNewUsers);
       this.getHistoricUsers(oUsers, oNewUsers);
     },
     getHistoricUsers(users, oNewUsers) {
@@ -984,8 +1005,6 @@ export default {
 
       contSum = dataM.getSumOfCont(continuation[this.contName]);
 
-      console.log("Sum of continuation ", contSum);
-      // console.log("this.scaling data", this.scaling);
       let historicUsers = {};
       Object.keys(oNewUsers).forEach((method, i) => {
         historicUsers[method] = {
@@ -1005,15 +1024,7 @@ export default {
             historicUsers[method]["contSum"][yearVal] = contSum[method][i]
               ? contSum[method][i].toFixed(2) * 1
               : 0;
-            // historicUsers[method]["vals"][yearVal] =
-            //   (
-            //     oNewUsers[method]["vals"][keys[0]] *
-            //     (contSum[method][i] ? contSum[method][i].toFixed(2) * 1 : 0) *
-            //     (this.scaling[oNewUsers[method].trans_name]
-            //       ? this.scaling[oNewUsers[method].trans_name]
-            //       : 1)
-            //   ).toFixed(0) * 1;
-            //removing scaling factor as its not needed
+
             historicUsers[method]["vals"][yearVal] =
               (
                 oNewUsers[method]["vals"][keys[0]] *
@@ -1022,10 +1033,7 @@ export default {
           });
         }
       });
-      console.log(
-        "Total users calculaton data needed is users and  historicUsers"
-      );
-      console.log(users, historicUsers);
+
       this.getTotalUsers(users, historicUsers);
     },
     getTotalUsers(users, historicUsers) {
@@ -1076,7 +1084,6 @@ export default {
       this.totalUsers = oTemp;
     },
     getCalculationSteps() {
-      //console.log("getCalculationSteps",this.calculatedUsers,this.inputNewUsers,this.historicUsers,this.totalUsers);
       this.finalCalculatedTable = {
         population: {},
         sumCont: {},
@@ -1127,7 +1134,7 @@ export default {
               newFields.push(yearM);
               obj["fields"].push({
                 key: yearM,
-                label: this.$moment(yearM, "YYYYMM").format("MMM YYYY"),
+                label: this.allMonthNameJson[yearM]["name"],
               });
             }
             itemObj[yearM] = vals[yearM];
@@ -1171,9 +1178,7 @@ export default {
             if (categories.indexOf(val) == -1) {
               categories.push(val);
             }
-            oTable[this.$i18n.t("period")] = this.$moment(val, "YYYYMM").format(
-              "MMM YYYY"
-            );
+            oTable[this.$i18n.t("period")] = this.allMonthNameJson[val]["name"];
             finalEMU[method][val] =
               (this.totalUsers[method]["vals"][val] /
                 this.monthlyPopulation[val]) *
@@ -1317,12 +1322,10 @@ export default {
 
                 if (
                   methodCategories.indexOf(
-                    this.$moment(key, "YYYYMM").format("MMM YYYY")
+                    this.allMonthNameJson[key]["name"]
                   ) == -1
                 ) {
-                  methodCategories.push(
-                    this.$moment(key, "YYYYMM").format("MMM YYYY")
-                  );
+                  methodCategories.push(this.allMonthNameJson[key]["name"]);
                 }
               });
 
@@ -1332,12 +1335,10 @@ export default {
                 );
                 if (
                   saveMethodCategories.indexOf(
-                    this.$moment(key, "YYYYMM").format("MMM YYYY")
+                    this.allMonthNameJson[key]["name"]
                   ) == -1
                 ) {
-                  saveMethodCategories.push(
-                    this.$moment(key, "YYYYMM").format("MMM YYYY")
-                  );
+                  saveMethodCategories.push(this.allMonthNameJson[key]["name"]);
                 }
               });
 
@@ -1349,25 +1350,20 @@ export default {
             categories.forEach((key) => {
               methodEMUObject.data.push(oEMUValues[ele]["vals"][key] || 0);
               if (
-                methodCategories.indexOf(
-                  this.$moment(key, "YYYYMM").format("MMM YYYY")
-                ) == -1
+                methodCategories.indexOf(this.allMonthNameJson[key]["name"]) ==
+                -1
               ) {
-                methodCategories.push(
-                  this.$moment(key, "YYYYMM").format("MMM YYYY")
-                );
+                methodCategories.push(this.allMonthNameJson[key]["name"]);
               }
             });
             saveCategories.forEach((key) => {
               saveMethodEMUObject.data.push(oEMUValues[ele]["vals"][key] || 0);
               if (
                 saveMethodCategories.indexOf(
-                  this.$moment(key, "YYYYMM").format("MMM YYYY")
+                  this.allMonthNameJson[key]["name"]
                 ) == -1
               ) {
-                saveMethodCategories.push(
-                  this.$moment(key, "YYYYMM").format("MMM YYYY")
-                );
+                saveMethodCategories.push(this.allMonthNameJson[key]["name"]);
               }
             });
           }
@@ -1457,13 +1453,6 @@ export default {
         saveMethodCategories,
         oFinalAgrEMU
       );
-      let oEMUData = {
-        tab: this.tabName,
-        loc: this.location.split("/")[1],
-        data: this.finalEmu,
-        type: "EMU",
-      };
-      this.setData(oEMUData);
       this.chartData = tempObj;
       this.newUsersChart(methodCategories);
       let reversedCat = JSON.parse(JSON.stringify(saveMethodCategories));
@@ -1541,7 +1530,9 @@ export default {
         categories.splice(0, categories.length - 24);
         cats.forEach((year) => {
           let oTable = {};
-          let y = this.$moment(year, "MMM YYYY").format("YYYYMM");
+
+          let p = translateAlphatoNum(year);
+          let y = p;
           fCategories.push(year);
           oTable[this.$i18n.t("period")] = year;
           let newUserVal =
@@ -1567,7 +1558,6 @@ export default {
         (tempObj.tableData = tableData);
       tempObj.filter = this.options;
       this.newUsersChartData = tempObj;
-      //console.log(this.newUsersChartData, this.options);
     },
     methodTable(emu, cat) {
       let emuObj = {},
@@ -1580,7 +1570,7 @@ export default {
 
       // cat.reverse();
       cat.map((currentValue) => {
-        let newVal = this.$moment(currentValue, "MMM YYYY").format("YYYYMM");
+        let newVal = translateAlphatoNum(currentValue);
         catArr.push(newVal);
       });
       this.catArr = catArr;
@@ -1596,6 +1586,7 @@ export default {
         };
       });
       this.filterTableData = oFilterData;
+      this.tableGenerated = true;
 
       if (this.filterTableData && catArr.length > 0) {
         this.drawTable();
@@ -1617,10 +1608,8 @@ export default {
             let oTable = {},
               dataArr = [];
             if (i < 24) {
-              oTable[this.$i18n.t("period")] = this.$moment(
-                val,
-                "YYYYMM"
-              ).format("MMM YYYY");
+              oTable[this.$i18n.t("period")] =
+                this.allMonthNameJson[val]["name"];
               let userVal = this.filterTableData[key]["totalusers"][val]
                 ? parseInt(
                     this.filterTableData[key]["totalusers"][val]
@@ -1641,7 +1630,7 @@ export default {
               /* commented to remove CYPs/Population */
               //oTable[this.$i18n.t('cyp_pop')] = cypVal == 'NaN' ? null : cypVal
               this.items.push(oTable);
-              dataArr.push(this.$moment(val, "YYYYMM").format("MMM YYYY"));
+              dataArr.push(this.allMonthNameJson[val]["name"]);
               dataArr.push(userVal);
               dataArr.push(
                 !this.filterTableData[key]["totalEMU"] ||
@@ -1721,9 +1710,8 @@ export default {
       this.getCalculationSteps();
     },
     getChartsFromDataStore() {
-      //console.log("getChartsFromDataStore this.contName", this.contName);
       let key = this.generateKey(`monthlyCharts_${this.$i18n.locale}`);
-      service.getSavedConfig(key).then((resp) => {
+      service.getSavedConfig({ tableKey: key }).then((resp) => {
         if (resp && resp.data) {
           let charts = resp.data;
           let inputChartsData = charts[this.location.split("/")[1]]
@@ -1743,9 +1731,10 @@ export default {
               : inputChartsData;
           //  if (Object.keys(inputChartsData).length) {
           this.newUsersChartData = inputChartsData["inputChart"];
-          let options = this.newUsersChartData.filter
-            ? this.newUsersChartData.filter
-            : [];
+          let options =
+            this.newUsersChartData && this.newUsersChartData.filter
+              ? this.newUsersChartData.filter
+              : [];
           if (options.length > 0) {
             this.selected = options[0]["children"][0]["id"];
             this.dHSIndDataSeq = options;
@@ -1758,19 +1747,14 @@ export default {
             });
             //}, 2000)
           }
-          // console.log(charts["emuByMethod"], this.chartData, "secondchart");
           this.chartData = inputChartsData["emuByMethod"];
-          this.selected = this.chartData.filter[0]["children"][0]["id"];
+          this.selected = this.chartData
+            ? this.chartData.filter[0]["children"][0]["id"]
+            : "";
           this.inputNewUsers = inputChartsData["inputNewUsers"];
           this.totalUsers = inputChartsData["totalUsers"];
           this.monthlyPopulation = inputChartsData["monthlyPopulation"];
-          // console.log(
-          //   inputChartsData["emuByMethod"],
-          //   this.totalUsers,
-          //   inputChartsData,
-          //   "emuByMethod charts from dt",
-          //   this.contName
-          // );
+
           let reversedCat =
             inputChartsData["emuByMethod"]["saveCategories"].reverse();
           this.methodTable(
@@ -1799,13 +1783,6 @@ export default {
           this.oneMonthEMUChartData = outputChartsData["oneMonthEMUChart"];
           this.totalEMUChartData = outputChartsData["totalEMUChart"];
           this.bshowLoader = false;
-
-          //   }
-          // let saveSeries = charts["emuByMethod"]["saveData"] || [];
-          // let saveCat = charts["emuByMethod"]["saveCategories"] || [];
-          // console.log("table from datastore", saveSeries, saveCat);
-
-          // this.methodTable(saveSeries, saveCat);
         } else {
           this.bshowLoader = false;
           this.sweetAlert({
@@ -1971,7 +1948,8 @@ export default {
               Object.keys(oFinalAgrEMU[m]).forEach((d) => {
                 aobj["data"].push(oFinalAgrEMU[m][d].toFixed(3) * 1);
                 categories.forEach((c) => {
-                  let p = this.$moment(c, "MMM YYYY").format("YYYYMM");
+                  let p = translateAlphatoNum(c);
+
                   if (d == p) {
                     mobj["data"].push(oFinalAgrEMU[m][d].toFixed(3) * 1);
                   }
@@ -2031,7 +2009,9 @@ export default {
         agreTable.push(oP);
       }
 
-      (oneMonthEMU.data = oneMonthSeries),
+      (oneMonthEMU.data = oneMonthSeries[0]["data"].length
+        ? oneMonthSeries
+        : []),
         (oneMonthEMU.methodData = oneMonthSeries),
         (oneMonthEMU.categories = oneMonthCategories),
         (oneMonthEMU.methodCategories = oneMonthCategories),
@@ -2102,17 +2082,10 @@ export default {
       this.saveTrendsChartData = JSON.parse(
         JSON.stringify(this.saveTrendsChartData)
       );
-      // console.log(
-      //   JSON.parse(JSON.stringify(this.saveTrendsChartData)),
-      //   "trend emuTrned"
-      // );
+
       this.saveOneMonthEMUChartData = JSON.parse(
         JSON.stringify(this.saveOneMonthEMUChartData)
       );
-      // console.log(
-      //   JSON.parse(JSON.stringify(this.saveOneMonthEMUChartData)),
-      //   "saveOneMonthEMUChartData onemonthemu"
-      // );
     },
     methodTrendByMethod(
       series,
@@ -2171,7 +2144,7 @@ export default {
               Object.keys(oFinalAgrEMU[m]).forEach((d) => {
                 aobj["data"].push(oFinalAgrEMU[m][d].toFixed(3) * 1);
                 categories.forEach((c) => {
-                  let p = this.$moment(c, "MMM YYYY").format("YYYYMM");
+                  let p = translateAlphatoNum(c);
                   if (d == p) {
                     mobj["data"].push(oFinalAgrEMU[m][d].toFixed(3) * 1);
                   }
@@ -2228,10 +2201,7 @@ export default {
         //agreTableData : tempObj.agreTableData,
         source: this.source,
       };
-      // console.log(
-      //   JSON.parse(JSON.stringify(this.saveMethodTrendsChartData)),
-      //   "this.saveMethodTrendsChartData"
-      // );
+
       this.saveMethodTrendsChartData = JSON.parse(
         JSON.stringify(this.saveMethodTrendsChartData)
       );
@@ -2253,26 +2223,7 @@ export default {
           //     (sumTotalCYP[year] || 0) + this.totalCyp[key][year];
         });
       });
-      // console.log("this.backgroundData", this.backgroundData);
       if (this.backgroundData) {
-        // Object.keys(this.totalUsers).forEach(key => {
-        //   let peevVal = 0
-        //   Object.keys(this.backgroundData[key]).forEach(back => {
-        //     if(back){
-        //       Object.keys(this.backgroundData[key][back]['vals']).forEach(d => {
-        //         if (this.backgroundData[key][back]['vals'][d] != 0) {
-        //           peevVal = this.backgroundData[key][back]['vals'][d]
-        //         }
-        //       })
-        //       if (!sumBack[back]) {
-        //         sumBack[back] = {}
-        //       }
-        //       Object.keys(this.backgroundData[key][back]['vals']).forEach(year => {
-        //         sumBack[back][year] = (sumBack[back][year] || 0) + peevVal
-        //       })
-        //     }
-        //   })
-        // })
         // Added by Ashvini
         //for backGround Indicator, only one sub indicator value will get plus into toatl EMU if values are same
         this.indDataSeq.forEach((ind) => {
@@ -2365,7 +2316,6 @@ export default {
           }
         }
       }
-      console.log("Total dhs", sumBack);
       let totalEMU = {
           data: [],
           name: this.$i18n.t("EMU"),
@@ -2429,10 +2379,12 @@ export default {
             }
 
             totalEMU["data"].push(
-              (
-                (sumTotalUsers[period] / this.monthlyPopulation[period]) *
-                100
-              ).toFixed(2) * 1
+              this.monthlyPopulation[period]
+                ? (
+                    (sumTotalUsers[period] / this.monthlyPopulation[period]) *
+                    100
+                  ).toFixed(2) * 1
+                : 0
             );
             // totalCYP["data"].push(
             //   (
@@ -2440,10 +2392,11 @@ export default {
             //     100
             //   ).toFixed(2) * 1
             // );
+
             totalBack["data"].push(preVal ? preVal.toFixed(2) * 1 : null);
-            fCategories.push(this.$moment(period, "YYYYMM").format("MMM YYYY"));
+            fCategories.push(this.allMonthNameJson[period]["name"]);
           });
-          series.push(totalBack);
+          if (totalBack["data"].length) series.push(totalBack);
           saveCategories.forEach((period) => {
             if (sumBack[sumVal][period] != 0) {
               if (savePreVal == 0 && savePreValFlag == false) {
@@ -2454,10 +2407,12 @@ export default {
               }
             }
             saveTotalEMU["data"].push(
-              (
-                (sumTotalUsers[period] / this.monthlyPopulation[period]) *
-                100
-              ).toFixed(2) * 1
+              this.monthlyPopulation[period]
+                ? (
+                    (sumTotalUsers[period] / this.monthlyPopulation[period]) *
+                    100
+                  ).toFixed(2) * 1
+                : 0
             );
             // saveTotalCYP["data"].push(
             //   (
@@ -2468,9 +2423,7 @@ export default {
             saveTotalBack["data"].push(
               savePreVal ? savePreVal.toFixed(2) * 1 : null
             );
-            savefCategories.push(
-              this.$moment(period, "YYYYMM").format("MMM YYYY")
-            );
+            savefCategories.push(this.allMonthNameJson[period]["name"]);
           });
           saveSeries.push(saveTotalBack);
         });
@@ -2478,10 +2431,12 @@ export default {
         fCategories = [];
         categories.forEach((period) => {
           totalEMU["data"].push(
-            (
-              (sumTotalUsers[period] / this.monthlyPopulation[period]) *
-              100
-            ).toFixed(2) * 1
+            this.monthlyPopulation[period]
+              ? (
+                  (sumTotalUsers[period] / this.monthlyPopulation[period]) *
+                  100
+                ).toFixed(2) * 1
+              : 0
           );
           // totalCYP["data"].push(
           //   (
@@ -2489,14 +2444,16 @@ export default {
           //     100
           //   ).toFixed(2) * 1
           // );
-          fCategories.push(this.$moment(period, "YYYYMM").format("MMM YYYY"));
+          fCategories.push(this.allMonthNameJson[period]["name"]);
         });
         saveCategories.forEach((period) => {
           saveTotalEMU["data"].push(
-            (
-              (sumTotalUsers[period] / this.monthlyPopulation[period]) *
-              100
-            ).toFixed(2) * 1
+            this.monthlyPopulation[period]
+              ? (
+                  (sumTotalUsers[period] / this.monthlyPopulation[period]) *
+                  100
+                ).toFixed(2) * 1
+              : 0
           );
           // saveTotalCYP["data"].push(
           //   (
@@ -2504,9 +2461,7 @@ export default {
           //     100
           //   ).toFixed(2) * 1
           // );
-          savefCategories.push(
-            this.$moment(period, "YYYYMM").format("MMM YYYY")
-          );
+          savefCategories.push(this.allMonthNameJson[period]["name"]);
         });
       }
 
@@ -2530,7 +2485,7 @@ export default {
         tableData: [],
         source: this.source,
       };
-      series.push(totalEMU);
+      if (totalEMU["data"].length) series.push(totalEMU);
       /*commented to remove CYPs/Population*/
       //series.push(totalCYP)
 
@@ -2570,13 +2525,6 @@ export default {
       //   name: 'compEMU',
       //   data: aTable
       // }]
-      console.log(
-        this.totalEMUChartData,
-        this.oneMonthEMUChartData,
-        this.trendsChartData,
-        "final charts",
-        this.contName
-      );
     },
     allDataFetched() {
       this.getFinalChartsdata();
@@ -2780,10 +2728,10 @@ export default {
       this.bshowLoader = true;
       let dataStore = {};
       let key = this.generateKey(`monthlyEMU_${this.$i18n.locale}`);
-      let allKeys = service.getAllKeys();
+      let allKeys = service.getAllKeys({});
       allKeys.then((keys) => {
         if (keys.data.includes(key)) {
-          let oConfig = service.getSavedConfig(key);
+          let oConfig = service.getSavedConfig({ tableKey: key });
           oConfig.then((response) => {
             let oResponse = response.data;
             if (oResponse["totalEMU"]) {
@@ -2864,20 +2812,22 @@ export default {
                 [this.location.split("/")[1]]: this.saveTrendsChartData,
               };
             }
-
             // oResponse['totalEMU'] = JSON.stringify(oResponse['totalEMU'])
             // oResponse['methodTrend'] = JSON.stringify(oResponse['methodTrend'])
             // oResponse['monthTrend'] = JSON.stringify(oResponse['monthTrend'])
             // oResponse['emuTrend'] = JSON.stringify(oResponse['emuTrend'])
-            service.updateConfig(oResponse, key).then((res) => {
-              if (res.data.status.toLowerCase() === "ok") {
-                this.bshowLoader = false;
-                this.$emit("saveEMUFinal", this.location);
-                this.sweetAlert({
-                  title: this.$i18n.t("data_saved_successfully"),
-                });
-              }
-            });
+            service
+              .updateConfig({ data: oResponse, tableKey: key })
+              .then((res) => {
+                if (res.data.status.toLowerCase() === "ok") {
+                  this.bshowLoader = false;
+                  this.$emit("saveEMUFinal", this.location);
+                  this.$store.commit("setIsMonthlyEMUSet", false);
+                  this.sweetAlert({
+                    title: this.$i18n.t("data_saved_successfully"),
+                  });
+                }
+              });
           });
         } else {
           let totalEMU = {
@@ -2904,10 +2854,11 @@ export default {
             methodTrend: methodTrend,
             monthTrend: monthTrend,
           };
-          service.saveConfig(dataStore, key).then((res) => {
+          service.saveConfig({ data: dataStore, tableKey: key }).then((res) => {
             if (res.data.status.toLowerCase() === "ok") {
               this.bshowLoader = false;
               this.$emit("saveEMUFinal", this.location);
+              this.$store.commit("setIsMonthlyEMUSet", false);
               this.sweetAlert({
                 title: this.$i18n.t("data_saved_successfully"),
               });
@@ -2940,9 +2891,11 @@ export default {
   },
   data() {
     return {
+      emuSaveType: "Custom",
       allMonthArray: [],
       dHSIndDataSeq: [],
       indDataSeq: [],
+      allMonthNameJson: this.$store.getters.getPeriodData,
       finalCalculatedTable: null,
       calculatedUsers: null,
       viewSteps: false,
@@ -2954,7 +2907,6 @@ export default {
       globalConfig: null,
       bshowLoader: true,
       totalCyp: null,
-      currentYear: this.endYear,
       bRequestFlag: false,
       months: [],
       continuation: null,
@@ -2975,12 +2927,11 @@ export default {
       inputNewUsers: null,
       newUsersChartData: null,
       items: [],
+      tableGenerated: false,
       filelds: [],
       filterTableData: null,
       options: [],
-      filter: "input",
-      canComment: false,
-      loggedInUserId: "",
+      //filter: "input",
       selected: this.method,
       activetab: "",
       catArr: null,
@@ -2988,8 +2939,8 @@ export default {
       exportArr: [],
       // cypPopVal: null,
       autoSaveSource: "",
-      sourceStartYear: this.data["initialYear"],
-      sourceEndYear: this.data["finalYear"],
+      sourceStartYear: "",
+      sourceEndYear: "",
       categoryInfo: this.data["categoryInfo"],
       tabCategoryInfo: this.data["tabCategoryInfo"],
       methodSeq: [],
@@ -3054,18 +3005,5 @@ export default {
   .vue-treeselect__menu-container {
   top: 100%;
   color: var(--color-black);
-}
-
-.saveEMUBtn {
-  position: absolute;
-  top: -90px;
-  right: 65px;
-  z-index: 1;
-}
-.showStepBtn {
-  position: absolute;
-  top: -90px;
-  right: 17px;
-  z-index: 1;
 }
 </style>
