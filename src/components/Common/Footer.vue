@@ -745,18 +745,20 @@ export default {
         }
         this.$emit("getLocationPeriod", obj);
       } else {
-        this.$swal({
-          title: `${this.$i18n.t("periodRange")} <br/> [${
-            this.allowedFinalDate
-          } ${this.$i18n.t("toSmall")} ${this.allowedStartDate}]`,
-        }).then((result) => {
-          if (result && this.$store.getters.getIsMultiProgram) {
-            this.goTo({
-              setNamespace: true,
-              routeName: "integrated-dashboard",
-            });
-          }
-        });
+        if (this.IDLocationPeriod) {
+          this.$swal({
+            title: `${this.$i18n.t("periodRange")} <br/> [${
+              this.allowedFinalDate
+            } ${this.$i18n.t("toSmall")} ${this.allowedStartDate}]`,
+          }).then((result) => {
+            if (result && this.$store.getters.getIsMultiProgram) {
+              this.goTo({
+                setNamespace: true,
+                routeName: "integrated-dashboard",
+              });
+            }
+          });
+        }
       }
     },
     resetMap() {
