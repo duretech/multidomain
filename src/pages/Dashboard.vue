@@ -589,11 +589,7 @@ export default {
             }
           })
           .then(() => {
-            if (this.$store.getters.getIsMultiProgram) {
-              this.getGlobalDynamicData();
-            } else {
-              this.getLocationList();
-            }
+            this.getLocationList();
           })
           .catch(() => {
             this.$store.commit("setLoading", false);
@@ -603,11 +599,7 @@ export default {
         this.appData = this.$store.getters.getApplicationModule();
         // Set the theme on hot-reload
         service.applyTheme();
-        if (this.$store.getters.getIsMultiProgram) {
-          this.getLocationList();
-        } else {
-          this.getGlobalDynamicData();
-        }
+        this.getLocationList();
       }
     },
     async getLocationList() {
@@ -647,15 +639,6 @@ export default {
         let l = await service.getOrganisationUnitLevels();
         this.$store.commit("setOrgLevels", l.data);
       }
-    },
-    /**
-     * This function calls the 'Dynamic modules' [created and made live from the Interactive Analytics module] and Global Factors.
-     */
-    getGlobalDynamicData() {
-      if (this.isLinkedModules) {
-        this.getDynamicModules();
-      }
-      this.getGlobalFactors();
     },
     /**
      * Get the Global Factors.

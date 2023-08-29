@@ -63,32 +63,27 @@ export default {
   methods: {
     onFileChange(event) {
       this.selectedFiles = {};
-      // this.$refs.configFile.files.forEach((file) => {
-      //   const reader = new FileReader();
-      //   let fName = file.name.split(".")[0];
-      //   reader.onload = (res) => {
-      //     let file = JSON.parse(res.target.result);
-      //     this.removeCID(file);
-      //     // this.selectedFiles[fName] = JSON.parse(res.target.result);
-      //     this.selectedFiles[fName] = file;
-      //   };
-      //   reader.onerror = (err) => console.log(err);
-      //   reader.readAsText(file);
-      // });
+      this.$store.commit("setLoading", true);
       this.$refs.configFile.files.forEach((file) => {
         var new_zip = new JSZip();
-        new_zip.loadAsync(file).then((zip) => {
+        new_zip.loadAsync(file).then(async (zip) => {
           let isDir = Object.keys(zip.files).find((f) => zip.files[f].dir);
-          Object.keys(zip.files).forEach((f) => {
+          for (const f in zip.files) {
             if (!zip.files[f].dir) {
-              zip.files[f].async("string").then((fileData) => {
-                let file = JSON.parse(fileData);
-                this.removeCID(file);
-                let fName = isDir ? f.split("/")[1] : f;
-                this.selectedFiles[fName] = file;
-              });
+              let fileData = await zip.files[f].async("string");
+              let fData = JSON.parse(fileData);
+              this.removeCID(fData);
+              let fName = isDir ? f.split("/")[1] : f;
+              fName = fName.split(".")[0];
+              this.selectedFiles[fName] = fData;
             }
-          });
+            if (
+              Object.keys(zip.files).length ===
+              Object.keys(this.selectedFiles).length
+            ) {
+              this.$store.commit("setLoading", false);
+            }
+          }
         });
       });
     },
@@ -168,10 +163,12 @@ export default {
         confirmButtonText: this.$i18n.t("dashboard"),
         cancelButtonText: this.$i18n.t("ok"),
       }).then((result) => {
+        this.$emit("uploadSuccess");
         if (result.value) {
           this.$router.push("/");
+        } else {
+          this.$router.go();
         }
-        this.$emit("uploadSuccess");
       });
       this.resetFileDetails();
     },
