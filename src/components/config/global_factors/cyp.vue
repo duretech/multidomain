@@ -251,7 +251,6 @@ import merge from "lodash/merge";
 import assign from "lodash/assign";
 import DynamicImageMixin from "@/helpers/DynamicImageMixin";
 import ReFetchConfigMixin from "@/helpers/ReFetchConfigMixin";
-// import globalFactorsConfig from "@/config/globalFactorsConfig.js";
 export default {
   props: ["module", "type", "subType"],
   mixins: [DynamicImageMixin, ReFetchConfigMixin],

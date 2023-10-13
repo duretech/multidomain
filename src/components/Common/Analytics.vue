@@ -133,7 +133,7 @@
           <template>
             <b-row>
               <b-col>
-                <b-row class="small">
+                <b-row class="small test">
                   <b-col sm="8">
                     <strong>{{ $t("mByUser") }} - {{ fText }}</strong>
                   </b-col>
@@ -175,6 +175,7 @@
                       :fields="mByUserFields"
                       head-variant="light"
                       :empty-text="$t('no_data_to_display')"
+                      class="table-user"
                     >
                     </b-table>
                   </b-col>

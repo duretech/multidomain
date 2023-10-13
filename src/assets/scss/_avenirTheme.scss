@@ -386,7 +386,6 @@ table thead th{
 #reporting_tab_content_fp_visits .card,
 #reporting_tab_content_fp_visits .card-body,
 #benchmarking-fpemuoutput .card,
-
 #benchmarking-fpemuoutput .card-body,
 #benchmarking-sub-tabContent .card,
 #benchmarking-sub-tabContent .card-body,
@@ -596,7 +595,8 @@ button.sidebar-sub-menu-option{
     margin-bottom: 10px;
 }
 
-.swal2-select {
+.swal2-select,
+div:where(.swal2-container) .swal2-select {
     background-color: var(--primary-color-button);
     border-color: var(--primary-color-button) !important;
     border-radius: 0.25rem;

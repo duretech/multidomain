@@ -1319,7 +1319,9 @@ export default {
                   rows: decompress(JSON.parse(fpRes.data.rows)),
                 }
               : fpRes.data;
-          response = fpResponse.rows.filter((arr) => arr[2] === locationID);
+          response = fpResponse.rows.filter(
+            (arr) => arr[2] === locationID && years.includes(arr[1] * 1)
+          );
         });
         fpData.forEach((res) => {
           res.subIndicators.forEach((r) => {
@@ -1888,7 +1890,7 @@ export default {
   content: "\f107";
   font-family: "FontAwesome";
   position: absolute;
-  left: 160px;
+  left: 320px;
   transition: all 0.5s;
 }
 

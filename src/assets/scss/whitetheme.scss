@@ -136,6 +136,19 @@ body[data-theme~="white"]{
                 border-color: var(--home-btn-color) !important;
                 color: var(--grey-color-button) !important;
             }
+             .view-morepopup {
+       
+
+                .btn-group .btn-secondary.bg-transparent {
+                    background-color: transparent !important;
+                    border-color: transparent !important;
+                }
+
+                .totalicons .icontoggle .arrow-btn{
+                    background-color: var(--home-btn-color) !important;
+                     border-color: var(--home-btn-color) !important;
+                }
+             }
     }
 
     .saved-fav,

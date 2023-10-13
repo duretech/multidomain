@@ -136,8 +136,6 @@
                     v-if="chart"
                     :chartdata="chart"
                     :period="true"
-                    :canComment="canComment"
-                    :loggedInUserId="loggedInUserId"
                     defaultSort="JAN-DEC"
                     sorting="type3"
                   ></card-component>
@@ -204,8 +202,6 @@
                               lineAdNonAdChartData.disable == false
                             "
                             :chartdata="lineAdNonAdChartData"
-                            :canComment="canComment"
-                            :loggedInUserId="loggedInUserId"
                             defaultSort="JAN-DEC"
                             sorting="type3"
                           />
@@ -227,8 +223,6 @@
                               adNonadChartData.disable == false
                             "
                             :chartdata="adNonadChartData"
-                            :canComment="canComment"
-                            :loggedInUserId="loggedInUserId"
                           />
                           <div class="card" v-else>
                             <div
@@ -264,8 +258,6 @@
                               outPutTrendsChart.disable == false
                             "
                             :chartdata="outPutTrendsChart"
-                            :canComment="canComment"
-                            :loggedInUserId="loggedInUserId"
                             defaultSort="JAN-DEC"
                             sorting="type3"
                           ></card-component>
@@ -287,8 +279,6 @@
                               comparisionEstimateData.disable == false
                             "
                             :chartdata="comparisionEstimateData"
-                            :canComment="canComment"
-                            :loggedInUserId="loggedInUserId"
                           />
                           <div class="card" v-else>
                             <div
@@ -315,8 +305,6 @@
                               MordernUsersByMethodsData.disable == false
                             "
                             :chartdata="MordernUsersByMethodsData"
-                            :canComment="canComment"
-                            :loggedInUserId="loggedInUserId"
                             defaultSort="A-Z"
                             sorting="type4"
                           />
@@ -331,22 +319,6 @@
                             </div>
                           </div>
                         </div>
-
-                        <!-- <div
-                          class="col-lg-4 col-xl-4 mb-4"
-                          v-else-if="
-                            MordernUsersByMethodsData &&
-                            MordernUsersByMethodsData.disable == false
-                          "
-                        >
-                          <card-component
-                            :chartdata="MordernUsersByMethodsData"
-                            :canComment="canComment"
-                            :loggedInUserId="loggedInUserId"
-                            defaultSort="A-Z"
-                            sorting="type4"
-                          />
-                        </div> -->
 
                         <div
                           :class="
@@ -361,8 +333,6 @@
                               MixComparisionData.disable == false
                             "
                             :chartdata="MixComparisionData"
-                            :canComment="canComment"
-                            :loggedInUserId="loggedInUserId"
                           />
                           <div class="card" v-else>
                             <div
@@ -376,20 +346,6 @@
                           </div>
                         </div>
 
-                        <!-- <div
-                          class="col-lg-8 col-xl-8 mb-4 pieChart-col border-left"
-                          v-else-if="
-                            MixComparisionData &&
-                            MixComparisionData.disable == false
-                          "
-                        >
-                          <card-component
-                            :chartdata="MixComparisionData"
-                            :canComment="canComment"
-                            :loggedInUserId="loggedInUserId"
-                          />
-                        </div> -->
-
                         <div v-bind:class="getClass()" class="border-right">
                           <card-component
                             v-if="
@@ -397,8 +353,6 @@
                               userTrendsByMethod.disable == false
                             "
                             :chartdata="userTrendsByMethod"
-                            :canComment="canComment"
-                            :loggedInUserId="loggedInUserId"
                             defaultSort="JAN-DEC"
                             sorting="type3"
                           />
@@ -421,8 +375,6 @@
                               comparisionSlope.disable == false
                             "
                             :chartdata="comparisionSlope"
-                            :canComment="canComment"
-                            :loggedInUserId="loggedInUserId"
                             defaultSort="A-Z"
                             sorting="type4"
                           />
@@ -509,8 +461,6 @@
               <card-component
                 v-if="reportinRateChart"
                 :chartdata="reportinRateChart"
-                :canComment="canComment"
-                :loggedInUserId="loggedInUserId"
                 chartComp="repotingRate"
                 defaultSort="JAN-DEC"
                 sorting="type3"
@@ -675,8 +625,6 @@ export default {
           : this.data["derivedCharts"][7]["chartOptions"]["chartInfo"],
       filter: "inc",
       userTData: null,
-      canComment: false,
-      loggedInUserId: "",
       statData: [],
       statFields: [],
       activetab: "",
@@ -685,9 +633,6 @@ export default {
       sourceEndYear: "",
       methodSeq: [],
       tableMethodSeq: [],
-      newinputActive: this.inputActive,
-      newoutputActive: this.outputActive,
-      newrepoActive: this.repoActive,
     };
   },
   props: [
@@ -707,10 +652,6 @@ export default {
     "year",
     "repoColor",
     "signOffActive",
-    "inputActive",
-    "outputActive",
-    "repoActive",
-    "userDetails",
   ],
   components: {
     cardComponent,
@@ -723,7 +664,7 @@ export default {
   },
   mounted() {
     this.getUser();
-    //this.getActiveTab("repo");
+    this.getActiveTab("repo");
   },
   methods: {
     goToAdmin() {
@@ -913,13 +854,7 @@ export default {
       this.activetab = tab;
       this.$emit("activeTabName", tab);
     },
-    getUser() {
-      this.loggedInUserId = this.userDetails.id;
-      this.canComment =
-        this.$store.getters.getIsAdmin ||
-        this.$store.getters.getAppSettings.bypassUser ||
-        this.$store.getters.getUserPermissions.canComment;
-    },
+    getUser() {},
     getFilter(p) {
       this.filter = p;
     },
@@ -1284,6 +1219,7 @@ export default {
       repoData.cid = this.data["reportingRate"][0]["indicator"]["cid"];
 
       this.reportinRateChart = repoData;
+      this.$emit('updateChartData' , this.reportinRateChart)
     },
     /**
      * This fnc is to compute final chart data.
@@ -1319,6 +1255,7 @@ export default {
           )
         );
         this.aFinalInputData = aFinalCharts;
+        this.$emit('updateChartData' , this.aFinalInputData)
         dataM.saveChartColors(aFinalCharts, this.tabName);
       } else {
         if (!this.finalAnnualCharts) {
@@ -1464,6 +1401,8 @@ export default {
       });
       this.outPutTrendsChart = oUserTrends;
 
+      this.$emit('updateChartData' , this.outPutTrendsChart)
+
       if (this.getData) {
         this.getData(
           this.tabName,
@@ -1517,6 +1456,7 @@ export default {
         1,
         "bar"
       );
+      this.$emit('updateChartData' , this.comparisionEstimateData)
       //Column chart for comparison estimate chart
       let MordernUsersByMethodsData = dataM.comarisonEstimateColumnChart(
         this.currentYear,
@@ -1532,6 +1472,8 @@ export default {
         "column"
       );
 
+      this.$emit('updateChartData' , this.MordernUsersByMethodsData)
+
       let adjNonAdjLineChart = dataM.getadjNonAdjLineChart(
         this.sYearArray,
         this.finalMethodArr,
@@ -1544,6 +1486,8 @@ export default {
         8,
         "line"
       );
+
+      this.$emit('updateChartData' , this.lineAdNonAdChartData)
 
       let adjNonAdjBarChart = dataM.getadjNonAdjBarChart(
         this.currentYear,
@@ -1558,6 +1502,8 @@ export default {
         "bar"
       );
 
+      this.$emit('updateChartData' , this.adNonadChartData)
+
       let methodMixService = dataM.getMethodMixServicePie(
         this.currentYear,
         this.finalMethodArr,
@@ -1566,6 +1512,8 @@ export default {
         this.bgData.methodMix
       );
       this.MixComparisionData = this.getPieChart(methodMixService);
+
+      this.$emit('updateChartData' , this.MixComparisionData)
 
       let dhsData = this.bgData.DHS ? this.bgData.DHS : {};
       let pmaData = this.bgData.PMA ? this.bgData.PMA : {};
@@ -1592,8 +1540,11 @@ export default {
         "line"
       );
 
+      this.$emit('updateChartData' , this.userTrendsByMethod)
+
       let slopeData = dataM.getSlopData(userTrendsbyEmu);
       this.comparisionSlope = this.getOtherChartDeatils(slopeData, 5, "bar");
+      this.$emit('updateChartData' , this.comparisionSlope)
       if (this.getData) {
         this.getData(this.tabName, methodWiseAdjObject, "userT", this.filter);
       }
@@ -1604,6 +1555,7 @@ export default {
         this.getData(this.tabName, userTrendsbyEmu, "output", this.filter);
       }
       //}
+
     },
     generateIntermediateTable(type, obj, scaling = null) {
       this.finalAdjNonAdjTableData[type] = {};
@@ -1720,7 +1672,7 @@ export default {
           },
           {
             size: 130,
-            center: [450, 180],
+            center: [450, 130],
             name: this.$i18n.t("methods"),
             colorByPoint: true,
             data: pieDataObject["methodMix"].data,

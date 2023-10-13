@@ -8,11 +8,36 @@
         <div class="summary-dqr-page" v-if="!reportChartData">
           <b-card class="overview-card mx-3 mt-3">
             <template #header class="pb-0 border-bottom-0">
-              <h5 class="dqr-title mb-0 text-uppercase fs-19-1920">
-                {{ $t("dqr") }} {{ selectedDate }}
-              </h5>
+              <div
+                class="d-flex justify-content-between align-items-center w-100"
+              >
+                <h5 class="dqr-title mb-0 text-uppercase fs-19-1920">
+                  {{ $t("dqr") }} {{ selectedDate }}
+                </h5>
+                <div class="text-right mb-3">
+                  <button
+                    type="button"
+                    class="btn btn-primary black-btn blue-btn f-08rem"
+                    @click.prevent.stop="downloadReport()"
+                  >
+                    <span class="">
+                      <img
+                        :src="
+                          require('@/assets/images/icons/generateReport.svg')
+                        "
+                        class="img-fluid mt-xl-n1"
+                      />
+                    </span>
+                    <span class="mx-1"> {{ $t("exportbtn") }} </span>
+                  </button>
+                </div>
+              </div>
             </template>
-            <b-card-body class="dqr-card-body pt-0">
+            <b-card-body :style="{backgroundColor: isGenerating || textUpdate ? $store.getters.getTheme == 'dark'? '#201F3C !important' : $store.getters.getTheme == 'grey' ? '#212934 !important' : '' : ''}" class="dqr-card-body pt-0" ref="printPDF">
+              <h2 v-if="isGenerating" style="text-align: center" :style="{color: isGenerating ? $store.getters.getTheme == 'dark'? 'white !important' : $store.getters.getTheme == 'grey' ? 'white !important' : '' : ''}">
+                {{ $t("DQR") }}
+              </h2>
+              <!-- //here -->
               <div class="dqr-border">
                 <div class="d-flex justify-content-end mb-2">
                   <b-button
@@ -74,6 +99,8 @@
                           :limit="3"
                           :flat="true"
                           :default-expand-level="1"
+                          @deselect="getDeSelected"
+                          @select="getSelected"
                           v-model="selectedScorecardLocations"
                           sort-value-by="INDEX"
                           :placeholder="$t('select')"
@@ -127,6 +154,8 @@
                               :options="locationPeriod.locationList"
                               :limit="3"
                               :flat="true"
+                              @deselect="getDeSelected"
+                              @select="getSelected"
                               :default-expand-level="1"
                               v-model="selectedScorecardLocations"
                               sort-value-by="INDEX"
@@ -218,10 +247,25 @@
                 <div>
                   <b-row>
                     <b-col cols="6">
-                      <p class="quality-text fs-17-1920">
-                        {{ $t("dqr1") }}
-                        {{ selectedDate }})
-                        {{ $t("dqr2") }}
+                      <p
+                        class="quality-text fs-17-1920"
+                        v-if="
+                          $store.getters.getNamespace.includes('_fp-dashboard')
+                        "
+                        :style="{color: isGenerating && ['dark', 'grey'].includes($store.getters.getTheme) ? 'white !important' : ''}"
+                        >
+                        {{ $t("dqr1", { selectedDate }) }}
+                      </p>
+                      <p
+                      class="quality-text fs-17-1920"
+                      v-if="
+                          $store.getters.getNamespace.includes(
+                            '_mnch-dashboard'
+                            )
+                            "
+                            :style="{color: isGenerating && ['dark', 'grey'].includes($store.getters.getTheme) ? 'white !important' : ''}"
+                      >
+                        {{ $t("dqr2", { selectedDate }) }}
                       </p>
                     </b-col>
                     <b-col cols="4">
@@ -234,10 +278,10 @@
                       <div
                         class="align-items-center d-flex flex-column justify-content-center score"
                       >
-                        <h4 class="scoretitle fs-25-1920">
+                        <h4 class="scoretitle fs-25-1920" :style="{color: isGenerating ? $store.getters.getTheme == 'dark'? 'white !important' : $store.getters.getTheme == 'grey' ? 'white !important' : '' : ''}">
                           {{ $t("dqrScore") }}
                         </h4>
-                        <p class="totalscore fs-25-1920">
+                        <p class="totalscore fs-25-1920" :style="{color: isGenerating ? $store.getters.getTheme == 'dark'? 'white !important' : $store.getters.getTheme == 'grey' ? 'white !important' : '' : ''}">
                           {{ qualityScore }}/{{ totalScores }}
                         </p>
                       </div>
@@ -245,9 +289,9 @@
                   </b-row>
                 </div>
               </div>
-              <div class="mt-4">
+              <div class="">
                 <b-row>
-                  <template v-if="scoreBox.length === 0">
+                  <template v-if="scoreBox.length === 0 && !isGenerating">
                     <b-col sm="4" v-for="i in 3" :key="'dummy' + i">
                       <b-card class="inner-card">
                         <template #header class="inner-header pb-0">
@@ -268,7 +312,7 @@
                     v-for="(menu, i) in scoreBox"
                     :key="'menu' + i"
                   >
-                    <b-card class="inner-card">
+                    <b-card class="inner-card" :style="{backgroundColor: isGenerating ? $store.getters.getTheme === 'dark'? '#201F3C !important' : $store.getters.getTheme === 'grey' ? '#212934 !important' : '' : ''}">
                       <template #header>
                         <h6 class="mb-0 pl-1 fs-19-1920">
                           {{ menu.tabName }}
@@ -276,11 +320,11 @@
                       </template>
                       <b-card-body
                         class="inner-card-body pl-0"
-                        :style="{ height: getHeight + 'px' }"
+                        :style="{ 'height': getHeight + 'px' }"
                       >
-                        <ul class="complete-list p-4 mb-0">
-                          <li
-                            class="pb-2"
+                        <div class="complete-list p-4 mb-0">
+                          <div
+                            class="pb-2 d-flex"
                             v-for="(subMenu, j) in menu.subTabs"
                             :key="'subMenu' + i + j"
                           >
@@ -318,11 +362,12 @@
                               @click="
                                 $store.commit('setActiveTab', subMenu.navLink)
                               "
+                              :style="{color: isGenerating ? $store.getters.getTheme === 'dark'? 'white !important' : $store.getters.getTheme === 'grey' ? 'white !important' : '' : ''}"
                             >
                               {{ subMenu.tabName }}
                             </div>
-                          </li>
-                        </ul>
+                          </div>
+                        </div>
                       </b-card-body>
                     </b-card>
                   </b-col>
@@ -331,7 +376,11 @@
                     class="analytic"
                     v-if="$store.getters.getNamespace.includes('_fp-dashboard')"
                   >
-                    <b-card class="inner-card">
+                    <b-card
+                      class="inner-card"
+                      :class="[isGenerating ? 'no-border' : 'border-grey']"
+                      :style="{backgroundColor: isGenerating ? this.$store.getters.getTheme === 'dark'? '#201F3C !important' : this.$store.getters.getTheme === 'grey' ? '#212934 !important' : '' : ''}"
+                    >
                       <template #header class="inner-header">
                         <h6 class="mb-0 pl-1 fs-19-1920 text-center">
                           {{ $t("eConsistency") }}
@@ -342,6 +391,7 @@
                           :dqrResponse="dqrResponse"
                           :preFetchData="preFetchData"
                           :locationPeriod="locationPeriod"
+                          :isGenerating="isGenerating"
                           v-if="
                             $store.getters.getNamespace.includes(
                               '_fp-dashboard'
@@ -364,6 +414,7 @@
                 {{ $t("data_sign_off") }}
               </h5>
             </template>
+
             <b-card-body class="sign-off-card-body p-0">
               <b-row>
                 <b-col sm="12" lg="6">
@@ -582,8 +633,11 @@
       <!-- class="dqr-main pt-4" -->
       <div
         class="pt-4 mt-1"
+        :style="{backgroundColor: isGenerating ? this.$store.getters.getTheme === 'dark'? '#201F3C' : this.$store.getters.getTheme === 'grey' ? '#212934' : '' : ''}"
         v-show="!$store.getters.getActiveTab.includes('dqr-summary')"
+        ref="printDQR"
       >
+        <h2 v-if="isGenerating" style="text-align: center" :style="{color: isGenerating ? $store.getters.getTheme == 'dark'? 'white !important' : $store.getters.getTheme == 'grey' ? 'white !important' : '' : ''}">{{ $t("DQR") }}</h2>
         <div
           :style="{
             visibility:
@@ -602,11 +656,13 @@
             @updatedConfig="updatedConfig"
             :locationPeriod="locationPeriod"
             v-if="
+              !isGenerating &&
               ($store.getters.getIsAdmin ||
                 this.$store.getters.getAppSettings.bypassUser ||
                 $store.getters.getUserPermissions.canSignOff) &&
               !reportChartData
             "
+            @downloadReport="downloadReport"
           />
         </div>
         <b-container class="dqr-charts p-0 m-0">
@@ -619,10 +675,12 @@
                 <TabSummary
                   :content="subTab.categoryInfo[$i18n.locale]"
                   :contKey="subTab.group + subTab.id"
+                  v-if="!isGenerating"
                 />
                 <div
                   v-for="chartData in subTab.chartSetting"
                   :key="configData.id + subTab.id + chartData.chartOptions.cid"
+                  class="after"
                 >
                   <template v-if="!chartData.chartOptions.disable">
                     <ChartComponent
@@ -638,6 +696,10 @@
                       :reportChartData="reportChartData"
                       :scorecardLocation="scorecardLocation"
                       :backgroundData="subTab.backgroundData"
+                      :configDQR="configDQR"
+                      @updateChartData="updateChartData"
+                      @getBubbleChart="getBubbleChart"
+                      :isGenerating="isGenerating"
                     />
                   </template>
                 </div>
@@ -664,6 +726,7 @@
             <benchmarkMonthlyTab
               ref="emu"
               :locationVal="locationPeriod.location"
+              :isGenerating="isGenerating"
               :userDetails="userDetails"
               :dqrResponse="dqrResponse"
               :appResponse="appResponse"
@@ -675,6 +738,8 @@
               :debugging="debugging"
               :debuggingLevel="debuggingLevel"
               :tabName="$t('emu_monthly')"
+              @updateChartData="updateChartData"
+              @downloadReport="downloadReport"
             />
           </div>
           <div
@@ -685,6 +750,7 @@
           >
             <annual-tab
               :locationVal="locationPeriod.location"
+              :isGenerating="isGenerating"
               :userDetails="userDetails"
               :dqrResponse="dqrResponse"
               :appResponse="appResponse"
@@ -693,6 +759,8 @@
               :debugging="debugging"
               :debuggingLevel="debuggingLevel"
               :tabName="$t('emu_annual')"
+              @updateChartData="updateChartData"
+              @downloadReport="downloadReport"
             />
           </div>
         </b-container>
@@ -723,6 +791,8 @@ import DynamicImageMixin from "@/helpers/DynamicImageMixin";
 import StaticColorMixin from "@/helpers/StaticColorMixin";
 import loadLocChildMixin from "@/helpers/LoadLocationChildMixin";
 import NepaliDate from "nepali-date-converter";
+import GenerateReportMixin from "@/helpers/GenerateReportMixin";
+
 export default {
   props: [
     "sideMenu",
@@ -731,6 +801,7 @@ export default {
     "preFetchData",
     "locationPeriod",
     "reportChartData",
+    "configDataDQR",
   ],
   mixins: [
     SignOffMixin,
@@ -738,6 +809,7 @@ export default {
     DynamicImageMixin,
     StaticColorMixin,
     loadLocChildMixin,
+    GenerateReportMixin,
   ],
   components: {
     SignOff,
@@ -797,13 +869,13 @@ export default {
       selectedScorecardLocations: [],
       placeholderObj: commonChartConfig,
       chartConfig: JSON.parse(JSON.stringify(summaryChartConfig)),
-
       //Used for EMU setions
       appResponse: null,
       globalResponse: null,
       methodSelected: "",
       debugging: false,
       debuggingLevel: "API",
+      configDQR: null,
     };
   },
   computed: {
@@ -827,7 +899,7 @@ export default {
       return cols;
     },
     getHeight() {
-      let h = 106;
+      let h = 125;
       if (this.scoreBox.length) {
         let el = document.getElementsByClassName("complete-list");
         for (let i = 0; i < el.length; i++) {
@@ -839,10 +911,14 @@ export default {
     },
     scorecardItemsFiltered: function () {
       let filteredData = this.scorecardItems.length
-        ? this.scorecardItems.filter((s) =>
-            s[this.$i18n.t("location")]
-              .toLowerCase()
-              .includes(this.scorecardSearch.toLowerCase())
+        ? this.scorecardItems.filter(
+            (s) =>
+              s[this.$i18n.t("location")]
+                .toLowerCase()
+                .includes(this.scorecardSearch.toLowerCase()) ||
+              s[this.$i18n.t("parent")]
+                .toLowerCase()
+                .includes(this.scorecardSearch.toLowerCase())
           )
         : [];
       return filteredData;
@@ -937,19 +1013,22 @@ export default {
         });
         box = innerBox.map((b) => ({
           ...b,
-          subTabs: b.subTabs.map((st) => {
-            let isFound = this.scores.findIndex((s) => s.id === st.id);
-            st.navLink = `${tab.group}-${tab.id}-${b.id}-${st.id}`;
-            if (isFound >= 0) {
-              st = {
-                ...st,
-                scoreDetails: this.scores[isFound],
-              };
-            }
-            return st;
-          }),
+          subTabs: b.subTabs
+            .filter((st) => st.isSummary)
+            .map((st) => {
+              let isFound = this.scores.findIndex((s) => s.id === st.id);
+              st.navLink = `${tab.group}-${tab.id}-${b.id}-${st.id}`;
+              if (isFound >= 0) {
+                st = {
+                  ...st,
+                  scoreDetails: this.scores[isFound],
+                };
+              }
+              return st;
+            }),
         }));
       }
+      this.$refs?.printPDF ? this.getDQRImg(): '';
       return box;
     },
     scoreTabID() {
@@ -959,6 +1038,7 @@ export default {
           ids.push({ id: s.id, tabName: s.tabName });
         });
       });
+
       return ids;
     },
     selectedDate() {
@@ -1033,6 +1113,9 @@ export default {
     },
   },
   watch: {
+    "$store.getters.getTheme": function (){
+      this.$refs?.printPDF ? this.getDQRImg(): '';
+    },
     totalScores(newValue) {
       this.chartConfig.yAxis.max = newValue;
       this.chartConfig.yAxis.tickPositioner = function () {
@@ -1156,8 +1239,131 @@ export default {
         this.getScorecard();
       }
     },
+    configDataDQR: {
+      immediate: true,
+      handler(newVal) {
+        this.configDQR = newVal;
+      },
+    },
   },
   methods: {
+    async getSelected(value, instanceId) {
+      let facilityLevelID = -1;
+      let levels = this.$store.getters.getOrgLevels;
+      let facility = levels.find((o) =>
+        o.displayName.toLowerCase().includes("facility")
+      );
+      if (facility) {
+        facilityLevelID = facility.level;
+      } else {
+        let facilityLevels = levels.map((o) => o.level);
+        facilityLevelID = Math.max(...facilityLevels);
+      }
+      let upperLevel = facilityLevelID * 1 - 1;
+      let children = [];
+      //newValue.forEach(async (loction) => {
+      let location = value.id;
+      if (!this.selectedScorecardLocations.includes(location))
+        this.selectedScorecardLocations.push(location);
+      if (location.split("/")[0] == upperLevel) {
+        //console.log("One level up facility level selected");
+        if (this.preFetchData?.orgList?.length) {
+          children = getChild({
+            locationList: this.preFetchData.orgList,
+            location: location.split("/")[1],
+          });
+          children = children.map((c) => {
+            return {
+              ...c,
+              id: `${c.level}/${c.id}`,
+            };
+          });
+        } else {
+          try {
+            let response = await service.getChildOrganisation(
+              location.split("/")[1]
+            );
+            children = response?.data?.children || [];
+          } catch (err) {
+            console.log("err", err);
+          }
+        }
+        // console.log(children, "children");
+        if (children.length) {
+          children.forEach((obj) => {
+            if (!this.selectedScorecardLocations.includes(obj.id))
+              this.selectedScorecardLocations.push(obj.id);
+          });
+          //this.childArr = children;
+          //this.isChildFetched = true;
+        } else {
+          //this.childArr = [];
+          //this.isChildFetched = true;
+        }
+      }
+      //});
+    },
+    async getDeSelected(value, instanceId) {
+      let facilityLevelID = -1;
+      let levels = this.$store.getters.getOrgLevels;
+      let facility = levels.find((o) =>
+        o.displayName.toLowerCase().includes("facility")
+      );
+      if (facility) {
+        facilityLevelID = facility.level;
+      } else {
+        let facilityLevels = levels.map((o) => o.level);
+        facilityLevelID = Math.max(...facilityLevels);
+      }
+      let upperLevel = facilityLevelID * 1 - 1;
+      let children = [];
+      //newValue.forEach(async (loction) => {
+      let location = value.id;
+      if (this.selectedScorecardLocations.includes(location))
+        this.selectedScorecardLocations.splice(
+          this.selectedScorecardLocations.indexOf(location),
+          1
+        );
+      if (location.split("/")[0] == upperLevel) {
+        //console.log("One level up facility level selected");
+        if (this.preFetchData?.orgList?.length) {
+          children = getChild({
+            locationList: this.preFetchData.orgList,
+            location: location.split("/")[1],
+          });
+          children = children.map((c) => {
+            return {
+              ...c,
+              id: `${c.level}/${c.id}`,
+            };
+          });
+        } else {
+          try {
+            let response = await service.getChildOrganisation(
+              location.split("/")[1]
+            );
+            children = response?.data?.children || [];
+          } catch (err) {
+            console.log("err", err);
+          }
+        }
+        if (children.length) {
+          children.forEach((obj) => {
+            if (this.selectedScorecardLocations.includes(obj.id))
+              this.selectedScorecardLocations.splice(
+                this.selectedScorecardLocations.indexOf(obj.id),
+                1
+              );
+            //this.selectedScorecardLocations.push(obj.id);
+          });
+          //this.childArr = children;
+          //this.isChildFetched = true;
+        } else {
+          //this.childArr = [];
+          //this.isChildFetched = true;
+        }
+      }
+    },
     updateToolBar(updatedVal) {
       this.$emit("updateToolBar", updatedVal);
     },
@@ -1554,6 +1760,13 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.before {
+  page-break-before: always !important;
+}
+.after {
+  page-break-after: always !important;
+  page-break-inside: avoid !important;
+}
 .loaderBackground {
   position: absolute;
   top: 2px;

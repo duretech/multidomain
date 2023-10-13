@@ -54,6 +54,10 @@
         font-size   : 14px;
         padding     : 10px 0px;
         border-width: 1px;
+        text-overflow: ellipsis;
+    overflow: hidden;
+    word-wrap: break-word;
+    white-space: pre-wrap;
     }
 
     .select_dashboard_btn .dropdown-menu {
@@ -102,12 +106,15 @@
         border-color : var(--primary-color-button) !important;
         font-size    : 12px;
         padding      : 11px !important;
-        width: 195px !important;
+        // width: 195px !important;
         display: -webkit-box;
         -webkit-line-clamp: 1;
         -webkit-box-orient: vertical;
         white-space: nowrap;
         text-overflow: ellipsis;
+        margin: 0px 11px !important;
+    padding-left: 0px !important;
+    padding-right: 0px !important;
         
     }
 
@@ -121,10 +128,10 @@
     .dqr-content {
         width             : 280px;
         height            : 100vh;
-        display           : flex;
-        flex-direction    : column;
-        justify-content   : center;
-        align-items       : center;
+        // display           : flex;
+        // flex-direction    : column;
+        // justify-content   : center;
+        // align-items       : center;
         transform         : skewX(-2deg);
         position          : relative;
 
@@ -177,8 +184,9 @@
 
         .img-dqr {
             position : absolute;
-            right    : 0;
-            transform: skewX(1deg);
+            left: 0%;
+            top: 26%;
+            transform: skewX(2deg);
         }
 
         .intImg{
@@ -190,10 +198,10 @@
         position       : relative;
         width          : 280px;
         height         : 100vh;
-        display        : flex;
-        flex-direction : column;
-        justify-content: center;
-        align-items    : center;
+        // display        : flex;
+        // flex-direction : column;
+        // justify-content: center;
+        // align-items    : center;
         transform      : skewX(-2deg);
         .admin-main {
             position: absolute;
@@ -203,7 +211,8 @@
 
         .sumry-content {
             position: absolute;
-            left    : 45px;
+            left: 21%;
+            top: 31%;
         }
 
         &:after {

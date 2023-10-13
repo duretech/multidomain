@@ -64,7 +64,7 @@ body[data-theme~="grey"] {
         background-color: var(--maincard-bg-color) !important;
        }
    
-       table tbody th ,
+      
        table tbody td{
            background-color: var( --primary-bg-color) !important;
            border: 1px solid var( --border-grey-color) !important;
@@ -299,7 +299,6 @@ body[data-theme~="grey"] {
         background-color: var(--light-purple-color);
     }
 
-     .summary-card-bg,
      #setReport .modal-header ,
      .chartIconsDivTextarea
      {
@@ -354,6 +353,26 @@ body[data-theme~="grey"] {
 
 
     #modal-newanc {
+
+        .view-morepopup {
+        .charticon-overlay{
+            background-color: var(--footer-components-color) !important;
+        }
+
+        .modal-content .modal-body .btn-group .btn-secondary .btn-group .btn-secondary{
+            background-color: transparent !important;
+            border-color: transparent !important;
+        }
+        .btn-group .btn-secondary.bg-transparent {
+                    background-color: transparent !important;
+                    border-color: transparent !important;
+                }
+    }
+
+    //    .modal-content .modal-body .btn-group .btn-secondary.bg-transparent {
+    //                 background-color: transparent !important;
+    //                 border-color: transparent !important;
+    //             }
     
         .border-modal {
             border: 1px solid var(--maindropdown-bg-color) !important;
@@ -434,7 +453,7 @@ body[data-theme~="grey"] {
 
             .selection-pills{
                 background-color: var(--maindropdown-bg-color) !important;
-                color: var(--text-color) !important;
+               
             }
 
            .typeDropdown{
@@ -549,9 +568,6 @@ body[data-theme~="grey"] {
     }
 
   
-    .linked-img{
-        background: transparent !important;
-    }
 
     .map-greyitem {
         .item-1{
@@ -735,7 +751,7 @@ body[data-theme~="grey"] {
                 .move-btn-right,
                 .move-btn-left{
                     background-color: var(--main-header-color) !important;
-                    border: var(--main-header-color) !important;
+                    border: var(--main-header-color) !important; 
                     
                 }
 
@@ -1167,11 +1183,6 @@ body[data-theme~="grey"] {
 
     }
 
-    .right_menu .fa{
-        color: var(--fa-subfirst-color) !important;
-        // opacity: 1 !important;
-        
-    }
 
 
         .bg-data .card-header,
@@ -1232,14 +1243,6 @@ body[data-theme~="grey"] {
         }
 
 
-        
-        .bg-head,
-        .bg-fav{
-           
-            background-color: var(--main-header-color) !important; 
-            color: var(--text-color) !important;
-        }
-
 
         .page-link{
             background-color: var(--primary-bg-color) !important;
@@ -1286,7 +1289,7 @@ body[data-theme~="grey"] {
 
         //adminCSS themeChanges
         
-        .main-tabs,
+       
         .tab-name{
             margin-bottom: 0px !important;
         }
@@ -1388,9 +1391,7 @@ body[data-theme~="grey"] {
             }
 
 
-            .nav-tabs .nav-item.add-adminbtn .nav-link{
-                border-radius: 4px !important;
-            }
+         
 
 
         }

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <highcharts class="maincharts" :options="cObj" ></highcharts>
+    <highcharts class="maincharts" :options="cObj"></highcharts>
     <div class="position-relative ml-5 mr-3 mt-3 row">
       <div
         class="col"
@@ -15,16 +15,16 @@
           :style="{ 'background-color': s.color, height: '18px' }"
         ></div>
       </template>
-      <div
+      <!-- <div
         class="dynamic-arrow"
         :style="{ 'background-color': arrowColor }"
         v-if="!exportingPdf"
-      ></div>
+      ></div> -->
     </div>
     <div class="arrow-content ml-5 mr-3 pt-3 row">
-      <span class="col" v-if="!isNaN(emuValue) && emuValue !== ''"
-        >{{$t("estimatedUse")}}</span
-      >
+      <span class="col" v-if="!isNaN(emuValue) && emuValue !== ''">{{
+        $t("estimatedUse")
+      }}</span>
       <template v-for="(s, i) in summaryScore">
         <span
           class="col"
@@ -39,7 +39,13 @@
 
 <script>
 export default {
-  props: ["emuValue", "chartData", "summaryScore", "emuValueColor","exportingPdf"],
+  props: [
+    "emuValue",
+    "chartData",
+    "summaryScore",
+    "emuValueColor",
+    "exportingPdf",
+  ],
   data() {
     return {
       cObj: JSON.parse(JSON.stringify(this.chartData)),

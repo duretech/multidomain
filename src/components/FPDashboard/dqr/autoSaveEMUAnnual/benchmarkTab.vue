@@ -84,6 +84,7 @@
           :dqrResponse="dqrResponse"
           :appResponse="appResponse"
           :userDetails="userDetails"
+          @updateChartData="updateChartData"
         />
       </div>
       <div
@@ -103,6 +104,7 @@
           :appResponse="appResponse"
           :userDetails="userDetails"
           :defaultLevel="defaultLevelID"
+          @updateChartData="updateChartData"
         />
       </div>
     </div>
@@ -236,6 +238,7 @@
                     @saveEMUAuto="saveEMUAuto"
                     :emuOuputFinalEMu="emuOuputFinalEMu"
                     :initialYear="initialYear"
+                    @updateChartData="updateChartData"
                   />
                 </b-tab>
               </template>

@@ -47,7 +47,7 @@
           </div>
         </div>
         <div class="row mb-3 mx-0" v-if="!bShowIcons">
-          <div class="col-lg-12 col-md-12">
+          <div class="col-lg-12 col-md-12" v-if="!isGenerating">
             <ChartFilters
               :style="{
                 visibility:
@@ -121,13 +121,12 @@ export default {
     "ddOptions",
     "bShowIcons",
     "period",
-    "canComment",
-    "loggedInUserId",
     "chartComp",
     "emuType",
     "defaultSort",
     "sorting",
     "inDQR",
+    "isGenerating"
   ],
   mixins: [FullScreenMixin],
   components: {

@@ -232,6 +232,7 @@
                           :class="{ 'text-center': !loadMap }"
                           :style="leftColStyles"
                           style="height: 535px"
+                          id="mapsID"
                         >
                           <template #header>
                             <h6 class="mb-0 fs-17-1920">
@@ -250,6 +251,7 @@
                                 'text-center': !(geoJson && actMapData),
                               }"
                               v-if="loadMap"
+                              style="height: 500px"
                             >
                               <Maps
                                 v-if="geoJson && actMapData"
@@ -400,24 +402,25 @@
                             >
                               <div class="scorboardWrap borderBottomId">
                                 <b-row>
-                                  <b-col
+                                  <!-- <b-col
+                                  <!-- <b-col
                                     sm="2"
                                     class="d-flex align-items-center"
                                   >
                                     <div>
                                       <img
                                         src="@/assets/images/Group 111.svg"
-                                      />
-                                      <!-- Do not add below code -->
-                                      <!-- :style="{ filter: filterColor }" -->
-                                    </div>
-                                  </b-col>
-                                  <b-col sm="2">
+                                      />-->
+                                  <!-- Do not add below code -->
+                                  <!-- :style="{ filter: filterColor }" -->
+                                  <!--</div>
+                                  </b-col> -->
+                                  <b-col sm="5">
                                     <p class="program-name fs-17-1920">
                                       {{ scoreCard.name[$i18n.locale] }}
                                     </p>
                                   </b-col>
-                                  <b-col sm="4">
+                                  <b-col sm="3">
                                     <p
                                       class="locationName fs-17-1920"
                                       v-if="locationPeriod.locationName"
@@ -1556,7 +1559,6 @@ export default {
       this.updateDom++;
     },
     async downloadReport() {
-      this.exportingPdf = true;
       const { value: formValues } = await this.$swal({
         title: this.$i18n.t("export_options"),
         html:
@@ -1577,28 +1579,31 @@ export default {
 
       if (formValues) {
         this.$store.commit("setLoading", true);
-        let canvas1 = await html2canvas(
-          document.querySelector("#myDivToPrintLeft")
-        );
-        let canvas2 = await html2canvas(
-          document.querySelector("#myDivToPrintRight")
-        );
-        let doc = new jsPDF("p", "in", "a4");
-        let dURLLeft = this.verticalCanvases(canvas1);
-        let widthLeft = doc.internal.pageSize.getWidth();
-        let heightLeft = doc.internal.pageSize.getHeight();
-        doc.addImage(dURLLeft, "PNG", 0, 0, widthLeft, heightLeft);
-        doc.addPage();
-        let dURLRight = this.verticalCanvases(canvas2);
-        let widthRight = doc.internal.pageSize.getWidth();
-        let heightRight = doc.internal.pageSize.getHeight();
-        doc.addImage(dURLRight, "PNG", 0, 0, widthRight, heightRight);
-        doc.save(
-          formValues[0] + "_" + this.$moment(new Date()).format("lll") + ".pdf"
-        );
+        this.exportingPdf = true;
+        setTimeout(async()=>{
+          let canvas1 = await html2canvas(
+            document.querySelector("#mapsID")
+          );
+          let canvas2 = await html2canvas(
+            document.querySelector("#myDivToPrintRight")
+          );
+          let doc = new jsPDF("p", "in", "a4");
+          let dURLLeft = this.verticalCanvases(canvas1);
+          let widthLeft = doc.internal.pageSize.getWidth();
+          let heightLeft = doc.internal.pageSize.getHeight();
+          doc.addImage(dURLLeft, "PNG", 0, 0, widthLeft, heightLeft);
+          doc.addPage();
+          let dURLRight = this.verticalCanvases(canvas2);
+          let widthRight = doc.internal.pageSize.getWidth();
+          let heightRight = doc.internal.pageSize.getHeight();
+          doc.addImage(dURLRight, "PNG", 0, 0, widthRight, heightRight);
+          doc.save(
+            formValues[0] + "_" + this.$moment(new Date()).format("lll") + ".pdf"
+          );
+          this.exportingPdf = false;        
+          this.$store.commit("setLoading", false);
+        }, 5000)
       }
-      this.$store.commit("setLoading", false);
-      this.exportingPdf = false;
     },
     verticalCanvases(cnv) {
       let newCanvas = document.createElement("canvas"),

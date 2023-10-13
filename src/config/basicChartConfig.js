@@ -699,7 +699,7 @@ export const methodMixChartConfig = {
       },
       dataLabels: {
         enabled: false,
-        format: "{point.name}",
+        format: "{point.name}:<br/> {point.value}",
       },
     },
   },

@@ -32,6 +32,7 @@
           <!-- <FontSize class="mx-2" /> -->
         </template>
         <template>
+          <!-- langChange is function defined in mixin -->
           <LanguageChange @langChange="langChange" class="langChange" />
         </template>
         <template>
@@ -53,10 +54,10 @@
             </template>
             <b-dropdown-text class="text-center font-14">
               <div class="profilebox-upper">
-                  <div class="profilebox-upper-left">
-                    <div class="text-body">{{ profileInitials }}</div>
-                  </div>
+                <div class="profilebox-upper-left">
+                  <div class="text-body">{{ profileInitials }}</div>
                 </div>
+              </div>
               <!-- <b-avatar variant="primary"></b-avatar> -->
               <div class="text-capitalize pt-1">
                 {{ userName }}
@@ -90,6 +91,18 @@
               />
               {{ $t("clearCache") }}
             </b-dropdown-item-button>
+            <!-- <b-dropdown-item-button
+              v-if="$store.getters.getIsAdmin"
+              class="mx-3 font-14"
+              @click="showUploadModal = true"
+            >
+              <img
+                src="@/assets/images/icons/Icon material-refresh (1).svg"
+                class="setImgclear mr-1 pr-1 w-20px"
+                :style="{ filter: filterColor }"
+              />
+              <span class="mx-1">{{ $t("uploadAppSetting") }}</span>
+            </b-dropdown-item-button> -->
             <b-dropdown-item-button
               class="mx-3 font-14"
               @click="
@@ -267,7 +280,8 @@
               size="lg"
               class="mx-2 mr-3 mt-1"
               no-caret
-              menu-class="p-0"
+              menu-class="p-0 dropdown-home"
+             
             >
               <template #button-content>
                 <!-- <span class="fa fa-cog setting-icon logo-img-header"></span> -->
@@ -281,6 +295,8 @@
                   />
                 </span>
               </template>
+            
+
               <b-dropdown-text class="text-center font-14 mt-2">
                 <div class="profilebox-upper">
                   <div class="profilebox-upper-left">
@@ -295,7 +311,9 @@
                   {{ $store.getters.getAppVersion }}
                 </div>
               </b-dropdown-text>
+             
               <b-dropdown-divider></b-dropdown-divider>
+            <span class="dropdown-menus">
               <b-dropdown-item-button
                 class="mx-3 font-14"
                 @click="activateTour"
@@ -327,6 +345,18 @@
                 <span class="mx-1">{{ $t("clearCache") }}</span>
               </b-dropdown-item-button>
               <b-dropdown-item-button
+                v-if="$store.getters.getIsAdmin"
+                class="mx-3 font-14"
+                @click="showUploadModal = true"
+              >
+                <img
+                  src="@/assets/images/icons/upload-set.svg"
+                  class="setImgclear mr-1 pr-1 w-20px"
+                  :style="{ filter: filterColor }"
+                />
+                <span class="mx-1">{{ $t("uploadAppSetting") }}</span>
+              </b-dropdown-item-button>
+              <b-dropdown-item-button
                 class="mx-3 font-14"
                 @click="
                   showModal = true;
@@ -335,7 +365,7 @@
                 v-if="$store.getters.getIsMultiProgram"
               >
                 <img
-                  src="@/assets/images/icons/Icon material-update.svg"
+                  src="@/assets/images/icons/update-icon.svg"
                   class="setImgclear mr-2 pr-1 w-17px"
                   :style="{ filter: filterColor }"
                 />
@@ -350,12 +380,24 @@
                 "
               >
                 <img
-                  src="@/assets/images/icons/usesAnalytics.svg"
+                  src="@/assets/images/icons/uses-analytic.svg"
                   class="setImgclear mr-2 pr-1 w-17px"
                   :style="{ filter: filterColor }"
                 />
                 <span class="mx-1">{{ $t("uAnalytics") }}</span>
               </b-dropdown-item-button>
+              <b-dropdown-item-button
+                class="mx-3 font-14"
+                @click="contactUsModal = true"
+              >
+                <img
+                  src="@/assets/images/icons/contact-icon.svg"
+                  class="setImgclear mr-2 pr-1 w-17px"
+                  :style="{ filter: filterColor }"
+                />
+                <span class="mx-1">{{ $t("contactUs") }}</span>
+              </b-dropdown-item-button>
+            </span>    
               <b-dropdown-divider></b-dropdown-divider>
               <b-dropdown-item-button class="mx-3 font-14 text-center">
                 <span class="mx-1">{{ $t("theme") }}</span>
@@ -396,6 +438,47 @@
         @getFlashData="getFlashData"
         :allFlashData="allFlashData"
         :isDisableFlash="isDisableFlash"
+      />
+    </template>
+    <template v-if="contactUsModal">
+      <b-modal
+        v-model="contactUsModal"
+        size="m"
+        class="modal-fullscreen1 home-popup"
+        hide-footer
+        centered
+        :title="$t('contactUs')"
+        no-close-on-backdrop
+      >
+        <div class="" id="modal-newcontact">
+          <div class="form-group row">
+            <div
+              class="my-3"
+              :class="{ 'text-center': contactDetails.length === 0 }"
+            >
+              <template v-if="contactDetails.length">
+                <!-- <ul> -->
+                <div
+                  class="pl-md-4"
+                  v-for="(m, i) in contactDetails"
+                  :key="'contactDetails' + i"
+                >
+                  {{ m }}
+                </div>
+                <!-- </ul> -->
+              </template>
+              <template v-else>
+                {{ $t("no_data_to_display") }}
+              </template>
+            </div>
+          </div>
+        </div>
+      </b-modal>
+    </template>
+    <template v-if="showUploadModal">
+      <UploadSetting
+        :showModal="showUploadModal"
+        @hideModal="showUploadModal = false"
       />
     </template>
     <b-modal
@@ -439,6 +522,8 @@ export default {
     return {
       userShow: false,
       showModal: true,
+      showUploadModal: false,
+      contactUsModal: false,
       allFlashData: [],
       showManuals: false,
       showAnalytics: false,
@@ -460,6 +545,10 @@ export default {
       ),
     Analytics: () =>
       import(/*webpackChunkName: 'Analytics'*/ "@/components/Common/Analytics"),
+    UploadSetting: () =>
+      import(
+        /*webpackChunkName: 'UploadSetting'*/ "@/components/Common/UploadSetting"
+      ),
   },
   computed: {
     profileInitials() {
@@ -476,6 +565,13 @@ export default {
         m = this.$store.getters.getAppSettings.userManuals;
       }
       return m;
+    },
+    contactDetails() {
+      let arr = [];
+      if (this.$store.getters.getAppSettings?.contactUs?.length) {
+        arr = this.$store.getters.getAppSettings.contactUs;
+      }
+      return arr;
     },
     themes() {
       let t = [
@@ -600,6 +696,9 @@ export default {
     },
     activateTour() {
       this.$emit("activateTour");
+    },
+    uploadAppSetting() {
+      console.log("uploadAppSetting");
     },
     clearCache() {
       this.$store.commit("setStoreValues");

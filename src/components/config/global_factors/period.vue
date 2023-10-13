@@ -245,6 +245,7 @@ export default {
                     this.sweetAlert({
                       title: this.$i18n.t("data_saved_successfully"),
                     });
+                    this.$store.commit("setIsPeriodChange", true);
                     this.$store.commit("setGlobalFactors", {
                       payload: configData,
                     });
@@ -288,6 +289,7 @@ export default {
                 this.sweetAlert({
                   title: this.$i18n.t("data_saved_successfully"),
                 });
+                this.$store.commit("setIsPeriodChange", true);
                 this.$store.commit("setGlobalFactors", {
                   payload: configData,
                 });

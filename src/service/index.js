@@ -1068,6 +1068,19 @@ class DataService {
       headers: header,
     });
   }
+  // /**
+  //  * @author Ashvini
+  //  * @description Get logo
+  //  * @param null
+  //  * @returns response object
+  //  */
+  // getLogoUrl() {
+  //   return axios({
+  //     method: "get",
+  //     url: `${store.getters.getBaseURL}/api/37/staticContent/logo_banner`,
+  //     headers: header,
+  //   });
+  // }
 }
 
 export default new DataService();

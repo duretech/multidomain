@@ -15,7 +15,8 @@
                   html: true,
                 }"
               ></i
-              >{{ locationPeriod.locationName }}
+              >
+              {{ locationPeriod.locationName }}
             </h6>
           </div>
         </b-col>
@@ -28,6 +29,7 @@
             }"
           >
             <b-form-select
+            v-if="!isGenerating"
               class="mapDropdown"
               v-model="selectedInd"
               :options="indList"
@@ -35,6 +37,7 @@
           </div>
         </b-col>
       </b-row>
+            <h5 v-if="isGenerating">{{selectedInd}}</h5>
     </div>
     <MapComponent
       v-if="dataFetched"
@@ -45,7 +48,11 @@
       :selectedInd="selectedInd"
       :locationPeriod="locationPeriod"
       :mapConfigData="mapConfigData"
+      :isGenerating="isGenerating"
       @isJsonFetched="isJsonFetched = true"
+      @mapPic ="mapPic"
+      :title = locationPeriod.locationName
+      @deleteMapPic="deleteMapPic"
     />
     <div
       class="align-items-center d-flex justify-content-center h-400px"
@@ -77,7 +84,7 @@ import {
 import { commonChartConfig } from "@/config/basicChartConfig";
 
 export default {
-  props: ["subTab", "emuData", "allGeoJson", "preFetchData", "locationPeriod"],
+  props: ["subTab", "emuData", "allGeoJson", "preFetchData", "locationPeriod", "isGenerating"],
   components: {
     MapComponent: () =>
       import(
@@ -140,6 +147,8 @@ export default {
               ]
             ) {
               this.getEMUChart();
+            } else {
+              this.dataFetched = true;
             }
           }
         });
@@ -178,6 +187,9 @@ export default {
     },
   },
   methods: {
+    deleteMapPic(data) {
+      this.$emit("deleteMapPic", data);
+    },
     async getEMUChart() {
       let emuResponse = JSON.parse(JSON.stringify(this.emuData));
       emuResponse =
@@ -409,6 +421,12 @@ export default {
         // errorMsg: "Mapping not available",
       }
     },
+    mapPic(data){
+      data['locVal'] = this.locValue.toLocaleString();
+      data['location'] = this.locationPeriod.locationName;
+      data['selectedInd'] = this.selectedInd
+      this.$emit("mapPic" , data);
+    }
   },
   created() {
     if (this.isChart) {

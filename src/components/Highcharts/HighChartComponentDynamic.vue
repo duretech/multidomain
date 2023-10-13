@@ -13,12 +13,16 @@
           class="summary-highchart1-header pt-0 border-0 rounded-0"
         >
           <b-row v-if="dataFetched">
-            <b-col sm="9" class="p-0" :class="{ 'col-sm-12': cObjFull }"
+            <b-col
+              sm="9"
+              class="p-0"
+              :class="{ 'col-sm-12': cObjFull, 'col-sm-12': isGenerating }"
               ><h5 class="summary-chart-title pl-0 mb-0 fs-17-1920">
                 <i
                   class="fa fa-info-circle cursor-pointer chart-info mr-2 ml-2"
                   aria-hidden="true"
                   v-b-popover.hover.rightbottom="{
+                    customClass: 'tootltipCSS',
                     variant: 'info',
                     content: chartInfo,
                     title: cObj.title.title || dummyName,
@@ -28,7 +32,11 @@
                 {{ cObj.title.title || dummyName }}
               </h5></b-col
             >
-            <b-col sm="3" class="position-relative" v-if="!cObjFull">
+            <b-col
+              sm="3"
+              class="position-relative"
+              v-if="!cObjFull && !isGenerating"
+            >
               <ChartOptions
                 :cID="cID"
                 :mapView="isMap"
@@ -55,6 +63,7 @@
               ]"
             >
               <b-row
+                v-if="!isGenerating"
                 class="pb-2 mx-0"
                 :class="{ hidden: viewType !== 'chart' || drillDown }"
               >
@@ -99,7 +108,12 @@
                         :mapScales="mapScales"
                         :showIcons="true"
                         :isAnalytical="true"
+                        :isGenerating="isGenerating"
+                        :viewType="viewType"
+                        :title="cObj.title.title"
                         ref="map"
+                        @mapPic="mapPic"
+                        @deleteBubbleChart="deleteBubbleChart"
                       />
                       <highcharts
                         class="maincharts w-100"
@@ -360,9 +374,12 @@
 
 <script>
 import service from "@/service";
+import html2canvas from "html2canvas";
 import FullScreenMixin from "@/helpers/FullScreenMixin";
 import DynamicImageMixin from "@/helpers/DynamicImageMixin";
 import Maps from "@/components/Maps/IntegratedFPMap.vue";
+import { getParent } from "@/components/Common/commonFunctions";
+import domtoimage from "dom-to-image";
 export default {
   components: {
     Maps,
@@ -397,6 +414,7 @@ export default {
     "locationPeriod",
     "chartConfigData",
     "drillPointBenchmark",
+    "isGenerating",
   ],
   data() {
     return {
@@ -433,6 +451,7 @@ export default {
             color: m.color,
             location: d.id,
             locationLabel: d.name,
+            title: this.cObj.title.title,
           });
         });
       });
@@ -639,8 +658,19 @@ export default {
     },
   },
   watch: {
+    isGenerating(newVal) {
+      if (newVal && this.viewType == "table") {
+        this.$nextTick(() => {
+          this.viewType = "chart";
+        });
+      } else {
+        this.showTable(
+          this.chartConfigData?.chartOptions?.chartDefaultView || "chart"
+        );
+      }
+    },
     chartData: {
-      handler(newValue) {
+      async handler(newValue) {
         this.cObj = JSON.parse(JSON.stringify(newValue));
         this.plotType = this.cObj.chart.oType
           ? this.cObj.chart.oType
@@ -670,8 +700,12 @@ export default {
         newValue && newValue.length ? newValue[0].value : null;
     },
     selectedMethod(newValue) {
-      let isFound =
-        this.cObj?.methodSeries?.findIndex((m) => m.name === newValue) || -1;
+      let isFound = -1;
+      if (this.cObj?.methodSeries?.length) {
+        isFound = this.cObj?.methodSeries?.findIndex(
+          (m) => m.name === newValue
+        );
+      }
       if (isFound >= 0) {
         this.cObj.series = this.cObj.methodSeries[isFound].data;
         this.$nextTick(() => {
@@ -690,7 +724,11 @@ export default {
       }
     },
     isRRChart(newValue) {
-      if (newValue) {
+      if (
+        (newValue && !this.chartConfigData.chartOptions.chartDefaultView) ||
+        (newValue &&
+          this.chartConfigData.chartOptions.chartDefaultView == "table")
+      ) {
         this.showTable("table");
       }
     },
@@ -714,6 +752,37 @@ export default {
         this.showTable(this.viewType);
       }
     },
+    // viewType(newVal, oldVal) {
+    //   if (newVal === "chart" && oldVal === "map") {
+    //     this.$nextTick(async () => {
+    //       let ele = this.$refs?.barCharts?.$el ? this.$refs.barCharts.$el : "";
+    //       await html2canvas(ele, {
+    //         logging: true,
+    //         letterRendering: true,
+    //         allowTaint: true,
+    //         useCORS: true,
+    //         scale: (1920 * 2) / window.innerWidth,
+    //         backgroundColor: null,
+    //       })
+    //         .then((canvas) => {
+    //           this.$emit("getBubbleChart", {
+    //             pic: canvas.toDataURL(),
+    //             name: this.cObj.title.title,
+    //             data: this.cObj.series,
+    //           });
+    //         })
+    //         .catch((error) => {
+    //           console.log("Erorr in bubble chart screenshot capture...", error);
+    //         });
+    //     });
+    //     this.$emit("deleteMapPic", this.cObj.title.title);
+    //   } else if (newVal === "map" && oldVal === "chart") {
+    //     this.$emit("deleteBubbleChart");
+    //     this.$nextTick(async () => {
+    //       this.$refs.map.reCenterMap();
+    //     });
+    //   }
+    // },
   },
   methods: {
     changePlotType(value) {
@@ -962,7 +1031,7 @@ export default {
               }
             });
           }
-          if (this.chartConfigData.chartOptions.chartDrillDown) {
+          if (this.chartConfigData?.chartOptions?.chartDrillDown) {
             this.fields.push({
               key: "show_details",
               label: this.$i18n.t("viewMore"),
@@ -975,7 +1044,7 @@ export default {
         this.viewType = val;
       });
     },
-    exportChart(type) {
+    exportChart(type, exp) {
       if (this.viewType === "chart") {
         let chart = this.$refs.barCharts.chart;
         let catLen = chart.options.series[0].data.length - 1;
@@ -1335,7 +1404,7 @@ export default {
         },
       };
     },
-    getGeoJson() {
+    async getGeoJson() {
       let defaultLocationID = this.locationPeriod.location.split("/")[1],
         currentLevel = this.locationPeriod.location.split("/")[0] * 1;
       service
@@ -1343,6 +1412,30 @@ export default {
         .then((response) => {
           this.geoJson = response.data;
         });
+      this.$nextTick(async () => {
+        // this.viewType = val;
+        let ele = this.$refs?.barCharts?.$el ? this.$refs.barCharts.$el : "";
+        if (this.cObj.chart.type === "packedbubble" && ele) {
+          await html2canvas(ele, {
+            logging: true,
+            letterRendering: true,
+            allowTaint: true,
+            useCORS: true,
+            scale: (1920 * 2) / window.innerWidth,
+            backgroundColor: null,
+          })
+            .then((canvas) => {
+              this.$emit("getBubbleChart", {
+                pic: canvas.toDataURL(),
+                name: this.cObj.title.title,
+                data: this.cObj.series,
+              });
+            })
+            .catch((error) => {
+              console.log("Erorr in bubble chart screenshot capture...", error);
+            });
+        }
+      });
     },
     setYMin() {
       let m = 0;
@@ -1408,6 +1501,12 @@ export default {
         children: childObj,
       };
       this.$emit("updateToolBar", obj);
+    },
+    mapPic(data) {
+      this.$emit("mapPic", data);
+    },
+    deleteBubbleChart() {
+      this.$emit("deleteBubbleChart");
     },
   },
   created() {

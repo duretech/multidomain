@@ -65,7 +65,7 @@
           </div>
         </div>
         <div class="row mb-3 mx-0" v-if="!noOptions">
-          <div class="col-lg-12 col-md-12">
+          <div class="col-lg-12 col-md-12" v-if="!isGenerating">
             <ChartFilters
               :style="{
                 visibility:
@@ -150,6 +150,7 @@ export default {
     "aggregate",
     "chartName",
     "setExtreme",
+    "isGenerating"
   ],
   mixins: [FullScreenMixin],
   components: {

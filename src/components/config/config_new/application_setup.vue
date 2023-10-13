@@ -224,6 +224,51 @@
                                 </div>
                               </div>
                             </div>
+                            <div class="row">
+                              <div class="col-lg-12">
+                                <div class="row">
+                                  <div class="col-lg-6">
+                                    <div class="form-group row">
+                                      <label class="col-sm-5 col-form-label">{{
+                                        $t("logoOptions")
+                                      }}</label>
+
+                                      <label
+                                        class="col-sm-3 col-form-label ml-37px"
+                                        >{{ $t("footerLogo") }}</label
+                                      >
+                                      <div class="col-sm-3 pr-0">
+                                        <b-form-checkbox
+                                          checked="footerLogo"
+                                          v-model="applicationModule.footerLogo"
+                                          name="footerLogoField"
+                                          switch
+                                          size="lg"
+                                          class="mt-1"
+                                        />
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <!-- <div class="col-lg-6">
+                                    <div class="form-group row">
+                                      <label class="col-sm-5 col-form-label">{{
+                                        $t("trackLogo")
+                                      }}</label>
+                                      <div class="col-sm-3 pr-0">
+                                        <b-form-checkbox
+                                          checked="trackLogo"
+                                          v-model="applicationModule.trackLogo"
+                                          name="trackLogoField"
+                                          switch
+                                          size="lg"
+                                          class="mt-1"
+                                        />
+                                      </div>
+                                    </div>
+                                  </div> -->
+                                </div>
+                              </div>
+                            </div>
                             <div class="row d-none">
                               <div class="col-md-12">
                                 <div class="sect_de_wrap">
@@ -420,12 +465,18 @@ import config from "@/config/config.js";
 import DashboardNew from "@/pages/DashboardNew";
 import ReFetchConfigMixin from "@/helpers/ReFetchConfigMixin";
 import LanguageChangeMixin from "@/helpers/LanguageChangeMixin";
+import { VueEditor } from "vue2-editor";
 
 export default {
   components: {
     DashboardNew,
+    VueEditor,
     Dashboard: () =>
       import(/*webpackChunkName: 'FPMNCHDashboard'*/ "@/pages/Dashboard"),
+    Translations: () =>
+      import(
+        /*webpackChunkName: 'translations'*/ "@/components/config/Common/Translations"
+      ),
   },
   props: ["langList", "levelIDList", "preFetchData"],
   mixins: [ReFetchConfigMixin, LanguageChangeMixin],

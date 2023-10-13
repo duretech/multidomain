@@ -169,6 +169,7 @@ export default {
 
   created() {
     //this.$store.commit("setActiveTab", "ad-summary");
+    this.$store.commit("setModuleName", this.$i18n.t("analytical_dashboard"));
     if (this.activeTab) {
       this.$store.commit("setActiveTab", this.activeTab);
     } else {

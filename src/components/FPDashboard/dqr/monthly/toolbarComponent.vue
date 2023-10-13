@@ -19,7 +19,15 @@
             :flat="false"
             :default-expand-level="defaultExpandLevel"
             :load-options="loadOptions"
+            :alwaysOpen="false"
+            :open-on-click="openOnClick"
+            :open-on-focus="openOnFocus"
+            :clear-on-select="clearOnSelect"
+            :close-on-select="closeOnSelect"
+            :always-open="alwaysOpen"
+            
           />
+
         </div>
 
         <div class="form-group pr-3" v-if="recentActiveTab == 'input'">
@@ -33,6 +41,13 @@
             placeholder="Search.."
             v-model="selected"
             :flat="false"
+            :alwaysOpen="false"
+            :open-on-click="openOnClick"
+            :open-on-focus="openOnFocus"
+            :clear-on-select="clearOnSelect"
+            :close-on-select="closeOnSelect"
+            :always-open="alwaysOpen"
+            
           />
         </div>
         <div class="form-group pr-3" v-if="recentActiveTab != 'input'">
@@ -44,6 +59,11 @@
                 :key="filter.value"
                 :value="filter.value"
                 :alwaysOpen="false"
+                :open-on-click="openOnClick"
+                :open-on-focus="openOnFocus"
+                :clear-on-select="clearOnSelect"
+                :close-on-select="closeOnSelect"
+                :always-open="alwaysOpen"
               >
                 {{ filter.text }}
               </option>
@@ -94,6 +114,9 @@
             v-model="selectedEMULocation"
             sort-value-by="INDEX"
             :placeholder="$t('select')"
+            :alwaysOpen="false"
+
+            
           />
         </div>
         <div class="col-12 mt-4">
@@ -154,6 +177,7 @@
                 v-model="selectedEMULocation"
                 sort-value-by="INDEX"
                 :placeholder="$t('select')"
+                
               />
             </div>
             <b-button

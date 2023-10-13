@@ -34,10 +34,9 @@
               <b-card no-body>
                 <b-tabs class="card-section mt-lg-auto default-emu">
                   <b-tab
-                  :title="$t('Background Data')"
+                    :title="$t('Background Data')"
                     active
                     @click="updateActiveSubTab('background_data')"
-                  
                   >
                     <b-card-text v-if="activeSubTab === 'background_data'">
                       <div class="md_nested_tabs">
@@ -128,6 +127,16 @@
                             :sectorRepo="sectorRepo"
                             @saveJson="saveJson"
                           />
+                          <!-- <emuAnnual
+                            chartByType="emu"
+                            chartBySubtype="Visits"
+                            :matrixList="matrixList"
+                            chartByModule="dqrModule"
+                            :dqrResponse="dqrConfig"
+                            :dataSetsList="dataSetList"
+                            :indicatorsList="indicatorList"
+                            :dataElementsList="dataElementList"
+                          /> -->
                         </b-card>
                       </div>
                     </b-card-text>
@@ -149,6 +158,16 @@
                             :dataSetList="dataSetList"
                             :sectorRepo="sectorRepo"
                           />
+                          <!-- <emuAnnual
+                            chartByType="emu"
+                            chartBySubtype="Commodities_Client"
+                            :matrixList="matrixList"
+                            chartByModule="dqrModule"
+                            :dqrResponse="dqrConfig"
+                            :dataSetsList="dataSetList"
+                            :indicatorsList="indicatorList"
+                            :dataElementsList="dataElementList"
+                          /> -->
                         </b-card>
                       </div>
                     </b-card-text>
@@ -172,11 +191,24 @@
                             :dataSetList="dataSetList"
                             :sectorRepo="sectorRepo"
                           />
+                          <!-- <emuAnnual
+                            chartByType="emu"
+                            chartBySubtype="Commodities_Facilities"
+                            :matrixList="matrixList"
+                            chartByModule="dqrModule"
+                            :dqrResponse="dqrConfig"
+                            :dataSetsList="dataSetList"
+                            :indicatorsList="indicatorList"
+                            :dataElementsList="dataElementList"
+                          /> -->
                         </b-card>
                       </div>
                     </b-card-text>
                   </b-tab>
-                  <b-tab :title="$t('users')" @click="updateActiveSubTab('User')">
+                  <b-tab
+                    :title="$t('users')"
+                    @click="updateActiveSubTab('User')"
+                  >
                     <b-card-text v-if="activeSubTab === 'User'">
                       <div class="md_nested_tabs">
                         <b-card class="border">
@@ -190,6 +222,16 @@
                             :dataSetList="dataSetList"
                             :sectorRepo="sectorRepo"
                           />
+                          <!-- <emuAnnual
+                            chartByType="emu"
+                            chartBySubtype="User"
+                            :matrixList="matrixList"
+                            chartByModule="dqrModule"
+                            :dqrResponse="dqrConfig"
+                            :dataSetsList="dataSetList"
+                            :indicatorsList="indicatorList"
+                            :dataElementsList="dataElementList"
+                          /> -->
                         </b-card>
                       </div>
                     </b-card-text>
@@ -197,6 +239,24 @@
                 </b-tabs>
               </b-card>
             </div>
+          </b-card-text>
+        </b-tab>
+        <b-tab
+          :title="$t('viewEmu')"
+          :active="activeTab === 'viewEmu'"
+          @click="updateActiveTab('viewEmu')"
+          class="p-0"
+        >
+          <b-card-text v-if="activeTab === 'viewEmu'">
+            <ViewEMU
+              :dqrConfig="dqrConfig"
+              :orgList="orgList"
+              :indicatorList="indicatorList"
+              :matrixList="matrixList"
+              :dataElementList="dataElementList"
+              :dataSetList="dataSetList"
+              :sectorRepo="sectorRepo"
+            />
           </b-card-text>
         </b-tab>
       </b-tabs>
@@ -207,6 +267,7 @@
 import SaveEMU from "./saveEMU";
 import BackgroundData from "./backgroundData.vue";
 import DataMapping from "./dataMapping.vue";
+import ViewEMU from "./viewEMU.vue";
 
 export default {
   props: [
@@ -226,6 +287,11 @@ export default {
     SaveEMU,
     BackgroundData,
     DataMapping,
+    emuAnnual: () =>
+      import(
+        /* webpackChunkName: "adm_emuA"*/ "@/components/config/dqr/emuAnnual"
+      ),
+    ViewEMU,
   },
   data() {
     return {
@@ -242,18 +308,16 @@ export default {
         this.activeSubTab = "background_data";
       } else if (tab_name === "data_mapping") {
         this.activeSubTab = "Visits";
+      } else if (tab_name === "viewEmu") {
+        this.activeSubTab = "viewEmu";
       }
     },
     updateActiveSubTab(tab_name) {
       this.activeSubTab = tab_name;
     },
-    saveJson(val, key){
-      console.log(val, key)
-      this.$emit('saveJson', val, key)
-    }
-  },
-  created() {
-    console.log("sectorRepo in emuConfig", this.sectorRepo);
+    saveJson(val, key) {
+      this.$emit("saveJson", val, key);
+    },
   },
 };
 </script>

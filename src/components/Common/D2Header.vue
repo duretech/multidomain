@@ -388,7 +388,7 @@ export default {
   left: 0px;
   right: 0;
   width: 100%;
-  z-index: 1000;
+  z-index: 1000 !important;
   max-height: 60px;
   position: fixed;
 }

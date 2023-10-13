@@ -290,6 +290,7 @@ export default {
             //totalEMUChartData["data"].push(obj);
           }
           this.totalEMUChartData = totalEMUChartData;
+          this.$emit('updateChartData' , this.totalEMUChartData)
         } else {
           this.totalEMUChartData = null;
         }
@@ -437,6 +438,7 @@ export default {
             // trendsChartData['fields'] = this.fields
           }
           this.trendsChartData = trendsChartData;
+          this.$emit('updateChartData' , this.trendsChartData)
         } else {
           this.trendsChartData = null;
         }
@@ -584,6 +586,7 @@ export default {
             // methodTrendsChartData['fields'] = this.fields
           }
           this.methodTrendsChartData = methodTrendsChartData;
+          this.$emit('updateChartData' , this.methodTrendsChartData)
         } else {
           this.methodTrendsChartData = null;
         }
@@ -615,6 +618,7 @@ export default {
                 : "";
           }
           this.oneMonthEMUChartData = oneMonthEMUChartData;
+          this.$emit('updateChartData' , this.oneMonthEMUChartData)
         } else {
           this.oneMonthEMUChartData = null;
         }

@@ -689,7 +689,12 @@ export default {
                   Object.keys(dName).forEach((name) => {
                     let statName = dName[name];
                     let findInData = backResponse.rows.filter((obj) => {
-                      if (obj[0] == name && obj[2] == sLocId) return obj;
+                      if (
+                        obj[0] == name &&
+                        obj[2] == sLocId &&
+                        months.includes(obj[1])
+                      )
+                        return obj;
                     });
                     if (findInData && findInData.length) {
                       let firstYear = findInData[0][1] * 1;
@@ -1106,7 +1111,7 @@ export default {
         this.totalUsers
       );
     },
-    generateTable(users, keyToTake = "vals") {
+    generateTable(newSeries, keyToTake = "vals") {
       let obj = {
         fields: [],
         items: [],
@@ -1119,6 +1124,17 @@ export default {
         },
         { key: "Sub-method", lable: this.$i18n.t("sub_method") }
       );
+      let users = [];
+      //Rearrnging in required order
+      this.methodSeq.forEach((element, i) => {
+        let val = Object.keys(newSeries).find((key) => {
+          let obj = newSeries[key];
+          if (obj.trans_name == element) return obj;
+        });
+        if (val) {
+          users.push(newSeries[val]);
+        }
+      });
       Object.keys(users).forEach((method) => {
         let itemObj = {};
         let vals = users[method][keyToTake],
@@ -1160,25 +1176,16 @@ export default {
       let series = [],
         categories = [],
         trendSeries = [],
-        aTable = [],
         oEMUValues = {};
       Object.keys(this.totalUsers).forEach((method) => {
-        let oMethodTable = {
-          name: "",
-          data: [],
-          mName: "",
-          trans_name: "",
-        };
         if (method != "undefined") {
           let finalEMU = {
             [method]: {},
           };
           Object.keys(this.totalUsers[method]["vals"]).forEach((val) => {
-            let oTable = {};
             if (categories.indexOf(val) == -1) {
               categories.push(val);
             }
-            oTable[this.$i18n.t("period")] = this.allMonthNameJson[val]["name"];
             finalEMU[method][val] =
               (this.totalUsers[method]["vals"][val] /
                 this.monthlyPopulation[val]) *
@@ -1198,32 +1205,9 @@ export default {
                   this.monthlyPopulation[val]) *
                 100
               ).toFixed(2) * 1;
-
-            if (this.backgroundData != null) {
-              Object.keys(this.backgroundData[method]).forEach((back) => {
-                this.backgroundData[method][back]["vals"][val] =
-                  this.backgroundData[method][back]["vals"][val] || 0;
-                oTable[back] =
-                  this.backgroundData[method][back]["vals"][val].toFixed(2) * 1;
-              });
-            }
-            oTable[this.$i18n.t("EMU")] =
-              (
-                (this.totalUsers[method]["vals"][val] /
-                  this.monthlyPopulation[val]) *
-                100
-              ).toFixed(2) * 1;
-            /*commented to remove CYPs/Population*/
-            //oTable[this.$i18n.t('cyp_pop')] = (this.totalCyp[method][val]/(this.monthlyPopulation[val]/12)*100).toFixed(2) * 1
-            oMethodTable["name"] = method;
-            oMethodTable["mName"] = this.totalUsers[method]["name"];
-            oMethodTable["trans_name"] = this.totalUsers[method]["trans_name"];
-            oMethodTable["data"].push(oTable);
           });
 
           categories.sort();
-          aTable.push(oMethodTable);
-          tempObj.tableData = aTable;
           this.finalEmu.push(finalEMU);
         }
       });
@@ -1232,8 +1216,8 @@ export default {
         pubSeries = [],
         saveCategories = [...categories],
         saveMethodCategories = [],
-        saveSeries = [];
-
+        saveSeries = [],
+        aFinalTable = [];
       let tempO = {},
         oFinalAgrEMU = {};
       if (Object.keys(oEMUValues).length > 0) {
@@ -1246,7 +1230,6 @@ export default {
             tempO[d + "__" + oEMUValues[d]["mTransname"]][key] = pVal;
           });
         });
-
         for (let i in tempO) {
           let aSplit = i.split("__"),
             sMethod = aSplit[1];
@@ -1254,12 +1237,14 @@ export default {
             oFinalAgrEMU[sMethod] = {};
           }
           for (let j in tempO[i]) {
+            if (!oFinalAgrEMU[sMethod][j]) oFinalAgrEMU[sMethod][j] = 0;
             oFinalAgrEMU[sMethod][j] =
-              (oFinalAgrEMU[sMethod][j] || 0) + tempO[i][j];
+              ((oFinalAgrEMU[sMethod][j] || 0) * 1 + tempO[i][j] * 1).toFixed(
+                2
+              ) * 1;
           }
         }
       }
-
       if (categories.length > 12) {
         categories.splice(0, categories.length - 24);
       }
@@ -1289,6 +1274,12 @@ export default {
                 : this.totalEMUColor,
               trans_name: oEMUValues[ele]["trans_name"],
             };
+          let oMethodTable = {
+            name: ele,
+            data: [],
+            mName: this.totalUsers[ele]["name"],
+            trans_name: this.totalUsers[ele]["trans_name"],
+          };
           if (
             this.backgroundData &&
             Object.keys(this.backgroundData[ele]).length > 0
@@ -1298,7 +1289,8 @@ export default {
               Object.keys(this.backgroundData[ele][back]["vals"]).forEach(
                 (d) => {
                   if (this.backgroundData[ele][back]["vals"][d] != 0) {
-                    peevVal = this.backgroundData[ele][back]["vals"][d];
+                    peevVal =
+                      this.backgroundData[ele][back]["vals"][d].toFixed(2) * 1;
                   }
                 }
               );
@@ -1306,6 +1298,7 @@ export default {
               methodEMUObject.data = [];
               saveMethodEMUObject.data = [];
               //DHS Series in emu by method chart
+
               let methodPublicObject = {
                 name: "",
                 data: [],
@@ -1315,6 +1308,12 @@ export default {
               };
 
               categories.forEach((key) => {
+                let oTable = {};
+                oTable[this.$i18n.t("period")] =
+                  this.allMonthNameJson[key]["name"];
+                oTable[back] = peevVal;
+
+                oTable[this.$i18n.t("EMU")] = oEMUValues[ele]["vals"][key] || 0;
                 methodEMUObject.data.push(oEMUValues[ele]["vals"][key] || 0);
                 methodPublicObject["name"] =
                   back + " " + oEMUValues[ele]["trans_name"];
@@ -1327,6 +1326,7 @@ export default {
                 ) {
                   methodCategories.push(this.allMonthNameJson[key]["name"]);
                 }
+                oMethodTable.data.push(oTable);
               });
 
               saveCategories.forEach((key) => {
@@ -1341,13 +1341,18 @@ export default {
                   saveMethodCategories.push(this.allMonthNameJson[key]["name"]);
                 }
               });
-
               series.push(methodPublicObject);
               pubSeries.push(methodPublicObject);
               count++;
             });
           } else {
             categories.forEach((key) => {
+              let oTable = {};
+              oTable[this.$i18n.t("period")] =
+                this.allMonthNameJson[key]["name"];
+              oTable[this.$i18n.t("EMU")] = oEMUValues[ele]["vals"][key] || 0;
+              oMethodTable.data.push(oTable);
+
               methodEMUObject.data.push(oEMUValues[ele]["vals"][key] || 0);
               if (
                 methodCategories.indexOf(this.allMonthNameJson[key]["name"]) ==
@@ -1367,6 +1372,7 @@ export default {
               }
             });
           }
+          aFinalTable.push(oMethodTable);
 
           trendSeries.push(methodEMUObject);
           series.push(methodEMUObject);
@@ -1374,6 +1380,7 @@ export default {
           saveSeries.push(saveMethodEMUObject);
         });
       }
+      tempObj.tableData = aFinalTable;
       let seqTemp = [];
       this.methodSeq.forEach((element) => {
         Object.keys(tempObj.filter).forEach((obj) => {
@@ -1454,6 +1461,7 @@ export default {
         oFinalAgrEMU
       );
       this.chartData = tempObj;
+      this.$emit('updateChartData' , this.chartData)
       this.newUsersChart(methodCategories);
       let reversedCat = JSON.parse(JSON.stringify(saveMethodCategories));
       this.methodTable(saveSeries, reversedCat.reverse());
@@ -1558,6 +1566,7 @@ export default {
         (tempObj.tableData = tableData);
       tempObj.filter = this.options;
       this.newUsersChartData = tempObj;
+      this.$emit('updateChartData' , this.newUsersChartData)
     },
     methodTable(emu, cat) {
       let emuObj = {},
@@ -1783,6 +1792,7 @@ export default {
           this.oneMonthEMUChartData = outputChartsData["oneMonthEMUChart"];
           this.totalEMUChartData = outputChartsData["totalEMUChart"];
           this.bshowLoader = false;
+          
         } else {
           this.bshowLoader = false;
           this.sweetAlert({
@@ -2525,6 +2535,10 @@ export default {
       //   name: 'compEMU',
       //   data: aTable
       // }]
+      this.$emit('updateChartData' , this.totalEMUChartData)
+      this.$emit('updateChartData' , this.trendsChartData)
+      this.$emit('updateChartData' , this.methodTrendsChartData)
+      this.$emit('updateChartData' , this.oneMonthEMUChartData)
     },
     allDataFetched() {
       this.getFinalChartsdata();
@@ -2719,6 +2733,10 @@ export default {
           }
         }
         this.emitPPTData();
+      this.$emit('updateChartData' , this.totalEMUChartData)
+      this.$emit('updateChartData' , this.trendsChartData)
+      this.$emit('updateChartData' , this.methodTrendsChartData)
+      this.$emit('updateChartData' , this.oneMonthEMUChartData)
       }, 5000);
     },
     emitPPTData() {

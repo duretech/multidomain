@@ -282,19 +282,21 @@
         <footer v-if="!isFromAdmin">
           <div class="footer-home-div">
             <b-container fluid>
-              <b-row>
-                <b-col sm="3">
-                  <!-- footer-img-div  -->
-                  <div
-                    class="pl-5 footer-img-div d-flex justify-content-center align-items-center"
-                  >
-                    <img
-                      class="img-fluid w-75"
-                      src="@/assets/images/footer-logo.png"
-                    />
-                  </div>
-                </b-col>
-                <b-col sm="5">
+              <div class="pl-3">
+                <!-- footer-img-div  -->
+                <div
+                  v-if="
+                    this.$store.getters.getApplicationModule(true).footerLogo
+                  "
+                  class="pl-5 footer-img-div d-flex justify-content-center align-items-center"
+                >
+                  <img
+                    class="img-fluid w-75"
+                    src="@/assets/images/footer-logo.png"
+                  />
+                </div>
+
+                <!-- <b-col sm="5">
                   <p
                     class="align-items-center d-flex h-100 justify-content-center mb-0 text-center version-details d-none"
                     v-if="$store.getters.getAppVersion"
@@ -302,8 +304,8 @@
                     {{ $store.getters.getAppVersion }}
                   </p>
                 </b-col>
-                <b-col sm="4"></b-col>
-              </b-row>
+                <b-col sm="4"></b-col> -->
+              </div>
             </b-container>
           </div>
         </footer>
@@ -644,7 +646,10 @@ export default {
      * Get the Global Factors.
      */
     getGlobalFactors() {
-      if (Object.keys(this.$store.getters.getGlobalFactors()).length === 0) {
+      if (
+        Object.keys(this.$store.getters.getGlobalFactors()).length === 0 ||
+        this.$store.getters.getIsPeriodChange
+      ) {
         if (!this.isFromAdmin) {
           this.$store.commit(
             "setLoadingText",
@@ -666,59 +671,65 @@ export default {
         response
           .then(async (response) => {
             //Get periods from the FP/MCH admin
-            if (response?.data?.period?.Period) {
-              FinalPeriodArray = getAllPeriodRange(
-                response.data.period.Period,
-                FinalPeriodArray
-              );
-            }
-            let { locationID } = service.getAllowedLocation(),
-              des = null;
-            for (let map in response.data.globalMappings.mappings) {
-              let mappingData = response.data.globalMappings.mappings[map];
-              for (let innerMap in mappingData["mapping"]) {
-                let innerMapData =
-                  response.data.globalMappings.mappings[map]["mapping"][
-                    innerMap
-                  ]["indicator"]["subIndicator"];
-                if (
-                  innerMapData[0] &&
-                  innerMapData[0]["selectedDE"].length > 0
-                ) {
-                  des = innerMapData[0]["selectedDE"][0]["id"];
-                  break;
-                }
-              }
-              if (des != null) break;
-            }
-            let finalPeriodData = this.$store.getters.getPeriodData ?? {};
-            this.$store.commit("setPeriodDX", des);
-            //Check if we already have the formatted date in store
-            FinalPeriodArray = FinalPeriodArray.filter(
-              (p) => !finalPeriodData[p]
-            );
-            //Check if required params are available
-            if (FinalPeriodArray.length && locationID && des) {
-              let pRes = null;
-              try {
-                pRes = await service.getAnalyticalIndicatorData(
-                  des,
-                  locationID,
-                  FinalPeriodArray.join(";"),
-                  false,
-                  true
+            if (
+              this.$store.getters.getIsPeriodChange ||
+              Object.keys(this.$store.getters.getGlobalFactors()).length === 0
+            ) {
+              if (response?.data?.period?.Period) {
+                FinalPeriodArray = getAllPeriodRange(
+                  response.data.period.Period,
+                  FinalPeriodArray
                 );
-              } catch (err) {
-                console.log("Error in fetching periods from DHIS2...", err);
               }
-              FinalPeriodArray.forEach((pe) => {
-                finalPeriodData[pe] = pRes?.data?.metaData?.items?.[pe] || pe;
-              });
-              this.$store.commit("setPeriodData", finalPeriodData); // Set the periods in store
+              let { locationID } = service.getAllowedLocation(),
+                des = null;
+              for (let map in response.data.globalMappings.mappings) {
+                let mappingData = response.data.globalMappings.mappings[map];
+                for (let innerMap in mappingData["mapping"]) {
+                  let innerMapData =
+                    response.data.globalMappings.mappings[map]["mapping"][
+                      innerMap
+                    ]["indicator"]["subIndicator"];
+                  if (
+                    innerMapData[0] &&
+                    innerMapData[0]["selectedDE"].length > 0
+                  ) {
+                    des = innerMapData[0]["selectedDE"][0]["id"];
+                    break;
+                  }
+                }
+                if (des != null) break;
+              }
+              let finalPeriodData = this.$store.getters.getPeriodData ?? {};
+              this.$store.commit("setPeriodDX", des);
+              //Check if we already have the formatted date in store
+              FinalPeriodArray = FinalPeriodArray.filter(
+                (p) => !finalPeriodData[p]
+              );
+              //Check if required params are available
+              if (FinalPeriodArray.length && locationID && des) {
+                let pRes = null;
+                try {
+                  pRes = await service.getAnalyticalIndicatorData(
+                    des,
+                    locationID,
+                    FinalPeriodArray.join(";"),
+                    false,
+                    true
+                  );
+                } catch (err) {
+                  console.log("Error in fetching periods from DHIS2...", err);
+                }
+                FinalPeriodArray.forEach((pe) => {
+                  finalPeriodData[pe] = pRes?.data?.metaData?.items?.[pe] || pe;
+                });
+                this.$store.commit("setPeriodData", finalPeriodData); // Set the periods in store
+              }
+              this.$store.commit("setIsPeriodChange", false);
+              this.$store.commit("setGlobalFactors", {
+                payload: response.data,
+              }); // Set the global factors in store
             }
-            this.$store.commit("setGlobalFactors", {
-              payload: response.data,
-            }); // Set the global factors in store
             if (!this.isFromAdmin) {
               this.$store.commit("setLoading", false);
             }

@@ -52,6 +52,9 @@ const metaConfig = {
     defaultLocationID: [],
     debugging: false,
     debuggingLevel: "API",
+    footerLogo: false,
+    // dureLogo: false,
+    // trackLogo: false,
   },
 };
 

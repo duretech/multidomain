@@ -103,8 +103,8 @@
                 </div>
                 <div class="col-md-7 h-100 bubblemap" id="bubblemap">
                   <div class="row mx-0 h-10">
-                    <div class="col-md-6">
-                      <span class="d-flex mx-2 map-section">
+                    <div class="col-md-6" style="padding-left:4px">
+                      <span class="d-flex map-section">
                         <p class="map-view mt-3">View</p>
                         <b-button-group class="mx-2">
                           <b-button
@@ -1311,7 +1311,7 @@ body {
 }
 .nav-side-menu .sub-menu li a {
   text-decoration: none;
-  color: var(--color-black);
+  
 }
 
 .sub-menu li a i {

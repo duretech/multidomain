@@ -37,6 +37,7 @@
           :canComment="canComment"
           key="annual"
           v-if="aData && mDataFetched"
+          :isGenerating="isGenerating"
         />
         <div class="text-center" v-else>
           <b-spinner
@@ -58,7 +59,7 @@ import {
   translateAlphatoNum,
 } from "@/components/Common/commonFunctions";
 export default {
-  props: ["dqrResponse", "preFetchData", "locationPeriod"],
+  props: ["dqrResponse", "preFetchData", "locationPeriod","isGenerating"],
   components: { cardComponent },
   data() {
     return {

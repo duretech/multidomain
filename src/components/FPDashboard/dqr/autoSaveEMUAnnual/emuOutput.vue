@@ -606,6 +606,7 @@ export default {
         oResponse.tableData.push(row);
       });
       this.emuMcprComparisionChart = oResponse;
+      this.$emit('updateChartData' ,this.emuMcprComparisionChart)
       this.saveEmuMcprComp.categories = oResponse.categories;
       this.saveEmuMcprComp.data = this.emuMcprComparisionChart.data;
       this.saveEmuMcprComp.cid = oResponse.cid;
@@ -619,6 +620,7 @@ export default {
       let oResponse = dataM.getSlopData(this.emuMcprComparisionChart);
       oResponse = this.getOtherChartDetails(oResponse, 1, "bar");
       this.annualAvgComparisionChart = oResponse;
+      this.$emit('updateChartData' ,this.annualAvgComparisionChart)
       this.saveAnnualAvgComp.categories = oResponse.categories;
       this.saveAnnualAvgComp.data = oResponse.data;
       this.saveAnnualAvgComp.cid = oResponse.cid;
@@ -646,6 +648,7 @@ export default {
       };
       oResponse = this.getOtherChartDetails(oResponse, 2, "bar");
       this.annualComparisionOfMethods = oResponse;
+      this.$emit('updateChartData' ,this.annualComparisionOfMethods)
       this.saveCompareMethods.categories = oResponse.categories;
       this.saveCompareMethods.data = oResponse.data;
       this.saveCompareMethods.cid = oResponse.cid;
@@ -691,6 +694,7 @@ export default {
           3,
           "line"
         );
+        this.$emit('updateChartData' ,this.annualuserTrendsDataByMethods)
       }
     },
     getMethodData() {

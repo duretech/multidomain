@@ -388,6 +388,7 @@ export default {
     PNG: "PNG",
     JPG: "JPG",
     PDF: "PDF",
+    PPT: "PPT",
     csv: "CSV",
     allMetrics: "[All metrics]",
     search: "Search...",
@@ -836,7 +837,7 @@ export default {
     newQuestion: "Add a new question using the",
     NA: "N/A",
     MNCHPerformance:
-      "This section is designed to highlight priority indicators that show how the MCH program is performing. Indicators are compared to the prior month to show whether there has been {positive5}, {decline5}, or {limited5}. Understanding what indicators are changing can help point to areas of strong performance as well as areas that need greater attention. Select the indicators below to see more details on their performance at a national and subnational level and over time.",
+      "This section is designed to highlight priority indicators that show how the {program} is performing. Indicators are compared to the prior month to show whether there has been {positive5}, {decline5}, or {limited5}. Understanding what indicators are changing can help point to areas of strong performance as well as areas that need greater attention. Select the indicators below to see more details on their performance at a national and subnational level and over time.",
     positive5: "Positive Growth (> 5%)",
     decline5: "Declines (< -5%)",
     limited5: "Limited Change (+/- 5%)",
@@ -846,8 +847,8 @@ export default {
     SeasonTrends: "Seasonal trends in key indicators",
     RegionalVariation: "Regional variation in key indicators",
     dqr: "Data Quality Review : Overview,",
-    dqr1: "This data quality review summarizes the current quality of the MCH data (based on the most recent period",
-    dqr2: ". This review evaluates the performance of current MCH data against standard data quality metrics : Completeness, Timeliness, and Internal Consistency.",
+    dqr1: "This data quality review summarizes the current quality of the FP data (based on the most recent period {selectedDate}). This review evaluates the performance of current FP data against standard data quality metrics : Completeness, Timeliness, and Internal Consistency.",
+    dqr2: "This data quality review summarizes the current quality of the MNH data (based on the most recent period {selectedDate}). This review evaluates the performance of current MNH data against standard data quality metrics : Completeness, Timeliness, and Internal Consistency.",
     indDashboard:
       "This section is designed to highlight priority indicators that show how the FP and MH program is performing. Understanding what indicators are changing can help point to areas of strong performance as well as areas that need greater attention.",
     estimatedUse: "Estimated Modern Use",
@@ -1054,8 +1055,10 @@ export default {
     selectGroupWarn: "Please Select Group",
     updateSuccessful: "Data updated successfully.",
     error2: "Something went wrong. Please try again later.",
+    MappingNotExists: "Data Mapping does not exist",
     DataNotExists: "Data Element not exist",
     emuNotForLocation: "EMU not saved for this location.",
+    locationNotSelected: "Location not selected",
     error3: "Location is not saved to start Stockout calculation",
     error4: "Stock Out Calculation not done",
     error5: "Methods mapping is not done",
@@ -1127,6 +1130,19 @@ export default {
     uByDate: "Users per Day",
     tCount: "Count",
     chartDetails: "Chart Details",
+    optionsPPT: "Options in PPT",
+    uploadAppSetting: "Upload App Settings",
+    contactUs: "Contact Us",
+    logoOptions: "Logo Options",
+    footerLogo: "Footer Logo",
+    // dureLogo: "Dure Logo",
+    // trackLogo: "Track20 Logo",
+    disableBenchmark: "Benchmark",
+    addButtonInfo: "Only 5 answer options allowed",
+    selectDataType: "Select the Data Type",
+    viewAnnMon: "View Annual/Monthly EMU",
+    selectEMU: "Select the EMU type",
+    selectLocation : "Select the Loctaion",
   },
   fr: {
     backTo: "ᐊ Retour à", //checked
@@ -1988,8 +2004,8 @@ export default {
     SeasonTrends: "Tendances saisonnières des indicateurs clés", //checked
     RegionalVariation: "Variation régionale des indicateurs clés", //checked
     dqr: "Examen de la qualité des données: vue d'ensemble", //checked
-    dqr1: "Cet examen de la qualité des données résume la qualité actuelle des données de SMI (sur la base de la période la plus récente", //checked
-    dqr2: ". Cet examen évalue les performances des données actuelles de SMI par rapport aux mesures standard de qualité des données : exhaustivité, actualité et cohérence interne.", //checked
+    dqr1: "Cet examen de la qualité des données résume la qualité actuelle des données de SMI (sur la base de la période la plus récente {selectedDate}). Cet examen évalue les performances des données actuelles de SMI par rapport aux mesures standard de qualité des données : exhaustivité, actualité et cohérence interne.", //checked
+    dqr2: "Cet examen de la qualité des données résume la qualité actuelle des données de SMI (sur la base de la période la plus récente {selectedDate}). Cet examen évalue les performances des données actuelles de SMI par rapport aux mesures standard de qualité des données : exhaustivité, actualité et cohérence interne.", //checked
     indDashboard:
       "Cette section est conçue pour mettre en évidence les indicateurs prioritaires qui montrent la performance du programme PF et SM. Comprendre quels indicateurs changent peut aider à mettre en évidence les domaines de forte performance ainsi que les domaines qui nécessitent une plus grande attention.", //checked
     estimatedUse: "Utilisation moderne estimée", //checked
@@ -2201,8 +2217,10 @@ export default {
     selectGroupWarn: "Veuillez sélectionner un groupe",
     updateSuccessful: "Données mises à jour avec succès.",
     error2: "Quelque chose s’est mal passé. Veuillez réessayer plus tard.",
+    MappingNotExists: "Le mappage des données n'existe pas",
     DataNotExists: "L'élément de données n'existe pas",
     emuNotForLocation: "EMU non enregistré pour cet emplacement.",
+    locationNotSelected:"Emplacement non sélectionné",
     error3:
       "L'emplacement n'est pas enregistré pour démarrer le calcul de la rupture de stock",
     error4: "Calcul de la rupture de stock non effectué",
@@ -2277,5 +2295,18 @@ export default {
     uByDate: "Utilisateurs par jour",
     tCount: "Nombre",
     chartDetails: "Détails du graphique",
+    optionsPPT: "Options en PPT",
+    uploadAppSetting: "Télécharger les paramètres de l'application",
+    contactUs: "Contactez-nous",
+    logoOptions: "Logo Options",
+    footerLogo: "Footer Logo",
+    // dureLogo: "Dure Logo",
+    // trackLogo: "Track20 Logo",
+    disableBenchmark: "Benchmark",
+    addButtonInfo: "Only 5 answer options allowed",
+    selectDataType: "Sélectionnez le type de données",
+    viewAnnMon: "Voir l'UEM Annuelle/Mensuelle",
+    selectEMU: "Sélectionnez le type d'UEM",
+    selectLocation : "Sélectionnez l'emplacement",
   },
 };

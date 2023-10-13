@@ -320,6 +320,7 @@
           </p>
           <div class="tr-checkboxes px-4 fs-15-1920">
             <b-form-checkbox
+              v-if="showCheckboxes['emitTrend'] == true"
               class="pr-3 fs-15-1920"
               id="checkbox-trends"
               name="checkbox-trends"
@@ -329,6 +330,7 @@
               {{ $t("trend") }}
             </b-form-checkbox>
             <b-form-checkbox
+              v-if="showCheckboxes['emitSeasonal'] == true"
               class="pr-3 fs-15-1920"
               id="checkbox-seasonal"
               name="checkbox-seasonal"
@@ -338,6 +340,7 @@
               {{ $t("seasonalTrend") }}
             </b-form-checkbox>
             <b-form-checkbox
+              v-if="showCheckboxes['emitRegional'] == true"
               class="fs-15-1920"
               id="checkbox-regional"
               name="checkbox-regional"
@@ -402,6 +405,7 @@ export default {
     "globalPeriodData",
     "IDLocationPeriod",
     "updateLocPer",
+    "showCheckboxes",
   ],
   components: { Treeselect, DatePicker },
   mixins: [NavigationMixin, DynamicImageMixin, loadLocChildMixin],
@@ -585,8 +589,8 @@ export default {
             currentQuarter = "Invalid quarter";
           }
         } else {
-          (currYear = new Date().getFullYear()),
-            (currentMonth = new Date().getMonth() + 1);
+          (currYear = new Date(currentDate).getFullYear()),
+            (currentMonth = new Date(currentDate).getMonth() + 1);
           currentQuarter = Math.ceil(currentMonth / 3);
         }
         let quarterLimit =

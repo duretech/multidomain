@@ -128,11 +128,29 @@
               </b-col>
             </b-row>
           </b-col>
+          <!-- <b-col sm="12" lg="6" class="mb-3">
+            <b-row>
+              <b-col sm="5">
+                <label :for="`summary-isBenchmark-${i}-${j}`">{{
+                  $t("benchmark")
+                }}</label>
+              </b-col>
+              <b-col sm="7">
+                <b-form-checkbox
+                  :id="`summary-isBenchmark-${i}-${j}`"
+                  class="mr-n2 mb-n1"
+                  switch
+                  v-model="summary.isBenchmark"
+                >
+                </b-form-checkbox>
+              </b-col>
+            </b-row>
+          </b-col> -->
           <b-col sm="12" lg="6" class="mb-3">
             <b-row>
               <b-col sm="5">
                 <label :for="`summary-benchmark-${i}-${j}`">{{
-                  $t("benchmark")
+                  $t("placeholderBenchmarkValue")
                 }}</label>
               </b-col>
               <b-col sm="7">

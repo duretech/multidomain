@@ -1,6 +1,21 @@
 <template>
   <div>
     <div class="container-fluid m-t-28px px-0">
+      <!-- <div class="d-flex justify-content-end" v-if="!isGenerating">
+      <button
+            type="button"
+            class="btn btn-primary black-btn blue-btn f-08rem ml-2"
+            @click.prevent.stop="downloadReport()"
+          >
+            <span class="">
+              <img
+                :src="require('@/assets/images/icons/generateReport.svg')"
+                class="img-fluid mt-xl-n1"
+              />
+            </span>
+            <span class="mx-1"> {{ $t("exportbtn") }} </span>
+          </button>
+        </div>     -->
       <div class="filter-btn" @click.prevent="showToolbarOnTablet = true">
         <a href="#" id="tabbar-expand"><i class="fas fa-filter"></i></a>
       </div>
@@ -59,6 +74,7 @@
                   :globalResponse="globalResponse"
                   :caltype="caltype"
                   @saveEMUFinal="saveEMUFinal"
+                  @updateChartData="updateChartData"
               /></b-tab>
             </template>
           </b-tabs>
@@ -79,9 +95,10 @@
       @popError="popError"
       :dhsColor="dhsColor"
       :totalEMUColor="totalEMUColor"
+      @updateChartData="updateChartData"
     />
     <toolbarComponent
-      v-if="value && emuMethods && defaultMethod"
+      v-if="value && emuMethods && defaultMethod && !isGenerating"
       :locKey="locKey"
       :recentActiveTab="recentActiveTab"
       :defaultMethod="defaultMethod"
@@ -128,6 +145,7 @@ export default {
     "tabName",
     "dhsColor",
     "totalEMUColor",
+    "isGenerating"
   ],
   mounted() {
     this.getActiveTab("input");
@@ -140,6 +158,12 @@ export default {
   },
   updated() {},
   methods: {
+    downloadReport(){
+      this.$emit("downloadReport")
+    },
+    updateChartData(data){
+      this.$emit('updateChartData' , data)
+    },
     getSource(key) {
       let aSource = {
         Commodities_Client: this.$i18n.t("commodities_Distributed_to_Clients"),
@@ -246,7 +270,6 @@ export default {
       // let currentTime = this.$moment(new Date()).format("DD/MM/YYYY h:mm:ss");
       let currentTime = this.$moment(new Date()).format("ll");
       if (val) {
-        console.log(val);
         service.getIndividualOrganisation(val.split("/")[1]).then((key) => {
           // console.log(key)
           let isObj = this.emuFetched.find((d) => d === val);

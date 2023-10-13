@@ -60,6 +60,7 @@
                   :caltype="caltype"
                   @emittingEMU="saveEMUAuto"
                   @errorOccured="errorOccured"
+                  @updateChartData="updateChartData"
               /></b-tab>
             </template>
           </b-tabs>
@@ -124,6 +125,9 @@ export default {
   },
   updated() {},
   methods: {
+    updateChartData(data){
+      this.$emit('updateChartData' , data)
+    },
     getSource(key) {
       let aSource = {
         Commodities_Client: this.$i18n.t("commodities_Distributed_to_Clients"),

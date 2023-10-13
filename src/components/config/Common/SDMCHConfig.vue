@@ -716,8 +716,10 @@
           </b-form-group>
         </div>
         <div class="pt-2">
+          <p size="sm">{{ $t("addButtonInfo") }}</p>
           <b-button
-            size="sm"
+            :disabled="signOffQuestion.options.length < 5 ? false : true"
+            size="m"
             class="black-btn"
             @click="actionOnOption({ type: 'add' })"
             >+</b-button
@@ -863,6 +865,7 @@ export default {
         primaryChart: null,
         secondaryChart: null,
         priorityIndicator: null,
+        // isBenchmark:false,
       },
       signOff: {
         question: {},

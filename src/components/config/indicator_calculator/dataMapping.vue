@@ -23,7 +23,7 @@
                       @click="saveJson"
                       >{{ $t("savebtn") }}</b-button
                     >
-                    <b-button
+                    <!-- <b-button
                       class="mx-2 btn btn btn-primary black-btn"
                       @click="showViewEMUPopup"
                       >{{ $t("viewAnnualEmu") }}</b-button
@@ -32,7 +32,7 @@
                       class="ml-2 btn btn btn-primary black-btn"
                       @click="showViewEMUPopupMonthly"
                       >{{ $t("viewMonthlyEmu") }}</b-button
-                    >
+                    > -->
                   </div>
                 </div>
                 <b-form class="mb-3">
@@ -126,7 +126,13 @@
             :key="index"
             v-for="(chart, index) in dqrConfig.emu[type]['chartData']"
           >
-            <div v-if="chart.indicator.name !== `Total CYP`">
+            <div
+              v-if="
+                typeof chart.indicator.name == 'object'
+                  ? chart.indicator.name[$i18n.locale] !== `Total CYP`
+                  : chart.indicator.name !== `Total CYP`
+              "
+            >
               <b-card-header header-tag="header" class="p-1" role="tab">
                 <b-button
                   block

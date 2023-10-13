@@ -72,10 +72,10 @@
           </b-modal>
         </b-col>
         <b-col sm="6" class="landingpage-text-container">
-          <div :class="isFromAdmin ? 'position-relative' : ''" class="">
+          <div :class="isFromAdmin ? 'position-relative' : ''" class="  ">
             <b-button
               v-b-modal.modal-logo
-              class="black-btn bgbtn-theme"
+              class="black-btn bgbtn-theme d-none"
               style="position: absolute; top: -50px; left: 50%"
               v-if="isFromAdmin"
             >
@@ -130,7 +130,7 @@
                 </div>
               </div>
             </b-modal>
-            <img class="logo-img" :src="appData.landingPageLogo" />
+            <img v-if="logoHref" class="logo-img" :src="logoHref" />
           </div>
           <b-input-group v-if="isFromAdmin">
             <b-form-input
@@ -250,18 +250,21 @@
       <footer class="dashboardNewFooter">
         <div class="footer-home-div">
           <b-container fluid>
+            <!-- <div class="pl-3"> -->
             <b-row>
-              <b-col sm="3" class="pl-0">
+              <b-col sm="3" class="pl-0" v-if="appData.footerLogo">
+                <!-- footer-img-div  -->
                 <div
-                  class="footer-img-div d-flex justify-content-center align-items-center"
+                  class="pl-5 d-flex footer-img-div justify-content-center align-items-center"
+                  v-if="appData.footerLogo"
                 >
                   <img
-                    class="img-fluid w-75"
+                    class="img-fluid"
                     src="@/assets/images/footer-logo.png"
                   />
                 </div>
               </b-col>
-              <b-col sm="5">
+              <!-- <b-col sm="5">
                 <p
                   class="align-items-end text-white d-flex h-100 justify-content-center mb-0 mt-2 small version-details d-none"
                   v-if="$store.getters.getAppVersion"
@@ -269,8 +272,9 @@
                   {{ $store.getters.getAppVersion }}
                 </p>
               </b-col>
-              <b-col sm="4"></b-col>
+              <b-col sm="4"></b-col> -->
             </b-row>
+            <!-- </div> -->
           </b-container>
         </div>
       </footer>
@@ -312,6 +316,7 @@ export default {
     return {
       displayPage: false,
       appData: config.applicationModule,
+      logoHref: null,
     };
   },
   watch: {
@@ -471,7 +476,7 @@ export default {
      */
     setLocale() {
       if (
-        Object.keys(this.$store.getters.getApplicationModule()).length === 0
+        Object.keys(this.$store.getters.getApplicationModule(true)).length === 0
       ) {
         if (!this.isFromAdmin) {
           this.$store.commit(
@@ -502,7 +507,7 @@ export default {
             this.sweetAlert({ title: "Failed in set locale..." });
           });
       } else {
-        this.appData = this.$store.getters.getApplicationModule();
+        this.appData = this.$store.getters.getApplicationModule(true);
         // Set the theme on hot-reload
         service.applyTheme();
         this.getLocationList();
@@ -614,6 +619,7 @@ export default {
       this.$store.commit("setApplicationModule", response.data);
       this.appData = response.data; // Set the response in the local variable to use further
       // Set locale/language for the moment library
+      console.log("setApplicationDetails", this.$i18n.locale);
       this.$moment.locale(this.$i18n.locale);
       this.$store.commit("setTheme", response.data.defaultColorTheme); // Set the theme in to store
       this.$store.commit("setLocalLang", response.data.defaultLanguageLocale); // Set the defaultLanguageLocale in to store
@@ -622,6 +628,7 @@ export default {
     },
   },
   created() {
+    this.logoHref = this.$store.getters.getAppSettings.logoURL;
     this.$store.commit("setActiveTab", "");
     this.$store.commit("setIsClearCache", false); //Reset the value
     if (!this.isFromAdmin) {
@@ -630,6 +637,7 @@ export default {
     this.$store.commit("setIsMultiProgram", true); //Set this here to get encrypted value. Setting isMultiProgram variable in a store. This is used in Toolbar to show appropriate location
     this.getUserDetails();
   },
+  computed: {},
 };
 </script>
 <style lang="scss">

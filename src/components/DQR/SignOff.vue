@@ -22,6 +22,19 @@
               </span>
               <span class="mx-1"> {{ $t("data_sign_off") }} </span>
             </button>
+            <button
+            type="button"
+            class="btn btn-primary black-btn blue-btn f-08rem ml-2"
+            @click.prevent.stop="downloadReport()"
+          >
+            <span class="">
+              <img
+                :src="require('@/assets/images/icons/generateReport.svg')"
+                class="img-fluid mt-xl-n1"
+              />
+            </span>
+            <span class="mx-1"> {{ $t("exportbtn") }} </span>
+          </button>
           </div>
         </div>
       </b-overlay>
@@ -472,6 +485,9 @@ export default {
         );
       }
     },
+    downloadReport(){
+      this.$emit("downloadReport")
+    }
   },
   created() {
     this.getForms();

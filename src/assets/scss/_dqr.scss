@@ -9,6 +9,7 @@
 
 #progtabwrapper,.dqr-page .dqr{
 	height: calc(100vh - 120px) !important;
+  height: 100vh;
     overflow-y: auto;
 	overflow-x: hidden;
 }
@@ -22,7 +23,7 @@
 
 .dqr-main {
   background-color: var(--bg-main-color);
-  height: 100vh !important;
+  // height: 100vh !important;
  
 }
 

@@ -29,14 +29,8 @@
     margin-top: 92px !important;
 }
 
-// .analytic-page .analytic #scrollTop{
-//     margin-top: 0px !important;
-// }
 
-}
 
-#d2-header{
-    z-index: 1000 !important;
 }
 
 .menubox-appsbox::-webkit-scrollbar-thumb{
@@ -458,6 +452,21 @@
     // overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+}
+
+.dropdown-home{
+    transform: translate3d(-238px, 39px, 0px) !important;
+    
+}
+
+.dropdown-menus{
+    max-height: 210px;
+    overflow: auto;
+    display: block;
+
+    span{
+        white-space: pre-wrap;
+    }
 }
 
 }

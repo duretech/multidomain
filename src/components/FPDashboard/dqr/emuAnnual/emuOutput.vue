@@ -2,17 +2,21 @@
   <div>
     <div class="row me-15 mt-3" v-bind:style="getSourceClass()">
       <div class="col-lg-12 mb-4">
-        <div class="btn condom-filter pointer-none">
-          <span class="pointer-events-none color-white fs-17-1920"
-            >Selected Period - {{ curentYear }}</span
-          >
-          <span
-            v-for="(option, i) in options"
-            :key="i"
-            class="pointer-events-none color-white fs-17-1920"
-          >
-            {{ option.label }}
-          </span>
+        <div>
+          <div class="btn condom-filter emu-annualtabs">
+            <div class="pointer-none">
+              <span class="pointer-events-none color-white fs-17-1920"
+                >Selected Period - {{ curentYear }}</span
+              >
+              <span
+                v-for="(option, i) in options"
+                :key="i"
+                class="pointer-events-none color-white fs-17-1920"
+              >
+                {{ option.label }}
+              </span>
+            </div>
+          </div>
         </div>
         <div class="top-date-page-div">
           <span class="btn pointer-events-none color-white pointer-none">
@@ -437,7 +441,7 @@ export default {
     };
   },
   mounted() {
-    this.$emit("activeTabName", "emu");
+    //this.$emit("activeTabName", "emu");
   },
   created() {
     let sYear = dataM.getYearFormated(this.initialYear, this.endYear);
@@ -447,6 +451,10 @@ export default {
     this.drawAnnualAvgComparision();
     this.drawComparisionofUsersByMethods();
     this.drawUserBymethods(true);
+    this.$emit('updateChartData' , this.emuMcprComparisionChart)
+    this.$emit('updateChartData' , this.annualAvgComparisionChart)
+    this.$emit('updateChartData' , this.annualComparisionOfMethods)
+    this.$emit('updateChartData' , this.annualuserTrendsDataByMethods)
     // this.getMethodData();
     // this.saveFinalEMU();
   },
@@ -711,13 +719,15 @@ export default {
         "emu o/p last table"
       );
       this.emuMcprComparisionChart.categories.forEach((res, i) => {
-        if (data[0].data[i]) {
-          this.items.push({
-            [this.$i18n.t("year")]: res,
-            [this.$i18n.t("EMU")]: Number(data[0].data[i]).toFixed(2),
-            [this.$i18n.t("service_type")]: data[0].name,
-          });
-        }
+        // if (data[0].data[i]) {
+        //need to change here
+
+        this.items.push({
+          [this.$i18n.t("year")]: res,
+          [this.$i18n.t("EMU")]: Number(data[0].data[i]).toFixed(2),
+          [this.$i18n.t("service_type")]: data[0].name,
+        });
+        // }
       });
     },
     handleUserMthdChange(value) {
@@ -990,6 +1000,12 @@ export default {
   span:last-child {
     border-right: 0px solid var(--border-grey-color);
   }
+}
+
+.emu-annualtabs {
+  min-height: 48px;
+  overflow: auto;
+  max-height: 10px;
 }
 
 .top-date-page-div {

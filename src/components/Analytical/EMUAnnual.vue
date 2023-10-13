@@ -174,6 +174,7 @@ export default {
                 : "";
           }
           this.comparingEMU = comparingEMU;
+          this.$emit('updateChartData' , this.comparingEMU)
         } else {
           this.comparingEMU = null;
         }
@@ -202,6 +203,7 @@ export default {
                 : "";
           }
           this.comparingAverageAnnual = comparingAverageAnnual;
+          this.$emit('updateChartData' , this.comparingAverageAnnual)
         } else {
           this.comparingAverageAnnual = null;
         }
@@ -231,6 +233,7 @@ export default {
                 : "";
           }
           this.comparingUsers = comparingUsers;
+          this.$emit('updateChartData' , this.comparingUsers)
         } else {
           this.comparingUsers = null;
         }
@@ -277,6 +280,7 @@ export default {
             tableData: oRet[sMethod].tableData,
             fields: oRet[sMethod].fields,
           };
+          this.$emit('updateChartData' , this.annualuserTrendsDataByMethods)
         }
       }
     },

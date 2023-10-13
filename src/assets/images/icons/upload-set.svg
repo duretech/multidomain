@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="33.246" height="25.923" viewBox="0 0 33.246 25.923">
+  <g id="Group_335" data-name="Group 335" transform="translate(-1106.358 -809.038)">
+    <g id="Icon_feather-settings" data-name="Icon feather-settings" transform="translate(1121.344 820.841)">
+      <path id="Path_635" data-name="Path 635" d="M16.981,15.24a1.74,1.74,0,1,1-1.74-1.74A1.74,1.74,0,0,1,16.981,15.24Z" transform="translate(-8.859 -8.859)" fill="none" stroke="#5f5f65" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7"/>
+      <path id="Path_636" data-name="Path 636" d="M12.175,9.622a.957.957,0,0,0,.191,1.056l.035.035a1.161,1.161,0,1,1-1.642,1.642l-.035-.035A.965.965,0,0,0,9.088,13v.1a1.16,1.16,0,1,1-2.321,0v-.052a1,1,0,0,0-1.682-.685L5.05,12.4a1.161,1.161,0,1,1-1.642-1.642l.035-.035a.965.965,0,0,0-.685-1.636h-.1a1.16,1.16,0,1,1,0-2.321h.052A1,1,0,0,0,3.4,5.085L3.362,5.05A1.161,1.161,0,1,1,5,3.409l.035.035a.957.957,0,0,0,1.056.191h.046a.957.957,0,0,0,.58-.876v-.1a1.16,1.16,0,0,1,2.321,0v.052a.965.965,0,0,0,1.636.685l.035-.035A1.161,1.161,0,1,1,12.354,5l-.035.035a.957.957,0,0,0-.191,1.056v.046a.957.957,0,0,0,.876.58h.1a1.16,1.16,0,1,1,0,2.321h-.052a.957.957,0,0,0-.876.58Z" transform="translate(-1.5 -1.5)" fill="none" stroke="#5f5f65" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7"/>
+    </g>
+    <g id="Icon_feather-upload-cloud" data-name="Icon feather-upload-cloud" transform="translate(1107.587 810.051)">
+      <path id="Path_638" data-name="Path 638" d="M18,18V31.346" transform="translate(-7.756 -14.63)" fill="none" stroke="#5f5f65" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+      <path id="Path_639" data-name="Path 639" d="M30.1,27.881a8.432,8.432,0,0,0,4.32-8.3,6.652,6.652,0,0,0-6.448-6h-1.92a18.855,18.855,0,0,0-1.373-3.714C23.291,7,19.94,4.831,16.2,4.4c-5.014-.572-9,2.109-11.328,6.585A12.191,12.191,0,0,0,6.548,24.7" transform="translate(-3.492 -4.328)" fill="none" stroke="#5f5f65" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+      <path id="Path_640" data-name="Path 640" d="M23.863,23.932,17.932,18,12,23.932" transform="translate(-7.688 -14.63)" fill="none" stroke="#5f5f65" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+    </g>
+  </g>
+</svg>

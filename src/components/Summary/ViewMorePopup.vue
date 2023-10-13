@@ -12,6 +12,7 @@
       ignore-enforce-focus-selector="#fileName"
     >
       <b-container ref="printPDF" class="modal-content">
+        <h2 v-if="isGenerating" style="text-align: center">Summary Dashboard</h2>
         <div class="text-right mb-3" v-if="!isGenerating">
           <button
             type="button"
@@ -31,6 +32,8 @@
           :allExtData="allExtData"
           :summaryObj="summaryObj"
           :locationPeriod="locationPeriod"
+          @mapPic ="mapPic"
+          @deleteMapPic="deleteMapPic"
         />
       </b-container>
     </b-modal>
@@ -38,10 +41,8 @@
 </template>
 <script>
 import DynamicSummary from "@/components/Summary/DynamicSummary.vue";
-import GenerateReportMixin from "@/helpers/GenerateReportMixin";
 export default {
-  props: ["summaryObj", "allGeoJson", "allExtData", "locationPeriod"],
-  mixins: [GenerateReportMixin],
+  props: ["summaryObj", "allGeoJson", "allExtData", "locationPeriod", "isGenerating"],
   components: {
     DynamicSummary,
   },
@@ -50,6 +51,21 @@ export default {
       modalShow: true,
     };
   },
+  mounted(){
+    this.summaryObj['viewMore'] = true;
+    this.$emit("updateChartData" , this.summaryObj)
+  },
+  methods:{
+    downloadReport(){
+      this.$emit("downloadReport")
+    },
+    mapPic(data){
+      this.$emit("mapPic" , data);
+    },
+    deleteMapPic(data) {
+      this.$emit("deleteMapPic", data);
+    },
+  }
 };
 </script>
 

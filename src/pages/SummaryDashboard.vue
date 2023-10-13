@@ -23,6 +23,7 @@
           :reportChartData="reportChartData"
           v-if="configData && locationPeriod"
           @updateToolBar="updateToolBar"
+          @showChecks="showChecks"
         />
       </b-container>
     </div>
@@ -31,6 +32,7 @@
       @getViewType="getViewType"
       :showSeasonal="showSeasonal"
       :showRegional="showRegional"
+      :showCheckboxes="showCheckboxes"
       :updateLocPer="updateLocPer"
       :globalPeriodData="globalPeriodData"
       :IDLocationPeriod="IDLocationPeriod"
@@ -82,6 +84,7 @@ export default {
       showRegional: false,
       locationPeriod: null,
       globalPeriodData: null,
+      showCheckboxes: {},
     };
   },
   watch: {
@@ -112,6 +115,16 @@ export default {
     },
   },
   methods: {
+    /**
+     * @author Ashvini Pawar
+     * @description Emitted function from SummaryPage component.
+     * * Used to show checkboxes into footer for trend, seasonal and regional charts.
+     * @param obj - chart object
+     * @returns obj
+     */
+    showChecks(obj) {
+      this.showCheckboxes = obj;
+    },
     /**
      * @author Ravindra Bagul
      * @description Emitted function from SummaryPage component.
@@ -195,6 +208,7 @@ export default {
     },
   },
   async created() {
+    this.$store.commit("setModuleName", this.$i18n.t("summary_dashboard"));
     if (!this.reportChartData) {
       this.$store.commit("setActiveTab", "sd-summary"); //* Default sidebar navigation option selector
     }

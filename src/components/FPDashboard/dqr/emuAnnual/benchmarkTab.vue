@@ -1,5 +1,20 @@
 <template>
   <div class="container-fluid m-t-28px">
+    <!-- <div class="d-flex justify-content-end" v-if="!isGenerating">
+      <button
+            type="button"
+            class="btn btn-primary black-btn blue-btn f-08rem ml-2"
+            @click.prevent.stop="downloadReport()"
+          >
+            <span class="">
+              <img
+                :src="require('@/assets/images/icons/generateReport.svg')"
+                class="img-fluid mt-xl-n1"
+              />
+            </span>
+            <span class="mx-1"> {{ $t("exportbtn") }} </span>
+          </button>
+        </div>     -->
     <!-- <loader v-if="bShowLoader" /> -->
     <div class="filter-btn" @click.prevent="showToolbarOnTablet = true">
       <a href="#" id="tabbar-expand"><i class="fas fa-filter"></i></a>
@@ -84,6 +99,7 @@
           :dqrResponse="dqrResponse"
           :appResponse="appResponse"
           :userDetails="userDetails"
+          @updateChartData="updateChartData"
         />
       </div>
       <div
@@ -103,6 +119,7 @@
           :appResponse="appResponse"
           :userDetails="userDetails"
           :defaultLevel="defaultLevelID"
+          @updateChartData="updateChartData"
         />
       </div>
     </div>
@@ -115,16 +132,9 @@
               v-if="categoryData && Object.keys(categoryData.emu).length"
               class="mx-1"
             >
-              <template v-for="(catData, key) in categoryData.emu">
+              <template v-for="(catData, key, index) in categoryData.emu">
                 <b-tab
-                  :active="
-                    [
-                      'User',
-                      'Commodities_Facilities',
-                      'Visits',
-                      'Commodities_Client',
-                    ].includes(key)
-                  "
+                  :active="index == 0"
                   @click="getRecentActiveTab(key)"
                   :title="getSource(key)"
                   :key="key"
@@ -186,21 +196,17 @@
                     @activeTabName="getActiveTab"
                     :ref="key"
                     :signOffActive="signOffActive"
-                    inputActive="false"
-                    outputActive="false"
-                    repoActive="false"
-                    :userDetails="userDetails"
                     @changeFilter="changeFilter"
+                    @updateChartData="updateChartData"
                   />
                 </b-tab>
               </template>
               <template v-for="(catData, key) in categoryData.emu">
                 <b-tab
-                  :active="false"
                   @click="getRecentActiveTab(key)"
                   :title="getSource(key)"
                   :key="key"
-                  v-if="['Output'].includes(key)"
+                  v-if="['Output'].includes(key) && bShowEmu"
                 >
                   <TabSummary
                     v-if="
@@ -248,6 +254,7 @@
                     :emuOuputFinalEMu="emuOuputFinalEMu"
                     :initialYear="initialYear"
                     @saveEMUFinal="saveEMUFinal"
+                    @updateChartData="updateChartData"
                   />
                   <div class="text-center" v-else>
                     <!-- <loader v-if="bShowLoader" />  //need to change css-->
@@ -865,8 +872,10 @@
       @saveEMUAuto="saveEMUAuto"
       @errorOccured="errorOccured"
       @popError="popError"
+      @updateChartData="updateChartData"
     />
     <toolbarComponent
+    v-if="!isGenerating"
       :recentActiveTab="recentActiveTab"
       @location="getLocation"
       @defLevel="defLevel"
@@ -915,7 +924,7 @@ export default {
     this.$gtag.event("tab_view", {
       value: this.tabName,
     });
-    this.autoSaveSource = tab == "Output" || tab == "emu" ? true : false;
+    // this.autoSaveSource = tab == "Output" || tab == "emu" ? true : false;
   },
   beforeDestroy() {
     this.$store.commit("setEMUMethodTable", null);
@@ -928,6 +937,7 @@ export default {
     "appResponse",
     "globalResponse",
     "tabName",
+    "isGenerating"
   ],
   computed: {
     emuOuputRender() {
@@ -935,6 +945,12 @@ export default {
     },
   },
   methods: {
+    downloadReport(){
+      this.$emit("downloadReport")
+    },
+    updateChartData(data){
+      this.$emit('updateChartData' , data)
+    },
     getTabName(key) {
       let sources = {
         Commodities_Client: "commoditiesToClients",
@@ -1175,9 +1191,12 @@ export default {
     },
     getRecentActiveTab(tab) {
       console.log(tab, "tab");
-      if (tab == "Output") this.recentActiveTab = "emu";
-      else this.recentActiveTab = this.$refs[tab][0].activetab;
-      console.log(this.$refs[tab][0].activetab);
+      if (tab == "Output") {
+        this.recentActiveTab = "emu";
+      } else {
+        this.recentActiveTab = this.$refs[tab][0].activetab;
+        console.log(this.$refs[tab][0].activetab, "activeTab");
+      }
       // this.activeTab = tab;
       // if (tab == "client") {
       //   this.recentActiveTab = this.$refs.comclientref.activetab;
@@ -1673,7 +1692,7 @@ export default {
       emuSaveType: "",
       initialYear: "",
       emuOuputFinalEMu: "",
-      autoSaveSource: true,
+      autoSaveSource: false,
       generateFlag: false,
       saveObj: {},
       emuFetched: [],
@@ -1713,7 +1732,7 @@ export default {
       // emuYears: null,
       filterYear: "",
       showToolbarOnTablet: false,
-      recentActiveTab: "emu",
+      recentActiveTab: "",
       methodMixData: null,
       newLocVal: null,
       defaultLevelID: "",

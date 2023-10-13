@@ -20,6 +20,7 @@
         @updateToolBar="updateToolBar"
         :locationPeriod="locationPeriod"
         :reportChartData="reportChartData"
+        :configDataDQR="configDataDQR"
         @setReportChart="setReportChart"
       />
     </div>
@@ -75,6 +76,7 @@ export default {
   data() {
     return {
       configData: null,
+      configDataDQR: null,
       dqrResponse: null,
       updateLocPer: null,
       locationPeriod: {},
@@ -156,6 +158,7 @@ export default {
         .getSavedConfig({ tableKey: key, namespace: namespace })
         .then((response) => {
           this.configData = response.data;
+          this.configDataDQR = response.data;
           this.$emit("getConfigData", response.data);
           this.setTab();
         })
@@ -183,6 +186,8 @@ export default {
     },
   },
   async created() {
+    this.$store.commit("setModuleName", this.$i18n.t("DQR"));
+
     if (this.activeTab && !this.reportChartData) {
       this.$store.commit("setActiveTab", this.activeTab);
     }

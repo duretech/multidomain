@@ -10,6 +10,7 @@ const defaultState = {
   // Default state values
   appId: "",
   baseURL: null,
+  moduleName: "",
   appUserId: "",
   activeTab: "",
   appVersion: "",
@@ -37,6 +38,7 @@ const defaultState = {
   defaultColorTheme: null,
   periodDX: null,
   isMonthlyEMUSet: true,
+  isPeriodChange: false,
   isAnnualEMUSet: true,
   namespace: settings.tableName || "multi_program",
 };
@@ -181,6 +183,9 @@ export default new Vuex.Store({
     setIsMonthlyEMUSet(state, payload) {
       state.isMonthlyEMUSet = payload;
     },
+    setIsPeriodChange(state, payload) {
+      state.isPeriodChange = payload;
+    },
     setIsAnnualEMUSet(state, payload) {
       state.isAnnualEMUSet = payload;
     },
@@ -196,6 +201,9 @@ export default new Vuex.Store({
         locationList: null,
         applicationModule: {},
       });
+    },
+    setModuleName(state, payload) {
+      state.moduleName = payload;
     },
   },
   getters: {
@@ -331,12 +339,17 @@ export default new Vuex.Store({
     getApplicationModule:
       (state, getters) =>
       (isFromDefault = false) => {
-        let m = !isFromDefault ? getters.getAppSettings.modulesList[0] : null;
+        let m = !isFromDefault
+          ? getters.getAppSettings.modulesList.length == 1
+            ? getters.getAppSettings.modulesList[0]
+            : null
+          : null;
         let key = isFromDefault
           ? getters.getAppSettings.tableName
           : m
           ? `${getters.getAppSettings.tableName}_${m}-dashboard`
           : state.namespace;
+
         return state.applicationModule[key]
           ? process.env.NODE_ENV !== "production"
             ? state.applicationModule[key]
@@ -354,8 +367,14 @@ export default new Vuex.Store({
     getIsMonthlyEMUSet(state) {
       return state.isMonthlyEMUSet;
     },
+    getIsPeriodChange(state) {
+      return state.isPeriodChange;
+    },
     getIsAnnualEMUSet(state) {
       return state.isAnnualEMUSet;
+    },
+    getModuleName(state) {
+      return state.moduleName;
     },
   },
   actions: {},

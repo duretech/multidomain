@@ -253,6 +253,7 @@ export default {
         labels: {},
       };
       this.methodMixPieChart = oResponse;
+      this.$emit('updateChartData' , this.methodMixPieChart)
       oResponse.data[0].data.forEach((res) => {
         if (res.name != undefined) {
           this.bgItems.push({

@@ -1,6 +1,6 @@
 <template>
-  <b-row id="modal-newanc">
-    <b-col class="pr-3" sm="12" lg="6">
+  <b-row id="modal-newanc" class="view-morepopup">
+    <b-col class="pr-3" sm="12" lg="6" ref="summaryContainer">
       <div class="border-modal">
         <b-row class="pt-1 pb-1 pl-3">
           <b-col cols="4"></b-col>
@@ -27,15 +27,23 @@
           :key="'details' + i"
         >
           <b-col class="table-heading pt-2" cols="4"
-            ><p>{{ sDetails.indicatorName }}</p></b-col
+            ><p :class="getClass(sDetails.indicatorName)">{{ sDetails.indicatorName }}</p></b-col
           >
           <b-col cols="2"
-            ><div class="summary-dot">
+            ><div class="summary-dot" :class="getClass(sDetails.prevValue)">
+              <p
+              class="mb-0 fs-25-1920"
+                        
+              ></p>
               {{ sDetails.prevValue === null ? $t("NA") : sDetails.prevValue }}
             </div></b-col
           >
           <b-col cols="2"
-            ><div class="summary-dot">
+            ><div class="summary-dot" :class="getClass(sDetails.currValue)">
+              <p
+              class="mb-0 fs-25-1920"
+                        
+              ></p>
               {{ sDetails.currValue === null ? $t("NA") : sDetails.currValue }}
             </div></b-col
           >
@@ -43,7 +51,12 @@
             <div
               class="summary-dot"
               :style="{ backgroundColor: sDetails.colorLastMn }"
+              :class="getClass(sDetails.change)"
             >
+            <p
+              class="mb-0 fs-25-1920"
+                        
+              ></p>
               {{ sDetails.change === null ? $t("NA") : sDetails.change }}
             </div></b-col
           >
@@ -53,7 +66,7 @@
             </div></b-col
           >
         </b-row>
-        <b-row>
+        <b-row v-if="$store.getters.getAppSettings?.benchmark">
           <b-col sm="12">
             <p>
               {{ $t("performance_against_benchmark") }}
@@ -126,6 +139,8 @@
           :chartData="summaryObj.trend"
           :locationPeriod="locationPeriod"
           @isJsonFetched="isJsonFetched = true"
+          @mapPic ="mapPic"
+          @deleteMapPic="deleteMapPic"
         />
       </div>
     </b-col>
@@ -136,7 +151,7 @@
         class="border-bottom border-greyright border-none"
         :dataFetched="true"
         :chartType="'period'"
-        :isHideOption="true"
+        :isHideOption="false"
         :chartConfigData="summaryObj.chartConfigData"
       />
     </b-col>
@@ -146,7 +161,7 @@
         class="border-bottom border-greyright border-none"
         :dataFetched="true"
         :chartType="'regional'"
-        :isHideOption="true"
+        :isHideOption="false"
       />
     </b-col>
   </b-row>
@@ -155,6 +170,7 @@
 import { decompress } from "compress-json";
 import SummaryViewMixin from "@/helpers/SummaryViewMixin";
 import DynamicImageMixin from "@/helpers/DynamicImageMixin";
+import domtoimage from "dom-to-image";
 
 export default {
   props: ["summaryObj", "allGeoJson", "allExtData", "locationPeriod"],
@@ -224,6 +240,37 @@ export default {
     selectedInd() {
       return this.indList.length ? this.indList[0].value : "";
     },
+  },
+  methods:{
+    mapPic(data){
+      data['location'] = this.locationPeriod.locationName;
+      data['selectedInd'] = this.selectedInd
+      this.$emit("mapPic" , data);
+    },
+    deleteMapPic(data) {
+      this.$emit("deleteMapPic", this.locationPeriod.locationName);
+    },
+    getClass(value) {
+      return value && value.toString().length > 5 && value.toString().length < 7
+        ? "big-number"
+        : value && value.toString().length >= 7
+        ? "biggest-number"
+        : "";
+    },
+  },
+  async mounted() {
+    await domtoimage
+          .toPng(this.$refs.summaryContainer)
+          .then((dataUrl) => {
+              this.$store.commit("setLoading", false);
+              this.$nextTick(()=>{
+                this.$emit("mapPic", {pic:dataUrl, url: this.$store.getters.getActiveTab, title: this.locationPeriod.locationName, summaryContainer: true});
+              })
+          })
+          .catch((error) => {
+            this.$store.commit("setLoading", false);
+            console.error("oops, something went wrong!", error);
+          });
   },
 };
 </script>

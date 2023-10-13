@@ -359,7 +359,7 @@ input[type="range"]::-webkit-slider-runnable-track {
 		color: var(--text-color);
 		display: flex;
 		align-items: center;
-		justify-content: end;
+		justify-content: flex-end;
 		&:hover {
 			color: var(--text-color);
 			background-color: var(--primary-color-button);

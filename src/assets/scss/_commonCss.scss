@@ -34,12 +34,19 @@ p {
 }
 
 ::-webkit-scrollbar {
-	width: 10px !important;
+	width: 7px !important;
 	height: 10px;
 	// cursor: pointer; 
 
 }
 
+
+::-webkit-scrollbar:vertical {
+	width: 10px !important;
+	height: 10px;
+	// cursor: pointer; 
+
+}
 
 ::-webkit-scrollbar-track{
     background-color: var(--bg-main-color) !important;
@@ -53,7 +60,7 @@ p {
     background-clip: padding-box !important;
 }
 
-::-webkit-scrollbar-thumb:hover{
+::-webkit-scrollbar-thumb:vertical:hover{
    
 	background: var(--scroll-color) !important;
 	border: 10px solid transparent;

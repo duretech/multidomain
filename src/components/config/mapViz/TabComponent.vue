@@ -1511,6 +1511,7 @@ export default {
       }
       this.$nextTick(() => {
         this.showForm = true;
+        this.editData = false
       });
     },
     autoScaling(levelIndex, indicatorName, isAutoRange) {

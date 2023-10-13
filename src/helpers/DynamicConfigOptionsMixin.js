@@ -57,6 +57,7 @@ export default {
           percentageIndicator: false,
           chartCategory: "REGIONAL",
           seasonalPeriod: 2,
+          isBenchMark:false,
           benchmarks: [],
           benchmarkInLegend: false,
           seasonalColors: [],

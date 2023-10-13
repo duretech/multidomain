@@ -34,11 +34,17 @@
       :defaultSort="defaultSort"
       @reloadChart="reloadChart"
       @updateToolBar="updateToolBar"
+      @getBubbleChart="getBubbleChart"
+      @deleteBubbleChart="deleteBubbleChart"
+      @mapPic="mapPic"
+      @deleteMapPic="deleteMapPic"
       :chartConfigData="chartData"
       :exceptionTable="exceptionTable"
       :backgroundData="backgroundData"
       :locationPeriod="locationPeriod"
       :drillPointBenchmark="drillPointBenchmark"
+      :isGenerating="isGenerating"
+      ref="chartContainer"
     />
   </div>
 </template>
@@ -84,6 +90,10 @@ export default {
     "backgroundData",
     "reportChartData",
     "scorecardLocation",
+    "configDQR",
+    "isGenerating",
+    "configDataAD",
+    "configOfSummary",
   ],
   mixins: [SummaryDataMixin, SetChartMetaDataMixin],
   components: {
@@ -116,6 +126,9 @@ export default {
       abortController: null,
       drillPointBenchmark: false,
       cObj: JSON.parse(JSON.stringify(commonChartConfig)),
+      cArr: [],
+      configOfDQR: null,
+      configOfAD: [],
     };
   },
   computed: {
@@ -281,6 +294,7 @@ export default {
       },
       deep: true,
     },
+
     scorecardLocation: {
       handler(newValue) {
         if (newValue) {
@@ -306,8 +320,23 @@ export default {
         this.isError = false;
       }
     },
+    configDQR: {
+      immediate: true,
+      handler(newVal) {
+        this.configOfDQR = newVal;
+      },
+    },
+    configDataAD: {
+      immediate: true,
+      handler(newVal) {
+        this.configOfAD.push(newVal);
+      },
+    },
   },
   methods: {
+    getBubbleChart(data) {
+      this.$emit("getBubbleChart", data);
+    },
     reloadChart() {
       this.dataFetched = false;
       this.isError = false;
@@ -318,7 +347,8 @@ export default {
         namespace = this.reportChartData.selectedDashboard;
       }
       let plotLines = [],
-        allBenchmarks = this.$store.getters.getGlobalFactors(namespace).allBenchmarks;
+        allBenchmarks =
+          this.$store.getters.getGlobalFactors(namespace).allBenchmarks;
       for (const b of chartOptions.benchmarks) {
         let isFound = allBenchmarks.benchmarks.find((a) => b.includes(a.id));
         if (isFound) {
@@ -359,8 +389,11 @@ export default {
                     : res.rows,
                 sortedData = [];
               if (r.length) {
-                let isData = r.filter((r) =>
-                  r[0].includes(isFound.plotLine.extID)
+                let isData = r.filter(
+                  (r) =>
+                    r[0].includes(isFound.plotLine.extID) &&
+                    r[3] != "" &&
+                    r[2] == this.locationPeriod.location.split("/")[1]
                 );
                 if (isData.length) {
                   sortedData = isData.sort((a, b) => b[1] * 1 - a[1] * 1);
@@ -921,6 +954,62 @@ export default {
                 locationName: this.locationPeriod.locationName,
                 levels,
               });
+              // if (this.$store.getters.getActiveTab.includes("ANC") || this.$store.getters.getActiveTab.includes("MAT_DEATHS") || this.$store.getters.getActiveTab.includes("DELIVERY_CARE") || this.$store.getters.getActiveTab.includes("PNC")) {
+              //   let a = this.configDataAD.group;
+              //   let b = this.configDataAD.id;
+              //   // this.configDataAD.subTabs.map((subTab) => {
+              //   //   // subTab.chartSetting.map((chartSetting) => {
+              //   //   //   let c = subTab.id;
+              //   //   //   if (chartSetting.chartOptions.cid === cData.cid) {
+              //   //   //     // cData["path"] = a + "-" + b + "-" + c;
+              //   //   //   }
+              //   //   // });
+              //   // });
+              // }
+              if (
+                this.configOfDQR?.length ||
+                this.configOfAD?.length ||
+                this.configOfSummary?.length
+              ) {
+                let mainObj = this.configOfDQR?.length
+                  ? this.configOfDQR
+                  : this.configOfSummary?.length
+                  ? this.configOfSummary
+                  : this.configOfAD;
+                mainObj.map((item) => {
+                  let a = item.id;
+                  item.subTabs.map((subTab) => {
+                    let b = subTab.group;
+                    let c = subTab.id;
+                    subTab.chartSetting.map((chart) => {
+                      if (
+                        chart.chartOptions.id == cData.id &&
+                        chart.chartOptions.cid == cData.cid
+                      ) {
+                        let d;
+                        if (this.configOfDQR?.length) {
+                          d =
+                            b.split("-")[0] +
+                            "-" +
+                            a +
+                            "-" +
+                            b.split("-")[1] +
+                            "-" +
+                            c;
+                        } else if(this.configOfSummary?.length) {
+                          d = "sd-summary";
+                        } else if (this.configOfAD?.length) {
+                          d = item.group + "-" + a + "-" + c;
+                        }
+                        cData["path"] = d;
+                      }
+                    });
+                  });
+                });
+              }
+              if (cData.type !== "packedbubble") {
+                this.$emit("updateChartData", cData, cObj);
+              }
               //set r2 value, used for scatter charts
               this.r2 = r2;
               this.exceptionTable = exceptionTable;
@@ -1494,6 +1583,7 @@ export default {
       return { summaryText: summaryText ? summaryText : "" };
     },
     getBenchmark(currValue) {
+      //let isBenchmark = this.subTab.summary.isBenchmark;
       let benchmarkValue =
           this.subTab.summary && this.subTab.summary.benchmarkValue !== ""
             ? this.subTab.summary.benchmarkValue * 1
@@ -1514,7 +1604,12 @@ export default {
             : this.$i18n.t("NA");
         benchmarkValue = percentage ? `${benchmarkValue}%` : benchmarkValue;
       }
-      return { benchmarkValue, percentage, performanceBenchmarking };
+      return {
+        //isBenchmark,
+        benchmarkValue,
+        percentage,
+        performanceBenchmarking,
+      };
     },
     getTracer(prevValue) {
       let hValue = this.$i18n.t("high_V1"),
@@ -1574,6 +1669,7 @@ export default {
         prevYrDate,
         prevYrForDate,
       } = this.getPeriods();
+
       let details = [];
       let methodIncreased = "",
         methodDecreased = "";
@@ -1589,6 +1685,7 @@ export default {
             let methodDiff =
               emuMethodData[i].data[currentPeriodIndex] -
               emuMethodData[i].data[currentMonthLastYearIndex];
+
             if (methodDiff > methodValueInc) {
               methodValueInc = Number(methodDiff.toFixed(2));
               methodIncreased = emuMethodData[i].name;
@@ -1654,9 +1751,12 @@ export default {
           let { orgLevel } = this.getOrgLevel();
           let { lastRegions } = this.getLastRegions(s.data, currDate);
 
-          let { benchmarkValue, percentage, performanceBenchmarking } =
-            this.getBenchmark(currValue);
-
+          let {
+            //isBenchmark,
+            benchmarkValue,
+            percentage,
+            performanceBenchmarking,
+          } = this.getBenchmark(currValue);
           let d = [prevYrValue, prevValue, currValue];
 
           let { change } = this.getPercentChange(d[2], d[1], percentage);
@@ -1732,6 +1832,7 @@ export default {
             indicatorName,
             benchmarkValue,
             performanceBenchmarking,
+            //isBenchmark,
           });
         }
       });
@@ -1855,6 +1956,7 @@ export default {
               currForDate,
               prevForDate,
               indicatorName,
+              isBenchmark: cData?.isBenchmark,
               change: change ? `${change}%` : change,
               benchmark: benchmark
                 ? `${benchmark}%`
@@ -2640,6 +2742,32 @@ export default {
           });
         }
       }
+      if (
+        this.$store.getters.getActiveTab.includes("dqr-summary") &&
+        this.configOfDQR?.length
+      ) {
+        this.configOfDQR.map((item) => {
+          let a = item.id;
+          item.subTabs.map((subTab) => {
+            let b = subTab.group;
+            let c = subTab.id;
+            subTab.chartSetting.map((chart) => {
+              if (
+                chart.chartOptions.id == cData.id &&
+                chart.chartOptions.cid == cData.cid
+              ) {
+                let d =
+                  b.split("-")[0] + "-" + a + "-" + b.split("-")[1] + "-" + c;
+                cData["path"] = d;
+              }
+            });
+          });
+        });
+      }
+      if (cData.type !== "packedbubble") {
+        this.$emit("updateChartData", cData, this.cObj);
+        // console.log(cObj.r2)
+      }
     },
     async getEMUNationalChart(cData, emuResponse) {
       let locationID = this.locationPeriod.location.split("/");
@@ -2969,6 +3097,33 @@ export default {
           chartCategory: cData.chartCategory,
         });
       }
+
+      if (
+        this.$store.getters.getActiveTab.includes("dqr-summary") &&
+        this.configOfDQR?.length
+      ) {
+        this.configOfDQR.map((item) => {
+          let a = item.id;
+          item.subTabs.map((subTab) => {
+            let b = subTab.group;
+            let c = subTab.id;
+            subTab.chartSetting.map((chart) => {
+              if (
+                chart.chartOptions.id == cData.id &&
+                chart.chartOptions.cid == cData.cid
+              ) {
+                let d =
+                  b.split("-")[0] + "-" + a + "-" + b.split("-")[1] + "-" + c;
+                cData["path"] = d;
+              }
+            });
+          });
+        });
+      }
+      if (cData.type !== "packedbubble") {
+        this.$emit("updateChartData", cData, this.cObj);
+        // console.log(cObj.r2)
+      }
       this.dataFetched = true;
     },
     getEMUTrendChart(cData, emuResponse) {
@@ -2985,7 +3140,7 @@ export default {
           period = allMonthnameJson[month]["name"];
         }
       });
-      
+
       let categories = [],
         series = [];
       let totalLegend =
@@ -3212,6 +3367,33 @@ export default {
         });
       }
       this.dataFetched = true;
+
+      if (
+        this.$store.getters.getActiveTab.includes("dqr-summary") &&
+        this.configOfDQR?.length
+      ) {
+        this.configOfDQR.map((item) => {
+          let a = item.id;
+          item.subTabs.map((subTab) => {
+            let b = subTab.group;
+            let c = subTab.id;
+            subTab.chartSetting.map((chart) => {
+              if (
+                chart.chartOptions.id == cData.id &&
+                chart.chartOptions.cid == cData.cid
+              ) {
+                let d =
+                  b.split("-")[0] + "-" + a + "-" + b.split("-")[1] + "-" + c;
+                cData["path"] = d;
+              }
+            });
+          });
+        });
+      }
+      if (cData.type !== "packedbubble") {
+        this.$emit("updateChartData", cData, this.cObj);
+        // console.log(cObj.r2)
+      }
     },
     async getEMUAverageChart(cData, emuResponse) {
       let locationID = this.locationPeriod.location.split("/");
@@ -3228,7 +3410,7 @@ export default {
           period = allMonthnameJson[month]["name"];
         }
       });
-      
+
       let dataKey = {};
       if (this.locationPeriod.periodType === "yearly") {
         if (emuModule.compEMU) {
@@ -3483,6 +3665,32 @@ export default {
         });
       }
 
+      if (
+        this.$store.getters.getActiveTab.includes("dqr-summary") &&
+        this.configOfDQR?.length
+      ) {
+        this.configOfDQR.map((item) => {
+          let a = item.id;
+          item.subTabs.map((subTab) => {
+            let b = subTab.group;
+            let c = subTab.id;
+            subTab.chartSetting.map((chart) => {
+              if (
+                chart.chartOptions.id == cData.id &&
+                chart.chartOptions.cid == cData.cid
+              ) {
+                let d =
+                  b.split("-")[0] + "-" + a + "-" + b.split("-")[1] + "-" + c;
+                cData["path"] = d;
+              }
+            });
+          });
+        });
+      }
+      if (cData.type !== "packedbubble") {
+        this.$emit("updateChartData", cData, this.cObj);
+        // console.log(cObj.r2)
+      }
       this.dataFetched = true;
     },
     async getEMUBubbleChart(cData, emuResponse) {
@@ -3501,7 +3709,6 @@ export default {
           period = allMonthnameJson[month]["name"];
         }
       });
-     
 
       let categories = [],
         series = [],
@@ -3861,6 +4068,33 @@ export default {
         });
       }
       this.dataFetched = true;
+
+      if (
+        this.$store.getters.getActiveTab.includes("dqr-summary") &&
+        this.configOfDQR?.length
+      ) {
+        this.configOfDQR.map((item) => {
+          let a = item.id;
+          item.subTabs.map((subTab) => {
+            let b = subTab.group;
+            let c = subTab.id;
+            subTab.chartSetting.map((chart) => {
+              if (
+                chart.chartOptions.id == cData.id &&
+                chart.chartOptions.cid == cData.cid
+              ) {
+                let d =
+                  b.split("-")[0] + "-" + a + "-" + b.split("-")[1] + "-" + c;
+                cData["path"] = d;
+              }
+            });
+          });
+        });
+      }
+      if (cData.type !== "packedbubble") {
+        this.$emit("updateChartData", cData, this.cObj);
+        // console.log(cObj.r2)
+      }
     },
     async getChildren({ location }) {
       let children = [];
@@ -4137,6 +4371,31 @@ export default {
         });
       }
 
+      if (
+        this.$store.getters.getActiveTab.includes("dqr-summary") &&
+        this.configOfDQR?.length
+      ) {
+        this.configOfDQR.map((item) => {
+          let a = item.id;
+          item.subTabs.map((subTab) => {
+            let b = subTab.group;
+            let c = subTab.id;
+            subTab.chartSetting.map((chart) => {
+              if (
+                chart.chartOptions.id == cData.id &&
+                chart.chartOptions.cid == cData.cid
+              ) {
+                let d =
+                  b.split("-")[0] + "-" + a + "-" + b.split("-")[1] + "-" + c;
+                cData["path"] = d;
+              }
+            });
+          });
+        });
+      }
+      if (cData.type !== "packedbubble") {
+        this.$emit("updateChartData", cData, this.cObj);
+      }
       this.dataFetched = true;
     },
     async getEMUMatrixTable(cData, emuResponse) {
@@ -4297,6 +4556,33 @@ export default {
       this.matrixData["avgAnnualGrowthData"] = seriesObj;
       this.matrixData["allMonthNameJson"] = this.$store.getters.getPeriodData;
       this.dataFetched = true;
+
+      if (
+        this.$store.getters.getActiveTab.includes("dqr-summary") &&
+        this.configOfDQR?.length
+      ) {
+        this.configOfDQR.map((item) => {
+          let a = item.id;
+          item.subTabs.map((subTab) => {
+            let b = subTab.group;
+            let c = subTab.id;
+            subTab.chartSetting.map((chart) => {
+              if (
+                chart.chartOptions.id == cData.id &&
+                chart.chartOptions.cid == cData.cid
+              ) {
+                let d =
+                  b.split("-")[0] + "-" + a + "-" + b.split("-")[1] + "-" + c;
+                cData["path"] = d;
+              }
+            });
+          });
+        });
+      }
+      if (cData.type !== "packedbubble") {
+        this.$emit("updateChartData", cData, this.cObj);
+        // console.log(cObj.r2)
+      }
     },
     getEMUChart(isFilter = false) {
       let emuResponse = JSON.parse(JSON.stringify(this.emuData));
@@ -4378,6 +4664,15 @@ export default {
     },
     updateToolBar(updatedVal) {
       this.$emit("updateToolBar", updatedVal);
+    },
+    mapPic(data) {
+      this.$emit("mapPic", data);
+    },
+    deleteBubbleChart() {
+      this.$emit("deleteBubbleChart");
+    },
+    deleteMapPic(data) {
+      this.$emit("deleteMapPic", data);
     },
   },
   created() {

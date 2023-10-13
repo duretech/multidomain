@@ -1,17 +1,31 @@
 <template>
   <div
-    class="summary-page-container summary-dash-section"
+    class="summary-dash-section"
+    :class="isGenerating ? '' : 'summary-page-container'"
     id="scrollTop"
     ref="printPDF"
+    :style="{backgroundColor: isGenerating ? this.$store.getters.getTheme === 'dark'? '#201F3C !important' : this.$store.getters.getTheme === 'grey' ? '#212934  !important' : 'white' : ''}"
   >
+    <h2 v-if="isGenerating" style="text-align: center" :style="{color: isGenerating ? $store.getters.getTheme == 'dark'? 'white !important' : $store.getters.getTheme == 'grey' ? 'white !important' : '' : ''}">{{$t("summary_dashboard")}}</h2>
     <div
-      class="mr-0 p-4 summary-page"
+      class="mr-0 summary-page"
+      :class="isGenerating ? '' : 'p-4'"
       id="summary"
       v-show="$store.getters.getActiveTab === 'sd-summary'"
+      ref="printPPT"
     >
-      <b-row class="summary-content">
+      <b-row class="summary-content" :style="{color: textUpdate ? 'black !important' : ''}">
         <b-col :sm="!isGenerating ? '10' : '11'"
           ><i18n path="MNCHPerformance" tag="div" class="pb-4">
+            <template
+              v-slot:program
+              v-if="$store.getters.getNamespace.includes('_fp-dashboard')"
+            >
+              <b> {{ $t("family_planning") }}</b>
+            </template>
+            <template v-slot:program v-else>
+              <b>{{ $t("maternalHealth") }}</b>
+            </template>
             <template v-slot:positive5>
               <b>{{ $t("positive5") }}</b>
             </template>
@@ -23,11 +37,11 @@
             </template>
           </i18n>
         </b-col>
-        <b-col sm="2" v-if="!isGenerating">
+        <b-col sm="2" v-if="!isGenerating && !textUpdate">
           <div class="text-right mb-3">
             <button
               type="button"
-              class="btn btn-primary black-btn blue-btn f-08rem"
+              class="btn btn-primary blue-btn f-08rem"
               @click.prevent.stop="downloadReport()"
             >
               <span class="">
@@ -42,7 +56,7 @@
         </b-col>
       </b-row>
       <div class="mb-4">
-        <b-row>
+        <b-row class="summary-key">
           <b-col
             sm="6"
             :class="{
@@ -51,7 +65,7 @@
             v-for="summary in summaryList"
             :key="summary.id"
           >
-            <b-card class="mb-4 summary-card-bg" v-if="summary.summaryDetails">
+            <b-card class="mb-4 summary-card-bg" v-if="summary.summaryDetails" :style="{minHeight: !isGenerating ? '36px' : getHeightCard + 'px'}">
               <div class="mb-2">
                 <b-row>
                   <b-col sm="2">
@@ -80,6 +94,7 @@
                               class="fa fa-info-circle color-white cursor-pointer chart-info"
                               aria-hidden="true"
                               v-b-popover.hover.rightbottom="{
+                                customClass: 'tootltipCSS',
                                 variant: 'info',
                                 content:
                                   summary.chartInfo?.[$i18n.locale] || '',
@@ -118,7 +133,9 @@
                 :class="{
                   'emu-status ': showMore !== summary.id && !isGenerating,
                 }"
-                style="min-height: 36px"
+                :style="{
+                  minHeight: !isGenerating ? '36px' : getHeight + 'px',
+                }"
                 v-html="getSummaryText(summary.summaryDetails[0].summaryText)"
               ></div>
               <!-- data-html2canvas-ignore="true" -->
@@ -141,7 +158,10 @@
                   }}</b-button
                 >
               </div>
-              <div class="p-2 mt-3 performance-in-card fs-17-1920">
+              <div
+                class="p-2 mt-3 performance-in-card fs-17-1920"
+                v-if="$store.getters.getAppSettings?.benchmark"
+              >
                 <span>
                   {{ $t("performance_against_benchmark") }}
                   {{
@@ -175,6 +195,7 @@
             </b-card>
             <template v-else>
               <b-overlay
+              v-if="!isGenerating"
                 :show="summary.errorMsg && summary.errorMsg !== ''"
                 :rounded="true"
                 :variant="
@@ -200,6 +221,11 @@
       :summaryObj="summaryObj"
       :locationPeriod="locationPeriod"
       @visibleChange="visibleChange"
+      @updateChartData="updateChartData"
+      @downloadReport="downloadReport"
+      @mapPic="mapPic"
+      @deleteMapPic="deleteMapPic"
+      :isGenerating="isGenerating"
     />
     <template v-if="!isGenerating">
       <div v-for="tab in configData" :key="'tabSummary' + tab.id">
@@ -264,7 +290,11 @@
                           :locationPeriod="locationPeriod"
                           :reportChartData="reportChartData"
                           @summaryChartData="summaryChartData"
+                          @updateChartData="updateChartData"
+                          @getBubbleChart="getBubbleChart"
                           :backgroundData="subTab.backgroundData"
+                          :isGenerating="isGenerating"
+                          :configOfSummary="configData"
                         />
                       </div>
                     </template>
@@ -326,7 +356,12 @@
                           :locationPeriod="locationPeriod"
                           :reportChartData="reportChartData"
                           @summaryChartData="summaryChartData"
+                          @updateChartData="updateChartData"
+                          @getBubbleChart="getBubbleChart"
                           :backgroundData="subTab.backgroundData"
+                          @updateToolBar="updateToolBar"
+                          :isGenerating="isGenerating"
+                          :configOfSummary="configData"
                         />
                       </div>
                     </template>
@@ -388,7 +423,12 @@
                           :locationPeriod="locationPeriod"
                           :reportChartData="reportChartData"
                           @summaryChartData="summaryChartData"
+                          @updateChartData="updateChartData"
+                          @getBubbleChart="getBubbleChart"
                           :backgroundData="subTab.backgroundData"
+                          @updateToolBar="updateToolBar"
+                          :isGenerating="isGenerating"
+                          :configOfSummary="configData"
                         />
                       </div>
                     </template>
@@ -453,7 +493,35 @@ export default {
       summaryList: [],
       summaryObj: null,
       globalResponse: null,
+      program: null,
     };
+  },
+  computed: {
+    getHeight() {
+      let arr = [];
+      if (this.isGenerating) {
+        let el = document.querySelectorAll(".emu-read");
+        for (let i = 0; i < el.length; i++) {
+          el[i].classList.remove("emu-status");
+          arr.push(el[i].clientHeight);
+        }
+      }
+      return arr.reduce((a, b) => Math.max(a, b), -Infinity);
+    },
+    getHeightCard(){
+      let arr = [];
+        if (this.isGenerating) {
+          let el = document.querySelectorAll(".summary-card-bg");
+          for (let i = 0; i < el.length; i++) {
+            // arr.push(el[i].clientHeight + 40);
+            arr.push(el[i].clientHeight);
+        }
+        }
+       return arr.reduce((a, b) => Math.max(a, b), -Infinity);
+    },
+    activeComponent() {
+      return this.$store.getters.getActiveTab;
+    },
   },
   watch: {
     showTrend(newValue) {
@@ -471,6 +539,14 @@ export default {
         this.scrollPage("regionalCharts");
       }
     },
+    activeComponent(newValue) {
+      if (newValue) {
+        let emitSeasonal = this.checkCharts(this.configData, "seasonal", true);
+        let emitRegional = this.checkCharts(this.configData, "regional", true);
+        let emitTrend = this.checkCharts(this.configData, "trend", true);
+        this.$emit("showChecks", { emitSeasonal, emitRegional, emitTrend });
+      }
+    },
     locationPeriod: {
       handler(newValue, oldValue) {
         if (
@@ -483,7 +559,30 @@ export default {
           this.mapList = [];
           this.$nextTick(() => {
             this.getSummaryList();
+            // let emitSeasonal = this.checkCharts(
+            //   this.configData,
+            //   "seasonal",
+            //   true
+            // );
+            // let emitRegional = this.checkCharts(
+            //   this.configData,
+            //   "regional",
+            //   true
+            // );
+            // let emitTrend = this.checkCharts(this.configData, "trend", true);
+            // this.$emit("showChecks", { emitSeasonal, emitRegional, emitTrend });
           });
+        }
+      },
+      deep: true,
+    },
+    visible: {
+      handler(newVal) {
+        if (!newVal) {
+          this.currentViewMore = "N/A";
+          this.mapValue = [];
+        } else {
+          this.currentViewMore = this.summaryObj.tabName[this.$i18n.locale];
         }
       },
       deep: true,
@@ -494,9 +593,9 @@ export default {
       this.allExtData[level] = obj;
     },
     getClass(value) {
-      return value && value.toString().length > 5
+      return value && value.toString().length > 5 && value.toString().length < 7
         ? "big-number"
-        : value && value.toString().length > 7
+        : value && value.toString().length >= 7
         ? "biggest-number"
         : "";
     },
@@ -708,6 +807,10 @@ export default {
   created() {
     this.getSummaryList();
     this.globalResponse = this.$store.getters.getGlobalFactors();
+    let emitSeasonal = this.checkCharts(this.configData, "seasonal", true);
+    let emitRegional = this.checkCharts(this.configData, "regional", true);
+    let emitTrend = this.checkCharts(this.configData, "trend", true);
+    this.$emit("showChecks", { emitSeasonal, emitRegional, emitTrend });
   },
 };
 </script>

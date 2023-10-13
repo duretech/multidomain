@@ -4,7 +4,7 @@
   flex-direction: column;
   // height: calc(90vh - 45px);
   overflow-y: auto;
-  margin-bottom: 25px !important;
+  margin: 30px 0px!important;
   border-radius: 5px !important;
   border: 1px solid var(--border-grey-color) !important;
 }
@@ -123,6 +123,7 @@
 .highcharts-xaxis-labels text,
 .highcharts-yaxis text,
 .highcharts-axis-title,
+.highcharts-subtitle,
 .highcharts-line-series text, .highcharts-legend-item text,.highcharts-label text{
     color: var(--home-main-color) !important;
     fill: var(--home-main-color) !important;

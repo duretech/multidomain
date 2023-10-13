@@ -20,7 +20,7 @@
         color           : var(--fonts-white-shade);
         border-right: 1px solid transparent !important;
         border-radius: 0 !important;
-
+        
         .table-heading {
 
             p {
@@ -301,8 +301,6 @@
 	z-index: 9999 !important;
 }
 
-
-
 #modal-newanc {
 
     
@@ -364,6 +362,29 @@
         background-color: var(--sidebar-main-active-color) !important;
         border-color: var(--sidebar-main-active-color) !important;
     }
+
+    .table-user{
+        thead{
+            white-space: nowrap;
+            overflow: hidden;
+            height: 50px;
+        }
+    }
+
+    .view-morepopup {
+        .charticon-overlay{
+            background-color: var(--bg-inner-color) !important;
+        }
+
+        .modal-content .modal-body .btn-group .btn-secondary .btn-group .btn-secondary{
+            background-color: transparent !important;
+            border-color: transparent !important;
+        }
+        .btn-group .btn-secondary.bg-transparent {
+                    background-color: transparent !important;
+                    border-color: transparent !important;
+                }
+    }
 }
 
 .modal-newac {
@@ -371,13 +392,13 @@
    
 
     .border-greytheme{
-        height: 98% !important;
+        height: 92% !important;
         overflow-y: auto;
-        margin-bottom: 15px !important;
+        // margin-bottom: 15px !important;
     }
 
     .analytic-charts{
-        height: 97% !important;
+        height: 92% !important;
         overflow-y: auto;
     }
 

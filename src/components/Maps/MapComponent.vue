@@ -6,6 +6,7 @@
     }"
     :style="{ height: computedHeight + 'px' }"
     id="leafLet_map"
+    ref="leafLet_map"
   >
     <template v-if="isJSONError">
       <div class="mt-5 text-center">
@@ -37,36 +38,36 @@
           :options="getOptions"
           v-if="showGeoJson"
         ></l-geo-json>
-        <l-control-fullscreen
-          v-if="!isExporting"
-          position="topright"
-          class="full-screen"
-          :options="{
-            title: { false: $t('fullScreen'), true: $t('exitFullScreen') },
-          }"
-        />
-        <l-control-zoom
-          style="padding: 4px 6px"
-          position="topright"
-          :zoomInTitle="$t('zoomin')"
-          :zoomOutTitle="$t('zoomout')"
-          class="zoom-inout"
-          v-if="!isExporting"
-        >
-        </l-control-zoom>
-        <l-control position="topright" class="reset-map" v-if="!isExporting">
-          <span
-            @click.prevent.stop="reCenterMap"
-            :title="$t('resetMap')"
-            data-html2canvas-ignore="true"
+          <l-control-fullscreen
+            v-if="!isExporting"
+            position="topright"
+            :class="isGenerating ? 'd-none' : 'full-screen leaflet-control'"
+            :options="{
+              title: { false: $t('fullScreen'), true: $t('exitFullScreen') },
+            }"
+          />
+          <l-control-zoom
+            style="padding: 4px 6px"
+            position="topright"
+            :zoomInTitle="$t('zoomin')"
+            :zoomOutTitle="$t('zoomout')"
+            :class="isGenerating ? 'd-none' : 'zoom-inout leaflet-control'"
+            v-if="!isExporting"
           >
-            <img
-              src="@/assets/images/icons/icon-refresh.svg"
-              class="w-17px"
-              :style="{ filter: filterColor }"
-            />
-          </span>
-        </l-control>
+          </l-control-zoom>
+          <l-control position="topright" v-if="!isExporting" :class="isGenerating ? 'd-none' : 'reset-map leaflet-control'">
+            <span
+              @click.prevent.stop="reCenterMap"
+              :title="$t('resetMap')"
+              data-html2canvas-ignore="true"
+            >
+              <img
+                src="@/assets/images/icons/icon-refresh.svg"
+                class="w-17px"
+                :style="{ filter: filterColor }"
+              />
+            </span>
+          </l-control>
         <l-control
           position="bottomleft"
           id="legend"
@@ -109,7 +110,20 @@
                     }"
                     disabled
                     v-bind:value="scaleDescription[0].scales[index].scaleColor"
+                    v-if="!isGenerating"
                   />
+                  <canvas
+                    v-if="isGenerating"
+                    v-bind:style="{
+                      background: scaleDescription[0].scales[index].scaleColor,
+                    }"
+                    style="
+                      display: inline;
+                      border: 1px solid white;
+                      padding: 4px;
+                      height: 4px;
+                    "
+                  ></canvas>
                   <span
                     class="ml-2 legend-plot cursor-pointer"
                     style="color: white"
@@ -181,6 +195,8 @@ export default {
     "mapConfigData",
     "selectedLayer",
     "locationPeriod",
+    "isGenerating",
+    "title"
   ],
   components: {
     LMap,
@@ -273,6 +289,8 @@ export default {
       this.showGeoJson = false;
       this.scaleDescription = [];
       this.setPeriod();
+      this.$emit("deleteMapPic", this.title);
+      this.reCenterMap()
     },
     isJsonFetched(newValue) {
       if (newValue) {
@@ -289,9 +307,26 @@ export default {
         this.setPeriod();
       }
     },
+    viewType(newVal, oldVal){
+      if (newVal === "map" && oldVal === "chart") {
+        this.$emit("deleteBubbleChart");
+        this.reCenterMap();
+      }
+    },
+    isGenerating: {
+      handler(newVal) {
+        if (newVal) {
+          this.zoom = this.zoom - 1;
+        } else {
+          this.zoom = this.zoom + 1;
+        }
+      },
+      deep: true,
+    },
   },
   methods: {
     getFillColor(value) {
+      value = parseFloat(value.replaceAll(",", ""));
       let returnColor = "#A0ADBA";
       if (this.showScales) {
         if (this.scaleDescription.length) {
@@ -342,7 +377,7 @@ export default {
           ? this.mapData.find((d) => d.locationID === paramId)
           : null;
       if (dataVal) {
-        returnVal = dataVal.originalY;
+        returnVal = Number(dataVal.originalY).toLocaleString();
       }
       return returnVal;
     },
@@ -498,9 +533,11 @@ export default {
       this.updatedYearSliderValue = year;
       this.getUpdatedMapValues();
     },
-    async exportChart(type = "jpg") {
+    async exportChart(type = "jpg", exp = false) {
       this.isExporting = true;
-      this.$store.commit("setLoading", true);
+      if(!exp){
+        this.$store.commit("setLoading", true);
+      }
       let map = this.$refs.myMap.mapObject;
       let isExpanded = map.isFullscreen();
       let getStyleObj = isExpanded
@@ -508,7 +545,7 @@ export default {
         : { quality: 0.95 };
       if (type === "jpg") {
         await domtoimage
-          .toJpeg(document.getElementById("leafLet_map"), getStyleObj)
+          .toJpeg(this.$refs.leafLet_map, getStyleObj)
           .then((dataUrl) => {
             let link = document.createElement("a");
             link.download = "my_image.jpg";
@@ -524,8 +561,20 @@ export default {
           });
       } else if (type === "png") {
         await domtoimage
-          .toPng(document.getElementById("leafLet_map"), getStyleObj)
+          .toPng(this.$refs.leafLet_map, getStyleObj)
           .then((dataUrl) => {
+            if (exp) {
+              this.$store.commit("setLoading", false);
+              this.$nextTick(() => {
+                this.$emit("mapPic", {
+                  pic: dataUrl,
+                  url: this.$store.getters.getActiveTab,
+                  title: this.title,
+                });
+              });
+              this.isExporting = false;
+              return;
+            }
             let link = document.createElement("a");
             link.download = "my_image.png";
             link.href = dataUrl;
@@ -598,6 +647,7 @@ export default {
           padding: [10, 10],
         });
       });
+      this.exportChart("png", true);
     },
     locationNames(overlayData) {
       let _this = this;
@@ -648,10 +698,13 @@ export default {
       } else {
         overlayMaps[this.$i18n.t("names")] = new L.LayerGroup([dataLayer]);
       }
-      this.locNameLayer = new L.Control.Layers(null, overlayMaps, {
-        position: "topleft",
-        collapsed: false,
-      }).addTo(this.$refs.myMap.mapObject);
+      // Adding names checkbox on top left corner
+      // if (this.mapConfigData?.isNames) {
+      //   this.locNameLayer = new L.Control.Layers(null, overlayMaps, {
+      //     position: "topleft",
+      //     collapsed: false,
+      //   }).addTo(this.$refs.myMap.mapObject);
+      // }
       this.$nextTick(() => {
         this.showGeoJson = true;
         this.$emit("getGeoData", overlayData);

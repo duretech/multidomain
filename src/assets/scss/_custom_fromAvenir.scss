@@ -448,6 +448,10 @@
     border: 1px solid var(--border-grey-color);
 }
 
+.no-border{
+    border: 0px
+}
+
 .border-t-l-radius-10px {
     border-top-left-radius: 10px !important;
 }
@@ -1763,6 +1767,11 @@ button:focus,
 .popover .popover-body {
     background-color: transparent !important;
     color           : var(--subtext-pop-color);
+}
+
+.tootltipCSS .popover-body{
+    max-height: 110px;
+    overflow: auto;
 }
 
 .tooltip.b-tooltip {

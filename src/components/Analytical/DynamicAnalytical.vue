@@ -1,7 +1,25 @@
 <template>
-  <div class="summary-page-container" id="scrollTop">
-    <div id="modal-anc" ref="printPDF">
-      <!-- <div class="text-right mb-3">
+  <div class="summary-page-container" id="scrollTop" ref="printPDF">
+    <div
+      id="modal-anc"
+      :style="{ paddingTop: isGenerating ? '0%' : '' }"
+    >
+      <h2
+        v-if="isGenerating"
+        style="text-align: center"
+        :style="{
+          color: isGenerating
+            ? $store.getters.getTheme == 'dark'
+              ? 'white !important'
+              : $store.getters.getTheme == 'grey'
+              ? 'white !important'
+              : ''
+            : '',
+        }"
+      >
+        {{ $t("analytical_dashboard") }}
+      </h2>
+      <div class="text-right" v-if="!isGenerating">
         <button
           type="button"
           class="btn btn-primary black-btn blue-btn f-08rem"
@@ -15,8 +33,8 @@
           </span>
           <span class="mx-1"> {{ $t("exportbtn") }} </span>
         </button>
-      </div> -->
-      <template v-if="configData && !reportChartData">
+      </div>
+      <template v-if="configData && !reportChartData && !isGenerating">
         <div
           v-for="(subTab, sInd) in configData.subTabs"
           :key="'tabSummary' + configData.id + subTab.id + sInd"
@@ -30,7 +48,7 @@
         </div>
       </template>
       <div
-        class="anc-charts tablemap-col2 newcolumntab grey-newborder"
+        class="anc-charts tablemap-col2 newcolumntab grey-newborder mt-3"
         v-if="
           ['emuMonthlyTab', 'emuAnnualTab'].includes(
             $store.getters.getActiveTab
@@ -43,6 +61,7 @@
             :dqrResponse="dqrResponse"
             :locationPeriod="locationPeriod"
             @setDQRResponse="setDQRResponse"
+            @updateChartData="updateChartData"
           />
         </div>
         <div v-if="['emuAnnualTab'].includes($store.getters.getActiveTab)">
@@ -51,6 +70,7 @@
             :dqrResponse="dqrResponse"
             :locationPeriod="locationPeriod"
             @setDQRResponse="setDQRResponse"
+            @updateChartData="updateChartData"
           />
         </div>
       </div>
@@ -58,12 +78,50 @@
         <b-col
           sm="12"
           lg="6"
-          class="tablemap-col1 pr-3 modal-content bg-map"
           v-if="
             !reportChartData && (sumArray.length || regionCountArray.length)
           "
+          style="display:block"
+                :style="{margin: isGenerating ? '5% 0% 15% 0%' : ''}"
         >
-          <div class="border-greytheme mb-4">
+        <div class="h-100 tablemap-col1 modal-content bg-map">
+          <div
+            class="border-greytheme"
+            style="margin-top: 30px"
+            ref="summaryContainer"
+          >
+          <div class="text-right">
+            <b-dropdown
+              menu-class="chart-dd-menu"
+              toggle-class="text-decoration-none bg-transparent border-0 dropdown-toggle p-0"
+              v-if="!isPrinting"
+            >
+              <!-- v-if="tType !== 'map'" -->
+              <template v-slot:button-content>
+                <img
+                  :src="require(`@/assets/images/icons/downloadnewActive.svg`)"
+                  v-b-tooltip.hover
+                  :title="$t('downloadIcon')"
+                  class="img-fluid icon1"
+                />
+              </template>
+              <b-dropdown-item class="list-group-item bg-transparent px-0"  @click.prevent.stop="exportChart('pdf')"
+                ><a
+                  class="color-white"
+                >
+                  <div class="row no-gutters options-item">
+                    <div class="col-lg-10 text-left">
+                      <p class="m-0px">{{ $t("pdf") }}</p>
+                    </div>
+                    <div class="col-lg-2">
+                      <p class="m-0px">
+                        <i class="fa-solid fa-file-pdf"></i>
+                      </p>
+                    </div>
+                  </div> </a
+              ></b-dropdown-item>
+            </b-dropdown>
+          </div>
             <div v-for="(obj, i) in sumArray" :key="'sumArray' + i">
               <b-row
                 class="pt-1 pb-1 pl-3 greyborder px-10px"
@@ -71,7 +129,9 @@
                   obj.summaryDetails && obj.summaryDetails.length && i === 0
                 "
               >
-                <b-col cols="4"></b-col>
+                <b-col
+                  :cols="$store.getters.getAppSettings?.benchmark ? 4 : 6"
+                ></b-col>
                 <b-col class="table-heading pr-0" cols="2"
                   ><p class="fs-17-1920">
                     {{ obj.summaryDetails[0].currForDate }}
@@ -85,7 +145,10 @@
                 <b-col class="table-heading pr-0" cols="2"
                   ><p class="fs-17-1920">{{ $t("per_change") }}</p></b-col
                 >
-                <b-col class="table-heading pr-0" cols="2"
+                <b-col
+                  class="table-heading pr-0"
+                  cols="2"
+                  v-if="$store.getters.getAppSettings?.benchmark"
                   ><p class="fs-17-1920">{{ $t("benchmark") }}</p></b-col
                 >
               </b-row>
@@ -94,7 +157,9 @@
                 v-for="(sDetails, i) in obj.summaryDetails"
                 :key="'sumArrayDetails' + i"
               >
-                <b-col class="table-heading pt-2 px-10px" cols="4"
+                <b-col
+                  class="table-heading pt-2 px-10px"
+                  :cols="$store.getters.getAppSettings?.benchmark ? 4 : 6"
                   ><p class="fs-17-1920">
                     {{ sDetails.indicatorName
                     }}<span class="small text-info" v-if="obj.priorityIndicator"
@@ -130,7 +195,10 @@
                     {{ sDetails.change === null ? $t("NA") : sDetails.change }}
                   </div></b-col
                 >
-                <b-col cols="2" class="px-10px"
+                <b-col
+                  cols="2"
+                  class="px-10px"
+                  v-if="$store.getters.getAppSettings?.benchmark"
                   ><div class="summary-dot fs-17-1920">
                     {{
                       sDetails.benchmark === null
@@ -197,30 +265,37 @@
               </b-row>
             </div>
           </div>
+        </div>
         </b-col>
         <template v-if="configData">
           <template
-            class="anc-charts tablemap-col2"
+            class="anc-charts tablemap-col2 after"
             v-for="(subTab, sInd) in configData.subTabs"
           >
             <template v-if="!reportChartData && isMaps(subTab.mapSetting)">
               <b-col
                 sm="12"
                 lg="6"
-                class="tablemap-col1 pr-3 modal-content bg-map anc-indicatormap"
                 :key="'map' + configData.id + subTab.id + sInd"
                 v-show="$store.getters.getActiveTab.includes(subTab.id)"
+                style="display:block"
+                :style="{margin: isGenerating ? '5% 0% 15% 0%' : ''}"
               >
-                <div class="border-greytheme">
+              <div class="h-100 tablemap-col1 modal-content bg-map anc-indicatormap">
+                <div class="border-greytheme" style="margin-top: 30px">
                   <MapContainer
                     :subTab="subTab"
                     :emuData="emuData"
                     :allGeoJson="allGeoJson"
                     :preFetchData="preFetchData"
                     :locationPeriod="locationPeriod"
+                    :isGenerating="isGenerating"
+                    @mapPic="mapPic"
+                    @deleteMapPic="deleteMapPic"
                     class="greyborder"
                   />
                 </div>
+              </div>
               </b-col>
             </template>
             <template v-for="chartData in subTab.chartSetting">
@@ -241,9 +316,25 @@
                     $store.getters.getActiveTab.includes(subTab.id)
                       ? 'block'
                       : 'none',
+                      margin: isGenerating ? '5% 0% 15% 0%' : ''
                 }"
               >
                 <ChartComponent
+                  :style="{
+                    display:
+                      isGenerating &&
+                      (chartData.chartOptions.chartCalculation.includes(
+                        'OTHER_MATRIX_TABLE'
+                      ) ||
+                        chartData.chartOptions.chartCalculation.includes(
+                          'OTHER_MATRIX_TABLE_CYP'
+                        ) ||
+                        chartData.chartOptions.chartCalculation.includes(
+                          'MATRIX_TABLE'
+                        ))
+                        ? 'none'
+                        : 'block',
+                  }"
                   :subTab="subTab"
                   :emuData="emuData"
                   :chartData="chartData"
@@ -257,6 +348,13 @@
                   :locationPeriod="locationPeriod"
                   :reportChartData="reportChartData"
                   :backgroundData="subTab.backgroundData"
+                  :isGenerating="isGenerating"
+                  :configDataAD="configData"
+                  @updateChartData="updateChartData"
+                  @getBubbleChart="getBubbleChart"
+                  @mapPic="mapPic"
+                  @deleteBubbleChart="deleteBubbleChart"
+                  @deleteMapPic="deleteMapPic"
                 />
               </b-col>
             </template>
@@ -273,6 +371,8 @@ import MapContainer from "./MapContainer.vue";
 import GeoJsonMixin from "@/helpers/GeoJsonMixin";
 import ScrollPageMixin from "@/helpers/ScrollPageMixin";
 import GenerateReportMixin from "@/helpers/GenerateReportMixin";
+import html2pdf from "html2pdf.js";
+import domtoimage from "dom-to-image";
 export default {
   props: ["selectedData", "preFetchData", "locationPeriod", "reportChartData"],
   mixins: [GeoJsonMixin, ScrollPageMixin, GenerateReportMixin],
@@ -308,9 +408,22 @@ export default {
       regionCountList: [],
       configData: this.selectedData,
       isDataSet: false,
+      isPrinting: false,
     };
   },
   computed: {
+    // isBenchMarkFound() {
+    //   let arr = this.sumArray;
+    //   console.log(this.sumArray);
+    //   let isFound = this.sumArray.find(
+    //     (obj) => obj.summaryDetails?.[0]?.isBenchmark
+    //   );
+    //   console.log(isFound, "isBenchMarkFound");
+    //   return isFound;
+    // },
+    updatedSize(){
+      return !this.isGenerating ? '6' : '12'
+    },
     sumArray() {
       let arr = this.summaryList;
       let cID = [];
@@ -487,10 +600,12 @@ export default {
           this.getGeoJson(newValue.location); //mixin function
           this.getEMUData();
         }
+        this.mapValue = [];
       },
       deep: true,
     },
     "$store.getters.getActiveTab": function () {
+      this.bubbleChart = "";
       if (
         ["emuMonthlyTab", "emuAnnualTab"].includes(
           this.$store.getters.getActiveTab
@@ -679,7 +794,174 @@ export default {
         });
       }
     },
+    exportChart(type) {
+      let chart = this.$refs.summaryContainer;
+      console.log("chart", chart);
+      
+      
+      if (type == "ppt") {
+        import(/* webpackChunkName: "pptxgenjs"*/ "pptxgenjs").then(
+          async (pptxgen) => {
+            this.$store.commit("setLoading", true);
+            this.isPrinting = true;
+            let pptx = new pptxgen.default();
+            pptx.layout = "LAYOUT_WIDE";
+            pptx.author = "Avenir Generic Tool";
+            pptx.company = "Dure Technologies";
+            pptx.subject = this.$i18n.t("summary_dashboard");
+            pptx.title = this.$i18n.t("summary_dashboard");
+
+            pptx.defineSlideMaster({
+              title: "MASTER_SLIDE",
+              background: { color: "FFFFFF" },
+              objects: [
+                {
+                  text: {
+                    text: "title",
+                    options: {
+                      y: "2%",
+                      fontSize: 30,
+                      align: "center",
+                      w: "100%",
+                      underline: true,
+                    },
+                  },
+                },
+                {
+                  line: {
+                    align: "center",
+                    x: 4.2,
+                    y: "94%",
+                    w: 5,
+                    h: 0,
+                    line: "0088CC",
+                    lineSize: 1,
+                  },
+                },
+                {
+                  line: {
+                    align: "center",
+                    x: 5.2,
+                    y: "95%",
+                    w: 3,
+                    h: 0,
+                    line: "0088CC",
+                    lineSize: 1,
+                  },
+                },
+                {
+                  text: {
+                    text:
+                      "LOCATION",
+                    options: {
+                      x: 0.5,
+                      y: "95%",
+                      w: "60%",
+                      bold: true,
+                      fontSize: 12,
+                    },
+                  },
+                },
+                {
+                  text: {
+                    text:
+                      "PERIOD",
+                    options: {
+                      x: 0.5,
+                      y: "98%",
+                      w: "60%",
+                      bold: true,
+                      fontSize: 12,
+                    },
+                  },
+                },
+                {
+                  text: {
+                    text:
+                      "DATE",
+                    options: {
+                      x: 8.5,
+                      y: "98%",
+                      w: "30%",
+                      align: "right",
+                      fontSize: 12,
+                      bold: true,
+                    },
+                  },
+                },
+              ],
+            });
+
+            await domtoimage
+              .toPng(chart)
+              .then(function (dataUrl) {
+                const slide = pptx.addSlide("MASTER_SLIDE");
+                slide.addImage({
+                  data: dataUrl,
+                  x: 0,
+                  y: 0,
+                  w: "100%",
+                  h: "90%",
+                });
+                this.$store.commit("setLoading", false);
+                this.isPrinting = false;
+              })
+              .catch((error) => {
+                console.error("Error converting DOM to PNG:", error);
+                this.$store.commit("setLoading", false);
+                this.isPrinting = false;
+              });
+              pptx.writeFile({ fileName: "DEMO" });
+          }
+        );
+      } else if (type == "pdf") {
+        setTimeout(async () => {
+          this.$store.commit("setLoading", true);
+          this.isPrinting = true;
+          let options = {
+            filename: "_" + this.$moment(new Date()).format("lll") + ".pdf",
+            pagebreak: {
+              mode: "avoid-all",
+              before: ".before",
+              avoid: ".after",
+            },
+            image: { type: "jpeg", quality: 0.98 },
+            html2canvas: {
+              scale: 2,
+              useCORS: true,
+              allowTaint: true,
+            },
+            jsPDF: {
+              unit: "mm",
+              format: "a4",
+              orientation: "l",
+            },
+          };
+
+          await html2pdf()
+            .set(options)
+            .from(chart)
+            .toPdf()
+            .get("pdf")
+            .then((pdf) => {
+              this.isPrinting = false;
+              this.$store.commit("setLoading", false);
+            })
+            .save();
+          }, 50);
+      }
+      this.isPrinting = false;
+    },
   },
-  created() {},
 };
 </script>
+
+<style lang="scss" scoped>
+.before {
+  page-break-before: always !important;
+}
+.after {
+  page-break-after: always !important;
+  page-break-inside: avoid !important;
+}
+</style>

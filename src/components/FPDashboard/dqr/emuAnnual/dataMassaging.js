@@ -185,8 +185,8 @@ export default {
       let year = yearArray[yrInd];
       if (!oTarget[year]) {
         oTarget[year] = {};
-        oTarget[year][sName] = 0;
       }
+      if (!oTarget[year][sName]) oTarget[year][sName] = 0;
       for (i = 0; i < nLen; i++) {
         let sYear = p_response[i][1];
         if (year == sYear) {
@@ -347,7 +347,7 @@ export default {
     });
     return {
       categories: aCats,
-      data: aSeries,
+      data: aSeries[0].data.length ? aSeries : [],
       tableData: newTableData,
       fields: aFileds,
       title: newName,
@@ -435,8 +435,10 @@ export default {
         bIsLongTerm = p_arr[i].methodType;
       oPArr[sName] = oChart;
       //if(bIsLongTerm == "Long Term"){
+
       if (oChart) {
         let sFirstYear = Object.keys(oChart)[0];
+
         Object.keys(oChart).forEach((j, m) => {
           if (aYears.indexOf(j) == -1) {
             aYears.push(j);
@@ -1385,12 +1387,14 @@ export default {
         let tRow = {};
         tRow[i18n.t("period")] = year;
         for (let type in oProps) {
-          tRow[oProps[type]] =
-            userTrendsData[type] &&
-            userTrendsData[type][method] &&
-            userTrendsData[type][method][year]
-              ? userTrendsData[type][method][year]
-              : null;
+          if (userTrendsData[type]) {
+            tRow[oProps[type]] =
+              userTrendsData[type] &&
+              userTrendsData[type][method] &&
+              userTrendsData[type][method][year]
+                ? userTrendsData[type][method][year]
+                : null;
+          }
         }
         mainObject[method].tableData.push(tRow);
       }

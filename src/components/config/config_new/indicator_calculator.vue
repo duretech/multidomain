@@ -140,10 +140,6 @@ import service from "@/service";
 import SubTabConfig from "../indicator_calculator/SubTabConfig";
 import EmuConfig from "../indicator_calculator/emuConfig";
 import stockOutConfig from "@/config/stockOutConfig.js";
-// import bgDataConfig from "@/config/globalFactorsConfig.js";
-// import annualConfig from "@/config/emuAnnualConfig.js";
-// import monthlyConfig from "@/config/emuMonthlyConfig.js";
-// import globalFactorsConfig from "@/config/globalFactorsConfig.js";
 
 export default {
   props: ["bgDataConfig"],

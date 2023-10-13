@@ -110,9 +110,7 @@
                       <b-col sm="10">
                         <b-input-group
                           :id="`chartHeading-${configKey}-${i}-${j}-${c}`"
-                        
                         >
-                        
                           <b-form-textarea
                             v-model="chart.chartOptions.chartName[$i18n.locale]"
                             :state="
@@ -142,7 +140,6 @@
                               : 0
                           }}/{{ chartTitleMaxLength }}</span
                         >
-                       
                       </b-col>
                     </b-row>
                   </b-col>
@@ -931,6 +928,35 @@
                         </b-col>
                       </b-row>
                     </b-col>
+                    <!-- <b-col
+                      sm="12"
+                      lg="6"
+                      class="mb-3"
+                      v-if="chart.chartOptions.type !== 'map'"
+                    >
+                      <b-row>
+                        <b-col sm="5">
+                          <label
+                            :for="`benchmark-${configKey}-${i}-${j}-${c}`"
+                            >{{ $t("benchmark") }}</label
+                          >
+                        </b-col>
+                        <b-col sm="7">
+                          <b-input-group
+                            :id="`benchmark-${configKey}-${i}-${j}-${c}`"
+                          >
+                            <b-input-group-prepend is-text>
+                              <b-form-checkbox
+                                switch
+                                class="mr-n2"
+                                v-model="chart.chartOptions.isBenchmark"
+                              >
+                              </b-form-checkbox>
+                            </b-input-group-prepend>
+                          </b-input-group>
+                        </b-col>
+                      </b-row>
+                    </b-col> -->
                     <b-col
                       sm="12"
                       lg="6"
@@ -1784,6 +1810,12 @@
                       </b-row>
                     </b-col>
                   </template>
+                  <b-col
+                    sm="12"
+                    class="mb-3"
+                    v-if="chart.chartOptions.type === 'map'"
+                  >
+                  </b-col>
                   <b-col
                     sm="12"
                     lg="12"

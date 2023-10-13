@@ -71,8 +71,8 @@ export const getAppFinalYear = () => {
     store.getters.getGlobalFactors(namespace).period.Period;
   return globalPeriodData
     ? moment(new Date(globalPeriodData.backtrackedLimitedDate), "YYYY").format(
-        "YYYY"
-      )
+      "YYYY"
+    )
     : new Date().getFullYear();
 };
 
@@ -82,11 +82,11 @@ export const translateDateOld = ({
   monthlyFormat = "MMMM YYYY",
 }) => {
   let quarters = {
-      Q1: ["Jan", "Mar"],
-      Q2: ["Apr", "Jun"],
-      Q3: ["Jul", "Sep"],
-      Q4: ["Oct", "Dec"],
-    },
+    Q1: ["Jan", "Mar"],
+    Q2: ["Apr", "Jun"],
+    Q3: ["Jul", "Sep"],
+    Q4: ["Oct", "Dec"],
+  },
     years = ["Mar", "Apr"],
     yearsJuly = ["Jun", "Jul"];
   if (i18n.locale === "fr") {
@@ -114,14 +114,12 @@ export const translateDateOld = ({
       q1[0];
   } else if (periodType === "financialYear") {
     let q1 = rawDate.split("April");
-    formattedPeriod = `${years[1]} ${q1[0]} ${i18n.t("toSmall")} ${years[0]} ${
-      q1[0] * 1 + 1
-    }`;
+    formattedPeriod = `${years[1]} ${q1[0]} ${i18n.t("toSmall")} ${years[0]} ${q1[0] * 1 + 1
+      }`;
   } else if (periodType === "financialYearJuly") {
     let q1 = rawDate.split("July");
-    formattedPeriod = `${yearsJuly[1]} ${q1[0]} ${i18n.t("toSmall")} ${
-      yearsJuly[0]
-    } ${q1[0] * 1 + 1}`;
+    formattedPeriod = `${yearsJuly[1]} ${q1[0]} ${i18n.t("toSmall")} ${yearsJuly[0]
+      } ${q1[0] * 1 + 1}`;
   } else {
     formattedPeriod = moment(rawDate, "YYYY").format("YYYY");
   }
@@ -685,8 +683,8 @@ export const generateChart = ({
                       ? response.data.metaData.items[p].name.split(" ")[0]
                       : periodType == "quarterly" ||
                         periodType == "financialYear"
-                      ? response.data.metaData.items[p].name
-                      : name,
+                        ? response.data.metaData.items[p].name
+                        : name,
                   y: (rData[d][p] * 1).toFixed(2) * 1,
                   pe: p,
                 });
@@ -701,8 +699,8 @@ export const generateChart = ({
                       ? response.data.metaData.items[p].name.split(" ")[0]
                       : periodType == "quarterly" ||
                         periodType == "financialYear"
-                      ? response.data.metaData.items[p].name
-                      : name,
+                        ? response.data.metaData.items[p].name
+                        : name,
                   y: null,
                   pe: p,
                 });
@@ -742,10 +740,10 @@ export const generateChart = ({
             y:
               peFinalCount[d][name].denominator * 1 !== 0
                 ? (
-                    (peFinalCount[d][name].numerator /
-                      peFinalCount[d][name].denominator) *
-                    100
-                  ).toFixed(2) * 1
+                  (peFinalCount[d][name].numerator /
+                    peFinalCount[d][name].denominator) *
+                  100
+                ).toFixed(2) * 1
                 : null,
             pe: d,
           });
@@ -883,8 +881,8 @@ export const generateChart = ({
                     cData.drillCalculation !== "PERIOD_DIFF"
                       ? rt.drillColor
                       : y > 0
-                      ? cData.cngPtPos || "#5BD282"
-                      : cData.cngPtNeg || "#FE8081";
+                        ? cData.cngPtPos || "#5BD282"
+                        : cData.cngPtNeg || "#FE8081";
                   obj.data.push({
                     name,
                     y,
@@ -953,8 +951,8 @@ export const generateChart = ({
               let ratio =
                 sData[method1][y][currentPeriod] * 1 !== 0
                   ? ((sData[method2][x][currentPeriod] * 1) /
-                      (sData[method1][y][currentPeriod] * 1)) *
-                    1
+                    (sData[method1][y][currentPeriod] * 1)) *
+                  1
                   : 0;
               let diff =
                 (sData[method1][x][currentPeriod] * 1 -
@@ -1050,8 +1048,8 @@ export const generateChart = ({
             return a.value1.y < b.value1.y
               ? 1
               : a.value1.y == b.value1.y
-              ? 0
-              : -1;
+                ? 0
+                : -1;
           })
           .forEach(function (v, i) {
             diffData[i] = v.value1;
@@ -1160,7 +1158,7 @@ export const generateChart = ({
         cObj.xAxis.max = maxValue;
         cObj.yAxis.max = maxValue;
         cObj.series.push(diagonalLine);
-
+        cObj['r2'] = result.r2;
         let regressionLine = {
           type: "line",
           name: i18n.t("legend2"),
@@ -1248,10 +1246,10 @@ export const generateChart = ({
               y:
                 peFinalCount[d][name].denominator * 1 !== 0
                   ? (
-                      (peFinalCount[d][m].numerator /
-                        peFinalCount[d][m].denominator) *
-                      100
-                    ).toFixed(2) * 1
+                    (peFinalCount[d][m].numerator /
+                      peFinalCount[d][m].denominator) *
+                    100
+                  ).toFixed(2) * 1
                   : null,
               color: catData.color,
             };

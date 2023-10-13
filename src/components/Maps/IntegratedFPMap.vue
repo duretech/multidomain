@@ -52,47 +52,48 @@
                   <b-collapse id="my-collapse1" visible>
                     <div class="maplegend mapDivLegend map-live">
                       <ul class="list-unstyled mb-0">
-                        <li class="p-2 legend-map"
-                        v-for="(scales, index) in scaleDescription[0].scales"
-                        :key="index">
-                        
-                            <input
-                              type="color"
-                              class="cursor-pointer mapInputBox fs-17-1920 w-30"
-                              v-bind:style="{
-                                color:
-                                  scaleDescription[0].scales[index].scaleColor,
-                              }"
-                              v-bind:value="
-                                scaleDescription[0].scales[index].scaleColor
-                              "
-                              readonly
-                              disabled
-                              v-if="!exportingPdf && !isExporting"
-                            />
-                            <canvas
-                              v-if="exportingPdf || isExporting"
-                              v-bind:style="{
-                                background:
-                                  scaleDescription[0].scales[index].scaleColor,
-                              }"
-                              style="
-                                display: inline;
-                                border: 1px solid white;
-                                padding: 4px;
-                                height: 4px;
-                              "
-                            ></canvas>
-                            <span
-                              class="ml-2 legend-plot cursor-pointer"
-                              v-b-tooltip.hover
-                              :title="
-                                scaleDescription[0].scales[index].scaleLabel
-                              "
-                              >{{
-                                scaleDescription[0].scales[index].scaleLabel
-                              }}</span
-                            >
+                        <li
+                          class="p-2 legend-map"
+                          v-for="(scales, index) in scaleDescription[0].scales"
+                          :key="index"
+                        >
+                          <input
+                            type="color"
+                            class="cursor-pointer mapInputBox fs-17-1920 w-30"
+                            v-bind:style="{
+                              color:
+                                scaleDescription[0].scales[index].scaleColor,
+                            }"
+                            v-bind:value="
+                              scaleDescription[0].scales[index].scaleColor
+                            "
+                            readonly
+                            disabled
+                            v-if="!exportingPdf && !isExporting"
+                          />
+                          <canvas
+                            v-if="exportingPdf || isExporting"
+                            v-bind:style="{
+                              background:
+                                scaleDescription[0].scales[index].scaleColor,
+                            }"
+                            style="
+                              display: inline;
+                              border: 1px solid white;
+                              padding: 4px;
+                              height: 4px;
+                            "
+                          ></canvas>
+                          <span
+                            class="ml-2 legend-plot cursor-pointer"
+                            v-b-tooltip.hover
+                            :title="
+                              scaleDescription[0].scales[index].scaleLabel
+                            "
+                            >{{
+                              scaleDescription[0].scales[index].scaleLabel
+                            }}</span
+                          >
                         </li>
                       </ul>
                     </div>
@@ -173,6 +174,8 @@ export default {
     "selectedInd",
     "exportingPdf",
     "isAnalytical",
+    "isGenerating",
+    "title",
   ],
   components: {
     LMap,
@@ -250,11 +253,24 @@ export default {
           this.setData(newVal);
         }
       },
-      depp: true,
+      deep: true,
     },
+    exportingPdf:{
+      handler(newVal){
+        if(this.showIcons){
+            if(newVal){
+              this.zoom = this.zoom - 1;
+            }
+            else{
+              this.zoom = this.zoom + 1;
+            }
+        }
+      },
+      deep:true
+    }
   },
   methods: {
-    async exportChart(type = "jpg") {
+    async exportChart(type = "jpg", exp = false) {
       this.isExporting = true;
       this.$store.commit("setLoading", true);
       let map = this.$refs.mapObjNew.mapObject;
@@ -282,6 +298,16 @@ export default {
         await domtoimage
           .toPng(document.getElementById("int_map"), getStyleObj)
           .then((dataUrl) => {
+            if (exp) {
+              this.$store.commit("setLoading", false);
+              this.$emit("mapPic", {
+                pic: dataUrl,
+                url: this.$store.getters.getActiveTab,
+                title: this.title,
+              });
+
+              return;
+            }
             let link = document.createElement("a");
             link.download = "my_image.png";
             link.href = dataUrl;
@@ -311,6 +337,7 @@ export default {
         this.$refs.mapObjNew.mapObject.fitBounds(group.getBounds(), {
           padding: [10, 10],
         });
+        this.exportChart("png", true);
       });
     },
     setMinMax(mapData) {
@@ -438,10 +465,10 @@ export default {
           overlayMaps["names"] = new L.LayerGroup([dataLayer]);
         }
 
-        this.locNameLayer = new L.Control.Layers(null, overlayMaps, {
-          position: "topleft",
-          collapsed: false,
-        }).addTo(this.$refs.mapObjNew.mapObject);
+        // this.locNameLayer = new L.Control.Layers(null, overlayMaps, {
+        //   position: "topleft",
+        //   collapsed: false,
+        // }).addTo(this.$refs.mapObjNew.mapObject);
       });
 
       this.$nextTick(() => {
@@ -525,12 +552,12 @@ export default {
           scaleColor: "#69D48C",
           scaleLabel: this.$i18n.t("highCoverage"),
         },
-        {
-          highScale: "50",
-          lowScale: "75",
-          scaleColor: "#6c7787",
-          scaleLabel: this.$i18n.t("coverage"),
-        },
+        // {
+        //   highScale: "50",
+        //   lowScale: "75",
+        //   scaleColor: "#6c7787",
+        //   scaleLabel: this.$i18n.t("coverage"),
+        // },
         {
           highScale: null,
           lowScale: null,
