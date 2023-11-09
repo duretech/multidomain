@@ -1,6 +1,7 @@
 export default {
   computed: {
     dashboards() {
+      console.log(this.$store.getters.getAppSettings.bypassUser, "bypassuser");
       let d = [],
         programs = [];
       if (

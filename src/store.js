@@ -349,6 +349,7 @@ export default new Vuex.Store({
           : m
           ? `${getters.getAppSettings.tableName}_${m}-dashboard`
           : state.namespace;
+        console.log(key, isFromDefault, "getting app module");
 
         return state.applicationModule[key]
           ? process.env.NODE_ENV !== "production"

@@ -179,7 +179,6 @@
               class="select_dashboard_btn fs-17-1920"
               :disabled="isFromAdmin"
             >
-            
               <b-dropdown-item-button
                 v-for="(dashboard, i) in dashboards"
                 :key="'dashboard' + i"
@@ -344,7 +343,9 @@ export default {
     },
     async getUserDetails() {
       this.$store.commit("setLoading", true);
+      console.log("calling getUserdetails method");
       if (!this.$store.getters.getUserDetails) {
+        console.log("calling if for getting user details");
         if (!this.isFromAdmin) {
           this.$store.commit("setLoadingText", this.$i18n.t("userLoadText")); //Setting loading text in store
         }
@@ -359,6 +360,14 @@ export default {
           let roles = userData.data.userCredentials.userRoles,
             rolesLength = roles.length;
           this.$store.commit("setIsAdmin", false); //for safer side
+          console.log(
+            rolesLength,
+            "rolesLength",
+            userData.data.userCredentials.userRoles,
+            "userRoles",
+            this.$store.getters.getAppSettings.adminUserRole,
+            "adminUserRole"
+          );
           for (let i = 0; i < rolesLength; i++) {
             if (
               this.$store.getters.getAppSettings.adminUserRole.includes(
@@ -371,10 +380,13 @@ export default {
           }
           this.checkDataStore();
         } catch (e) {
+          console.log(e, "error");
           this.sweetAlert({ title: "Failed in getUserDetails()..." });
           this.$store.commit("setLoading", false);
         }
       } else {
+        console.log("calling else as we have userdetails");
+
         this.checkDataStore();
       }
     },
@@ -382,6 +394,8 @@ export default {
      * Check for the dataStore is present or not. DataStore contains all the configurations files. If not present, show appropriate popup message to set the configurations with the Admin link.
      */
     checkDataStore() {
+      console.log("calling checkDatastore method", this.dashboards.length);
+
       if (this.dashboards.length === 1) {
         this.$store.commit("setIsMultiProgram", false); //Setting isMultiProgram variable in a store. This is used in Toolbar to show appropriate location
         this.goTo({
@@ -503,8 +517,9 @@ export default {
             // Call the next set of config files
             this.getLocationList();
           })
-          .catch(() => {
+          .catch((e) => {
             this.$store.commit("setLoading", false);
+            console.log("getting error for non admin user", e);
             this.sweetAlert({ title: "Failed in set locale..." });
           });
       } else {
