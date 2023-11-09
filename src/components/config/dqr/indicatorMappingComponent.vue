@@ -44,7 +44,7 @@
       </div>
       <div class="row mx-0 border-bottomgrey mt-3">
         <div class="col-lg-12">
-          <div class="collapse" :id="'sub_indicator0' + _i + _j">
+          <div class="collapse border-transparent" :id="'sub_indicator0' + _i + _j">
             <div class="accordion mb-3" role="tablist">
               <b-card no-body class="mb-1">
                 <b-card-header
@@ -130,6 +130,7 @@
                                               class="col-sm-7 d-flex justify-content-end align-items-center"
                                             >
                                               <DataEntryAction
+                                              v-if="!isFromIC"
                                                 :dataEntryID="de.id"
                                                 @openPopup="openPopup"
                                               />
@@ -208,6 +209,7 @@ export default {
     "matrixList",
     "bgDataSource",
     "bgDataType",
+    "isFromIC"
   ],
   mixins: [DynamicImageMixin],
   components: {

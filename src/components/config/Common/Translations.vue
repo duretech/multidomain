@@ -160,7 +160,7 @@ export default {
           });
         }
         if (
-          this.$store.getters.getNamespace !== "multi_program_mnch-dashboard"
+          this.$store.getters.getNamespace !== `${this.$store.getters.getAppSettings.tableName}_mnch-dashboard`
         ) {
           // if (subTabGroup === "EMU") {
             summaryFunList.push({

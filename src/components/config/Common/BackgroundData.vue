@@ -88,7 +88,7 @@
               <b-input-group :id="`bgData-r2-${i}-${j}`">
                 <b-form-input
                   min="0.01"
-                  max="1"
+                  max="0.99"
                   step="0.01"
                   type="number"
                   v-model="backgroundData.r2Max"
@@ -98,7 +98,7 @@
                     v-model="backgroundData.r2Max"
                     type="range"
                     min="0.01"
-                    max="1"
+                    max="0.99"
                     step="0.01"
                   ></b-form-input>
                 </b-input-group-append>

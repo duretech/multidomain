@@ -6,6 +6,7 @@
     v-model="isForm"
     button-size="sm"
     no-close-on-backdrop
+    class="dataentryform"
   >
     <!-- scrollable -->
     <div class="row">
@@ -120,7 +121,7 @@ import { decompress } from "compress-json";
 import DataEntryMixin from "@/helpers/DataEntryMixin";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 import loadLocChildMixin from "@/helpers/LoadLocationChildMixin";
-import NepaliDate from "nepali-date-converter";
+import { adToBs } from "@sbmdkl/nepali-date-converter"
 
 export default {
   props: ["isDataEntry", "dataEntryID", "bgDataType"],
@@ -137,12 +138,11 @@ export default {
       location: null,
       period: [],
       periodList: [],
-      currentYear: this.$store.getters.getAppSettings.calendar === "nepali" ? new NepaliDate(
-      new Date(
-        new Date().getFullYear(),
-        new Date().getMonth(),
-        new Date().getDate()
-      )).getBS().year : new Date().getFullYear(),
+      currentYear: this.$store.getters.getAppSettings.calendar === "nepali" ? 
+      adToBs(
+          `${new Date().getFullYear() + "-" + (new Date().getMonth() + 1) + "-" + new Date().getDate()}`
+        ).split("-")[0]
+      : new Date().getFullYear(),
       data: [],
       allData: [],
       fileName: "",

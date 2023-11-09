@@ -261,7 +261,6 @@ import dataM from "./../monthly/dataMassaging.js";
 import cardComponent from "./../monthly/cardComponent";
 import { decompress } from "compress-json";
 import DynamicImageMixin from "@/helpers/DynamicImageMixin";
-import NepaliDate from "nepali-date-converter";
 import {
   translateDate,
   translateAlphatoNum,
@@ -295,21 +294,20 @@ export default {
     let periodData = this.$store.getters.getGlobalFactors().period.Period;
     let d = new Date();
     if (this.$store.getters.getAppSettings.calendar === "nepali") {
-      d = new NepaliDate(
-        new Date(d.getFullYear(), d.getMonth() + 1, d.getDate())
-      ).getBS();
-      let nplMonth = d.month;
-      let nplYear = d.year;
-      let zeroForMonth = nplMonth < 10 ? "0" + nplMonth : nplMonth;
-      d = d.year + "" + zeroForMonth;
+      const { adToBs } = require("@sbmdkl/nepali-date-converter");
+      const bsDate = adToBs(
+        `${d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate()}`
+      );
+      d = bsDate.split("-")[0] + bsDate.split("-")[1];
     }
     this.sourceEndYear = this.$moment(d, "YYYYMM")
       .subtract(periodData.backtrackedMonth * 1, "months")
       .format("YYYYMM");
 
-    this.sourceStartYear = this.$moment(this.sourceEndYear, "YYYYMM")
+    let onlyYear = this.$moment(this.sourceEndYear, "YYYYMM")
       .subtract(periodData.backtrackedYearLimit * 1, "years")
-      .format("YYYYMM");
+      .format("YYYY");
+    this.sourceStartYear = onlyYear + "01";
     console.log(this.sourceStartYear, this.sourceEndYear);
     this.getBackgroundData();
     //  this.getGlobalConfig()
@@ -466,6 +464,7 @@ export default {
           tableData: [],
           filter: [],
           max: 11,
+          disable: false,
         };
         this.chartData = {
           data: [],
@@ -473,6 +472,7 @@ export default {
           tableData: [],
           filter: [],
           max: 11,
+          disable: false,
         };
         this.oneMonthEMUChartData = {
           data: [],
@@ -480,6 +480,7 @@ export default {
           tableData: [],
           filter: [],
           max: 11,
+          disable: false,
         };
         this.totalEMUChartData = {
           data: [],
@@ -487,6 +488,7 @@ export default {
           tableData: [],
           filter: [],
           max: 11,
+          disable: false,
         };
         this.trendsChartData = {
           data: [],
@@ -494,6 +496,7 @@ export default {
           tableData: [],
           filter: [],
           max: 11,
+          disable: false,
         };
         this.methodTrendsChartData = {
           data: [],
@@ -501,6 +504,7 @@ export default {
           tableData: [],
           filter: [],
           max: 11,
+          disable: false,
         };
         this.tableGenerated = true;
         console.log(
@@ -533,6 +537,8 @@ export default {
         ind["indicator"]["subIndicator"].forEach((subind) => {
           let subIndName = Array.isArray(subind["static_name"])
             ? subind["static_name"][this.$i18n.locale]
+              ? subind["static_name"][this.$i18n.locale]
+              : subind["static_name"][0]
             : subind["static_name"];
           obj["subInd"].push(subIndName);
         });
@@ -604,7 +610,12 @@ export default {
                   Object.keys(dName).forEach((name) => {
                     let statName = dName[name];
                     let findInData = backResponse.rows.filter((obj) => {
-                      if (obj[0] == name && obj[2] == sLocId) return obj;
+                      if (
+                        obj[0] == name &&
+                        obj[2] == sLocId &&
+                        months.includes(obj[1])
+                      )
+                        return obj;
                     });
                     if (findInData && findInData.length) {
                       let firstYear = findInData[0][1] * 1;
@@ -717,14 +728,11 @@ export default {
       var curDate = this.$moment(new Date());
       let d = new Date();
       if (this.$store.getters.getAppSettings.calendar === "nepali") {
-        d = new NepaliDate(
-          new Date(d.getFullYear(), d.getMonth() + 1, d.getDate())
-        ).getBS();
-        let nplMonth = d.month;
-        let nplYear = d.year;
-        let zeroForMonth = nplMonth < 10 ? "0" + nplMonth : nplMonth;
-        d = d.year + "" + zeroForMonth;
-        var curDate = this.$moment(d);
+        const { adToBs } = require("@sbmdkl/nepali-date-converter");
+        const bsDate = adToBs(
+          `${d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate()}`
+        );
+        d = bsDate.split("-")[0] + bsDate.split("-")[1];
       }
 
       while (startDate.isBefore(endDate) && startDate.isBefore(curDate)) {
@@ -1014,25 +1022,16 @@ export default {
       let series = [],
         categories = [],
         trendSeries = [],
-        aTable = [],
         oEMUValues = {};
       Object.keys(this.totalUsers).forEach((method) => {
-        let oMethodTable = {
-          name: "",
-          data: [],
-          mName: "",
-          trans_name: "",
-        };
         if (method != "undefined") {
           let finalEMU = {
             [method]: {},
           };
           Object.keys(this.totalUsers[method]["vals"]).forEach((val) => {
-            let oTable = {};
             if (categories.indexOf(val) == -1) {
               categories.push(val);
             }
-            oTable[this.$i18n.t("period")] = this.allMonthNameJson[val]["name"];
             finalEMU[method][val] =
               (this.totalUsers[method]["vals"][val] /
                 this.monthlyPopulation[val]) *
@@ -1052,32 +1051,9 @@ export default {
                   this.monthlyPopulation[val]) *
                 100
               ).toFixed(2) * 1;
-
-            if (this.backgroundData != null) {
-              Object.keys(this.backgroundData[method]).forEach((back) => {
-                this.backgroundData[method][back]["vals"][val] =
-                  this.backgroundData[method][back]["vals"][val] || 0;
-                oTable[back] =
-                  this.backgroundData[method][back]["vals"][val].toFixed(2) * 1;
-              });
-            }
-            oTable[this.$i18n.t("EMU")] =
-              (
-                (this.totalUsers[method]["vals"][val] /
-                  this.monthlyPopulation[val]) *
-                100
-              ).toFixed(2) * 1;
-            /*commented to remove CYPs/Population*/
-            //oTable[this.$i18n.t('cyp_pop')] = (this.totalCyp[method][val]/(this.monthlyPopulation[val]/12)*100).toFixed(2) * 1
-            oMethodTable["name"] = method;
-            oMethodTable["mName"] = this.totalUsers[method]["name"];
-            oMethodTable["trans_name"] = this.totalUsers[method]["trans_name"];
-            oMethodTable["data"].push(oTable);
           });
 
           categories.sort();
-          aTable.push(oMethodTable);
-          tempObj.tableData = aTable;
           this.finalEmu.push(finalEMU);
         }
       });
@@ -1086,8 +1062,8 @@ export default {
         pubSeries = [],
         saveCategories = [...categories],
         saveMethodCategories = [],
-        saveSeries = [];
-
+        saveSeries = [],
+        aFinalTable = [];
       let tempO = {},
         oFinalAgrEMU = {};
       if (Object.keys(oEMUValues).length > 0) {
@@ -1100,7 +1076,6 @@ export default {
             tempO[d + "__" + oEMUValues[d]["mTransname"]][key] = pVal;
           });
         });
-
         for (let i in tempO) {
           let aSplit = i.split("__"),
             sMethod = aSplit[1];
@@ -1108,12 +1083,14 @@ export default {
             oFinalAgrEMU[sMethod] = {};
           }
           for (let j in tempO[i]) {
+            if (!oFinalAgrEMU[sMethod][j]) oFinalAgrEMU[sMethod][j] = 0;
             oFinalAgrEMU[sMethod][j] =
-              (oFinalAgrEMU[sMethod][j] || 0) + tempO[i][j];
+              ((oFinalAgrEMU[sMethod][j] || 0) * 1 + tempO[i][j] * 1).toFixed(
+                2
+              ) * 1;
           }
         }
       }
-
       if (categories.length > 12) {
         categories.splice(0, categories.length - 24);
       }
@@ -1143,6 +1120,12 @@ export default {
                 : this.totalEMUColor,
               trans_name: oEMUValues[ele]["trans_name"],
             };
+          let oMethodTable = {
+            name: ele,
+            data: [],
+            mName: this.totalUsers[ele]["name"],
+            trans_name: this.totalUsers[ele]["trans_name"],
+          };
           if (
             this.backgroundData &&
             Object.keys(this.backgroundData[ele]).length > 0
@@ -1152,7 +1135,8 @@ export default {
               Object.keys(this.backgroundData[ele][back]["vals"]).forEach(
                 (d) => {
                   if (this.backgroundData[ele][back]["vals"][d] != 0) {
-                    peevVal = this.backgroundData[ele][back]["vals"][d];
+                    peevVal =
+                      this.backgroundData[ele][back]["vals"][d].toFixed(2) * 1;
                   }
                 }
               );
@@ -1160,6 +1144,7 @@ export default {
               methodEMUObject.data = [];
               saveMethodEMUObject.data = [];
               //DHS Series in emu by method chart
+
               let methodPublicObject = {
                 name: "",
                 data: [],
@@ -1169,6 +1154,12 @@ export default {
               };
 
               categories.forEach((key) => {
+                let oTable = {};
+                oTable[this.$i18n.t("period")] =
+                  this.allMonthNameJson[key]["name"];
+                oTable[back] = peevVal;
+
+                oTable[this.$i18n.t("EMU")] = oEMUValues[ele]["vals"][key] || 0;
                 methodEMUObject.data.push(oEMUValues[ele]["vals"][key] || 0);
                 methodPublicObject["name"] =
                   back + " " + oEMUValues[ele]["trans_name"];
@@ -1181,6 +1172,7 @@ export default {
                 ) {
                   methodCategories.push(this.allMonthNameJson[key]["name"]);
                 }
+                oMethodTable.data.push(oTable);
               });
 
               saveCategories.forEach((key) => {
@@ -1195,13 +1187,18 @@ export default {
                   saveMethodCategories.push(this.allMonthNameJson[key]["name"]);
                 }
               });
-
               series.push(methodPublicObject);
               pubSeries.push(methodPublicObject);
               count++;
             });
           } else {
             categories.forEach((key) => {
+              let oTable = {};
+              oTable[this.$i18n.t("period")] =
+                this.allMonthNameJson[key]["name"];
+              oTable[this.$i18n.t("EMU")] = oEMUValues[ele]["vals"][key] || 0;
+              oMethodTable.data.push(oTable);
+
               methodEMUObject.data.push(oEMUValues[ele]["vals"][key] || 0);
               if (
                 methodCategories.indexOf(this.allMonthNameJson[key]["name"]) ==
@@ -1221,6 +1218,7 @@ export default {
               }
             });
           }
+          aFinalTable.push(oMethodTable);
 
           trendSeries.push(methodEMUObject);
           series.push(methodEMUObject);
@@ -1228,6 +1226,7 @@ export default {
           saveSeries.push(saveMethodEMUObject);
         });
       }
+      tempObj.tableData = aFinalTable;
       let seqTemp = [];
       this.methodSeq.forEach((element) => {
         Object.keys(tempObj.filter).forEach((obj) => {
@@ -1408,9 +1407,9 @@ export default {
         tableData.push(oMethodTable);
         series.push(oSeries);
       });
-      (tempObj.data = series),
-        (tempObj.categories = fCategories),
-        (tempObj.tableData = tableData);
+      tempObj.data = series;
+      tempObj.categories = fCategories;
+      tempObj.tableData = tableData;
       tempObj.filter = this.options;
       this.newUsersChartData = tempObj;
       this.$emit('updateChartData' , this.newUsersChartData)
@@ -1782,7 +1781,9 @@ export default {
         agreTable.push(oP);
       }
 
-      (oneMonthEMU.data = oneMonthSeries),
+      (oneMonthEMU.data = oneMonthSeries[0]["data"].length
+        ? oneMonthSeries
+        : []),
         (oneMonthEMU.methodData = oneMonthSeries),
         (oneMonthEMU.categories = oneMonthCategories),
         (oneMonthEMU.methodCategories = oneMonthCategories),
@@ -2166,10 +2167,11 @@ export default {
             //     100
             //   ).toFixed(2) * 1
             // );
+
             totalBack["data"].push(preVal ? preVal.toFixed(2) * 1 : null);
             fCategories.push(this.allMonthNameJson[period]["name"]);
           });
-          series.push(totalBack);
+          if (totalBack["data"].length) series.push(totalBack);
           saveCategories.forEach((period) => {
             if (sumBack[sumVal][period] != 0) {
               if (savePreVal == 0 && savePreValFlag == false) {
@@ -2258,7 +2260,7 @@ export default {
         tableData: [],
         source: this.source,
       };
-      series.push(totalEMU);
+      if (totalEMU["data"].length) series.push(totalEMU);
       /*commented to remove CYPs/Population*/
       //series.push(totalCYP)
 

@@ -348,6 +348,12 @@
     border-bottom: 1px solid transparent !important;
 }
 
+.emu-dqr {
+    .static-height{
+        height: 3px !important;
+    }
+}
+
 .emu-dqr .card-footer{
     border: transparent !important;
 }
@@ -679,6 +685,34 @@
     }
     
     
+
+}
+
+
+.charts-pills {
+
+    .card-header{
+        background-color: transparent !important;
+        border-color: var(--border-grey-color) !important;
+    }
+    .nav-pills .nav-link {
+    background-color: var(--sidebar-main-active-color)!important;
+    border-color: var(--sidebar-main-active-color) !important;
+    padding: 5px 16px;
+    border-radius: 5px!important;
+    border: 1px solid transparent;
+    color: var(--sidebar-maincolor)!important;
+    margin-right: 5px;
+    
+}
+
+
+.nav-pills .nav-link.active{
+    background-color: var(--grey-color-button) !important;
+    border-color: var(--grey-color-button) !important;
+    color: var(--text-color) !important;
+}
+
 
 }
 
@@ -1048,6 +1082,11 @@
     
 }
 
+
+.admin-sidebar .md_nested_tabs .card .charts-pills .card-header{
+ background-color: transparent !important;
+
+}
 .default-tab .card,
 .border-adminmodule .card,
 #accordion-demu1 .card,
@@ -1101,7 +1140,8 @@
 }
 
 
-.card-border1 .border
+.card-border1 .border,
+.default-dataemu
 {
     .input-group{
     align-items: flex-end !important;
@@ -1208,8 +1248,8 @@
     color: var(--text-color) !important;
 }
 
-
-
-
+.select-dropdown .vue-treeselect__label {
+    color: var(--text-color) !important;
+}
 
 

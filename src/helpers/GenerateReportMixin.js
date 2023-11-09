@@ -626,9 +626,9 @@ export default {
           }else{
             slide.addImage({
               data: item.pic,
-              x: 0.5,
+              x: 2.7,
               y: 0.5,
-              w: "90%",
+              w: "60%",
               h: "80%",
             });
           }

@@ -61,6 +61,12 @@
   }
 }
 
+
+.interactive_analytics .med-list.list-unstyled {
+  max-height: 200px;
+  overflow: auto;
+}
+
 .med-list-item {
   position: relative;
   color   : var(--text-color);
@@ -151,6 +157,13 @@
 
         .accordion{
           margin-right: 3%;
+        }
+       .no-datadisplay .b-dropdown-text{
+          position: absolute;
+          top: 40%;
+          display: flex;
+          justify-content: center;
+          align-items: center;
         }
       }
 
@@ -279,7 +292,7 @@
 
         .dropdown-menu {
           z-index         : 1009;
-          background-color: var(--dropdown-bg-color);
+        background-color: var(--dropdown-item-bg);
           border          : 1px solid var(--border-grey-color);
           width           : 100%;
           // border-radius   : 10px;
@@ -293,13 +306,17 @@
             font-size       : var(--font-size-p-small-text);
             z-index         : 1000;
             color           : var(--fonts-white-shade) !important;
-            background-color: var(--dropdown-item-bg);
+            
             width           : 100%;
             margin          : 0 auto;
-            border          : 1px solid var(--border-grey-color);
+            border-bottom          : 1px solid var(--border-grey-color);
             overflow: hidden;
             white-space: pre-wrap;
             text-overflow: ellipsis;
+          }
+
+          .dropdown-item:hover{
+             background-color: var(--dropdown-item-bg);
           }
         }
       }
@@ -323,8 +340,8 @@
 
         .dropdown-menu {
           z-index         : 1009;
-          background-color: var(--dropdown-bg-color);
-          border          : 1px solid var(--dropdown-border-color);
+           background-color: var(--dropdown-item-bg);
+          border          : 1px solid var(--border-grey-color);
           width           : 100%;
           // border-radius   : 10px;
           margin          : 0;
@@ -334,10 +351,13 @@
             font-size       : var(--font-size-p-small-text);
             z-index         : 1000;
             color           : var(--fonts-white-shade) !important;
-            background-color: var(--dropdown-item-bg);
+          
             width           : 100%;
             margin          : 0 auto;
-            border          : 1px solid var(--border-grey-color);
+            border-bottom          : 1px solid var(--border-grey-color);
+          }
+              .dropdown-item:hover{
+             background-color: var(--dropdown-item-bg);
           }
         }
       }

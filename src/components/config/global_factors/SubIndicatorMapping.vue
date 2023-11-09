@@ -155,7 +155,7 @@
                         class="mb-3"
                         v-if="
                           $store.getters.getNamespace !==
-                          'multi_program_mnch-dashboard'
+                          `${$store.getters.getAppSettings.tableName}_mnch-dashboard`
                         "
                       >
                         <b-col sm="5">

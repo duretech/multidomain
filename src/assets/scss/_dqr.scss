@@ -240,3 +240,26 @@
   }
 }
 
+
+.dqr-score{ 
+  
+  .table th {
+  font-weight: 400;
+   }
+
+  
+}
+
+
+.dqr-score.table-bordered {
+    border-color: transparent !important;
+}  
+
+
+.modal-content .modal-body .button-score button,
+ .modal-content .modal-body .button-score button:hover{
+  background: var(--grey-color-button) !important;
+    border-color: var(--grey-color-button) !important;
+
+
+ }

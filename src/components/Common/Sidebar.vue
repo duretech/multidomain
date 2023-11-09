@@ -207,7 +207,7 @@
               <template
                 v-if="
                   $route.name === 'DQRDashboard' &&
-                  $store.getters.getNamespace !== 'multi_program_mnch-dashboard'
+                  $store.getters.getNamespace !== `${$store.getters.getAppSettings.tableName}_mnch-dashboard`
                 "
               >
                 <div v-if="isMonthlyTab">
@@ -242,7 +242,8 @@
           <template
             v-if="
               $route.name === 'AnalyticalDashboard' &&
-              $store.getters.getNamespace !== 'multi_program_mnch-dashboard'
+              $store.getters.getNamespace !== `${$store.getters.getAppSettings.tableName}_mnch-dashboard`
+
             "
           >
             <div>

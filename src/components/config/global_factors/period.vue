@@ -100,20 +100,18 @@
 import service from "@/service";
 import ReFetchConfigMixin from "@/helpers/ReFetchConfigMixin";
 import globalFactorsConfig from "@/config/globalFactorsConfig.js";
-import NepaliDate from "nepali-date-converter";
+import { adToBs } from "@sbmdkl/nepali-date-converter"
 
 export default {
   props: ["module", "type", "subType"],
   mixins: [ReFetchConfigMixin],
   data() {
-    let newMonth = new NepaliDate(new Date()).getBS().month + 1;
+    let d = new Date();
     let currentDateLong =
       this.$store.getters.getAppSettings.calendar === "nepali"
-        ? `${new NepaliDate(new Date()).getBS().year}-${
-            newMonth < 10 ? "0" : ""
-          }${newMonth}-${
-            new NepaliDate(new Date()).getBS().date < 10 ? "0" : ""
-          }${new NepaliDate(new Date()).getBS().date}`
+        ? adToBs(
+      `${d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate()}`
+    )
         : this.$moment().format();
     let format = this.$moment(currentDateLong, "YYYYMM").format("YYYY-MM");
     let periodSettings = globalFactorsConfig[this.type][this.subType]

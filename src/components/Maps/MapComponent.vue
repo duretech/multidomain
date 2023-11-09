@@ -467,9 +467,10 @@ export default {
           }
         });
         let maxValue = Math.max.apply(Math, valArray);
+        let minValue = valArray.length ? Math.floor(Math.min.apply(Math, valArray)) : 0;
         let medianValue =
-          isNumber(maxValue) && valArray.length
-            ? Math.ceil(parseFloat(maxValue / 4))
+          isNumber(maxValue) && isNumber(minValue) && valArray.length
+            ? Math.ceil(parseFloat((maxValue - minValue) / 4))
             : 0;
         let legendScales = {
           lowScale: [],
@@ -478,11 +479,11 @@ export default {
           colorScale: color,
         };
 
-        let lowScaleMinValue = 0;
-        let highScaleMinValue = medianValue;
+        let lowScaleMinValue = isNumber(minValue) ? minValue : 0;
+        let highScaleMinValue = medianValue + (isNumber(minValue) ? minValue : 0);
         for (let i = 0; i < 4; i++) {
           if (i == 0) {
-            legendScales.lowScale.push(0);
+            legendScales.lowScale.push(isNumber(minValue) ? minValue : 0);
             legendScales.highScale.push(highScaleMinValue);
           } else {
             lowScaleMinValue += medianValue;

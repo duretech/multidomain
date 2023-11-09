@@ -45,7 +45,7 @@
               <span class="mx-1 small"> {{ $t("edit") }} </span>
             </button>
             <button
-              class="btn ml-2"
+              class="btn ml-2 d-flex justify-content-center align-items-center"
               v-if="viewOpt"
               @click="updateSignOffForm({ form: form, isView: true })"
             >

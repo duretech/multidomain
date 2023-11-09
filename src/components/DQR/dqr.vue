@@ -50,7 +50,7 @@
                   <b-button
                     v-if="!scorecardGenerated"
                     class="position-relative blue-btn mt-4 mb-2 mx-2"
-                    @click.prevent.stop="generateScorePopup"
+                    @click.prevent.stop="viewScorecard"
                   >
                     <span v-if="scorecardDataFetching">{{
                       `${locationFetchedPercent}%`
@@ -77,12 +77,13 @@
                   <b-button
                     class="generate-btn blue-btn mt-4 mb-2"
                     @click.prevent.stop="viewScorecard"
+                    :style="{background: isGenerating ? '#4375BC !important' : ''}"
                     v-else
                   >
                     <span>{{ $t("viewScorecard") }}</span>
                   </b-button>
 
-                  <b-modal
+                  <!-- <b-modal
                     v-model="generateScorecardPopup"
                     hide-footer
                     centered
@@ -99,8 +100,6 @@
                           :limit="3"
                           :flat="true"
                           :default-expand-level="1"
-                          @deselect="getDeSelected"
-                          @select="getSelected"
                           v-model="selectedScorecardLocations"
                           sort-value-by="INDEX"
                           :placeholder="$t('select')"
@@ -120,7 +119,7 @@
                         </div>
                       </div>
                     </div>
-                  </b-modal>
+                  </b-modal> -->
                   <b-modal
                     v-model="showScorecard"
                     hide-footer
@@ -131,8 +130,181 @@
                     :ok-title="$t('ok')"
                     :cancel-title="$t('cancelbtn')"
                   >
+                    <div class="d-flex align-items-center mb-3">
+                      <div>{{ $t("generateFacScore") }}</div>
+                      <b-form-checkbox
+                        v-model="facilityLevelScorecard"
+                        name="facilityLevelScorecard"
+                        switch
+                        size="lg"
+                        class="mx-3 mb-1"
+                      />
+                    </div>
+                    <div v-if="facilityLevelScorecard">
+                      <div v-if="selectedDate" class="mr-4 small mb-2">
+                        <strong>{{ $t("period") }}: </strong
+                        ><strong>{{ selectedDate }}</strong>
+                      </div>
+                      <div class="row">
+                        <div class="col-8" v-if="facilityLevelScorecard">
+                          <div
+                            class="d-flex justify-content-end pb-3 text-right"
+                          >
+                            <div class="small w-50 select-dqr select-dropdown">
+                              <treeselect
+                                name="scorecardLevels"
+                                :multiple="false"
+                                :options="scorecardLevels"
+                                :limit="3"
+                                :isDisabled="true"
+                                :default-expand-level="1"
+                                v-model="selectedScorecardLevels"
+                                sort-value-by="INDEX"
+                                :placeholder="$t('select')"
+
+                              />
+                            </div>
+                            <div class="small w-50 select-dqr">
+                              <treeselect
+                                name="scorecardLocations"
+                                :multiple="true"
+                                :options="updatedOrgList"
+                                :limit="3"
+                                :flat="true"
+                                :default-expand-level="1"
+                                v-model="selectedFacilityOrg"
+                                sort-value-by="INDEX"
+                                :placeholder="$t('select')"
+                                :load-options="loadOptions"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-4" v-if="facilityLevelScorecard">
+                          <b-button
+                            small
+                            @click.prevent.stop="
+                              scorecardGenerated
+                                ? generateScore(true)
+                                : generateScore()
+                            "
+                            class="ok-grey blue-btn"
+                            :disabled="selectedScorecardLocations.length === 0"
+                          >
+                            <span class="small">{{
+                              scorecardGenerated
+                                ? $t("scorecardReGenerate")
+                                : $t("scorecardGenerate")
+                            }}</span>
+                          </b-button>
+                        </div>
+                      </div>
+
+                      <div
+                        class=""
+                        v-if="
+                          selectedFacilityOrg.length &&
+                          getFacilityTableData.length
+                        "
+                      >
+                        <div
+                          class="d-flex justify-content-between align-items-center"
+                        >
+                          <div class="button-score">
+                            <b-button
+                              size="sm"
+                              @click="selectAllRows"
+                              class="btn"
+                            >
+                              {{ $t("selectAll") }}</b-button
+                            >
+                            <b-button
+                              size="sm"
+                              @click="clearSelected"
+                              class="btn mx-3"
+                              >{{ $t("clearSelected") }}</b-button
+                            >
+                          </div>
+                          <div
+                            class="d-flex justify-content-between align-items-center"
+                          >
+                            <div>
+                              <b-input-group
+                                v-if="getFacilityTableData.length"
+                                class="my-3 w-100"
+                              >
+                                <b-input-group class="mx-4">
+                                  <b-form-input
+                                    id="filter-input"
+                                    v-model="filter"
+                                    type="search"
+                                    :placeholder="$t('search')"
+                                  ></b-form-input>
+                                </b-input-group>
+                              </b-input-group>
+                            </div>
+                            <b-pagination
+                              class="m-0"
+                              v-model="currentPage"
+                              :total-rows="rows.length"
+                              :per-page="perPage"
+                              aria-controls="selectableTableId"
+                            ></b-pagination>
+                          </div>
+                        </div>
+                        <div class="">
+                          <b-table
+                            id="selectableTableId"
+                            sticky-header
+                            responsive="sm"
+                            :items="rows"
+                            :fields="facilityTableFields"
+                            :filter="filter"
+                            select-mode="multi"
+                            ref="selectableTable"
+                            selectable
+                            @row-selected="onRowSelected"
+                            class="table-bordered dqr-score"
+                            :per-page="perPage"
+                            :current-page="currentPage"
+                            show-empty
+                            :empty-text="$t('no_data_to_display')"
+                          >
+                            <template #cell(selected)="{ rowSelected }">
+                              <template v-if="rowSelected">
+                                <span aria-hidden="true">
+                                  <i
+                                    class="fa fa-check-square-o"
+                                    aria-hidden="true"
+                                  ></i
+                                ></span>
+
+                                <span class="sr-only">Selected</span>
+                              </template>
+                              <template v-else>
+                                <span aria-hidden="true"
+                                  ><i
+                                    class="fa fa-square-o"
+                                    aria-hidden="true"
+                                  ></i
+                                ></span>
+                                <span class="sr-only">Not selected</span>
+                              </template>
+                            </template>
+                          </b-table>
+                        </div>
+                      </div>
+                      <b-spinner
+                        v-if="
+                          selectedFacilityOrg.length &&
+                          getFacilityTableData.length == 0
+                        "
+                        type="grow"
+                        label="Spinning"
+                      ></b-spinner>
+                    </div>
                     <div class="row">
-                      <div class="col-4">
+                      <div class="col-4" v-if="!facilityLevelScorecard">
                         <!-- <div
                           v-if="locationPeriod.locationName"
                           class="mr-4 small"
@@ -145,7 +317,7 @@
                           ><strong>{{ selectedDate }}</strong>
                         </div>
                       </div>
-                      <div class="col-8">
+                      <div class="col-8" v-if="!facilityLevelScorecard">
                         <div class="d-flex justify-content-end pb-3 text-right">
                           <div class="small w-50 select-dqr">
                             <treeselect
@@ -154,8 +326,6 @@
                               :options="locationPeriod.locationList"
                               :limit="3"
                               :flat="true"
-                              @deselect="getDeSelected"
-                              @select="getSelected"
                               :default-expand-level="1"
                               v-model="selectedScorecardLocations"
                               sort-value-by="INDEX"
@@ -173,9 +343,32 @@
                             "
                           >
                             <span class="small">{{
-                              $t("scorecardReGenerate")
+                              scorecardGenerated
+                                ? $t("scorecardReGenerate")
+                                : $t("scorecardGenerate")
                             }}</span>
                           </b-button>
+                        </div>
+                      </div>
+
+                      <div
+                        class="row d-flex justify-content-end align-items-center ml-auto mb-3 mx-3"
+                      >
+                        <div class="col-8" v-if="scorecardGenerated">
+                          <div class="text-right small">
+                            <input
+                              type="text"
+                              class="form-control"
+                              id="inputScorecardSearch"
+                              :placeholder="$t('search')"
+                              v-model="scorecardSearch"
+                            />
+                            <!-- </div>
+
+                          <div class="text-right small pb-3"> -->
+                          </div>
+                        </div>
+                        <div class="col-4" v-if="scorecardGenerated">
                           <download-csv
                             class="align-items-center btn btn-secondary blue-btn d-flex justify-content-center"
                             :data="scorecardItemsDownload"
@@ -195,18 +388,7 @@
                           </download-csv>
                         </div>
                       </div>
-                      <div class="col-3 offset-9">
-                        <div class="text-right small pb-3">
-                          <input
-                            type="text"
-                            class="form-control"
-                            id="inputScorecardSearch"
-                            :placeholder="$t('search')"
-                            v-model="scorecardSearch"
-                          />
-                        </div>
-                      </div>
-                      <div class="col-12">
+                      <div class="col-12" v-if="scorecardGenerated">
                         <b-table
                           class="dqr-scoreboard"
                           head-variant="light"
@@ -312,7 +494,7 @@
                     v-for="(menu, i) in scoreBox"
                     :key="'menu' + i"
                   >
-                    <b-card class="inner-card" :style="{backgroundColor: isGenerating ? $store.getters.getTheme === 'dark'? '#201F3C !important' : $store.getters.getTheme === 'grey' ? '#212934 !important' : '' : ''}">
+                    <b-card class="inner-card" :style="{backgroundColor: isGenerating ? $store.getters.getTheme === 'dark'? '#64648D !important' : $store.getters.getTheme === 'grey' ? '#404B5A !important' : '' : ''}">
                       <template #header>
                         <h6 class="mb-0 pl-1 fs-19-1920">
                           {{ menu.tabName }}
@@ -841,6 +1023,37 @@ export default {
   },
   data() {
     return {
+      updatedOrgList: [],
+      perPage: 15,
+      currentPage: 1,
+      facilityLevelID: -1,
+      facilityLevelScorecard: false,
+      selectedScorecardLevels: [],
+      selectedFacilityOrg: [],
+      getFacilityTableData: [],
+      selectedFacilities: [],
+      facilityTableFields: [
+        {
+          key: "selected",
+          sortable: false,
+          isRowHeader: true,
+        },
+        {
+          key: this.$i18n.t("name"),
+          sortable: true,
+          isRowHeader: true,
+        },
+        {
+          key: this.$i18n.t("parent"),
+          sortable: true,
+          isRowHeader: true,
+        },
+        {
+          key: this.$i18n.t("level"),
+          sortable: true,
+          isRowHeader: true,
+        },
+      ],
       scores: [],
       childArr: [],
       userList: [],
@@ -875,10 +1088,68 @@ export default {
       methodSelected: "",
       debugging: false,
       debuggingLevel: "API",
+      filter: "",
       configDQR: null,
     };
   },
   computed: {
+    rows() {
+      const query = this.filter.toLowerCase();
+      return this.getFacilityTableData.filter((item) => {
+        console.log(
+          item[this.$i18n.t("parent")],
+          item[this.$i18n.t("location")]
+        );
+        return (
+          item[this.$i18n.t("parent")].toLowerCase().includes(query) ||
+          item[this.$i18n.t("name")].toLowerCase().includes(query)
+        );
+      });
+      // return this.getFacilityTableData.length;
+    },
+    definedScorecardLevels() {
+      if (this.$store.getters.getOrgLevels) {
+        return this.$store.getters.getOrgLevels;
+      } else {
+        service.getOrganisationUnitLevels().then((orgList) => {
+          return orgList.data;
+        });
+      }
+    },
+    scorecardLevels() {
+      let facility = this.definedScorecardLevels.find((o) =>
+        o.displayName.toLowerCase().includes("facility")
+      );
+      if (facility) {
+        this.facilityLevelID = facility.level;
+      } else {
+        let facilityLevels = this.definedScorecardLevels.map((o) => o.level);
+        this.facilityLevelID = Math.max(...facilityLevels);
+      }
+      let list = [];
+      this.definedScorecardLevels.forEach((levels) => {
+        if (
+          this.facilityLevelID == levels.level &&
+          !this.selectedScorecardLevels.includes(levels.level)
+        ) {
+          this.selectedScorecardLevels.push(levels.level);
+        }
+        list.push({
+          label: levels.displayName,
+          id: levels.level,
+          isDisabled: true,
+        });
+      });
+      if (
+        this.locationPeriod?.locationList.length > 0 &&
+        this.selectedScorecardLevels
+      ) {
+        this.updatedOrgList = this.newLocList(
+          JSON.parse(JSON.stringify(this.locationPeriod.locationList))
+        );
+      }
+      return list;
+    },
     showCharts() {
       return this.configData && this.isChildFetched;
     },
@@ -914,11 +1185,11 @@ export default {
         ? this.scorecardItems.filter(
             (s) =>
               s[this.$i18n.t("location")]
-                .toLowerCase()
-                .includes(this.scorecardSearch.toLowerCase()) ||
+                ?.toLowerCase()
+                .includes(this.scorecardSearch?.toLowerCase()) ||
               s[this.$i18n.t("parent")]
-                .toLowerCase()
-                .includes(this.scorecardSearch.toLowerCase())
+                ?.toLowerCase()
+                .includes(this.scorecardSearch?.toLowerCase())
           )
         : [];
       return filteredData;
@@ -1042,11 +1313,27 @@ export default {
       return ids;
     },
     selectedDate() {
-      return translateDate({
-        rawDate: this.locationPeriod.period,
-        periodType: this.locationPeriod.periodType,
-        monthlyFormat: "MMMM YYYY",
-      });
+      if (this.locationPeriod.periodType === "financialYear") {
+        let pYear = this.locationPeriod.period.substring(0, 4);
+        let currPeriod = `${pYear}April`;
+        return translateDate({
+          rawDate: currPeriod,
+          periodType: this.locationPeriod.periodType,
+        });
+      } else if (this.locationPeriod.periodType === "financialYearJuly") {
+        let pYear = rawDate.substring(0, 4);
+        currPeriod = `${pYear}July`;
+        return translateDate({
+          rawDate: currPeriod,
+          periodType: this.locationPeriod.periodType,
+        });
+      } else {
+        return translateDate({
+          rawDate: this.locationPeriod.period,
+          periodType: this.locationPeriod.periodType,
+          monthlyFormat: "MMMM YYYY",
+        });
+      }
     },
     qualityScore() {
       let score = 0;
@@ -1113,6 +1400,26 @@ export default {
     },
   },
   watch: {
+    facilityLevelScorecard(newValue) {
+      if (!newValue) {
+        // this.selectedFacilityOrg = [];
+        // this.getFacilityTableData = [];
+        this.selectedFacilities = [];
+      } else {
+        this.selectedScorecardLocations = [];
+      }
+    },
+    selectedFacilityOrg: {
+      async handler(newvalue) {
+        if (newvalue.length) {
+          this.getFacilityTableData = await this.getTableOrgData();
+        } else {
+          this.getFacilityTableData = [];
+          this.selectedScorecardLocations = [];
+        }
+      },
+      deep: true,
+    },
     "$store.getters.getTheme": function (){
       this.$refs?.printPDF ? this.getDQRImg(): '';
     },
@@ -1197,13 +1504,9 @@ export default {
         let isFound = this.scorecardDetails.findIndex(
           (s) => s.id === this.scorecardLocation && s.period === periodValue
         );
-        let locName = await this.getLocation(
+        let { locName, parent } = await this.getLocation(
           this.scorecardLocation.split("/")[1]
         );
-        let parent = getParent({
-          locationList: this.locationPeriod.locationList,
-          location: this.scorecardLocation.split("/")[1],
-        });
         let obj = {
           parent,
           name: locName,
@@ -1247,123 +1550,226 @@ export default {
     },
   },
   methods: {
-    async getSelected(value, instanceId) {
-      let facilityLevelID = -1;
-      let levels = this.$store.getters.getOrgLevels;
-      let facility = levels.find((o) =>
-        o.displayName.toLowerCase().includes("facility")
-      );
-      if (facility) {
-        facilityLevelID = facility.level;
-      } else {
-        let facilityLevels = levels.map((o) => o.level);
-        facilityLevelID = Math.max(...facilityLevels);
-      }
-      let upperLevel = facilityLevelID * 1 - 1;
-      let children = [];
-      //newValue.forEach(async (loction) => {
-      let location = value.id;
-      if (!this.selectedScorecardLocations.includes(location))
-        this.selectedScorecardLocations.push(location);
-      if (location.split("/")[0] == upperLevel) {
-        //console.log("One level up facility level selected");
-        if (this.preFetchData?.orgList?.length) {
-          children = getChild({
-            locationList: this.preFetchData.orgList,
-            location: location.split("/")[1],
-          });
-          children = children.map((c) => {
-            return {
-              ...c,
-              id: `${c.level}/${c.id}`,
-            };
-          });
+    newLocList(orgList) {
+      let list = [];
+      let levelAllowed =
+        this.$store.getters.getAppSettings.allowFacilityScorecardLevel * 1 || 2;
+      list = orgList.map((loc) => {
+        if (loc.level < this.facilityLevelID * 1 - levelAllowed) {
+          loc.isDisabled = true;
         } else {
-          try {
-            let response = await service.getChildOrganisation(
-              location.split("/")[1]
-            );
-            children = response?.data?.children || [];
-          } catch (err) {
-            console.log("err", err);
-          }
+          loc.isDisabled = false;
         }
-        // console.log(children, "children");
-        if (children.length) {
-          children.forEach((obj) => {
-            if (!this.selectedScorecardLocations.includes(obj.id))
-              this.selectedScorecardLocations.push(obj.id);
-          });
-          //this.childArr = children;
-          //this.isChildFetched = true;
-        } else {
-          //this.childArr = [];
-          //this.isChildFetched = true;
+        if (loc.children) {
+          loc.children = this.newLocList(loc.children);
         }
-      }
-      //});
+        return loc;
+      });
+      return list;
     },
-    async getDeSelected(value, instanceId) {
-      let facilityLevelID = -1;
-      let levels = this.$store.getters.getOrgLevels;
-      let facility = levels.find((o) =>
-        o.displayName.toLowerCase().includes("facility")
-      );
-      if (facility) {
-        facilityLevelID = facility.level;
+    onRowSelected(items) {
+      if (items.length > 0) {
+        this.selectedFacilities = items;
+        //this.selected = items;
+        items.forEach((lt) => {
+          if (!this.selectedScorecardLocations.includes(lt.id))
+            this.selectedScorecardLocations.push(lt.id);
+        });
       } else {
-        let facilityLevels = levels.map((o) => o.level);
-        facilityLevelID = Math.max(...facilityLevels);
-      }
-      let upperLevel = facilityLevelID * 1 - 1;
-      let children = [];
-      //newValue.forEach(async (loction) => {
-      let location = value.id;
-      if (this.selectedScorecardLocations.includes(location))
-        this.selectedScorecardLocations.splice(
-          this.selectedScorecardLocations.indexOf(location),
-          1
-        );
-      if (location.split("/")[0] == upperLevel) {
-        //console.log("One level up facility level selected");
-        if (this.preFetchData?.orgList?.length) {
-          children = getChild({
-            locationList: this.preFetchData.orgList,
-            location: location.split("/")[1],
-          });
-          children = children.map((c) => {
-            return {
-              ...c,
-              id: `${c.level}/${c.id}`,
-            };
-          });
-        } else {
-          try {
-            let response = await service.getChildOrganisation(
-              location.split("/")[1]
-            );
-            children = response?.data?.children || [];
-          } catch (err) {
-            console.log("err", err);
-          }
-        }
-        if (children.length) {
-          children.forEach((obj) => {
-            if (this.selectedScorecardLocations.includes(obj.id))
-              this.selectedScorecardLocations.splice(
-                this.selectedScorecardLocations.indexOf(obj.id),
-                1
-              );
-            //this.selectedScorecardLocations.push(obj.id);
-          });
-          //this.childArr = children;
-          //this.isChildFetched = true;
-        } else {
-          //this.childArr = [];
-          //this.isChildFetched = true;
-        }
+        this.selectedScorecardLocations = [];
       }
     },
+    // selectThirdRow() {
+    //   // Rows are indexed from 0, so the third row is index 2
+    //   this.$refs.selectableTable.selectRow(2);
+    // },
+    // unselectThirdRow() {
+    //   // Rows are indexed from 0, so the third row is index 2
+    //   this.$refs.selectableTable.unselectRow(2);
+    // },
+    selectAllRows() {
+      this.$refs.selectableTable.selectAllRows();
+    },
+    clearSelected() {
+      this.$refs.selectableTable.clearSelected();
+      this.selectedScorecardLocations = [];
+    },
+    async getTableOrgData() {
+      let orgData = [];
+
+      let gSetting = this.$store.getters.getGlobalFactors();
+      let des = null;
+      if (
+        gSetting.globalMappings &&
+        gSetting.globalMappings.mappings &&
+        gSetting.globalMappings.mappings.length
+      ) {
+        for (let map in gSetting.globalMappings.mappings) {
+          let mappingData = gSetting.globalMappings.mappings[map];
+          for (let innerMap in mappingData["mapping"]) {
+            let innerMapData =
+              gSetting.globalMappings.mappings[map]["mapping"][innerMap][
+                "indicator"
+              ]["subIndicator"];
+            if (innerMapData[0] && innerMapData[0]["selectedDE"].length > 0) {
+              des = innerMapData[0]["selectedDE"][0]["id"];
+              break;
+            }
+          }
+          if (des != null) break;
+        }
+      }
+      let requiredLocs = [];
+      requiredLocs = this.selectedFacilityOrg.map((org) => org.split("/")[1]);
+      requiredLocs.push("LEVEL-" + this.facilityLevelID);
+      await service
+        .getAnalyticalIndicatorData(
+          des,
+          requiredLocs.join(";"),
+          this.locationPeriod.period.split("-").join(""),
+          false,
+          true
+        )
+        .then((response) => {
+          if (response?.data?.metaData["dimensions"]["ou"]) {
+            let ouList = response?.data?.metaData["dimensions"]["ou"];
+            ouList.forEach(async (lt) => {
+              let locDetails = "";
+              locDetails = await this.getLocation(lt);
+              this.$nextTick(() => {
+                orgData.push({
+                  [this.$i18n.t("name")]:
+                    response?.data?.metaData["items"][lt]["name"],
+                  id: this.facilityLevelID + "/" + lt,
+                  [this.$i18n.t("level")]: this.facilityLevelID,
+                  [this.$i18n.t("parent")]: locDetails?.parent?.name,
+                });
+              });
+            });
+
+            // });
+          }
+        });
+
+      return orgData;
+    },
+    // async getSelected(value, instanceId) {
+    //   let facilityLevelID = -1;
+    //   let levels = this.$store.getters.getOrgLevels;
+    //   let facility = levels.find((o) =>
+    //     o.displayName.toLowerCase().includes("facility")
+    //   );
+    //   if (facility) {
+    //     facilityLevelID = facility.level;
+    //   } else {
+    //     let facilityLevels = levels.map((o) => o.level);
+    //     facilityLevelID = Math.max(...facilityLevels);
+    //   }
+    //   let upperLevel = facilityLevelID * 1 - 1;
+    //   let children = [];
+    //   //newValue.forEach(async (loction) => {
+    //   let location = value.id;
+    //   if (!this.selectedScorecardLocations.includes(location))
+    //     this.selectedScorecardLocations.push(location);
+    //   if (location.split("/")[0] == upperLevel) {
+    //     //console.log("One level up facility level selected");
+    //     if (this.preFetchData?.orgList?.length) {
+    //       children = getChild({
+    //         locationList: this.preFetchData.orgList,
+    //         location: location.split("/")[1],
+    //       });
+    //       children = children.map((c) => {
+    //         return {
+    //           ...c,
+    //           id: `${c.level}/${c.id}`,
+    //         };
+    //       });
+    //     } else {
+    //       try {
+    //         let response = await service.getChildOrganisation(
+    //           location.split("/")[1]
+    //         );
+    //         children = response?.data?.children || [];
+    //       } catch (err) {
+    //         console.log("err", err);
+    //       }
+    //     }
+    //     // console.log(children, "children");
+    //     if (children.length) {
+    //       children.forEach((obj) => {
+    //         if (!this.selectedScorecardLocations.includes(obj.id))
+    //           this.selectedScorecardLocations.push(obj.id);
+    //       });
+    //       //this.childArr = children;
+    //       //this.isChildFetched = true;
+    //     } else {
+    //       //this.childArr = [];
+    //       //this.isChildFetched = true;
+    //     }
+    //   }
+    //   //});
+    // },
+    // async getDeSelected(value, instanceId) {
+    //   let facilityLevelID = -1;
+    //   let levels = this.$store.getters.getOrgLevels;
+    //   let facility = levels.find((o) =>
+    //     o.displayName.toLowerCase().includes("facility")
+    //   );
+    //   if (facility) {
+    //     facilityLevelID = facility.level;
+    //   } else {
+    //     let facilityLevels = levels.map((o) => o.level);
+    //     facilityLevelID = Math.max(...facilityLevels);
+    //   }
+    //   let upperLevel = facilityLevelID * 1 - 1;
+    //   let children = [];
+    //   //newValue.forEach(async (loction) => {
+    //   let location = value.id;
+    //   if (this.selectedScorecardLocations.includes(location))
+    //     this.selectedScorecardLocations.splice(
+    //       this.selectedScorecardLocations.indexOf(location),
+    //       1
+    //     );
+    //   if (location.split("/")[0] == upperLevel) {
+    //     //console.log("One level up facility level selected");
+    //     if (this.preFetchData?.orgList?.length) {
+    //       children = getChild({
+    //         locationList: this.preFetchData.orgList,
+    //         location: location.split("/")[1],
+    //       });
+    //       children = children.map((c) => {
+    //         return {
+    //           ...c,
+    //           id: `${c.level}/${c.id}`,
+    //         };
+    //       });
+    //     } else {
+    //       try {
+    //         let response = await service.getChildOrganisation(
+    //           location.split("/")[1]
+    //         );
+    //         children = response?.data?.children || [];
+    //       } catch (err) {
+    //         console.log("err", err);
+    //       }
+    //     }
+    //     if (children.length) {
+    //       children.forEach((obj) => {
+    //         if (this.selectedScorecardLocations.includes(obj.id))
+    //           this.selectedScorecardLocations.splice(
+    //             this.selectedScorecardLocations.indexOf(obj.id),
+    //             1
+    //           );
+    //         //this.selectedScorecardLocations.push(obj.id);
+    //       });
+    //       //this.childArr = children;
+    //       //this.isChildFetched = true;
+    //     } else {
+    //       //this.childArr = [];
+    //       //this.isChildFetched = true;
+    //     }
+    //   }
+    // },
     updateToolBar(updatedVal) {
       this.$emit("updateToolBar", updatedVal);
     },
@@ -1371,22 +1777,49 @@ export default {
       this.allExtData[level] = obj;
     },
     async getLocation(location) {
-      let locName = "";
+      let locName = "",
+        parent = "";
       let loc = getOrg({
         locationList: this.locationPeriod.locationList,
         location: location,
       });
+
       if (loc) {
         locName = loc;
-      } else {
-        try {
-          let orgData = await service.getIndividualOrganisation(location);
-          locName = orgData.data?.displayName || "";
-        } catch (err) {
-          console.log("Error in fetching location...");
+        parent = getParent({
+          locationList: this.locationPeriod.locationList,
+          location: location,
+        });
+      } else if (this.preFetchData?.orgList?.length > 0) {
+        let newLoc = getOrg({
+          locationList: this.preFetchData.orgList,
+          location: location,
+          isFlat: true,
+        });
+        if (newLoc) {
+          locName = newLoc;
+          parent = getParent({
+            locationList: this.preFetchData.orgList,
+            location: location,
+          });
+        } else {
+          try {
+            let orgData = await service.getIndividualOrganisation(
+              location,
+              false,
+              true
+            );
+            locName = orgData.data?.displayName || "";
+            parent = {
+              name: orgData.data?.parent?.displayName,
+              id: orgData.data?.parent?.id,
+            };
+          } catch (err) {
+            console.log("Error in fetching location...");
+          }
         }
       }
-      return locName;
+      return { locName, parent };
     },
     setReportChart(obj) {
       this.$emit("setReportChart", obj);
@@ -1399,6 +1832,7 @@ export default {
       this.$emit("updatedConfig", configData);
     },
     updateScorecard(periodValue) {
+      // We call this method when we have all the locationScores are in hand and the locationScore is set in the scoredDetails as an array. After that the same data is pushed to ScorecareData Array to filter currentData from that. After that we call the setScorecard method.
       let key = this.generateKey("dqrScorecard");
       service
         .getSavedConfig({ tableKey: key })
@@ -1428,6 +1862,7 @@ export default {
           response
             .then((response) => {
               if (response.data.status === "OK") {
+                this.scorecardData = scorecardData;
                 this.currentScorecard = scorecardData[
                   this.$store.getters.getActiveTab.split("-")[0]
                 ].filter((s) => s.period === periodValue);
@@ -1488,6 +1923,11 @@ export default {
           isRowHeader: true,
         },
         {
+          key: this.$i18n.t("scorecardPeriod"),
+          sortable: true,
+          isRowHeader: true,
+        },
+        {
           key: this.$i18n.t("scorecardGeneratedOn"),
           sortable: true,
           isRowHeader: true,
@@ -1497,9 +1937,15 @@ export default {
           label: this.$i18n.t("viewMore"),
         },
       ];
+      console.log("scoreTabID", this.scoreTabID);
       scorecardDetails.forEach((s) => {
         let innerItem = {
             [this.$i18n.t("location")]: excludeName(s.name),
+            [this.$i18n.t("scorecardPeriod")]: translateDate({
+              rawDate: this.locationPeriod.period,
+              periodType: this.locationPeriod.periodType,
+              monthlyFormat: "MMMM YYYY",
+            }),
             [this.$i18n.t("parent")]: excludeName(s.parent?.name || "-"),
             scoreDetails: [],
             _cellVariants: {},
@@ -1508,6 +1954,7 @@ export default {
             [this.$i18n.t("group")]:
               this.$store.getters.getActiveTab.split("-")[0],
             [this.$i18n.t("location")]: excludeName(s.name),
+            [this.$i18n.t("period")]: s.period,
             [this.$i18n.t("parent")]: excludeName(s.parent?.name || "-"),
           };
         let positiveScore = 0,
@@ -1562,6 +2009,7 @@ export default {
           return textA < textB ? -1 : textA > textB ? 1 : 0;
         });
       });
+      console.log("scorecardItems", this.scorecardItems);
     },
     getScorecard() {
       this.scorecardGenerated = false;
@@ -1608,11 +2056,27 @@ export default {
       }
     },
     setScorecard() {
+      console.log("currentScorecard", this.currentScorecard);
       if (this.currentScorecard.length) {
         this.scorecardGenerated = true;
         this.generateTable(this.currentScorecard);
       }
     },
+    // setScorecard() {
+    //   let isFound = false
+    //   if (this.currentScorecard.length) {
+    //     console.log('this.currentScorecard',this.currentScorecard);
+    //     this.currentScorecard.forEach((item) => {
+    //       if(item.id == this.locationPeriod.location){
+    //         isFound = true;
+    //       }
+    //     })
+    //     this.generateTable(this.currentScorecard);
+    //   }
+    //   if(isFound){
+    //     this.scorecardGenerated = true
+    //   }
+    // },
     summaryData(data) {
       let scoreKey = data.scorecardLocation ? "locationScores" : "scores";
       let isFound = this[scoreKey].findIndex((s) => s.id === data.id);
@@ -1657,6 +2121,7 @@ export default {
       if (!this.scorecardDataFetching) {
         this.selectedScorecardLocations = [];
         this.generateScorecardPopup = true;
+        this.currentPage = 1;
       }
     },
     async generateScore(isReset = false) {
@@ -1737,12 +2202,14 @@ export default {
       this.showScorecard = true;
       this.scorecardSearch = "";
       this.selectedScorecardLocations = [];
+      this.facilityLevelScorecard = false;
     },
     methodFilterVal() {},
     yearVal() {},
   },
   created() {
     this.userDetails = this.$store.getters.getUserDetails;
+
     if (!this.reportChartData) {
       this.appResponse = this.$store.getters.getApplicationModule(
         this.$store.getters.getIsMultiProgram
@@ -1786,5 +2253,13 @@ export default {
   100% {
     transform: rotate(360deg);
   }
+}
+.spin-enter {
+  opacity: 0.35;
+  transform: rotate(720deg);
+}
+
+.spin-enter-active {
+  transition: transform 0.75s ease-in-out, opacity 0.5s;
 }
 </style>

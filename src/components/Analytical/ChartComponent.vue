@@ -283,6 +283,7 @@ export default {
             newValue.periodType !== oldValue.periodType ||
             newValue.period !== oldValue.period)
         ) {
+          this.r2 = -1;
           this.exceptionTable = null;
           this.dataFetched = false;
           this.outliers = null;
@@ -349,6 +350,8 @@ export default {
       let plotLines = [],
         allBenchmarks =
           this.$store.getters.getGlobalFactors(namespace).allBenchmarks;
+      let dataArr = [],
+        extData = [];
       for (const b of chartOptions.benchmarks) {
         let isFound = allBenchmarks.benchmarks.find((a) => b.includes(a.id));
         if (isFound) {
@@ -396,6 +399,7 @@ export default {
                     r[2] == this.locationPeriod.location.split("/")[1]
                 );
                 if (isData.length) {
+                  extData = isData;
                   sortedData = isData.sort((a, b) => b[1] * 1 - a[1] * 1);
                 }
               }
@@ -408,18 +412,58 @@ export default {
             obj.label.text = `${obj.label.text ? obj.label.text : obj.name} (${
               obj.value
             })`;
+            let period = getDateRange({
+              sendPeriod: this.locationPeriod?.period || new Date(),
+              periodType: this.locationPeriod?.periodType || "monthly",
+              periodLength: this.periodLength,
+            });
+            let periodArr = period;
+            extData.forEach((obj) => {
+              if (obj[1]) {
+                if (this.locationPeriod?.periodType === "monthly") {
+                  for (let i = 1; i <= 12; i++) {
+                    let j = i < 10 ? `${obj[1]}0${i}` : `${obj[1]}${i}`;
+                    if (periodArr.includes(j)) {
+                      let periodString = translateDate({
+                        rawDate: j,
+                      });
+                      dataArr.push({ y: obj[3] * 1, name: periodString });
+                    }
+                  }
+                } else {
+                  if (periodArr.includes(obj[1])) {
+                    dataArr.push({ y: obj[3] * 1, name: obj[1] });
+                  }
+                }
+              }
+            });
             if (chartOptions.benchmarkInLegend) {
               chartData.series.push({
                 ...obj,
                 type: "line",
-                data: [obj.value],
+                data:
+                  b.includes("external") &&
+                  this.subTab.group.includes("-BENCH-method")
+                    ? dataArr
+                    : [obj.value],
                 marker: {
-                  enabled: false,
+                  enabled:
+                    b.includes("external") &&
+                    this.subTab.group.includes("-BENCH-method") &&
+                    dataArr.length
+                      ? true
+                      : false,
                 },
-                isBenchmark: true,
+                isBenchmark:
+                  b.includes("external") &&
+                  this.subTab.group.includes("-BENCH-method")
+                    ? false
+                    : true,
               });
             }
-            plotLines.push(obj);
+            if (!this.subTab.group.includes("-BENCH-method")) {
+              plotLines.push(obj);
+            }
           }
         }
       }

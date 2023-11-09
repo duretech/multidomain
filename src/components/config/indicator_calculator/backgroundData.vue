@@ -36,13 +36,32 @@
                     :options="form.dataSource"
                   ></b-form-select>
                 </div>
+                <div class="card-body">
+                  <subIndicatorComponent
+                    :_i="'_background_' + index1"
+                    type="backgroundIndicators"
+                    :index="index1"
+                    :subIndicators="obj.subIndicators"
+                    :indicatorsList="indicatorList"
+                    :dataElementsList="dataElementList"
+                    :dataSetsList="dataSetList"
+                    :matrixList="matrixList"
+                    :updateDEName="updateDEName"
+                    :bgDataSource="obj.bgDataSource"
+                    :bgDataType="
+                      dqrConfig.emu.Background_Data.FPWomenPopulation
+                      
+                    "
+                    :isFromIC="isFromIC"
+                  />
+                </div>
                 <div
                   no-body
                   class="mb-1"
                   :key="index2"
                   v-for="(ele, index2) in obj.subIndicators"
                 >
-                  <div v-if="obj.bgDataSource === 'Datasets'">
+                  <!-- <div v-if="obj.bgDataSource === 'Datasets'">
                     <div class="my-3">
                       <b-form-group
                         label="Mapping"
@@ -123,14 +142,13 @@
                     <div :key="index4" v-for="(dE, index4) in ele.selectedDE">
                       <div class="mt-3">
                         {{ dE.displayName }}
-                        <!-- <i
+                        <i
                           class="fa fa-trash delButton"
                           @click="deleteDe( `emu` , `backgroundIndicators` , index1, index2, dE.id)"
-                        ></i> -->
+                        ></i>
                         <img
                           src="@/assets/images/icons/admindelete-icon.svg"
                           class="delButton f-s-0-875rem w-auto mb-1 mx-2"
-                          
                           :style="{ filter: filterColor }"
                           @click="
                             deleteDe(
@@ -144,8 +162,8 @@
                         />
                       </div>
                     </div>
-                  </div>
-                  <div v-else-if="obj.bgDataSource === 'Datastore'">
+                  </div> -->
+                  <!-- <div v-else-if="obj.bgDataSource === 'Datastore'">
                     <div
                       :key="index4"
                       v-for="(dE, index4) in ele.selectedDatastoreDE"
@@ -160,7 +178,7 @@
                         type="this.type"
                       />
                     </div>
-                  </div>
+                  </div> -->
                 </div>
               </b-card-body>
             </b-collapse>
@@ -184,7 +202,7 @@
               <b-card-body>
                 <b-form>
                   <div
-                    class="d-flex justify-content-between align-items-center"
+                    class="d-flex justify-content-between align-items-center mb-3"
                   >
                     <div class="w-50">{{ $t("dataSource") }}:</div>
                     <b-form-select
@@ -195,18 +213,40 @@
                   </div>
 
                   <div
+                     class="card"
                     :key="index2"
                     v-for="(obj, mName1, index2) in this.dqrConfig.emu
                       .Background_Data.fpSourceIndicators"
                   >
-                    <h6 class="mt-3">{{ obj.static_name }}</h6>
-                    <b-form
+                    <div
+              class="card-header f-s-0-875rem p-b-10px accordion-header1 f-s-0-875rem font-weight-bold bt-10"
+            >
+                   {{ obj.static_name }}
+                   </div>
+                    <div class="card card-body admin-emucard mb-4">
+                    <indicatorMappingComponent
+                      :_i="'accordion-annual' + mName1"
+                      type="fpSourceIndicators"
+                      :index="index2"
+                      :subIndicators="obj.subIndicators"
+                      :updateDEName="updateDEName"
+                      :indicatorsList="indicatorList"
+                      :dataElementsList="dataElementList"
+                      :dataSetsList="dataSetList"
+                      :matrixList="matrixList"
+                      :bgDataSource="dqrConfig.emu.Background_Data.bgDataSource"
+                      :bgDataType="dqrConfig.emu.Background_Data.FPWomenPopulation"
+                      :isFromIC="isFromIC"
+                    />
+                  </div>
+                     <!-- <b-form
                       no-body
                       class="mb-2"
                       :key="index3"
                       v-for="(ele, mName2, index3) in obj.subIndicators"
                     >
-                      <b-card-header header-tag="header" class="p-1" role="tab">
+                     
+                     <b-card-header header-tag="header" class="p-1" role="tab">
                         <b-button
                           block
                           v-b-toggle="'accordion-annual' + mName1 + mName2"
@@ -308,15 +348,23 @@
                           >
                             <div class="mt-3">
                               {{ dE.displayName }}
-                              <!-- <i
+                              <i
                                 class="fa fa-trash delButton"
                                 @click="deleteDe( `emu` , `fpSourceIndicators` , mName1, mName2, dE.id)"
-                              ></i> -->
+                              ></i>
                               <img
                                 src="@/assets/images/icons/admindelete-icon.svg"
                                 :style="{ filter: filterColor }"
                                 class="delButton f-s-0-875rem w-auto mb-1 mx-2"
-                                @click="deleteDe( `emu` , `fpSourceIndicators` , mName1, mName2, dE.id)"
+                                @click="
+                                  deleteDe(
+                                    `emu`,
+                                    `fpSourceIndicators`,
+                                    mName1,
+                                    mName2,
+                                    dE.id
+                                  )
+                                "
                               />
                             </div>
                           </div>
@@ -342,8 +390,8 @@
                             />
                           </b-form>
                         </div>
-                      </b-collapse>
-                    </b-form>
+                      </b-collapse> 
+                    </b-form> -->
                   </div>
                 </b-form>
               </b-card-body>
@@ -368,7 +416,7 @@
               <b-card-body>
                 <b-form>
                   <div
-                    class="d-flex justify-content-between align-items-center"
+                    class="d-flex justify-content-between align-items-center mb-3"
                   >
                     <div class="w-50">{{ $t("dataSource") }}:</div>
                     <b-form-select
@@ -381,18 +429,42 @@
                   </div>
 
                   <div
+                    class="card"
                     :key="index2"
                     v-for="(obj, mName1, index2) in this.dqrConfig.emu_monthly
                       .Background_Data.fpSourceIndicators"
                   >
-                    <h6 class="mt-3">{{ obj.static_name }}</h6>
-                    <b-form
+                   <div
+              class="card-header f-s-0-875rem p-b-10px accordion-header1 f-s-0-875rem font-weight-bold bt-10"
+            >  
+                  {{ obj.static_name }}
+                </div>
+                    
+                    <div class="card card-body admin-emucard mb-4">
+
+                    <indicatorMappingComponent
+                      :_i="'accordion-Monthly' + mName1"
+                      type="fpSourceIndicators"
+                      :index="index2"
+                      :subIndicators="obj.subIndicators"
+                      :updateDEName="updateDEName"
+                      :indicatorsList="indicatorList"
+                      :dataElementsList="dataElementList"
+                      :dataSetsList="dataSetList"
+                      :matrixList="matrixList"
+                      :bgDataSource="dqrConfig.emu_monthly.Background_Data.bgDataSource"
+                      :bgDataType="dqrConfig.emu_monthly.Background_Data.FPWomenPopulation"
+                      :isFromIC="isFromIC"
+                    />
+                  </div>
+                      <!--                    <b-form
                       no-body
                       class="mb-2"
                       :key="index3"
                       v-for="(ele, mName2, index3) in obj.subIndicators"
                     >
-                      <b-card-header header-tag="header" class="p-1" role="tab">
+                        
+                         <b-card-header header-tag="header" class="p-1" role="tab">
                         <b-button
                           block
                           v-b-toggle="'accordion-monthly' + mName1 + mName2"
@@ -532,7 +604,7 @@
                           </b-form>
                         </div>
                       </b-collapse>
-                    </b-form>
+                    </b-form> -->
                   </div>
                 </b-form>
               </b-card-body>
@@ -558,11 +630,11 @@
         </b-modal>
       </b-card>
       <b-card v-if="this.type === 'cyp'">
-        <div class="d-flex justify-content-between">
+        <div class="">
           <div class="d-flex align-items-center mb-3">
             <div>{{ $t("methodName") }}</div>
             <b-form-select
-              class="w-50 mx-2"
+              class="w-25 mx-2"
               v-model="form.selectedCyp"
               :options="form.options"
             ></b-form-select>
@@ -587,12 +659,12 @@
                   class="fa fa-trash delButton float-right mx-4"
                   @click="deleteMethod(index)"
                 ></i> -->
-                <img
+                <!-- <img
                   src="@/assets/images/icons/admindelete-icon.svg"
                   :style="{ filter: filterColor }"
                   class="delButton float-right f-s-0-875rem w-auto mx-4 mt-sm-1 pt-0"
                   @click="deleteMethod(index)"
-                />
+                /> -->
               </b-button>
             </b-card-header>
             <b-collapse
@@ -632,11 +704,11 @@
         </div>
       </b-card>
       <b-card v-if="this.type === 'continuation'">
-        <div class="d-flex justify-content-between">
+        <div class="">
           <div class="d-flex align-items-center mb-3">
             <div>{{ $t("methodName") }}</div>
             <b-form-select
-              class="w-50 mx-2"
+              class="w-25 mx-2"
               v-model="form.selectedContination"
               :options="form.options"
             ></b-form-select>
@@ -718,7 +790,9 @@
                       <div
                         class="d-flex justify-content-between align-items-center my-2"
                       >
-                        <div class="w-50">Yr{{ innerIndex }}</div>
+                        <div class="w-50">{{
+                            obj.type === "Long Term" ? $t("yr") : $t("month")
+                          }} {{ innerIndex }}</div>
                         <b-form-input
                           class="w-50"
                           id="input-1"
@@ -756,6 +830,8 @@ import Treeselect from "@riophae/vue-treeselect";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 import DataEntry from "./DataEntry.vue";
 import DynamicImageMixin from "@/helpers/DynamicImageMixin";
+import subIndicatorComponent from "../dqr/subIndicatorComponent";
+import indicatorMappingComponent from "../dqr/indicatorMappingComponent";
 export default {
   props: [
     "type",
@@ -766,9 +842,16 @@ export default {
     "dataElementList",
     "dataSetList",
     "orgList",
+    "isFromIC"
   ],
   mixins: [DynamicImageMixin],
-  components: { ModalPopup, Treeselect, DataEntry },
+  components: {
+    ModalPopup,
+    Treeselect,
+    DataEntry,
+    subIndicatorComponent,
+    indicatorMappingComponent,
+  },
   data() {
     return {
       form: {
@@ -777,7 +860,7 @@ export default {
         selectedmethodName: "",
         options: [
           { value: "Visits", text: "Visits" },
-          { value: "Commodities_Clients", text: "Commodities Clients" },
+          { value: "Commodities_Client", text: "Commodities Clients" },
           { value: "Commodities_Facilities", text: "Commodities Facilities" },
           { value: "User", text: "User" },
         ],
@@ -800,10 +883,29 @@ export default {
   },
   methods: {
     saveBtnDQRConfig() {
+      this.dqrConfig.emu_monthly.Background_Data.backgroundIndicators.forEach(
+        (itemMon) => {
+          this.dqrConfig.emu.Background_Data.backgroundIndicators.forEach(
+            (itemAnn) => {
+              if (itemAnn.static_name === itemMon.static_name) {
+                itemMon.bgDataSource = itemAnn.bgDataSource;
+                itemMon.subIndicators = itemAnn.subIndicators;
+              }
+            }
+          );
+        }
+      );
+      // this.dqrConfig.emu_monthly.Background_Data.backgroundIndicators[0] = [0]
       let key = this.generateKey("dqrModule");
       this.$emit("saveJson", this.dqrConfig, key);
     },
+
+    updateDEName(i, j, k, type, elem) {
+      this.moduleConfig[type][i].subIndicators[j].selectedDE[k] = elem;
+    },
+
     saveBtnContinuation() {
+      console.log('this.bgDataConfig',this.bgDataConfig);
       let key = this.generateKey("globalFactors");
       this.$emit("saveJson", this.bgDataConfig, key);
     },
@@ -867,7 +969,6 @@ export default {
       arr.forEach((de, ind) => {
         if (de["id"] == id) {
           // arr.splice(ind, 1);
-          console.log(arr.splice(ind, 1));
         }
       });
       getData[emuType]["Background_Data"][insideOf][index]["subIndicators"][

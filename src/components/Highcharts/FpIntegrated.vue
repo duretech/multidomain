@@ -11,8 +11,10 @@
         <div
           class="col"
           :key="'arrow' + i"
-          v-if="!isNaN(s.value) && s.value !== '' && s.value !== null"
-          :style="{ 'background-color': s.color, height: '18px' }"
+          v-if="
+            !isNaN(s.graphValue) && s.graphValue !== '' && s.graphValue !== null
+          "
+          :style="{ 'background-color': s.graphColor, height: '18px' }"
         ></div>
       </template>
       <!-- <div
@@ -28,9 +30,11 @@
       <template v-for="(s, i) in summaryScore">
         <span
           class="col"
-          v-if="!isNaN(s.value) && s.value !== '' && s.value !== null"
+          v-if="
+            !isNaN(s.graphValue) && s.graphValue !== '' && s.graphValue !== null
+          "
           :key="'legend' + i"
-          >{{ s.displayName }}</span
+          >{{ s.graphDisplayName }}</span
         >
       </template>
     </div>

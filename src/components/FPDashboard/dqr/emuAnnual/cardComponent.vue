@@ -46,7 +46,7 @@
             </div>
           </div>
         </div>
-        <div class="row mb-3 mx-0" v-if="!bShowIcons">
+        <div class="row mb-3 mx-0 static-height" v-if="!bShowIcons">
           <div class="col-lg-12 col-md-12" v-if="!isGenerating">
             <ChartFilters
               :style="{
@@ -811,6 +811,15 @@ export default {
       this.chartOptions.chart.type = newValue.toLowerCase();
     },
   },
+  created(){
+    if (this.chartdata.tableData?.length) {
+        this.chartdata.tableData.forEach((data, i) => {
+          Object.keys(data).forEach((key) => {
+            data[key] = data[key]?.toLocaleString()
+          });
+        });
+      }
+  }
 };
 </script>
 <style scoped lang="scss">

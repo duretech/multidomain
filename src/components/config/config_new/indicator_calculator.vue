@@ -259,32 +259,32 @@ export default {
     let dSourceGroupList = [
       {
         id: "[All metrics]",
-        name: "[All metrics]",
+        displayName: "[All metrics]",
         alias: "ALL",
       },
       {
         id: "Reporting rates",
-        name: "Reporting rates",
+        displayName: "Reporting rates",
         alias: "REPORTING_RATE",
       },
       {
         id: "Reporting rates on time",
-        name: "Reporting rates on time",
+        displayName: "Reporting rates on time",
         alias: "REPORTING_RATE_ON_TIME",
       },
       {
         id: "Actual reports",
-        name: "Actual reports",
+        displayName: "Actual reports",
         alias: "ACTUAL_REPORTS",
       },
       {
         id: "Actual reporting rates on time",
-        name: "Actual reporting rates on time",
+        displayName: "Actual reporting rates on time",
         alias: "ACTUAL_REPORTS_ON_TIME",
       },
       {
         id: "Expected reports",
-        name: "Expected reports",
+        displayName: "Expected reports",
         alias: "EXPECTED_REPORTS",
       },
     ];

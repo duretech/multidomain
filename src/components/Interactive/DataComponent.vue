@@ -30,10 +30,10 @@
           </div></b-dropdown-item
         >
         <b-dropdown-text
-          class="color-white text-center small fs-17-1920"
+          class="color-white text-center small fs-17-1920 no-datadisplay"
           v-if="dataSourceGroupList.length === 0"
         >
-          <span class="fs-17-1920 small"
+          <span class="fs-17-1920 small no-data"
             >{{ $t("no_data_to_display") }}
           </span></b-dropdown-text
         >

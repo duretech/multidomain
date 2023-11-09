@@ -134,7 +134,7 @@
             <div class="accordion w-100 mt-2" role="tablist">
               <b-form no-body class="mb-1">
                 <b-card-header header-tag="header" class="p-1" role="tab">
-                  <b-button block v-b-toggle.accordion-1 variant="info"
+                  <b-button block v-b-toggle="'dataType'+index" variant="info"
                     >{{
                       dtType === "Commodities_Client"
                         ? "Commodities Client"
@@ -145,7 +145,7 @@
                   </b-button>
                 </b-card-header>
                 <b-collapse
-                  id="accordion-1"
+                  :id="'dataType'+index"
                   accordion="my-accordion"
                   role="tabpanel"
                 >
@@ -401,17 +401,14 @@ export default {
       this.$refs["location-modal"].show();
     },
     saveJson() {
+      this.dqrConfig.emu_monthly.Background_Data.FPWomenPopulation = this.dqrConfig.emu.Background_Data.FPWomenPopulation;
+      this.dqrConfig.emu_monthly.Background_Data.adjustmentFactor = this.dqrConfig.emu.Background_Data.adjustmentFactor;
       let key = this.generateKey("dqrModule");
       this.$emit("saveJson", this.dqrConfig, key);
     },
   },
   watch: {
     defaultTypeIndex(newVal) {
-      console.log(
-        "defaultTypeIndex watch called",
-        newVal,
-        this.dqrConfig.emu.Background_Data.defaultDataType.length
-      );
       if (
         newVal > -1 &&
         this.dqrConfig.emu.Background_Data.defaultDataType &&
@@ -446,7 +443,6 @@ export default {
           });
           locNames += "<div class='textCenter'>" + names + "</table></div>";
         }
-        console.log(locNames);
         this.startP = false;
         this.sweetAlert({
           title: "Annual and Monthly EMU process successfully. ",
@@ -566,10 +562,8 @@ export default {
         this.dqrConfig.emu.Background_Data.locArr &&
         newIndex < this.dqrConfig.emu.Background_Data.locArr.length
       ) {
-        console.log("start time", this.$moment().format("LT"));
         this.EMULocation = "";
         let loc = this.dqrConfig.emu.Background_Data.locArr[newIndex];
-        console.log(loc, "location");
         this.startP = true;
         this.EMULocation = loc;
         this.finalCount[this.EMULocation] = this.defaultTypeIndex + 1;
@@ -590,7 +584,6 @@ export default {
   },
   computed: {
     computedLocList() {
-      console.log(this.orgList);
       return this.orgList;
     },
     defaultDataTypeOptions() {
@@ -658,7 +651,6 @@ export default {
   },
   created() {
     this.updateDataOnContraceptive();
-    console.log(this.dqrConfig.emu.Background_Data.locArr, "locArr in created");
     // if (this.dqrConfig.emu.Background_Data.locArr) {
     this.selectedNode = this.dqrConfig.emu.Background_Data.locArr.map((obj) => {
       if (obj.split("/").length > 0) return obj.split("/")[1];

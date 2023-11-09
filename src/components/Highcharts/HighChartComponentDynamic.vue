@@ -132,8 +132,7 @@
                           :fields="fields"
                           bordered
                           sticky-header="385px"
-                          show-empty
-                          :empty-text="$t('no_data_to_display')"
+                          v-if="items.length"
                         >
                           <template #cell(show_details)="row">
                             <!-- As `row.showDetails` is one-way, we call the toggleDetails function on @change -->
@@ -150,10 +149,10 @@
                               :items="
                                 drillTable?.[row.item[$i18n.t('period')]] || []
                               "
-                              show-empty
-                              :empty-text="$t('no_data_to_display')"
+                              v-if="items.length"
                               class="drillTable"
                             ></b-table>
+                            <div v-else>{{ $t("no_data_to_display") }}</div>
                             <b-button
                               class="blue-btn"
                               size="sm"
@@ -162,6 +161,7 @@
                             >
                           </template>
                         </b-table>
+                        <div v-else>{{ $t("no_data_to_display") }}</div>
                         <div v-if="isRRChart">
                           <b-row>
                             <b-col>
@@ -355,9 +355,9 @@
                       :items="exceptionTable"
                       bordered
                       sticky-header="385px"
-                      show-empty
-                      :empty-text="$t('no_data_to_display')"
+                      v-if="items.length"
                     ></b-table>
+                    <div v-else>{{ $t("no_data_to_display") }}</div>
                   </div>
                 </b-modal>
               </template>
@@ -478,13 +478,72 @@ export default {
     outliersArr() {
       let key = this.selectedMethod ? this.selectedMethod : "default";
       let o = [];
+      let dates = [];
+      let outlierListNew = [];
       if (this.outliers?.[key]) {
+        this.outliers[key].forEach((items) =>
+          items.outlierList.forEach((item) =>
+            item.outliers.forEach((i) => {
+              let d = this.extractDate(i);
+              if (!dates.includes(...d)) {
+                dates.push(...d);
+              }
+            })
+          )
+        );
+        dates.sort(function (a, b) {
+          const dateA = new Date(a);
+          const dateB = new Date(b);
+          return dateB - dateA;
+        });
+
+        console.log(this.outliers[key]);
+        this.outliers[key].forEach((items) => {
+            dates.forEach((date) => {
+            items.outlierList.forEach((item) => {
+              item.outliers.forEach((i) => {
+
+                if (i.includes(date)) {
+                  let isFound = false;
+                  outlierListNew.forEach((x) => {
+                  if (x?.outliers && x.name == date) {
+                    isFound = true;
+                    x.outliers.push(item.name);
+                  }
+                })
+                if(!isFound){
+                  outlierListNew.push({ name: date, outliers: [item.name] });
+                }
+                }
+              });
+              console.log(outlierListNew);
+            });
+          });
+          items.outlierList = outlierListNew;
+          outlierListNew = [];
+          console.log("change")
+        });
+        // // console.log("outlierList", outlierList);
+
         //Add slice() to avoid mutation
         o = this.outliers[key].slice().sort(function (x, y) {
           // true values first
           return x.secondary === y.secondary ? 0 : x.secondary ? -1 : 1;
           // false values first
           // return x.secondary === y.secondary ? 0 : x.secondary ? 1 : -1;
+        });
+      }
+
+      return o;
+    },
+    updatedOutlierArr() {
+      let key = this.selectedMethod ? this.selectedMethod : "default";
+      let o = [];
+
+      if (this.outliers?.[key]) {
+        console.log(this.outliers[key]);
+        o = this.outliers[key].slice().sort(function (x, y) {
+          return x.secondary === y.secondary ? 0 : x.secondary ? -1 : 1;
         });
       }
       return o;
@@ -785,6 +844,12 @@ export default {
     // },
   },
   methods: {
+    extractDate(stringhaveingDate) {
+      const regex =
+        /(?:January|February|March|April|May|June|July|August|September|October|November|December)\s\d{4}/g;
+      const result = stringhaveingDate.match(regex);
+      return result;
+    },
     changePlotType(value) {
       if (
         this.cObj &&
@@ -1357,6 +1422,9 @@ export default {
               click: function (e) {
                 if (_this.drillDown) {
                   _this.drillDown = false;
+                  if (_this.drillSD) {
+                    _this.drillICOutliers = [];
+                  }
                   _this.updateToolBar(e);
                 }
               },
@@ -1490,6 +1558,8 @@ export default {
       ];
       let obj = {
         id: e.point.options.levelID + "/" + e.point.options.locationID,
+        name: e.point.options.name,
+        label: e.point.options.name,
         monthYear: ["monthly"].includes(this.locationPeriod.periodType)
           ? this.$moment(e.point.options.period, "YYYYMM").format("YYYY-MM")
           : ["financialYear", "financialYearJuly"].includes(

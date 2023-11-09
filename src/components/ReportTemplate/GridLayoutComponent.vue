@@ -196,7 +196,7 @@
           <template v-else>
             <template v-if="isStaticCharts">
               <div
-                class="card-header border border-0 topCardChartName p-2"
+                class="card-header border border-0  p-2"
                 style="height: 55px"
               >
                 <div class="cardTitleSection d-block">

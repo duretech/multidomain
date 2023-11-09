@@ -168,7 +168,7 @@
             role="presentation"
             @click.prevent="updateTab({ type: 'type1' })"
             href="#"
-            class="text-center add-adminbtn me-15"
+            class="text-center add-adminbtn me-15 mb-2"
             v-b-tooltip.hover
             :title="$t('addbtn')"
             ><b>+</b><span class="mx-1"> {{ $t("addbtn") }}</span></b-nav-item
@@ -380,7 +380,7 @@ export default {
           name: { [this.$i18n.locale]: this.$i18n.t("default") },
         };
         if (
-          this.$store.getters.getNamespace !== "multi_program_mnch-dashboard"
+          this.$store.getters.getNamespace !== `${this.$store.getters.getAppSettings.tableName}_mnch-dashboard`
         ) {
           config.cyp = 1;
         }

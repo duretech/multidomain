@@ -205,7 +205,9 @@ export default {
       service
         .getSavedConfig({ tableKey: key, namespace: "fp-dashboard" })
         .then((resp) => {
-          if (resp && resp.data) this.bgDataConfig = resp.data;
+          if (resp && resp.data){ 
+            this.bgDataConfig = resp.data;
+          }
           if (!this.bgDataConfig.showingTabs) {
             this.bgDataConfig.showingTabs = {};
             this.bgDataConfig.showingTabs["ssToEmu"] = {};

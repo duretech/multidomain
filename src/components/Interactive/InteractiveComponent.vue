@@ -579,12 +579,12 @@ import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 import DynamicImageMixin from "@/helpers/DynamicImageMixin";
 import ReFetchConfigMixin from "@/helpers/ReFetchConfigMixin";
 import loadLocChildMixin from "@/helpers/LoadLocationChildMixin";
+import { adToBs } from "@sbmdkl/nepali-date-converter";
 import {
   pTypeList,
   chartExport,
   randomString,
 } from "@/components/Common/commonFunctions";
-import NepaliDate from "nepali-date-converter";
 export default {
   components: {
     chartOptions,
@@ -609,13 +609,9 @@ export default {
       selectedPeriod: [],
       currentYear:
         this.$store.getters.getAppSettings.calendar === "nepali"
-          ? new NepaliDate(
-              new Date(
-                new Date().getFullYear(),
-                new Date().getMonth() + 1,
-                new Date().getDate()
-              )
-            ).getBS().year
+          ? adToBs(
+          `${new Date().getFullYear() + "-" + (new Date().getMonth() + 1) + "-" + new Date().getDate()}`
+        ).split("-")[0]
           : new Date().getFullYear(),
       dataSource: null,
       dataSourceGroup: "",
@@ -717,10 +713,10 @@ export default {
       } else if (this.periodType === "quarterly") {
         if (this.$store.getters.getAppSettings.calendar === "nepali") {
           years = {
-            Q1: ["Ashadh", "Shrawan"],
-            Q2: ["Bhadra", "Ashwin"],
-            Q3: ["Kartik", "Mangsir"],
-            Q4: ["Baishakh", "Jestha"],
+            Q1: ["Chitra", "Jestha"],
+            Q2: ["Ashad", "Bhadra"],
+            Q3: ["Ashoj", "Mangsir"],
+            Q4: ["Poush", "Falgun"],
           };
         } else {
           years = {

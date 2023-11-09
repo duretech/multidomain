@@ -4,7 +4,6 @@ import store from "@/store";
 import service from "@/service";
 import regression from "regression";
 import merge from "lodash/merge";
-import NepaliDate from "nepali-date-converter";
 
 export const getDateRange = ({
   sendPeriod,
@@ -1830,13 +1829,11 @@ export const getAllPeriodRange = (periodData, FinalPeriodArray) => {
   let nplMonth = "";
   let d = new Date();
   if (store.getters.getAppSettings.calendar === "nepali") {
-    d = new NepaliDate(
-      new Date(d.getFullYear(), d.getMonth() + 1, d.getDate())
-    ).getBS();
-    nplMonth = d.month;
-    nplYear = d.year;
-    let zeroForMonth = nplMonth < 10 ? "0" + nplMonth : nplMonth;
-    d = d.year + "" + zeroForMonth;
+    const { adToBs } = require("@sbmdkl/nepali-date-converter");
+        const bsDate = adToBs(
+          `${d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate()}`
+        );
+        d = bsDate.split("-")[0] + bsDate.split("-")[1];
   }
 
   let recentYearMonth = moment(d, "YYYYMM").format("YYYY-MM");

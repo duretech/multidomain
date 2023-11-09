@@ -439,6 +439,14 @@ body[data-theme~="grey"] {
       
         }
 
+
+         .modal-content .modal-body .button-score button,
+            .modal-content .modal-body .button-score button:hover{
+                background-color: var(--main-header-color) !important;
+                border-color: var(--main-header-color) !important;
+                color: var(--text-color) !important;
+            }
+
         .dqr-main2 {
                             
             .dqr-greyvue .vue-treeselect__control{
@@ -1355,7 +1363,25 @@ body[data-theme~="grey"] {
                 background-color: var(--border-grey-color) !important;
             }
 
+            .charts-pills .card-header{
+                background-color: transparent !important;
+            }
+
           
+          .charts-pills .nav-pills .nav-link.active{
+           background-color: var(--border-grey-color) !important;
+                border-color: var(--border-grey-color) !important;
+                border-bottom: transparent !important;
+                color: var(--sidebar-main-active-color) !important;
+          }
+
+                      .charts-pills .nav-pills .nav-link{
+                         background-color: var(--main-header-color) !important;
+            border-color: var(--main-header-color) !important;
+                
+            }
+
+
 
             .md_tabs .default-emu .nav-tabs .nav-link.active{
                 background-color: var(--main-header-color) !important;
@@ -1494,6 +1520,12 @@ body[data-theme~="grey"] {
                     .md_nested_tabs .card .md_tabs .card-header{
                         background-color: var(--signoff-top-card) !important;
                     }
+
+
+                     .md_nested_tabs .card .charts-pills .card-header{
+                        background-color: transparent !important;
+                          border-color: var(--border-grey-color) !important;
+                   }
 
                     // .card .accordion .card-header{
                     //     border-top-left-radius:0% !important;

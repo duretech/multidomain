@@ -326,12 +326,12 @@ export default {
             dx: [],
             cyp: {},
           };
-          this.indList.push({
-            value: m.chartOptions.chartName[this.$i18n.locale],
-            text: m.chartOptions.chartName[this.$i18n.locale],
-          });
-          if (mInd === 0) {
-            this.selectedInd = m.chartOptions.chartName[this.$i18n.locale];
+          if(!m.chartOptions.disable){
+            this.indList.push({
+              value: m.chartOptions.chartName[this.$i18n.locale],
+              text: m.chartOptions.chartName[this.$i18n.locale],
+            });  
+          this.selectedInd = this.indList[0].text;
           }
           rMapping = allMappings.filter((mAll) =>
             m.chartOptions.dataMapping.includes(mAll.indicator.static_name)

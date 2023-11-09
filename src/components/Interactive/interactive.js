@@ -153,8 +153,8 @@ export default {
     drillDownDX,
     isDrilldownAdded,
     facilityDimension,
+    selectedPeriod,
     periodType,
-    selectedPeriod
   ) => {
     // console.log(series, xAxis);
     // console.log("response", response);
@@ -593,7 +593,7 @@ export default {
             let drillID = `${dxValue}_${ouValue}_${peValue}`;
             let frmtData = response.data.metaData.items[p].name;
             if (xAxis === "pe") {
-              let isFound = selectedPeriod.find((pe) => pe.id == p);
+                            let isFound = selectedPeriod.find((pe) => pe.id == p);
               if (isFound) {
                 frmtData = isFound.text;
               }
@@ -665,7 +665,7 @@ export default {
               }
             }
           });
-          chartOptions.series.push(obj);
+                    chartOptions.series.push(obj);
         } else {
           let t = 0;
           Object.keys(rData[d]).forEach((p) => {

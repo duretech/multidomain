@@ -45,6 +45,7 @@
                 :allow-empty="false"
                 class="mt-2"
                 :open-direction="'bottom'"
+                
               >
                 <template slot="singleLabel" slot-scope="{ option }">{{
                   option.displayName

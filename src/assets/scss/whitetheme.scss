@@ -572,10 +572,28 @@ body[data-theme~="white"]{
 
 }
 
+.modal-content .modal-body .button-score button,
+ .modal-content .modal-body .button-score button:hover{
+    background-color: var(--home-btn-color) !important;
+    border-color: var(--home-btn-color) !important;
+    color: var(--bg-main-color) !important;
+
+    }
+
 .charts-tabs{
     .nav-tabs .nav-link.active{
         background-color: var(--bg-inner-color) !important;
     }
+}
+
+.charts-pills .nav-pills .nav-link.active {
+    background-color: var(--sidebar-main-active-color)!important;
+    border-color: var(--sidebar-main-active-color) !important;
+}
+
+.charts-pills .nav-pills .nav-link{
+    background-color: var(--bg-inner-color) !important;
+    border-color: var(--bg-inner-color) !important;
 }
 
 .mapIndiBg{ 
@@ -894,6 +912,11 @@ color: var(--sidebar-bg-color) !important;
         .page-link{
             color: var(--text-color) !important;
         }
+
+
+       .select-dropdown .vue-treeselect__single-value  {
+        color: var(--text-color) !important;
+       }
   
 }
 

@@ -1210,13 +1210,11 @@ export default {
       let periodData = this.$store.getters.getGlobalFactors().period.Period;
       let d = new Date();
       if (this.$store.getters.getAppSettings.calendar === "nepali") {
-        d = new NepaliDate(
-          new Date(d.getFullYear(), d.getMonth() + 1, d.getDate())
-        ).getBS();
-        let nplMonth = d.month;
-        let nplYear = d.year;
-        let zeroForMonth = nplMonth < 10 ? "0" + nplMonth : nplMonth;
-        d = d.year + "" + zeroForMonth;
+        const { adToBs } = require("@sbmdkl/nepali-date-converter");
+        const bsDate = adToBs(
+          `${d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate()}`
+        );
+        d = bsDate.split("-")[0] + bsDate.split("-")[1];
       }
       let lastYear = "";
       let recentYearMonth = this.$moment(d, "YYYYMM")

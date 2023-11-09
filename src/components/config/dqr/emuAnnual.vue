@@ -70,7 +70,7 @@
                     <div class="row" v-if="cData.chartData.length">
                       <div class="col">
                         <div class="card">
-                          <div class="card-body">
+                        <div class="card-body default-mapping">
                             <div>
                               <b-alert show class="">
                                 <!-- <i class="fa-duotone fa-circle-info f-s-20px pr-2"></i> -->
@@ -168,7 +168,7 @@
                                     chartBySubtype +
                                     chartByType
                                   "
-                                  class="collapse mt-3 translate-adminheight"
+                                  class="collapse mt-3 translate-adminheight border-transparent"
                                   :aria-labelledby="
                                     'headingChartSettings' +
                                     index +
@@ -757,7 +757,7 @@
                                                       >
                                                         <div class="col-lg-12">
                                                           <div
-                                                            class="collapse"
+                                                            class="collapse border-transparent"
                                                             :id="
                                                               'additionalSettingsCollapse' +
                                                               chartBySubtype +
@@ -1066,7 +1066,7 @@
                     >
                       <h2 class="mb-0 mt-lg-n1">
                         <button
-                          class="btn btn-link w-100 text-left"
+                          class="btn btn-info w-100 text-left"
                           type="button"
                           data-toggle="collapse"
                           :data-target="
@@ -1095,7 +1095,7 @@
                       "
                       v-if="cData.reportingRate.length"
                     >
-                      <div class="col-sm-12 col-lg-12 mt-3">
+                      <div class="col-sm-12 col-lg-12">
                         <div class="form-group row">
                           <label class="col-sm-3 col-form-label">{{
                             $t("excRr")
@@ -1632,7 +1632,7 @@
                     >
                       <h2 class="mb-0 mt-lg-n1">
                         <button
-                          class="btn btn-link w-100 text-left"
+                          class="btn btn-info w-100 text-left"
                           type="button"
                           data-toggle="collapse"
                           :data-target="
@@ -1657,7 +1657,7 @@
                     >
                       <!-- FP Source Component -->
                       <benchmarkFpSource
-                        :FPSource="cData.fpSource"
+                        :FPSource="cData.FPSource"
                         :indicatorsList="indicatorsList"
                         :dataElementsList="dataElementsList"
                       />
@@ -1753,7 +1753,7 @@
                               >
                                 <h2 class="mb-0 mt-lg-n1">
                                   <button
-                                    class="btn btn-link w-100 text-left"
+                                    class="btn btn-info w-100 text-left"
                                     type="button"
                                     data-toggle="collapse"
                                     :data-target="
@@ -1793,7 +1793,7 @@
                                   ind
                                 "
                               >
-                                <div class="row m-0 mt-4 mb-2">
+                                <div class="row m-0 mb-2">
                                   <div class="col-sm-12 col-lg-6">
                                     <div class="form-group row">
                                       <label class="col-sm-6 col-form-label">{{
@@ -2366,6 +2366,7 @@ export default {
     "chartBySubtype",
     "indicatorsList",
     "dataElementsList",
+    "isFromIC",
   ],
   mixins: [DynamicImageMixin, ReFetchConfigMixin, VueEditorOptionMixin],
   components: {
@@ -2518,7 +2519,11 @@ export default {
 
       let key = this.generateKey(this.chartByModule);
 
-      let saveConfig = service.getSavedConfig({ tableKey: key });
+      let saveConfig = service.getSavedConfig({
+        tableKey: key,
+        namespace: "fp-dashboard",
+      });
+
       saveConfig
         .then((res) => {
           let configData = res.data;
@@ -2536,9 +2541,50 @@ export default {
               [this.chartBySubtype]: chartBySubtypeData,
             };
           }
+
+
+          if (this.isFromIC) {
+            configData.emu_monthly[this.chartBySubtype]["chartData"].forEach(
+              (objMon) => {
+                configData.emu[this.chartBySubtype]["chartData"].forEach(
+                  (objAnn) => {
+
+                    let staticNameMethod = Array.isArray(objMon.indicator.static_name)? objMon.indicator.static_name[0]: objMon.indicator.static_name;
+
+                    if(objAnn.indicator.static_name ===  staticNameMethod){
+                      objMon.indicator.name = objAnn.indicator.name
+                    }
+                    let subIndArrayMon = objMon.indicator.subIndicator;
+                    subIndArrayMon.forEach((subObj) => {
+                      let statName = Array.isArray(subObj.static_name)? subObj.static_name[0]: subObj.static_name;
+                      
+                      let findInAnnual = objAnn.indicator.subIndicator.filter(
+                        (obj) => {
+                          return obj.static_name == statName;
+                        });
+                      if (findInAnnual.length > 0) {
+                        subObj["selectedDE"] = findInAnnual[0]["selectedDE"];
+                        subObj["de"] = findInAnnual[0]["de"];
+                        subObj.name = findInAnnual[0].name
+                        subObj.color = findInAnnual[0].color
+                      }
+                    });
+                  }
+                );
+              }
+            );
+
+            configData.emu_monthly[this.chartBySubtype]["dataOnContraceptive"] =
+            configData.emu[this.chartBySubtype]["dataOnContraceptive"];
+            // configData.emu_monthly.Background_Data["FPWomenPopulation"] =
+            // this.dqrResponse.emu['Background_Data']["FPWomenPopulation"];
+          }
+
+          this.$store.commit("setLoading", true);
           let response = service.updateConfig({
             data: configData,
             tableKey: key,
+            namespace: "fp-dashboard",
           });
           response
             .then((response) => {

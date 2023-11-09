@@ -179,6 +179,7 @@
               class="select_dashboard_btn fs-17-1920"
               :disabled="isFromAdmin"
             >
+            
               <b-dropdown-item-button
                 v-for="(dashboard, i) in dashboards"
                 :key="'dashboard' + i"
@@ -225,10 +226,10 @@
               </div>
             </div>
             <div class="sum-content">
-              <div class="sumry-content mt-4">
+              <div class="sumry-content">
                 <img
                   src="@/assets/images/home-chart.png"
-                  class="d-block m-auto mb-lg-n2 w-100"
+                  class="d-block m-auto w-100"
                 />
                 <div class="mt-5 d-flex justify-content-center">
                   <b-button

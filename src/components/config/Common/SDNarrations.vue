@@ -54,7 +54,8 @@
             lg="6"
             class="mb-3"
             v-if="
-              $store.getters.getNamespace !== 'multi_program_mnch-dashboard' &&
+              $store.getters.getNamespace !==
+                `${$store.getters.getAppSettings.tableName}_mnch-dashboard` &&
               subTabGroup === 'EMU'
             "
           >

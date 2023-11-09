@@ -337,7 +337,6 @@ import dataM from "./dataMassaging.js";
 import cardComponent from "./cardComponent";
 import { decompress } from "compress-json";
 import DynamicImageMixin from "@/helpers/DynamicImageMixin";
-import NepaliDate from "nepali-date-converter";
 import {
   translateDate,
   translateAlphatoNum,
@@ -376,21 +375,20 @@ export default {
     let periodData = this.$store.getters.getGlobalFactors().period.Period;
     let d = new Date();
     if (this.$store.getters.getAppSettings.calendar === "nepali") {
-      d = new NepaliDate(
-        new Date(d.getFullYear(), d.getMonth() + 1, d.getDate())
-      ).getBS();
-      let nplMonth = d.month;
-      let nplYear = d.year;
-      let zeroForMonth = nplMonth < 10 ? "0" + nplMonth : nplMonth;
-      d = d.year + "" + zeroForMonth;
+      const { adToBs } = require("@sbmdkl/nepali-date-converter");
+      const bsDate = adToBs(
+        `${d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate()}`
+      );
+      d = bsDate.split("-")[0] + bsDate.split("-")[1];
     }
     this.sourceEndYear = this.$moment(d, "YYYYMM")
       .subtract(periodData.backtrackedMonth * 1, "months")
       .format("YYYYMM");
-
-    this.sourceStartYear = this.$moment(this.sourceEndYear, "YYYYMM")
+    let onlyYear = this.$moment(this.sourceEndYear, "YYYYMM")
       .subtract(periodData.backtrackedYearLimit * 1, "years")
-      .format("YYYYMM");
+      .format("YYYY");
+    this.sourceStartYear = onlyYear + "01";
+    console.log("customCal", customCal);
     if (customCal) {
       this.getBackgroundData();
 
@@ -403,6 +401,10 @@ export default {
   },
   methods: {
     getVisibility(tabData) {
+      // if(tabData?.title === "Commodities Distributed Or Service Provided"){
+      //   console.log("backgroundData",this.backgroundData);
+      //   console.log("emuSaveType",this.emuSaveType);
+      // }
       return (
         (tabData && this.backgroundData && tabData.disable == false) ||
         (this.emuSaveType == "Indicator_Calculator" && tabData)
@@ -538,7 +540,6 @@ export default {
       this.methodSeq = oRet.methodSeq;
       this.mainmethodSeq = oRet.mainmethodSeq;
       this.globalConfig = oRet.data;
-      console.log(this.globalConfig.chartArr, this.data, this.contName);
       if (this.globalConfig.chartArr.length) {
         this.getAllDataelemsData();
       } else {
@@ -549,6 +550,7 @@ export default {
           tableData: [],
           filter: [],
           max: 11,
+          disable: false,
         };
         this.chartData = {
           data: [],
@@ -556,6 +558,7 @@ export default {
           tableData: [],
           filter: [],
           max: 11,
+          disable: false,
         };
         this.oneMonthEMUChartData = {
           data: [],
@@ -563,6 +566,7 @@ export default {
           tableData: [],
           filter: [],
           max: 11,
+          disable: false,
         };
         this.totalEMUChartData = {
           data: [],
@@ -570,6 +574,7 @@ export default {
           tableData: [],
           filter: [],
           max: 11,
+          disable: false,
         };
         this.trendsChartData = {
           data: [],
@@ -577,6 +582,7 @@ export default {
           tableData: [],
           filter: [],
           max: 11,
+          disable: false,
         };
         this.methodTrendsChartData = {
           data: [],
@@ -584,6 +590,7 @@ export default {
           tableData: [],
           filter: [],
           max: 11,
+          disable: false,
         };
         this.tableGenerated = true;
         console.log(
@@ -805,13 +812,11 @@ export default {
       var curDate = this.$moment(new Date());
       let d = new Date();
       if (this.$store.getters.getAppSettings.calendar === "nepali") {
-        d = new NepaliDate(
-          new Date(d.getFullYear(), d.getMonth() + 1, d.getDate())
-        ).getBS();
-        let nplMonth = d.month;
-        let nplYear = d.year;
-        let zeroForMonth = nplMonth < 10 ? "0" + nplMonth : nplMonth;
-        d = d.year + "" + zeroForMonth;
+        const { adToBs } = require("@sbmdkl/nepali-date-converter");
+        const bsDate = adToBs(
+          `${d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate()}`
+        );
+        d = bsDate.split("-")[0] + bsDate.split("-")[1];
         var curDate = this.$moment(d);
       }
 
@@ -1561,9 +1566,9 @@ export default {
         tableData.push(oMethodTable);
         series.push(oSeries);
       });
-      (tempObj.data = series),
-        (tempObj.categories = fCategories),
-        (tempObj.tableData = tableData);
+      tempObj.data = series;
+      tempObj.categories = fCategories;
+      tempObj.tableData = tableData;
       tempObj.filter = this.options;
       this.newUsersChartData = tempObj;
       this.$emit('updateChartData' , this.newUsersChartData)

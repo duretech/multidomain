@@ -20,6 +20,11 @@
   overflow-y      : auto;
   overflow-x      : hidden;
 
+  .view-modulesSection{
+    max-height: 277px;
+    overflow: auto;
+  }
+
   .social-icons{
     margin-top: 5% !important;
 }

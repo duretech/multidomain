@@ -600,11 +600,11 @@ export default {
           }
         });
       }
-
+      
       let data = service.getInteractiveData(dimensions, filters);
       data
         .then((response) => {
-          let { items, fields, chartOptions } = IA.generateChart(
+                    let { items, fields, chartOptions } = IA.generateChart(
             response,
             this.chart,
             this.table.items,
@@ -619,9 +619,10 @@ export default {
             drillDownDX,
             this.isDrilldownAdded,
             chartData.facilityDimension,
+            chartData.selectedPeriod,
             this.pType
           );
-          let finalData = {
+                    let finalData = {
             ...chartOptions,
             series: chartOptions.series.map((s) => {
               let findInd = this.indicatorsColors.find(
@@ -639,7 +640,7 @@ export default {
             }),
           };
           this.chart = finalData;
-          this.$emit("setExportArr", {
+                    this.$emit("setExportArr", {
             ...this.chart,
             chartID: chartData.id,
             cardKey: this.cardKey,

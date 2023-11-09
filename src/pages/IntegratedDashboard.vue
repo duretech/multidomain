@@ -128,67 +128,70 @@
                             class="show-div"
                             :class="{ 'maternal-health': !exportingPdf }"
                           >
-                            <b-col
-                              sm="4"
-                              class="px-0 mb-1"
-                              v-for="(summary, i) in summaryScore"
-                              :key="'summary' + i"
-                            >
-                              <div
-                                class="integratedBoxWrap pinkBox"
-                                :style="{ 'background-color': summary.color }"
+                            <template v-for="(summary, i) in summaryScore">
+                              <b-col
+                                sm="4"
+                                class="px-0 mb-1"
+                                :key="'summary' + i"
+                                v-if="!summary.isHide && summary.dx.length"
                               >
-                                <div class="textDivWrap">
-                                  <p class="fs-17-1920 courseName">
-                                    {{ summary.shortName }}
-                                  </p>
-                                  <div
-                                    class="fs-17-1920 courseCount"
-                                    v-if="
-                                      !isNaN(summary.value) &&
-                                      summary.value !== ''
-                                    "
-                                  >
-                                    {{ getValue(summary) }}
-                                  </div>
-                                  <b-spinner
-                                    type="grow"
-                                    label="Spinning"
-                                    v-else
-                                  ></b-spinner>
-                                  <p class="fs-17-1920 courseText">
-                                    {{ summary.displayName }}
-                                  </p>
-                                  <div class="overlay">
-                                    <div class="text">
-                                      <div class="integratedDashboardOverlay">
-                                        <i
-                                          class="fa fa-bar-chart"
-                                          aria-hidden="true"
-                                        ></i
-                                        ><button
-                                          class="btn purple-btn fs-17-1920"
-                                          @click.prevent.stop="
-                                            goTo({
-                                              module: 'mnch-dashboard',
-                                              setNamespace: true,
-                                              routeName: 'dashboard',
-                                              redirectDetails: {
-                                                routeName: 'SummaryDashboard',
-                                                activeTab: summary.link,
-                                                locationPeriod: locationPeriod,
-                                              },
-                                            })
-                                          "
-                                        >
-                                          {{ $t("viewMore") }}
-                                        </button>
+                                <div
+                                  class="integratedBoxWrap pinkBox"
+                                  :style="{ 'background-color': summary.color }"
+                                >
+                                  <div class="textDivWrap">
+                                    <p class="fs-17-1920 courseName">
+                                      {{ summary.shortName }}
+                                    </p>
+                                    <div
+                                      class="fs-17-1920 courseCount"
+                                      v-if="
+                                        !isNaN(summary.value) &&
+                                        summary.value !== ''
+                                      "
+                                    >
+                                      {{ getValue(summary) }}
+                                    </div>
+                                    <b-spinner
+                                      type="grow"
+                                      label="Spinning"
+                                      v-else
+                                    ></b-spinner>
+                                    <p class="fs-17-1920 courseText">
+                                      {{ summary.displayName }}
+                                    </p>
+                                    <div class="overlay">
+                                      <div class="text">
+                                        <div class="integratedDashboardOverlay">
+                                          <i
+                                            class="fa fa-bar-chart"
+                                            aria-hidden="true"
+                                          ></i
+                                          ><button
+                                            class="btn purple-btn fs-17-1920"
+                                            @click.prevent.stop="
+                                              goTo({
+                                                module: 'mnch-dashboard',
+                                                setNamespace: true,
+                                                routeName: 'dashboard',
+                                                redirectDetails: {
+                                                  routeName: 'SummaryDashboard',
+                                                  activeTab: summary.link,
+                                                  locationPeriod:
+                                                    locationPeriod,
+                                                },
+                                              })
+                                            "
+                                          >
+                                            {{ $t("viewMore") }}
+                                          </button>
+                                        </div>
                                       </div>
                                     </div>
                                   </div>
                                 </div>
-                              </div>
-                            </b-col>
+                              </b-col>
+                            </template>
                           </div>
                         </template>
                       </b-row>
@@ -358,13 +361,11 @@
                               "
                             >
                               <FpIntegrated
-                                :emuValue="emuValue"
                                 :chartData="chartData"
                                 :summaryScore="summaryScore"
                                 :emuValueColor="emuValueColor"
                                 v-if="
-                                  chartData.series[0].data.length &&
-                                  chartData.series[1].data.length
+                                  chartData
                                 "
                                 :exportingPdf="exportingPdf"
                               />
@@ -373,6 +374,7 @@
                                 label="Spinning"
                                 v-else
                               ></b-spinner>
+                              {{ "1" }}
                             </template>
                             <b-row v-else style="height: 350px">
                               <b-col
@@ -630,28 +632,28 @@ export default {
     },
   },
   watch: {
-    emuValue(newValue) {
-      if (!isNaN(newValue) && newValue !== "") {
-        let obj = {
-          y:
-            !isNaN(newValue) && newValue !== ""
-              ? newValue.toFixed(2) * 1
-              : null,
-          name: this.$i18n.t("EMU"),
-          color: this.emuValueColor,
-        };
-        // let arr = [20, 0, 35];
-        let obj1 = {
-          y: null,
-          name: this.$i18n.t("emuBenchmark"),
-          color: "#DF5353",
-        };
-        this.chartData.xAxis[0].categories.unshift(this.$i18n.t("EMU"));
-        this.chartData.series[0].data.unshift(obj);
-        this.chartData.series[1].data.unshift(obj1);
-        this.setBenchmarkData("fp");
-      }
-    },
+    // emuValue(newValue) {
+    //   if (!isNaN(newValue) && newValue !== "") {
+    //     let obj = {
+    //       y:
+    //         !isNaN(newValue) && newValue !== ""
+    //           ? newValue.toFixed(2) * 1
+    //           : null,
+    //       name: this.$i18n.t("EMU"),
+    //       color: this.emuValueColor,
+    //     };
+    //     // let arr = [20, 0, 35];
+    //     let obj1 = {
+    //       y: null,
+    //       name: this.$i18n.t("emuBenchmark"),
+    //       color: "#DF5353",
+    //     };
+    //     this.chartData.xAxis[0].categories.unshift(this.$i18n.t("EMU"));
+    //     this.chartData.series[0].data.unshift(obj);
+    //     this.chartData.series[1].data.unshift(obj1);
+    //     this.setBenchmarkData("fp");
+    //   }
+    // },
     chartData: {
       handler(newValue) {
         this.$nextTick(() => {
@@ -783,7 +785,8 @@ export default {
       });
     },
     getSingleValue(newValue) {
-      let promises = [];
+      let promises = [],
+        graphPromises = [];
       let period = getDateRange({
         sendPeriod: this.locationPeriod.period,
         periodType: this.locationPeriod.periodType,
@@ -794,13 +797,29 @@ export default {
       let location = loc.split("/")[1];
       let levelID = loc.split("/")[0] * 1;
       let subLevelID = levelID + 1;
+      let newModifiedValues = [];
       newValue.forEach((d) => {
+        // if (d.dx.length) {
         let de = d.dx.join(";");
         promises.push(
           service.getIndicatorData(de, [levelID], location, period)
         );
+        // }
+        // if (d.graphDX.length) {
+        let de1 = d.graphDX.join(";");
+        graphPromises.push(
+          service.getIndicatorData(de1, [levelID], location, period)
+        );
+        //}
+        if (d.dx.length || d.graphDX.length) {
+          newModifiedValues.push(d);
+        }
       });
-
+      console.log(
+        JSON.parse(JSON.stringify(newValue)),
+        JSON.parse(JSON.stringify(newModifiedValues)),
+        "newModifiedValues"
+      );
       Promise.allSettled(promises).then((results) => {
         results.forEach((res, i) => {
           if (res.status === "fulfilled") {
@@ -812,6 +831,22 @@ export default {
           } else {
             newValue[i].value = this.$i18n.t("NA");
           }
+          // if (i === results.length - 1) {
+          //   this.setChartData(newValue);
+          // }
+        });
+      });
+      Promise.allSettled(graphPromises).then((results) => {
+        results.forEach((res, i) => {
+          if (res.status === "fulfilled") {
+            let value = 0;
+            res.value.data.rows.forEach((r) => {
+              value = value * 1 + r[3] * 1;
+            });
+            newValue[i].graphValue = value.toFixed(2) * 1;
+          } else {
+            newValue[i].graphValue = this.$i18n.t("NA");
+          }
           if (i === results.length - 1) {
             this.setChartData(newValue);
           }
@@ -820,22 +855,27 @@ export default {
     },
     setChartData(newValue) {
       newValue.forEach((d) => {
-        let obj = {
-          y: !isNaN(d.value) && d.value !== "" ? d.value.toFixed(2) * 1 : null,
-          name: d.shortName,
-          color: d.color,
-        };
-        // let arr = [d.minThreshold * 1, 0, d.maxThreshold * 1];
-        let obj1 = {
-          y: null,
-          link: d.link,
-          color: d.benchmarkColor || "#DF5353",
-          name:
-            d.benchmarkLabel || `${d.shortName} ${this.$i18n.t("benchmark")}`,
-        };
-        this.chartData.xAxis[0].categories.push(d.shortName);
-        this.chartData.series[0].data.push(obj);
-        this.chartData.series[1].data.push(obj1);
+        if (d.graphDX.length) {
+          let obj = {
+            y:
+              !isNaN(d.graphValue) && d.graphValue !== ""
+                ? d.graphValue.toFixed(2) * 1
+                : null,
+            name: d.shortName,
+            color: d.graphColor,
+          };
+          // let arr = [d.minThreshold * 1, 0, d.maxThreshold * 1];
+          let obj1 = {
+            y: null,
+            link: d.link,
+            color: d.benchmarkColor || "#DF5353",
+            name:
+              d.benchmarkLabel || `${d.shortName} ${this.$i18n.t("benchmark")}`,
+          };
+          this.chartData.xAxis[0].categories.push(d.shortName);
+          this.chartData.series[0].data.push(obj);
+          this.chartData.series[1].data.push(obj1);
+        }
       });
       this.setBenchmarkData();
     },
@@ -861,7 +901,11 @@ export default {
       this.chartData.series[0].data = [];
       this.chartData.series[1].data = [];
       this.chartData.xAxis[0].categories = [];
-      this.summaryScore = this.summaryScore.map((d) => ({ ...d, value: "" }));
+      this.summaryScore = this.summaryScore.map((d) => ({
+        ...d,
+        value: "",
+        graphValue: "",
+      }));
       this.dqrScorecard = this.dqrScorecard.map((d) => ({
         ...d,
         score: null,
@@ -1245,8 +1289,14 @@ export default {
                   let obj = {
                     dx: [],
                     value: "",
+                    graphValue: "",
                     shortName: d.tabName[this.$i18n.locale],
                     color: s.integrated.color,
+                    graphColor: s.integrated?.graphColor,
+                    graphDisplayName:
+                      s.integrated?.graphDisplayName?.[this.$i18n.locale],
+                    graphDX: [],
+                    graphPercentIndicator: s.integrated?.graphPercentIndicator,
                     link: `${d.group}-${d.id}-${s.id}`,
                     displayName: s.integrated.displayName[this.$i18n.locale],
                     minThreshold: s.integrated.minThreshold,
@@ -1255,23 +1305,43 @@ export default {
                       s.integrated.benchmarkLabel[this.$i18n.locale],
                     benchmarkColor: s.integrated.benchmarkColor,
                     percentIndicator: s.integrated.percentIndicator,
+                    isHide: false,
                   };
-                  let rMapping = allMappings.filter((m) =>
-                    s.integrated.dataMapping.includes(m.indicator.static_name)
-                  );
-                  rMapping.forEach((m) =>
-                    m.indicator.subIndicator.forEach((subEle) => {
-                      subEle.selectedDE.forEach((s) => {
-                        obj.dx.push(s.id);
-                      });
-                    })
-                  );
+                  if (s.integrated.dataMapping) {
+                    let rMapping = allMappings.filter((m) =>
+                      s.integrated.dataMapping.includes(m.indicator.static_name)
+                    );
+                    rMapping.forEach((m) =>
+                      m.indicator.subIndicator.forEach((subEle) => {
+                        subEle.selectedDE.forEach((s) => {
+                          obj.dx.push(s.id);
+                        });
+                      })
+                    );
+                  } else {
+                    obj.isHide = true;
+                  }
+                  if (s.integrated.graphDataMapping) {
+                    let graphMapping = allMappings.filter((m) =>
+                      s.integrated.graphDataMapping.includes(
+                        m.indicator.static_name
+                      )
+                    );
+                    graphMapping.forEach((m) =>
+                      m.indicator.subIndicator.forEach((subEle) => {
+                        subEle.selectedDE.forEach((s) => {
+                          obj.graphDX.push(s.id);
+                        });
+                      })
+                    );
+                  }
+
                   summaryScore.push(obj);
                 }
               });
             });
             this.summaryScore = summaryScore;
-          })
+            })
           .catch((err) => {
             this.reFetchConfig(err);
           });
@@ -1319,7 +1389,7 @@ export default {
                 : d.y,
           })
         );
-      }
+        }
       if (this.isFPSummaryModules && isFP) {
         let loc = this.locationPeriod.location.split("/");
         if (!this.benchmarkDataFP[loc[0]]) {
@@ -1376,6 +1446,12 @@ export default {
           });
         }
       }
+      console.log(
+        isLocationChanges,
+        this.preFetchData[
+          `${this.locationPeriod.periodType}_${this.$i18n.locale}`
+        ]
+      );
       if (
         this.preFetchData &&
         this.preFetchData[
@@ -1625,7 +1701,7 @@ export default {
     await this.getConfigData();
     this.globalPeriodData =
       this.$store.getters.getGlobalFactors().period.Period;
-  },
+        },
 };
 </script>
 

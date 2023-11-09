@@ -396,7 +396,6 @@ import {
   excludeName,
   getLocationName,
 } from "@/components/Common/commonFunctions";
-import NepaliDate from "nepali-date-converter";
 export default {
   props: [
     "showTrend",
@@ -475,7 +474,8 @@ export default {
           this.$store.getters.getActiveTab
         ) &&
         this.$route.name === "AnalyticalDashboard" &&
-        this.$store.getters.getNamespace !== "multi_program_mnch-dashboard"
+        this.$store.getters.getNamespace !==
+          `${this.$store.getters.getAppSettings.tableName}_mnch-dashboard`
       ) {
         isHide = true;
       }
@@ -508,14 +508,17 @@ export default {
       let d = new Date();
       let nplMonth;
       let nplYear;
+      // Use d.getDate() when, English month is of 30 days like, Sep, Nov.
+      // Whereas, use d.getDate()-1 when, English Month is of 31 days like, Oct, Dec.
+      // Tested with https://www.hamropatro.com/date-converter.
+      // getDaysInMonth method is giving us the number of days in the given month of a given year.
+      // console.log('getDaysInMonth', this.getDaysInMonth(d.getFullYear() , d.getMonth()+1));
       if (this.$store.getters.getAppSettings.calendar === "nepali") {
-        d = new NepaliDate(
-          new Date(d.getFullYear(), d.getMonth() + 1, d.getDate())
-        ).getBS();
-        nplMonth = d.month;
-        nplYear = d.year;
-        let zeroForMonth = nplMonth < 10 ? "0" + nplMonth : nplMonth;
-        d = d.year + "" + zeroForMonth;
+        const { adToBs } = require("@sbmdkl/nepali-date-converter");
+        const bsDate = adToBs(
+          `${d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate()}`
+        );
+        d = bsDate.split("-")[0] + bsDate.split("-")[1];
       }
       let currentDate = this.$moment(d, "YYYYMM")
         .subtract(period.backtrackedMonth * 1, "months")
@@ -688,6 +691,9 @@ export default {
     },
   },
   methods: {
+    // getDaysInMonth(year, month) {
+    //   return new Date(year, month, 0).getDate();
+    // },
     sendDetails() {
       let canSend = true;
       let periodName =
@@ -891,10 +897,10 @@ export default {
       this.financialYearsText = ["Shrawan", "Ashad"];
       this.financialYearsjulyText = ["Shrawan", "Ashad"];
       this.quartersText = {
-        Q1: ["Ashad", "Shrawan"],
-        Q2: ["Bhadra", "Ashoj"],
-        Q3: ["Kartik", "Mangsir"],
-        Q4: ["Baisakh", "Jestha"],
+        Q1: ["Chitra", "Jestha"],
+        Q2: ["Ashad", "Bhadra"],
+        Q3: ["Ashoj", "Mangsir"],
+        Q4: ["Poush", "Falgun"],
       };
     }
     if (this.$i18n.locale === "fr") {

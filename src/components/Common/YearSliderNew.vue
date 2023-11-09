@@ -126,7 +126,7 @@ export default {
 					var nextYear = parseInt(a) + 1;
 					this.ddOptions.push({
 						value: a,
-						text: a + "-" + nextYear,
+						text: a,
 					});
 				});
 			} else if (this.pType === "monthly") {

@@ -34,7 +34,7 @@
 			</b-col>
 		</b-row>
 		<b-row class="pt-3" v-if="!isFavorites">
-			<b-col sm="12">
+			<b-col sm="12" v-if="$store.getters.getAppSettings.benchmark">
 				<b-skeleton
 					class="border-0"
 					:animation="animation"

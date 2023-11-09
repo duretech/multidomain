@@ -204,7 +204,7 @@
                     class="mb-3"
                     v-if="
                       $store.getters.getNamespace !==
-                        'multi_program_mnch-dashboard' &&
+                        `${$store.getters.getAppSettings.tableName}_mnch-dashboard` &&
                       (moduleKey === 'summaryDashboard' ||
                         moduleKey === 'analyticalDashboard') &&
                       subTabGroup === 'EMU'
@@ -2416,7 +2416,7 @@ export default {
       return function (category, group, isSavedData, isSingleSource) {
         let calc = [];
         if (
-          this.$store.getters.getNamespace !== "multi_program_mnch-dashboard" &&
+          this.$store.getters.getNamespace !== `${this.$store.getters.getAppSettings.tableName}_mnch-dashboard` &&
           isSavedData &&
           group.includes("EMU")
         ) {
@@ -2435,8 +2435,7 @@ export default {
         } else {
           if (
             this.$store.getters.getNamespace !==
-              "multi_program_mnch-dashboard" &&
-            isSingleSource
+              `${this.$store.getters.getAppSettings.tableName}_mnch-dashboard` && isSingleSource
           ) {
             calc.push({
               text: this.$i18n.t("mulCYP"),

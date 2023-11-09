@@ -862,7 +862,6 @@ import introduction from "./../emuAnnual/introduction";
 import dataM from "./../emuAnnual/dataMassaging";
 import toolbarComponent from "./toolbarComponent.vue";
 import { decompress } from "compress-json";
-import NepaliDate from "nepali-date-converter";
 export default {
   components: {
     emuOutput,
@@ -1029,13 +1028,11 @@ export default {
       let periodData = this.$store.getters.getGlobalFactors().period.Period;
       let d = new Date();
       if (this.$store.getters.getAppSettings.calendar === "nepali") {
-        d = new NepaliDate(
-          new Date(d.getFullYear(), d.getMonth() + 1, d.getDate())
-        ).getBS();
-        let nplMonth = d.month;
-        let nplYear = d.year;
-        let zeroForMonth = nplMonth < 10 ? "0" + nplMonth : nplMonth;
-        d = d.year + "" + zeroForMonth;
+        const { adToBs } = require("@sbmdkl/nepali-date-converter");
+        const bsDate = adToBs(
+          `${d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate()}`
+        );
+        d = bsDate.split("-")[0] + bsDate.split("-")[1];
       }
       let recentYearMonth = this.$moment(d, "YYYYMM")
         .subtract(periodData.backtrackedMonth * 1, "months")
@@ -1088,8 +1085,9 @@ export default {
       let cypGlobal = {};
       Object.keys(metaConfigData.cyp).forEach((contName) => {
         cypGlobal[contName] = {};
-        metaConfigData.cyp[contName].chartData.forEach((ind) => {
-          ind.indicator.subIndicator.forEach((sub) => {
+        Object.keys(metaConfigData.cyp[contName].chartData).forEach((ind) => {
+          let innerData = metaConfigData.cyp[contName].chartData[ind];
+          innerData.indicator.subIndicator.forEach((sub) => {
             let subName = Array.isArray(sub.name)
               ? sub.name[this.$i18n.locale]
               : sub.name;

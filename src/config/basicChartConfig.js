@@ -615,7 +615,7 @@ export const integratedChartConfig = {
     max: 100,
   },
   tooltip: {
-    shared: true,
+    shared: false,
     useHTML: true,
   },
   exporting: {

@@ -49,6 +49,7 @@
                             :dataElementList="dataElementList"
                             :dataSetList="dataSetList"
                             :orgList="orgList"
+                            isFromIC="true"
                             @saveJson="saveJson"
                           />
                         </b-card>
@@ -67,6 +68,7 @@
                             :dataElementList="dataElementList"
                             :dataSetList="dataSetList"
                             :orgList="orgList"
+                            isFromIC="true"
                             @saveJson="saveJson"
                           />
                         </b-card>
@@ -88,6 +90,7 @@
                             :dataElementList="dataElementList"
                             :dataSetList="dataSetList"
                             :orgList="orgList"
+                            isFromIC="true"
                             @saveJson="saveJson"
                           />
                         </b-card>
@@ -105,7 +108,7 @@
           @click="updateActiveTab('data_mapping')"
         >
           <b-card-text v-if="activeTab === 'data_mapping'">
-            <div class="md_nested_tabs card-section">
+            <div class="md_nested_tabs card-section default-dataemu">
               <b-card no-body>
                 <b-tabs class="default-emu">
                   <b-tab
@@ -116,7 +119,7 @@
                     <b-card-text v-if="activeSubTab === 'Visits'">
                       <div class="md_nested_tabs">
                         <b-card class="border">
-                          <DataMapping
+                          <!-- <DataMapping
                             type="Visits"
                             :dqrConfig="dqrConfig"
                             :orgList="orgList"
@@ -126,8 +129,8 @@
                             :dataSetList="dataSetList"
                             :sectorRepo="sectorRepo"
                             @saveJson="saveJson"
-                          />
-                          <!-- <emuAnnual
+                          /> -->
+                          <emuAnnual
                             chartByType="emu"
                             chartBySubtype="Visits"
                             :matrixList="matrixList"
@@ -136,7 +139,9 @@
                             :dataSetsList="dataSetList"
                             :indicatorsList="indicatorList"
                             :dataElementsList="dataElementList"
-                          /> -->
+                            isFromIC="true"
+                            @updatedData="updatedData"
+                          />
                         </b-card>
                       </div>
                     </b-card-text>
@@ -148,7 +153,7 @@
                     <b-card-text v-if="activeSubTab === 'Commodities_Client'">
                       <div class="md_nested_tabs">
                         <b-card class="border">
-                          <DataMapping
+                          <!-- <DataMapping
                             type="Commodities_Client"
                             :dqrConfig="dqrConfig"
                             :orgList="orgList"
@@ -157,8 +162,8 @@
                             :dataElementList="dataElementList"
                             :dataSetList="dataSetList"
                             :sectorRepo="sectorRepo"
-                          />
-                          <!-- <emuAnnual
+                          /> -->
+                          <emuAnnual
                             chartByType="emu"
                             chartBySubtype="Commodities_Client"
                             :matrixList="matrixList"
@@ -167,7 +172,9 @@
                             :dataSetsList="dataSetList"
                             :indicatorsList="indicatorList"
                             :dataElementsList="dataElementList"
-                          /> -->
+                            isFromIC="true"
+                            @updatedData="updatedData"
+                          />
                         </b-card>
                       </div>
                     </b-card-text>
@@ -181,7 +188,7 @@
                     >
                       <div class="md_nested_tabs">
                         <b-card class="border">
-                          <DataMapping
+                          <!-- <DataMapping
                             type="Commodities_Facilities"
                             :dqrConfig="dqrConfig"
                             :orgList="orgList"
@@ -190,8 +197,8 @@
                             :dataElementList="dataElementList"
                             :dataSetList="dataSetList"
                             :sectorRepo="sectorRepo"
-                          />
-                          <!-- <emuAnnual
+                          /> -->
+                          <emuAnnual
                             chartByType="emu"
                             chartBySubtype="Commodities_Facilities"
                             :matrixList="matrixList"
@@ -200,7 +207,9 @@
                             :dataSetsList="dataSetList"
                             :indicatorsList="indicatorList"
                             :dataElementsList="dataElementList"
-                          /> -->
+                            isFromIC="true"
+                            @updatedData="updatedData"
+                          />
                         </b-card>
                       </div>
                     </b-card-text>
@@ -212,7 +221,7 @@
                     <b-card-text v-if="activeSubTab === 'User'">
                       <div class="md_nested_tabs">
                         <b-card class="border">
-                          <DataMapping
+                          <!-- <DataMapping
                             type="User"
                             :dqrConfig="dqrConfig"
                             :orgList="orgList"
@@ -221,8 +230,8 @@
                             :dataElementList="dataElementList"
                             :dataSetList="dataSetList"
                             :sectorRepo="sectorRepo"
-                          />
-                          <!-- <emuAnnual
+                          /> -->
+                          <emuAnnual
                             chartByType="emu"
                             chartBySubtype="User"
                             :matrixList="matrixList"
@@ -231,7 +240,9 @@
                             :dataSetsList="dataSetList"
                             :indicatorsList="indicatorList"
                             :dataElementsList="dataElementList"
-                          /> -->
+                            isFromIC="true"
+                            @updatedData="updatedData"
+                          />
                         </b-card>
                       </div>
                     </b-card-text>
@@ -315,9 +326,13 @@ export default {
     updateActiveSubTab(tab_name) {
       this.activeSubTab = tab_name;
     },
-    saveJson(val, key) {
-      this.$emit("saveJson", val, key);
+    saveJson(val, key){
+      this.$emit('saveJson', val, key)
     },
+    updatedData(val){
+      let key = this.generateKey("dqrModule")
+      this.$emit('saveJson', val, key)
+    }
   },
 };
 </script>

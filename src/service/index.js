@@ -472,10 +472,13 @@ class DataService {
    * @param child - flag to include/exclude the children
    * @returns response object
    */
-  getIndividualOrganisation(uid, child = false) {
+  getIndividualOrganisation(uid, child = false, parent = false) {
     let fields = "id,name,displayName";
     if (child) {
       fields = `${fields},children[id, name, displayName]`;
+    }
+    if (parent) {
+      fields = `${fields},parent[id, name, displayName]`;
     }
     return axios({
       method: "get",

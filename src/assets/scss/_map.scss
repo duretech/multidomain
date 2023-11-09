@@ -510,6 +510,9 @@
     border-bottom-left-radius: 50px;
     background-color: var(--sidebar-main-active-color) !important;
     border-color: var(--sidebar-main-active-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
         span{
             letter-spacing: 0.8px;
             color: var(--main-font-color);
@@ -523,6 +526,9 @@
     border-bottom-right-radius: 50px;
     background-color: var(--sidebar-main-active-color)!important;
     border-color: var(--sidebar-main-active-color);
+     display: flex;
+    justify-content: center;
+    align-items: center;
 
     span{
         letter-spacing: 0.8px;

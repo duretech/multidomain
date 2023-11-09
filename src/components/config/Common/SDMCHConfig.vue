@@ -210,7 +210,8 @@
                       v-if="
                         moduleKey === 'summaryDashboard' &&
                         $store.getters.getNamespace ===
-                          'multi_program_mnch-dashboard'
+                          `${$store.getters.getAppSettings.tableName}_mnch-dashboard`
+
                       "
                     >
                       <b-row class="mb-3">
@@ -235,7 +236,8 @@
                     v-if="
                       moduleKey === 'summaryDashboard' &&
                       $store.getters.getNamespace ===
-                        'multi_program_mnch-dashboard'
+                        `${$store.getters.getAppSettings.tableName}_mnch-dashboard`
+
                     "
                   >
                     <transition name="slide-fade">
@@ -847,13 +849,17 @@ export default {
       isDataFetched: false,
       integrated: {
         color: "#000",
+        graphColor: "#000",
         linked: false,
         dataMapping: [],
+        graphDataMapping: [],
         displayName: "",
+        graphDisplayName: "",
         minThreshold: 0,
         maxThreshold: 100,
         benchmarkLabel: "",
         percentIndicator: true,
+        graphPercentageIndicator: true,
         benchmarkColor: "#000",
       },
       summary: {
@@ -885,7 +891,8 @@ export default {
         let subGroups = [];
         if (this.moduleKey === "summaryDashboard") {
           if (
-            this.$store.getters.getNamespace !== "multi_program_mnch-dashboard"
+            this.$store.getters.getNamespace !== `${this.$store.getters.getAppSettings.tableName}_mnch-dashboard`
+
           ) {
             if (group === "DEFAULT") {
               subGroups = [
@@ -941,7 +948,8 @@ export default {
         }
         if (this.moduleKey === "analyticalDashboard") {
           if (
-            this.$store.getters.getNamespace !== "multi_program_mnch-dashboard"
+            this.$store.getters.getNamespace !== `${this.$store.getters.getAppSettings.tableName}_mnch-dashboard`
+
           ) {
             if (group === "DEFAULT") {
               subGroups = [
@@ -1564,7 +1572,7 @@ export default {
               integrated:
                 this.moduleKey === "summaryDashboard" &&
                 this.$store.getters.getNamespace ===
-                  "multi_program_mnch-dashboard"
+                  `${this.$store.getters.getAppSettings.tableName}_mnch-dashboard`
                   ? JSON.parse(JSON.stringify(this.integrated))
                   : null,
             },
@@ -1599,7 +1607,7 @@ export default {
               : null,
           integrated:
             this.moduleKey === "summaryDashboard" &&
-            this.$store.getters.getNamespace === "multi_program_mnch-dashboard"
+            this.$store.getters.getNamespace === `${this.$store.getters.getAppSettings.tableName}_mnch-dashboard`
               ? JSON.parse(JSON.stringify(this.integrated))
               : null,
         });
@@ -1694,7 +1702,7 @@ export default {
           text: this.$i18n.t("default"),
         },
       ];
-      if (this.$store.getters.getNamespace !== "multi_program_mnch-dashboard") {
+      if (this.$store.getters.getNamespace !== `${this.$store.getters.getAppSettings.tableName}_mnch-dashboard`) {
         gList = [
           {
             value: "User",

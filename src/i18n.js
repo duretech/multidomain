@@ -55,7 +55,7 @@ export function loadLanguage(lang = "en") {
   ).then(async (res) => {
     // Check if translation file is present in the Datastore
     return await service
-      .getSavedConfig({ tableKey: "translations" })
+      .getSavedConfig({ tableKey: "translations", isDefault: true })
       .then((data) => {
         // If translation file is present in Datastore, then merge the file with the static file
         let mergedTranslations = merge(res.default, data.data);

@@ -14,7 +14,7 @@
           </div>
         </div>
         <template v-if="filteredDynamicModules.length > 0">
-          <div class="row my-3 px-4">
+          <div class="row my-3 px-4 view-modulesSection">
             <div
               class="col-md-4 mb-3"
               v-for="module in filteredDynamicModules"
@@ -176,7 +176,7 @@
           <form>
             <div class="row my-3">
               <div class="col-4">
-                <label for="moduleName">{{ $t("name") }}</label>
+                <label for="moduleName">{{ $t("name") }}*</label>
               </div>
               <div class="col-8">
                 <input
@@ -190,7 +190,7 @@
             </div>
             <div class="row my-3">
               <div class="col-4">
-                <label for="moduleDescription">{{ $t("description") }}</label>
+                <label for="moduleDescription">{{ $t("description") }}*</label>
               </div>
               <div class="col-8">
                 <input
@@ -204,7 +204,7 @@
             </div>
             <div class="row mt-3 mb-0">
               <div class="col-4">
-                <label for="logo">{{ $t("logo") }}</label>
+                <label for="logo">{{ $t("logo") }}*</label>
               </div>
               <div class="col-8 upload-logo">
                 <div class="input-group">
@@ -320,7 +320,7 @@
             </div>
             <div class="row my-3">
               <div class="col-4">
-                <label for="logo">{{ $t("color") }}</label>
+                <label for="logo">{{ $t("color") }}*</label>
               </div>
               <div class="col-8">
                 <div class="form-check">
@@ -374,7 +374,7 @@
             </div>
             <div class="row my-3">
               <div class="col-4">
-                <label for="module_element">{{ $t("moduleElements") }}</label>
+                <label for="module_element">{{ $t("moduleElements") }}*</label>
               </div>
               <div class="col-8">
                 <div class="">
@@ -435,7 +435,7 @@
             </div>
             <div class="row my-3">
               <div class="col-4">
-                <label for="module_linkTo">{{ $t("linkTo") }}</label>
+                <label for="module_linkTo">{{ $t("linkTo") }}*</label>
               </div>
               <div class="col-8">
                 <b-form-select

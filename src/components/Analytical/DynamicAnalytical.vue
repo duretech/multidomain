@@ -1,9 +1,6 @@
 <template>
   <div class="summary-page-container" id="scrollTop" ref="printPDF">
-    <div
-      id="modal-anc"
-      :style="{ paddingTop: isGenerating ? '0%' : '' }"
-    >
+    <div id="modal-anc" :style="{ paddingTop: isGenerating ? '0%' : '' }">
       <h2
         v-if="isGenerating"
         style="text-align: center"
@@ -81,191 +78,215 @@
           v-if="
             !reportChartData && (sumArray.length || regionCountArray.length)
           "
-          style="display:block"
-                :style="{margin: isGenerating ? '5% 0% 15% 0%' : ''}"
+          style="display: block"
+          :style="{ margin: isGenerating ? '5% 0% 15% 0%' : '' }"
         >
-        <div class="h-100 tablemap-col1 modal-content bg-map">
-          <div
-            class="border-greytheme"
-            style="margin-top: 30px"
-            ref="summaryContainer"
-          >
-          <div class="text-right">
-            <b-dropdown
-              menu-class="chart-dd-menu"
-              toggle-class="text-decoration-none bg-transparent border-0 dropdown-toggle p-0"
-              v-if="!isPrinting"
-            >
-              <!-- v-if="tType !== 'map'" -->
-              <template v-slot:button-content>
-                <img
-                  :src="require(`@/assets/images/icons/downloadnewActive.svg`)"
-                  v-b-tooltip.hover
-                  :title="$t('downloadIcon')"
-                  class="img-fluid icon1"
-                />
-              </template>
-              <b-dropdown-item class="list-group-item bg-transparent px-0"  @click.prevent.stop="exportChart('pdf')"
-                ><a
-                  class="color-white"
-                >
-                  <div class="row no-gutters options-item">
-                    <div class="col-lg-10 text-left">
-                      <p class="m-0px">{{ $t("pdf") }}</p>
-                    </div>
-                    <div class="col-lg-2">
-                      <p class="m-0px">
-                        <i class="fa-solid fa-file-pdf"></i>
-                      </p>
-                    </div>
-                  </div> </a
-              ></b-dropdown-item>
-            </b-dropdown>
-          </div>
-            <div v-for="(obj, i) in sumArray" :key="'sumArray' + i">
-              <b-row
-                class="pt-1 pb-1 pl-3 greyborder px-10px"
-                v-if="
-                  obj.summaryDetails && obj.summaryDetails.length && i === 0
-                "
-              >
-                <b-col
-                  :cols="$store.getters.getAppSettings?.benchmark ? 4 : 6"
-                ></b-col>
-                <b-col class="table-heading pr-0" cols="2"
-                  ><p class="fs-17-1920">
-                    {{ obj.summaryDetails[0].currForDate }}
-                  </p>
-                </b-col>
-                <b-col class="table-heading pr-0" cols="2"
-                  ><p class="fs-17-1920">
-                    {{ obj.summaryDetails[0].prevForDate }}
-                  </p></b-col
-                >
-                <b-col class="table-heading pr-0" cols="2"
-                  ><p class="fs-17-1920">{{ $t("per_change") }}</p></b-col
-                >
-                <b-col
-                  class="table-heading pr-0"
-                  cols="2"
-                  v-if="$store.getters.getAppSettings?.benchmark"
-                  ><p class="fs-17-1920">{{ $t("benchmark") }}</p></b-col
-                >
-              </b-row>
-              <b-row
-                class="pt-1 pb-2 valueRow"
-                v-for="(sDetails, i) in obj.summaryDetails"
-                :key="'sumArrayDetails' + i"
-              >
-                <b-col
-                  class="table-heading pt-2 px-10px"
-                  :cols="$store.getters.getAppSettings?.benchmark ? 4 : 6"
-                  ><p class="fs-17-1920">
-                    {{ sDetails.indicatorName
-                    }}<span class="small text-info" v-if="obj.priorityIndicator"
-                      ><strong
-                        >&nbsp;({{ $t("chartPriorityIndicator") }})</strong
-                      ></span
-                    >
-                  </p>
-                </b-col>
-                <b-col cols="2" class="px-10px"
-                  ><div class="summary-dot fs-17-1920">
-                    {{
-                      sDetails.currValue === null
-                        ? $t("NA")
-                        : sDetails.currValue
-                    }}
-                  </div></b-col
-                >
-                <b-col cols="2" class="px-10px"
-                  ><div class="summary-dot fs-17-1920">
-                    {{
-                      sDetails.prevValue === null
-                        ? $t("NA")
-                        : sDetails.prevValue
-                    }}
-                  </div></b-col
-                >
-                <b-col cols="2" class="px-10px">
-                  <div
-                    class="summary-dot fs-17-1920"
-                    :style="{ backgroundColor: sDetails.color }"
-                  >
-                    {{ sDetails.change === null ? $t("NA") : sDetails.change }}
-                  </div></b-col
-                >
-                <b-col
-                  cols="2"
-                  class="px-10px"
-                  v-if="$store.getters.getAppSettings?.benchmark"
-                  ><div class="summary-dot fs-17-1920">
-                    {{
-                      sDetails.benchmark === null
-                        ? $t("NA")
-                        : sDetails.benchmark
-                    }}
-                  </div></b-col
-                >
-              </b-row>
-            </div>
-            <hr v-if="regionCountArray.length" />
+          <div class="h-100 tablemap-col1 modal-content bg-map">
             <div
-              v-for="(region, i) in regionCountArray"
-              :key="'regionCountArray' + i"
+              class="border-greytheme"
+              style="margin-top: 30px"
+              ref="summaryContainer"
             >
-              <b-row
-                class="pt-1 pb-1 pl-3"
-                v-if="region.summaryDetails && i === 0"
-              >
-                <b-col cols="4"></b-col>
-                <b-col class="table-heading pr-0" cols="4"
-                  ><p class="fs-17-1920">
-                    {{ $t("countryInSameDirection") }}
-                  </p></b-col
+              <div class="text-right">
+                <b-dropdown
+                  menu-class="chart-dd-menu"
+                  toggle-class="text-decoration-none bg-transparent border-0 dropdown-toggle p-0"
+                  v-if="!isPrinting"
                 >
-                <b-col class="table-heading pr-0" cols="4"
-                  ><p class="fs-17-1920">
-                    {{ $t("countryInOppositeDirection") }}
-                  </p></b-col
+                  <!-- v-if="tType !== 'map'" -->
+                  <template v-slot:button-content>
+                    <img
+                      :src="
+                        require(`@/assets/images/icons/downloadnewActive.svg`)
+                      "
+                      v-b-tooltip.hover
+                      :title="$t('downloadIcon')"
+                      class="img-fluid icon1"
+                    />
+                  </template>
+                  <b-dropdown-item
+                    class="list-group-item bg-transparent px-0"
+                    @click.prevent.stop="exportChart('pdf')"
+                    ><a class="color-white">
+                      <div class="row no-gutters options-item">
+                        <div class="col-lg-10 text-left p-0">
+                          <div class="d-flex justify-content-between align-items-center">
+                            <p class="m-0px">{{ $t("PDF") }}</p>
+                            <i class="fa fa-file-pdf-o" aria-hidden="true"></i>
+                          </div>
+                        </div>
+                        <div class="col-lg-2">
+                          <p class="m-0px">
+                            <i class="fa-solid fa-file-pdf"></i>
+                          </p>
+                        </div>
+                      </div> </a
+                  ></b-dropdown-item>
+                </b-dropdown>
+              </div>
+              <div v-for="(obj, i) in sumArray" :key="'sumArray' + i">
+                <b-row
+                  class="pt-1 pb-1 pl-3 greyborder px-10px"
+                  v-if="
+                    obj.summaryDetails && obj.summaryDetails.length && i === 0
+                  "
                 >
-              </b-row>
-              <b-row
-                class="pt-1 pb-2 valueRow borderGrey"
-                v-for="(sDetails, i) in region.summaryDetails"
-                :key="'regionCountArrayDetails' + i"
-              >
-                <b-col class="table-heading pt-2" cols="4"
-                  ><p class="fs-17-1920">{{ sDetails.indicatorName }}</p></b-col
-                >
-                <b-col cols="4"
-                  ><div
-                    class="summary-dot fs-17-1920"
-                    :style="{ backgroundColor: sDetails.aColor }"
+                  <b-col
+                   
+                  :cols="$store.getters.getAppSettings?.benchmark ? 4 : 6"
+                  
+                ></b-col>
+                  <b-col class="table-heading pr-0" cols="2"
+                    ><p class="fs-17-1920">
+                      {{ obj.summaryDetails[0].currForDate }}
+                    </p>
+                  </b-col>
+                  <b-col class="table-heading pr-0" cols="2"
+                    ><p class="fs-17-1920">
+                      {{ obj.summaryDetails[0].prevForDate }}
+                    </p></b-col
                   >
-                    {{
-                      sDetails.aBenchmark === null
-                        ? $t("NA")
-                        : sDetails.aBenchmark
-                    }}
-                  </div></b-col
-                >
-                <b-col cols="4"
-                  ><div
-                    class="summary-dot fs-17-1920"
-                    :style="{ backgroundColor: sDetails.bColor }"
+                  <b-col class="table-heading pr-0" cols="2"
+                    ><p class="fs-17-1920">{{ $t("per_change") }}</p></b-col
                   >
-                    {{
-                      sDetails.bBenchmark === null
-                        ? $t("NA")
-                        : sDetails.bBenchmark
-                    }}
-                  </div></b-col
+                  <b-col
+                    class="table-heading pr-0"
+                    cols="2"
+                    v-if="$store.getters.getAppSettings?.benchmark"
+                    ><p class="fs-17-1920">{{ $t("benchmark") }}</p></b-col
+                  >
+                </b-row>
+                <b-row
+                  class="pt-1 pb-2 valueRow"
+                  v-for="(sDetails, i) in obj.summaryDetails"
+                  :key="'sumArrayDetails' + i"
                 >
-              </b-row>
+                  <b-col
+                    class="table-heading pt-2 px-10px"
+                    :cols="$store.getters.getAppSettings?.benchmark ? 4 : 6"
+                    ><p class="fs-17-1920">
+                      {{ sDetails.indicatorName
+                      }}<span
+                        class="small text-info"
+                        v-if="obj.priorityIndicator"
+                        ><strong
+                          >&nbsp;({{ $t("chartPriorityIndicator") }})</strong
+                        ></span
+                      >
+                    </p>
+                  </b-col>
+                  <b-col cols="2" class="px-10px"
+                    ><div class="summary-dot fs-17-1920">
+                      {{
+                        sDetails.currValue === null
+                          ? $t("NA")
+                          : sDetails.currValue
+                      }}
+                    </div></b-col
+                  >
+                  <b-col cols="2" class="px-10px"
+                    ><div class="summary-dot fs-17-1920">
+                      {{
+                        sDetails.prevValue === null
+                          ? $t("NA")
+                          : sDetails.prevValue
+                      }}
+                    </div></b-col
+                  >
+                  <b-col cols="2" class="px-10px">
+                    <div
+                      class="summary-dot fs-17-1920"
+                      :style="{ backgroundColor: sDetails.color }"
+                    >
+                      {{
+                        sDetails.change === null ? $t("NA") : sDetails.change
+                      }}
+                    </div></b-col
+                  >
+                  <b-col
+                   
+                  cols="2"
+                   
+                  class="px-10px"
+                   
+                  v-if="$store.getters.getAppSettings?.benchmark"
+                    ><div class="summary-dot fs-17-1920">
+                      {{
+                        sDetails.benchmark === null
+                          ? $t("NA")
+                          : sDetails.benchmark
+                      }}
+                    </div></b-col
+                  >
+                </b-row>
+              </div>
+              <hr v-if="regionCountArray.length" />
+              <div
+                v-for="(region, i) in regionCountArray"
+                :key="'regionCountArray' + i"
+              >
+                <b-row
+                  class="pt-1 pb-1 pl-3"
+                  v-if="region.summaryDetails && i === 0"
+                >
+                  <b-col cols="4"></b-col>
+                  <b-col class="table-heading pr-0" cols="4"
+                    ><p class="fs-17-1920">
+                      {{ $t("countryInSameDirection") }}
+                      <i
+                      class="fa fa-info-circle cursor-pointer chart-info mr-2 ml-2"
+                      aria-hidden="true"
+                      v-b-popover.hover.rightbottom="{
+                        variant: 'info',
+                        content: $t('infoContent'),
+                        html: true,
+                      }"
+                    ></i></p
+                  ></b-col>
+                  <b-col class="table-heading pr-0" cols="4"
+                    ><p class="fs-17-1920">
+                      {{ $t("countryInOppositeDirection") }}
+                    </p></b-col
+                  >
+                </b-row>
+                <b-row
+                  class="pt-1 pb-2 valueRow borderGrey"
+                  v-for="(sDetails, i) in region.summaryDetails"
+                  :key="'regionCountArrayDetails' + i"
+                >
+                  <b-col class="table-heading pt-2" cols="4"
+                    ><p class="fs-17-1920">
+                      {{ sDetails.indicatorName }}
+                    </p></b-col
+                  >
+                  <b-col cols="4"
+                    ><div
+                      class="summary-dot fs-17-1920"
+                      :style="{ backgroundColor: sDetails.aColor }"
+                    >
+                      {{
+                        sDetails.aBenchmark === null
+                          ? $t("NA")
+                          : sDetails.aBenchmark
+                      }}
+                    </div></b-col
+                  >
+                  <b-col cols="4"
+                    ><div
+                      class="summary-dot fs-17-1920"
+                      :style="{ backgroundColor: sDetails.bColor }"
+                    >
+                      {{
+                        sDetails.bBenchmark === null
+                          ? $t("NA")
+                          : sDetails.bBenchmark
+                      }}
+                    </div></b-col
+                  >
+                </b-row>
+              </div>
             </div>
           </div>
-        </div>
         </b-col>
         <template v-if="configData">
           <template
@@ -278,27 +299,30 @@
                 lg="6"
                 :key="'map' + configData.id + subTab.id + sInd"
                 v-show="$store.getters.getActiveTab.includes(subTab.id)"
-                style="display:block"
-                :style="{margin: isGenerating ? '5% 0% 15% 0%' : ''}"
+                style="display: block"
+                :style="{ margin: isGenerating ? '5% 0% 15% 0%' : '' }"
               >
-              <div class="h-100 tablemap-col1 modal-content bg-map anc-indicatormap">
-                <div class="border-greytheme" style="margin-top: 30px">
-                  <MapContainer
-                    :subTab="subTab"
-                    :emuData="emuData"
-                    :allGeoJson="allGeoJson"
-                    :preFetchData="preFetchData"
-                    :locationPeriod="locationPeriod"
-                    :isGenerating="isGenerating"
-                    @mapPic="mapPic"
-                    @deleteMapPic="deleteMapPic"
-                    class="greyborder"
-                  />
+                <div
+                  class="h-100 tablemap-col1 modal-content bg-map anc-indicatormap"
+                >
+                  <div class="border-greytheme" style="margin-top: 30px">
+                    <MapContainer
+                      :subTab="subTab"
+                      :emuData="emuData"
+                      :allGeoJson="allGeoJson"
+                      :preFetchData="preFetchData"
+                      :locationPeriod="locationPeriod"
+                      :isGenerating="isGenerating"
+                      @mapPic="mapPic"
+                      @deleteMapPic="deleteMapPic"
+                      class="greyborder"
+                    />
+                  </div>
                 </div>
-              </div>
               </b-col>
             </template>
-            <template v-for="chartData in subTab.chartSetting">
+            <template v-for="(chartData , i) in subTab.chartSetting">
+                  <!-- margin: isGenerating ? '5% 0% 15% 0%' : '', -->
               <b-col
                 sm="12"
                 lg="6"
@@ -316,7 +340,7 @@
                     $store.getters.getActiveTab.includes(subTab.id)
                       ? 'block'
                       : 'none',
-                      margin: isGenerating ? '5% 0% 15% 0%' : ''
+                      margin: dynamicMargin(subTab.chartSetting , i)
                 }"
               >
                 <ChartComponent
@@ -421,8 +445,8 @@ export default {
     //   console.log(isFound, "isBenchMarkFound");
     //   return isFound;
     // },
-    updatedSize(){
-      return !this.isGenerating ? '6' : '12'
+    updatedSize() {
+      return !this.isGenerating ? "6" : "12";
     },
     sumArray() {
       let arr = this.summaryList;
@@ -620,6 +644,15 @@ export default {
     },
   },
   methods: {
+    dynamicMargin(arr, curr){
+      curr++;
+      if(arr.length % 2 == 0 && curr <= arr.length - 1){
+        return this.isGenerating ? '5% 0% 15% 0%' : ''
+      }
+      else if(arr.length % 2 != 0 && curr <= arr.length - 2){
+        return this.isGenerating ? '5% 0% 15% 0%' : ''
+      }
+    },
     updateToolBar(updatedVal) {
       this.$emit("updateToolBar", updatedVal);
     },
@@ -797,8 +830,7 @@ export default {
     exportChart(type) {
       let chart = this.$refs.summaryContainer;
       console.log("chart", chart);
-      
-      
+
       if (type == "ppt") {
         import(/* webpackChunkName: "pptxgenjs"*/ "pptxgenjs").then(
           async (pptxgen) => {
@@ -851,8 +883,7 @@ export default {
                 },
                 {
                   text: {
-                    text:
-                      "LOCATION",
+                    text: "LOCATION",
                     options: {
                       x: 0.5,
                       y: "95%",
@@ -864,8 +895,7 @@ export default {
                 },
                 {
                   text: {
-                    text:
-                      "PERIOD",
+                    text: "PERIOD",
                     options: {
                       x: 0.5,
                       y: "98%",
@@ -877,8 +907,7 @@ export default {
                 },
                 {
                   text: {
-                    text:
-                      "DATE",
+                    text: "DATE",
                     options: {
                       x: 8.5,
                       y: "98%",
@@ -911,7 +940,7 @@ export default {
                 this.$store.commit("setLoading", false);
                 this.isPrinting = false;
               });
-              pptx.writeFile({ fileName: "DEMO" });
+            pptx.writeFile({ fileName: "DEMO" });
           }
         );
       } else if (type == "pdf") {
@@ -948,7 +977,7 @@ export default {
               this.$store.commit("setLoading", false);
             })
             .save();
-          }, 50);
+        }, 50);
       }
       this.isPrinting = false;
     },

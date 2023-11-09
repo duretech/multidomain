@@ -24,7 +24,7 @@
       </div>
       <div class="row border-bottomgrey mt-3">
         <div class="col-lg-12">
-          <div class="collapse" :id="'sub_indicator0' + _i + _j">
+          <div class="collapse border-transparent" :id="'sub_indicator0' + _i + _j">
             <div
               class="card-header bg-faint-grey default-card-border-radius color-black f-s-0-875rem p-10px accordion-header1 f-s-0-875rem font-weight-bold bt-10"
             >
@@ -125,6 +125,7 @@
                                     class="col-sm-7 d-flex justify-content-end align-items-center"
                                   >
                                     <DataEntryAction
+                                    v-if="!isFromIC"
                                       :dataEntryID="de.id"
                                       @openPopup="openPopup"
                                     />
@@ -196,6 +197,7 @@ export default {
     "matrixList",
     "bgDataSource",
     "bgDataType",
+    "isFromIC"
   ],
   mixins: [DynamicImageMixin],
   components: {
