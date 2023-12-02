@@ -33,8 +33,33 @@
                 </div>
               </div>
             </template>
-            <b-card-body :style="{backgroundColor: isGenerating || textUpdate ? $store.getters.getTheme == 'dark'? '#201F3C !important' : $store.getters.getTheme == 'grey' ? '#212934 !important' : '' : ''}" class="dqr-card-body pt-0" ref="printPDF">
-              <h2 v-if="isGenerating" style="text-align: center" :style="{color: isGenerating ? $store.getters.getTheme == 'dark'? 'white !important' : $store.getters.getTheme == 'grey' ? 'white !important' : '' : ''}">
+            <b-card-body
+              :style="{
+                backgroundColor:
+                  isGenerating || textUpdate
+                    ? $store.getters.getTheme == 'dark'
+                      ? '#201F3C !important'
+                      : $store.getters.getTheme == 'grey'
+                      ? '#212934 !important'
+                      : ''
+                    : '',
+              }"
+              class="dqr-card-body pt-0"
+              ref="printPDF"
+            >
+              <h2
+                v-if="isGenerating"
+                style="text-align: center"
+                :style="{
+                  color: isGenerating
+                    ? $store.getters.getTheme == 'dark'
+                      ? 'white !important'
+                      : $store.getters.getTheme == 'grey'
+                      ? 'white !important'
+                      : ''
+                    : '',
+                }"
+              >
                 {{ $t("DQR") }}
               </h2>
               <!-- //here -->
@@ -77,7 +102,9 @@
                   <b-button
                     class="generate-btn blue-btn mt-4 mb-2"
                     @click.prevent.stop="viewScorecard"
-                    :style="{background: isGenerating ? '#4375BC !important' : ''}"
+                    :style="{
+                      background: isGenerating ? '#4375BC !important' : '',
+                    }"
                     v-else
                   >
                     <span>{{ $t("viewScorecard") }}</span>
@@ -161,7 +188,6 @@
                                 v-model="selectedScorecardLevels"
                                 sort-value-by="INDEX"
                                 :placeholder="$t('select')"
-
                               />
                             </div>
                             <div class="small w-50 select-dqr">
@@ -199,7 +225,7 @@
                           </b-button>
                         </div>
                       </div>
-
+                      <p class="small" >{{ $t("noteScoreCard") }}</p>
                       <div
                         class=""
                         v-if="
@@ -434,18 +460,30 @@
                         v-if="
                           $store.getters.getNamespace.includes('_fp-dashboard')
                         "
-                        :style="{color: isGenerating && ['dark', 'grey'].includes($store.getters.getTheme) ? 'white !important' : ''}"
-                        >
+                        :style="{
+                          color:
+                            isGenerating &&
+                            ['dark', 'grey'].includes($store.getters.getTheme)
+                              ? 'white !important'
+                              : '',
+                        }"
+                      >
                         {{ $t("dqr1", { selectedDate }) }}
                       </p>
                       <p
-                      class="quality-text fs-17-1920"
-                      v-if="
+                        class="quality-text fs-17-1920"
+                        v-if="
                           $store.getters.getNamespace.includes(
                             '_mnch-dashboard'
-                            )
-                            "
-                            :style="{color: isGenerating && ['dark', 'grey'].includes($store.getters.getTheme) ? 'white !important' : ''}"
+                          )
+                        "
+                        :style="{
+                          color:
+                            isGenerating &&
+                            ['dark', 'grey'].includes($store.getters.getTheme)
+                              ? 'white !important'
+                              : '',
+                        }"
                       >
                         {{ $t("dqr2", { selectedDate }) }}
                       </p>
@@ -460,10 +498,32 @@
                       <div
                         class="align-items-center d-flex flex-column justify-content-center score"
                       >
-                        <h4 class="scoretitle fs-25-1920" :style="{color: isGenerating ? $store.getters.getTheme == 'dark'? 'white !important' : $store.getters.getTheme == 'grey' ? 'white !important' : '' : ''}">
+                        <h4
+                          class="scoretitle fs-25-1920"
+                          :style="{
+                            color: isGenerating
+                              ? $store.getters.getTheme == 'dark'
+                                ? 'white !important'
+                                : $store.getters.getTheme == 'grey'
+                                ? 'white !important'
+                                : ''
+                              : '',
+                          }"
+                        >
                           {{ $t("dqrScore") }}
                         </h4>
-                        <p class="totalscore fs-25-1920" :style="{color: isGenerating ? $store.getters.getTheme == 'dark'? 'white !important' : $store.getters.getTheme == 'grey' ? 'white !important' : '' : ''}">
+                        <p
+                          class="totalscore fs-25-1920"
+                          :style="{
+                            color: isGenerating
+                              ? $store.getters.getTheme == 'dark'
+                                ? 'white !important'
+                                : $store.getters.getTheme == 'grey'
+                                ? 'white !important'
+                                : ''
+                              : '',
+                          }"
+                        >
                           {{ qualityScore }}/{{ totalScores }}
                         </p>
                       </div>
@@ -494,7 +554,18 @@
                     v-for="(menu, i) in scoreBox"
                     :key="'menu' + i"
                   >
-                    <b-card class="inner-card" :style="{backgroundColor: isGenerating ? $store.getters.getTheme === 'dark'? '#64648D !important' : $store.getters.getTheme === 'grey' ? '#404B5A !important' : '' : ''}">
+                    <b-card
+                      class="inner-card"
+                      :style="{
+                        backgroundColor: isGenerating
+                          ? $store.getters.getTheme === 'dark'
+                            ? '#64648D !important'
+                            : $store.getters.getTheme === 'grey'
+                            ? '#404B5A !important'
+                            : ''
+                          : '',
+                      }"
+                    >
                       <template #header>
                         <h6 class="mb-0 pl-1 fs-19-1920">
                           {{ menu.tabName }}
@@ -502,7 +573,7 @@
                       </template>
                       <b-card-body
                         class="inner-card-body pl-0"
-                        :style="{ 'height': getHeight + 'px' }"
+                        :style="{ height: getHeight + 'px' }"
                       >
                         <div class="complete-list p-4 mb-0">
                           <div
@@ -544,7 +615,15 @@
                               @click="
                                 $store.commit('setActiveTab', subMenu.navLink)
                               "
-                              :style="{color: isGenerating ? $store.getters.getTheme === 'dark'? 'white !important' : $store.getters.getTheme === 'grey' ? 'white !important' : '' : ''}"
+                              :style="{
+                                color: isGenerating
+                                  ? $store.getters.getTheme === 'dark'
+                                    ? 'white !important'
+                                    : $store.getters.getTheme === 'grey'
+                                    ? 'white !important'
+                                    : ''
+                                  : '',
+                              }"
                             >
                               {{ subMenu.tabName }}
                             </div>
@@ -561,7 +640,15 @@
                     <b-card
                       class="inner-card"
                       :class="[isGenerating ? 'no-border' : 'border-grey']"
-                      :style="{backgroundColor: isGenerating ? this.$store.getters.getTheme === 'dark'? '#201F3C !important' : this.$store.getters.getTheme === 'grey' ? '#212934 !important' : '' : ''}"
+                      :style="{
+                        backgroundColor: isGenerating
+                          ? this.$store.getters.getTheme === 'dark'
+                            ? '#201F3C !important'
+                            : this.$store.getters.getTheme === 'grey'
+                            ? '#212934 !important'
+                            : ''
+                          : '',
+                      }"
                     >
                       <template #header class="inner-header">
                         <h6 class="mb-0 pl-1 fs-19-1920 text-center">
@@ -815,11 +902,33 @@
       <!-- class="dqr-main pt-4" -->
       <div
         class="pt-4 mt-1"
-        :style="{backgroundColor: isGenerating ? this.$store.getters.getTheme === 'dark'? '#201F3C' : this.$store.getters.getTheme === 'grey' ? '#212934' : '' : ''}"
+        :style="{
+          backgroundColor: isGenerating
+            ? this.$store.getters.getTheme === 'dark'
+              ? '#201F3C'
+              : this.$store.getters.getTheme === 'grey'
+              ? '#212934'
+              : ''
+            : '',
+        }"
         v-show="!$store.getters.getActiveTab.includes('dqr-summary')"
         ref="printDQR"
       >
-        <h2 v-if="isGenerating" style="text-align: center" :style="{color: isGenerating ? $store.getters.getTheme == 'dark'? 'white !important' : $store.getters.getTheme == 'grey' ? 'white !important' : '' : ''}">{{ $t("DQR") }}</h2>
+        <h2
+          v-if="isGenerating"
+          style="text-align: center"
+          :style="{
+            color: isGenerating
+              ? $store.getters.getTheme == 'dark'
+                ? 'white !important'
+                : $store.getters.getTheme == 'grey'
+                ? 'white !important'
+                : ''
+              : '',
+          }"
+        >
+          {{ $t("DQR") }}
+        </h2>
         <div
           :style="{
             visibility:
@@ -972,7 +1081,6 @@ import ScrollPageMixin from "@/helpers/ScrollPageMixin";
 import DynamicImageMixin from "@/helpers/DynamicImageMixin";
 import StaticColorMixin from "@/helpers/StaticColorMixin";
 import loadLocChildMixin from "@/helpers/LoadLocationChildMixin";
-import NepaliDate from "nepali-date-converter";
 import GenerateReportMixin from "@/helpers/GenerateReportMixin";
 
 export default {
@@ -1299,7 +1407,7 @@ export default {
             }),
         }));
       }
-      this.$refs?.printPDF ? this.getDQRImg(): '';
+      this.$refs?.printPDF ? this.getDQRImg() : "";
       return box;
     },
     scoreTabID() {
@@ -1321,8 +1429,15 @@ export default {
           periodType: this.locationPeriod.periodType,
         });
       } else if (this.locationPeriod.periodType === "financialYearJuly") {
-        let pYear = rawDate.substring(0, 4);
-        currPeriod = `${pYear}July`;
+        let pYear = this.locationPeriod.period.substring(0, 4);
+        let currPeriod = `${pYear}July`;
+        return translateDate({
+          rawDate: currPeriod,
+          periodType: this.locationPeriod.periodType,
+        });
+      } else if (this.locationPeriod.periodType === "financialYearOct") {
+        let pYear = this.locationPeriod.period.substring(0, 4);
+        let currPeriod = `${pYear}Oct`;
         return translateDate({
           rawDate: currPeriod,
           periodType: this.locationPeriod.periodType,
@@ -1420,8 +1535,8 @@ export default {
       },
       deep: true,
     },
-    "$store.getters.getTheme": function (){
-      this.$refs?.printPDF ? this.getDQRImg(): '';
+    "$store.getters.getTheme": function () {
+      this.$refs?.printPDF ? this.getDQRImg() : "";
     },
     totalScores(newValue) {
       this.chartConfig.yAxis.max = newValue;
@@ -1484,6 +1599,7 @@ export default {
             newValue.periodType !== oldValue.periodType ||
             newValue.period !== oldValue.period)
         ) {
+          this.selectedFacilityOrg = [];
           this.scores = [];
           if (this.$store.getters.getActiveTab && !this.reportChartData) {
             this.getScorecard();
@@ -1937,7 +2053,7 @@ export default {
           label: this.$i18n.t("viewMore"),
         },
       ];
-      console.log("scoreTabID", this.scoreTabID);
+      // console.log("scoreTabID", this.scoreTabID);
       scorecardDetails.forEach((s) => {
         let innerItem = {
             [this.$i18n.t("location")]: excludeName(s.name),
@@ -2009,7 +2125,7 @@ export default {
           return textA < textB ? -1 : textA > textB ? 1 : 0;
         });
       });
-      console.log("scorecardItems", this.scorecardItems);
+      // console.log("scorecardItems", this.scorecardItems);
     },
     getScorecard() {
       this.scorecardGenerated = false;
@@ -2056,7 +2172,7 @@ export default {
       }
     },
     setScorecard() {
-      console.log("currentScorecard", this.currentScorecard);
+      // console.log("currentScorecard", this.currentScorecard);
       if (this.currentScorecard.length) {
         this.scorecardGenerated = true;
         this.generateTable(this.currentScorecard);
@@ -2227,13 +2343,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.before {
-  page-break-before: always !important;
-}
-.after {
-  page-break-after: always !important;
-  page-break-inside: avoid !important;
-}
 .loaderBackground {
   position: absolute;
   top: 2px;

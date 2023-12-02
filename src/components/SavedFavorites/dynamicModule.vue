@@ -724,11 +724,11 @@ export default {
     },
     submitDisabled() {
       return (
-        this.moduleName &&
-        this.moduleDescription &&
-        (this.moduleLogoURL || this.moduleLogoName) &&
-        this.moduleColor &&
-        !this.treeselect.moduleElements
+        this.moduleName  &&
+        this.moduleDescription  &&
+        (this.moduleLogoURL  || this.moduleLogoName ) &&
+        this.moduleColor  &&
+        (this.treeselect.moduleElements == null || this.treeselect.moduleElements.length == 0)
       );
     },
     filteredDynamicModules() {

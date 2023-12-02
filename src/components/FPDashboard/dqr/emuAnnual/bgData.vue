@@ -222,7 +222,7 @@ export default {
             if (indData != undefined && indData[year] != undefined) {
               let val =
                 indData[year] != 0 && indData[year] ? indData[year] : "";
-              obj[ind] = ind == "population" ? val : val ? val + "%" : "";
+              obj[ind] = ind == "population" ? val.toLocaleString() : val ? val + "%" : "";
             } else {
               obj[ind] = null;
             }

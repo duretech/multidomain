@@ -493,7 +493,7 @@ export default {
         '<div style="max-width:180px;"><div style="font-weight: 600;"> ' +
         excludeName(locationName) +
         " : " +
-        value +
+        value.toLocaleString() +
         "</div></div>";
       return content;
     },

@@ -498,6 +498,16 @@
     >
       <div class="row p-3" v-if="finalAdjNonAdjTableData">
         <strong>{{ $t("baseLineText") }}</strong>
+        <download-csv
+          :data="finalAdjNonAdjTableData.baseline.items"
+          style="display: inline-block; margin-left: 10px"
+          ><img
+            :src="require('@/assets/images/icons/downloadActive.svg')"
+            :style="{ filter: filterColor }"
+            class="img cursor-pointer"
+            v-b-tooltip.hover
+            :title="$t('downloadIcon')"
+        /></download-csv>
         <b-table
           hover
           v-if="finalAdjNonAdjTableData && finalAdjNonAdjTableData.baseline"
@@ -510,6 +520,16 @@
           :empty-text="$t('no_data_to_display')"
         />
         <strong>{{ $t("adjustedNonAdjText") }}</strong>
+        <download-csv
+          :data="finalAdjNonAdjTableData.adjusted.items"
+          style="display: inline-block; margin-left: 10px"
+          ><img
+            :src="require('@/assets/images/icons/downloadActive.svg')"
+            :style="{ filter: filterColor }"
+            class="img cursor-pointer"
+            v-b-tooltip.hover
+            :title="$t('downloadIcon')"
+        /></download-csv>
         <b-table
           hover
           v-if="finalAdjNonAdjTableData && finalAdjNonAdjTableData.adjusted"
@@ -1252,7 +1272,7 @@ export default {
           )
         );
         this.aFinalInputData = aFinalCharts;
-        this.$emit('updateChartData' , this.aFinalInputData)
+        this.$emit("updateChartData", this.aFinalInputData);
         dataM.saveChartColors(aFinalCharts, this.tabName);
       } else {
         if (!this.finalAnnualCharts) {
@@ -1584,8 +1604,8 @@ export default {
             }
             let val = obj[method][year][subm];
 
-            if (!this.finalAdjNonAdjTableData[type]["fields"].includes(year))
-              this.finalAdjNonAdjTableData[type]["fields"].push(year);
+            if (!this.finalAdjNonAdjTableData[type]["fields"].includes(" "+year+" "))
+              this.finalAdjNonAdjTableData[type]["fields"].push(" "+year+" ");
             mainObj[method.split("/")[0]][subm.split("/")[0]][year] = val;
           });
         });
@@ -1597,7 +1617,15 @@ export default {
           innobj["Sub-method"] = subm;
           Object.keys(mainObj[method][subm]).forEach((year) => {
             let val = mainObj[method][subm][year];
-            innobj[year] = val;
+            if(isNaN(year*1)){
+              innobj[year] = val;
+            }
+          });
+          Object.keys(mainObj[method][subm]).forEach((year) => {
+            let val = mainObj[method][subm][year];
+            if(!isNaN(year*1)){
+              innobj[" "+year+" "] = val;
+            }
           });
           this.finalAdjNonAdjTableData[type]["items"].push(innobj);
         });

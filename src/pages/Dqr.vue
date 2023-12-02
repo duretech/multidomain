@@ -220,6 +220,7 @@ export default {
       this.getConfigData();
     } else {
       this.configData = this.reportConfigData;
+      this.configDataDQR = this.reportConfigData;
       // this.setTab();
     }
   },

@@ -285,12 +285,27 @@
       :title="$t('showSteps')"
       no-close-on-backdrop
     >
-      <div class="row p-3 fp-users">
+      <div class="row p-3">
         <!-- Population
       <b-table hover v-if="finalCalculatedTable && finalCalculatedTable.population" :items="finalCalculatedTable.population.items" bordered :fields="finalCalculatedTable.population.fields" responsive class="methodsTable" /> -->
         <!-- <strong>{{$t('sumOfCont')}} </strong>
       <b-table hover v-if="finalCalculatedTable && finalCalculatedTable.sumCont" :items="finalCalculatedTable.sumCont.items" bordered :fields="finalCalculatedTable.sumCont.fields" responsive class="methodsTable"/> -->
         <strong>{{ $t("users") }}</strong>
+        <download-csv
+                                  :data="finalCalculatedTable.calculatedUsers.items"
+                                  style="
+                                    display: inline-block;
+                                    margin-left: 10px;
+                                  "
+                                  ><img
+                                    :src="
+                                      require('@/assets/images/icons/downloadActive.svg')
+                                    "
+                                    :style="{ filter: filterColor }"
+                                    class="img cursor-pointer"
+                                    v-b-tooltip.hover
+                                    :title="$t('downloadIcon')"
+                                /></download-csv>
         <b-table
           hover
           v-if="finalCalculatedTable && finalCalculatedTable.calculatedUsers"
@@ -303,6 +318,21 @@
           :empty-text="$t('no_data_to_display')"
         />
         <strong>{{ $t("histUsers") }}</strong>
+        <download-csv
+                                  :data="finalCalculatedTable.historicUsers.items"
+                                  style="
+                                    display: inline-block;
+                                    margin-left: 10px;
+                                  "
+                                  ><img
+                                    :src="
+                                      require('@/assets/images/icons/downloadActive.svg')
+                                    "
+                                    :style="{ filter: filterColor }"
+                                    class="img cursor-pointer"
+                                    v-b-tooltip.hover
+                                    :title="$t('downloadIcon')"
+                                /></download-csv>
         <b-table
           hover
           v-if="finalCalculatedTable && finalCalculatedTable.historicUsers"
@@ -315,6 +345,21 @@
           :empty-text="$t('no_data_to_display')"
         />
         <strong>{{ $t("Total Users") }}</strong>
+        <download-csv
+                                  :data="finalCalculatedTable.totalUsers.items"
+                                  style="
+                                    display: inline-block;
+                                    margin-left: 10px;
+                                  "
+                                  ><img
+                                    :src="
+                                      require('@/assets/images/icons/downloadActive.svg')
+                                    "
+                                    :style="{ filter: filterColor }"
+                                    class="img cursor-pointer"
+                                    v-b-tooltip.hover
+                                    :title="$t('downloadIcon')"
+                                /></download-csv>
         <b-table
           hover
           v-if="finalCalculatedTable && finalCalculatedTable.totalUsers"
@@ -1150,15 +1195,16 @@ export default {
         let length = Object.keys(vals).length,
           minLength = length - 24;
         Object.keys(vals).forEach((yearM, index) => {
+          console.log("yearM" ,yearM)
           if (index >= minLength && index < length) {
-            if (!newFields.includes(yearM)) {
-              newFields.push(yearM);
+            if (!newFields.includes(" "+yearM+" ")) {
+              newFields.push(" "+yearM+" ");
               obj["fields"].push({
-                key: yearM,
+                key: " "+yearM+" ",
                 label: this.allMonthNameJson[yearM]["name"],
               });
             }
-            itemObj[yearM] = vals[yearM];
+            itemObj[" "+yearM+" "] = vals[yearM];
           }
         });
         obj["items"].push(itemObj);

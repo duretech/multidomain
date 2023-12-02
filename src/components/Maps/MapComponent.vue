@@ -497,9 +497,9 @@ export default {
           scaleDescValue =
             legendScales.scaleDesc[i] +
             " (" +
-            legendScales.lowScale[i] +
+            legendScales.lowScale[i].toLocaleString() +
             " - " +
-            legendScales.highScale[i] +
+            legendScales.highScale[i].toLocaleString() +
             " )";
 
           scales.push({

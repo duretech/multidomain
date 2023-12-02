@@ -11,7 +11,7 @@
     <div class="" id="modal-newanc" :class="{ 'text-center': !isFetched }">
       <template v-if="isFetched">
         <b-row class="mb-4 text-right">
-          <b-col>
+          <b-col cols="9">
             <b-button-group size="sm">
               <b-button
                 class="ml-2"
@@ -22,6 +22,16 @@
                 >{{ f.text }}</b-button
               >
             </b-button-group>
+          </b-col>
+          <b-col cols="3">
+            <date-picker
+            v-model="customPeriod"
+            :range="true"
+            type="Date"
+            value-type="format"
+            format="YYYY-MM-DD"
+            class="form-control"
+           ></date-picker>
           </b-col>
         </b-row>
         <div>
@@ -193,6 +203,8 @@
 </template>
 <script>
 import service from "@/service";
+import "vue2-datepicker/index.css";
+import DatePicker from "vue2-datepicker";
 import DynamicImageMixin from "@/helpers/DynamicImageMixin";
 import { commonChartConfig } from "@/config/basicChartConfig";
 import { getDateTimestamp } from "@/components/Common/commonFunctions";
@@ -205,6 +217,7 @@ export default {
       import(
         /* webpackChunkName: "HighChartComponentDynamic"*/ "@/components/Highcharts/HighChartComponentDynamic"
       ),
+      DatePicker,
   },
   data() {
     return {
@@ -218,6 +231,7 @@ export default {
       isModal: this.showModal,
       uByLocObj: JSON.parse(JSON.stringify(commonChartConfig)),
       uByDateObj: JSON.parse(JSON.stringify(commonChartConfig)),
+      customPeriod: [],
     };
   },
   computed: {
@@ -235,12 +249,25 @@ export default {
         tD = getDateTimestamp({ isTimestamp: true });
 
       if (this.frequency === "ALL") {
+        this.customPeriod = []
         aData = JSON.parse(JSON.stringify(this.analyticsData));
       } else if (this.frequency === 1) {
+        this.customPeriod = []
         if (this.analyticsData[tD]) {
           aData[tD] = this.analyticsData[tD];
         }
+      } else if(this.frequency === "custom"){
+        let tFD1 = new Date(this.customPeriod[0]).getTime();
+        let tFD2 = new Date(this.customPeriod[1]).getTime();
+        if (tFD1 && tFD2) {
+          Object.keys(this.analyticsData).forEach((a) => {
+            if (a * 1 >= tFD1 && a * 1 !== tFD2) {
+              aData[a] = this.analyticsData[a];
+            }
+          });
+        }
       } else {
+        this.customPeriod = []
         let tFD = getDateTimestamp({ isTimestamp: true, f: this.frequency });
         if (tFD) {
           Object.keys(this.analyticsData).forEach((a) => {
@@ -493,6 +520,11 @@ export default {
       },
       deep: true,
     },
+    customPeriod(newVal){
+      if(newVal.length == 2){
+        this.frequency = "custom"
+      }
+    }
   },
   methods: {
     setFields({ key = null, tKey = null, sortable = true }) {
@@ -554,5 +586,10 @@ export default {
     this.getData();
     this.setTitles();
   },
+  // mounted(){
+  //   // process.env.NODE_ENV !== "production"
+  //   //       ? this
+  //   //       : LZString.compressToUTF16(JSON.stringify(payload));
+  // }
 };
 </script>

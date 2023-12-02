@@ -374,7 +374,6 @@
                                 label="Spinning"
                                 v-else
                               ></b-spinner>
-                              {{ "1" }}
                             </template>
                             <b-row v-else style="height: 350px">
                               <b-col
@@ -1356,7 +1355,9 @@ export default {
         let sorted = isFound.sort(function (a, b) {
           return parseInt(b[1]) - parseInt(a[1]);
         });
-        y = sorted.length && sorted[0].length ? sorted[0][3] * 1 : null;
+        let isFound1 = sorted.length && sorted[0].length ? sorted.filter((item)=> item[3]*1 != "" && item[3]*1 != 0) : null;
+        console.log("isFound1" , isFound1)
+        y = isFound1?.length > 0 ? isFound1[0][3]*1 : null;
       }
       return y;
     },

@@ -986,11 +986,4 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.before {
-  page-break-before: always !important;
-}
-.after {
-  page-break-after: always !important;
-  page-break-inside: avoid !important;
-}
 </style>

@@ -783,6 +783,7 @@ export default {
     barStackedPercentage: "Percentage Stacked Bar",
     table: "Table",
     financialYearJuly: "Financial Year (Start July)",
+    financialYearOct: "Financial Year (Start October)",
     quarterly: "Quarterly",
     data: "Data",
     indicators: "Indicators",
@@ -1101,8 +1102,8 @@ export default {
     rr_text8: "Reporting Rate >= Benchmark",
     rr_text9: "Reporting Rate < Benchmark",
     rr_text11: "and ( Average - Reporting Rate ) > Substantial change",
-    cngPtPos: "+ve Change",
-    cngPtNeg: "-ve Change",
+    cngPtPos: "Changement positif",
+    cngPtNeg: "Changement négatif",
     ans: "Ans",
     comOptional: "Comment (Optional)",
     readMore: "Read More",
@@ -1149,6 +1150,7 @@ export default {
     selectAll: "Select all",
     clearSelected: "Clear selected",
     infoContent: "The no. of regions here includes the parent region",
+    noteScoreCard: "The facility list will be available on clicking on the locations within the District"
   },
   fr: {
     np: "Nepali",
@@ -1947,6 +1949,8 @@ export default {
     barStackedPercentage: "Barre empilée de pourcentage", //checked
     table: "Table", //checked
     financialYearJuly: "Année financière (début juillet)", //checked
+    financialYearOct: "Financial Year (Start October)",
+
     quarterly: "Trimestriel", //checked
     data: "Donnés", //checked
     indicators: "Indicateurs", //checked
@@ -2319,6 +2323,7 @@ export default {
     scorecardPeriod: "Scorecard Period",
     selectAll: "Select all",
     clearSelected: "Clear selected",
+    noteScoreCard: "La liste des établissements sera disponible en cliquant sur les emplacements du District."
   },
   np: {
     M: "महिना",
@@ -3272,6 +3277,7 @@ export default {
     dataStoreLoadText: "डाटास्टोर विवरणहरू खोज्दै...",
     emuNotForLocation: "EMU not saved for this location.",
     financialYearJuly: "आर्थिक बर्ष ",
+    financialYearOct: "Financial Year (Start October)",
     indicatorCreation: "सुचक तयार गर्नुहोस ",
     initialYearOfData: "प्रारम्भिक वर्षको डाटा",
     insertion_Removal: "राख्ने वनाम झिक्ने ",
@@ -3433,5 +3439,6 @@ export default {
     commodities_Distributed_to_Facilities:
       "स्वास्थ्य संस्थामा वितरित गर्भ निरोधका साधन ",
     infoContent: "The no. of regions here includes the parent region",
+    noteScoreCard: "प्रतिष्ठानहरूको सूची जिल्ला स्थानहरूमा क्लिक गरेर उपलब्ध हुनेछ।"
   },
 };

@@ -97,9 +97,8 @@ import "vue2-datepicker/index.css";
 import DatePicker from "vue2-datepicker";
 import Treeselect from "@riophae/vue-treeselect";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
-import { pTypeList , subtractNDate } from "@/components/Common/commonFunctions";
+import { pTypeList, subtractNDate } from "@/components/Common/commonFunctions";
 import loadLocChildMixin from "@/helpers/LoadLocationChildMixin";
-import NepaliDate from "nepali-date-converter";
 import { adToBs } from "@sbmdkl/nepali-date-converter";
 export default {
   props: ["globalPeriodData", "showToolbarOnTablet"],
@@ -110,7 +109,7 @@ export default {
   mixins: [loadLocChildMixin],
   data() {
     let period = this.globalPeriodData;
-    let d,e;
+    let d, e;
     if (this.$store.getters.getAppSettings.calendar === "nepali") {
       let a = period.backtrackedDate.split("-");
       let b = period.backtrackedLimitedDate.split("-");
@@ -225,6 +224,8 @@ export default {
         this.setCurrentPeriod("financialYear");
       } else if (newValue === "financialYearJuly") {
         this.setCurrentPeriod("financialYearJuly");
+      } else if (newValue === "financialYearOct") {
+        this.setCurrentPeriod("financialYearOct");
       } else if (newValue === "quarterly") {
         this.setCurrentPeriod("quarterly");
       } else if (newValue === "monthly") {
@@ -255,7 +256,7 @@ export default {
     sendDetails() {
       let locations =
         this.value.length > 0 ? this.value.map((n) => n.split("/")[1]) : [];
-        this.$emit("location", this.period, this.pType, locations, this.options);
+      this.$emit("location", this.period, this.pType, locations, this.options);
     },
     closeToolbar() {
       this.$emit("closeToolbar");
@@ -289,7 +290,11 @@ export default {
         currentMonth = bsDate.split("-")[1];
       }
       let currentQuarter = Math.ceil(currentMonth / 3);
-      if (type === "financialYear" || type === "financialYearJuly") {
+      if (
+        type === "financialYear" ||
+        type === "financialYearJuly" ||
+        type === "financialYearOct"
+      ) {
         if (currentMonth <= 4) {
           currentYear = currentYear * 1 - 1;
         }
@@ -300,7 +305,7 @@ export default {
           let months =
             this.$i18n.locale === "fr" ? ["avril", "mars"] : ["April", "March"];
           if (this.$store.getters.getAppSettings.calendar === "nepali") {
-            months = ["Shrawan", "Ashad"];
+            months = ["Ashad", "Shrawan"];
           }
           this.periodOptions.push({
             text: `${months[0]} ${i} - ${months[1]} ${i + 1}`,
@@ -314,6 +319,9 @@ export default {
         if (type === "financialYearJuly") {
           let months =
             this.$i18n.locale === "fr" ? ["juin", "juil."] : ["Jun", "Jul"];
+          if (this.$store.getters.getAppSettings.calendar === "nepali") {
+            months = ["Ashoj", "Kartik"];
+          }
           this.periodOptions.push({
             text: `${months[0]} ${i} - ${months[1]} ${i + 1}`,
             value: `${i}July`,
@@ -322,7 +330,20 @@ export default {
             this.period.push(`${i}July`);
           }
         }
-
+        if (type === "financialYearOct") {
+          let months =
+            this.$i18n.locale === "fr" ? ["sept.", "oct."] : ["Sept", "Oct"];
+          if (this.$store.getters.getAppSettings.calendar === "nepali") {
+            months = ["Poush", "Magh"];
+          }
+          this.periodOptions.push({
+            text: `${months[0]} ${i} - ${months[1]} ${i + 1}`,
+            value: `${i}Oct`,
+          });
+          if (initialSelect && i >= currentYear - 11) {
+            this.period.push(`${i}Oct`);
+          }
+        }
         if (type === "quarterly") {
           let years = {
             Q1: ["Jan", "Mar"],
@@ -332,10 +353,10 @@ export default {
           };
           if (this.$store.getters.getAppSettings.calendar === "nepali") {
             years = {
-              Q1: ["Chitra", "Jestha"],
-              Q2: ["Ashad", "Bhadra"],
-              Q3: ["Ashoj", "Mangsir"],
-              Q4: ["Poush", "Falgun"],
+              Q1: ["Baisakh", "Ashad"],
+              Q2: ["Shrawan", "Ashoj"],
+              Q3: ["Kartik", "Poush"],
+              Q4: ["Magh", "Chaitra"],
             };
 
             // if (currentMonth > 1 && currentMonth <= 3) {
@@ -376,14 +397,14 @@ export default {
           }
         }
       }
-      if(initialSelect && type === "monthly"){
-          let from = subtractNDate({
+      if (initialSelect && type === "monthly") {
+        let from = subtractNDate({
           rawDate: `${currentYear}${currentMonth}`,
           periodType: "monthly",
-          n:12
-        })
-        this.period.push(from.slice(0, 4) + "-" + from.slice(4))
-        this.period.push(`${currentYear}-${currentMonth}`)
+          n: 12,
+        });
+        this.period.push(from.slice(0, 4) + "-" + from.slice(4));
+        this.period.push(`${currentYear}-${currentMonth}`);
       }
       // this.periodOptions.reverse();
     },

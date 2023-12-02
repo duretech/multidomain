@@ -437,7 +437,10 @@ export default {
                 }
               }
             });
-            if (chartOptions.benchmarkInLegend) {
+            if (
+              chartOptions.benchmarkInLegend &&
+              ["monthly", "yearly"].includes(this.locationPeriod.periodType)
+            ) {
               chartData.series.push({
                 ...obj,
                 type: "line",
@@ -474,6 +477,7 @@ export default {
     },
     updateOutliersList({
       name,
+      peValue,
       value,
       header,
       outliers,
@@ -499,11 +503,25 @@ export default {
             outliers[method][isMIndex].outlierList[isFound].outliers.push(
               value
             );
+            outliers[method][isMIndex].outlierList[isFound].outliersValues.push(
+              {
+                peValue: peValue,
+                value: value,
+              }
+            );
           }
         } else {
           outliers[method][isMIndex].outlierList.push({
             name: name,
             outliers: value ? [value] : [],
+            outliersValues: peValue
+              ? [
+                  {
+                    peValue: peValue,
+                    value: value,
+                  },
+                ]
+              : [],
           });
         }
       } else {
@@ -514,10 +532,19 @@ export default {
             {
               name: name,
               outliers: value ? [value] : [],
+              outliersValues: peValue
+                ? [
+                    {
+                      peValue: peValue,
+                      value: value,
+                    },
+                  ]
+                : [],
             },
           ],
         });
       }
+      // console.log(outliers, "ouliers", value, peValue);
       return outliers;
     },
     findOutliers({
@@ -531,7 +558,8 @@ export default {
       currentPeriod = null,
     }) {
       const getAvg = (d) => {
-        let data = d.map((d) => d.y);
+        let dataWithNull = d.map((d) => d.y);
+        let data = dataWithNull.filter((d) => d != null);
         let nLen = data.length;
         let nSum = data.reduce((a, b) => a + b, 0);
         let avg = nLen ? nSum / nLen : 0;
@@ -566,9 +594,18 @@ export default {
             if (d.pe === currentPeriod) {
               isOutlier = true;
             }
+            // console.log("calling updateOutliersList 1", {
+            //   header,
+            //   outliers,
+            //   peValue: d.pe,
+            //   name: c.name,
+            //   value: d.name,
+            //   method: m,
+            // });
             outliers = this.updateOutliersList({
               header,
               outliers,
+              peValue: d.pe,
               name: c.name,
               value: d.name,
               method: m,
@@ -606,6 +643,7 @@ export default {
           outliers,
           name: s,
           value: null,
+          peValue: null,
         };
         let updatedData = data.map((d) => {
           if (d.y < benchmarkValue || (d.y === null && benchmarkValue === 0)) {
@@ -613,14 +651,18 @@ export default {
             d.color = "#FE8081";
             let v = d.y ? `${d.y}%` : this.$i18n.t("noData");
             obj.value = `${d.name} (${v})`;
+            obj.peValue = d.pe;
             if (m !== "default") {
               obj.method = m;
             }
+            // console.log("calling updateOutliersList 2", obj);
             outliers = this.updateOutliersList(obj);
           }
           return d;
         });
         if (!isOut) {
+          // console.log("calling updateOutliersList 3", obj);
+
           outliers = this.updateOutliersList(obj);
         }
         return updatedData;
@@ -655,6 +697,20 @@ export default {
                     avg - d.y * 1
                       ? `${(avg - d.y * 1).toFixed(2)}%`
                       : this.$i18n.t("noData");
+                  // console.log("calling updateOutliersList 4", {
+                  //   header: `${this.$i18n.t("rr_text2", {
+                  //     substantialChange: substantialChange,
+                  //     substantialChangeAvg: substantialChangeAvg
+                  //       ? `(${substantialChangeAvg})%`
+                  //       : "",
+                  //   })}`,
+                  //   outliers,
+                  //   name: s.name,
+                  //   peValue: d.pe,
+                  //   value: `${d.name} (${v})`,
+                  //   secondary: true,
+                  // });
+
                   outliers = this.updateOutliersList({
                     header: `${this.$i18n.t("rr_text2", {
                       substantialChange: substantialChange,
@@ -664,12 +720,26 @@ export default {
                     })}`,
                     outliers,
                     name: s.name,
+                    peValue: d.pe,
                     value: `${d.name} (${v})`,
                     secondary: true,
                   });
                 }
               });
               if (!isOut) {
+                // console.log("calling updateOutliersList 5", {
+                //   header: `${this.$i18n.t("rr_text2", {
+                //     substantialChange: substantialChange,
+                //     substantialChangeAvg: substantialChangeAvg
+                //       ? `(${substantialChangeAvg})%`
+                //       : "",
+                //   })}`,
+                //   outliers,
+                //   name: s.name,
+                //   peValue: null,
+                //   value: null,
+                //   secondary: true,
+                // });
                 outliers = this.updateOutliersList({
                   header: `${this.$i18n.t("rr_text2", {
                     substantialChange: substantialChange,
@@ -679,6 +749,7 @@ export default {
                   })}`,
                   outliers,
                   name: s.name,
+                  peValue: null,
                   value: null,
                   secondary: true,
                 });
@@ -693,6 +764,7 @@ export default {
       }
 
       if (type === "-IC-") {
+        // console.log("Calling outliers in IC", isMethods);
         if (isMethods) {
           cObj.methodSeries = cObj.methodSeries.map((m) => {
             let updatedM = getUpdatedData(m.data, m.name);
@@ -702,6 +774,7 @@ export default {
             };
           });
         } else {
+          // console.log(cObj.series, "main series in trend");
           cObj.series = getUpdatedData(cObj.series);
           if (
             cObj.drilldown &&
@@ -711,9 +784,12 @@ export default {
             let locData = this.getLocationData({
               series: cObj.drilldown.series,
             });
+            // console.log(cObj.drilldown.series, "drilldown series in trend");
+
             locData = getUpdatedData(locData);
             cObj.drilldown.series = cObj.drilldown.series.map((s) => {
               let updatedData = s.data.map((d) => {
+                // console.log(JSON.parse(JSON.stringify(d)), locData, "actual d");
                 let isFound = locData.find((l) => l.id === d.locationID);
                 if (isFound) {
                   let isDataFound = isFound.data.find((d) => d.name === s.name);
@@ -738,20 +814,24 @@ export default {
             });
           }
         }
+        console.log(cObj, outliers, isOutlier, "in ic charts ");
       }
       return { oSeries: cObj, outliers, isOutlier };
     },
     getLocationData({ series, key = "locationID" }) {
+      // console.log(series, "inlocationdata method series");
       let locData = [];
       series.forEach((s) => {
         s.data.forEach((d) => {
           let isFound = locData.findIndex((l) => l.id === d[key]);
+          // console.log(isFound, d[key], d.y, d, s.name);
           if (isFound >= 0) {
             locData[isFound] = {
               ...locData[isFound],
               data: locData[isFound].data.concat({
                 name: s.name,
-                y: d.y || 0,
+                y: d.y,
+                pe: d.period,
               }),
             };
           } else {
@@ -761,7 +841,8 @@ export default {
               data: [
                 {
                   name: s.name,
-                  y: d.y || 0,
+                  y: d.y,
+                  pe: d.period,
                 },
               ],
             });
@@ -1040,7 +1121,7 @@ export default {
                             b.split("-")[1] +
                             "-" +
                             c;
-                        } else if(this.configOfSummary?.length) {
+                        } else if (this.configOfSummary?.length) {
                           d = "sd-summary";
                         } else if (this.configOfAD?.length) {
                           d = item.group + "-" + a + "-" + c;
@@ -1510,11 +1591,26 @@ export default {
           date: this.selectedDate ? "(" + this.selectedDate + ")" : "",
           standardDeviation: standardDeviationValue,
         });
-        let obj = {
-          errorMsg: "",
-          id: this.subTab.id,
-          score: isOutlier ? 0 : 1,
-        };
+
+        let s =
+          cObj.series.length &&
+          cObj.series[0].data.find((obj) => obj.pe == currentPeriod);
+
+        let obj = {};
+
+        if (s.y) {
+          obj = {
+            errorMsg: "",
+            id: this.subTab.id,
+            score: isOutlier ? 0 : 1,
+          };
+        } else {
+          obj = {
+            score: null,
+            id: this.subTab.id,
+            errorMsg: this.$i18n.t("noDataPeriod"),
+          };
+        }
         if (this.scorecardLocation) {
           obj["scorecardLocation"] = this.scorecardLocation;
         } else {

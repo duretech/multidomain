@@ -814,15 +814,5 @@ export default {
   },
 };
 </script>
-<style>
-.before {
-  page-break-before: always !important;
-}
-.after {
-  page-break-after: always !important;
-  page-break-inside: avoid !important;
-}
-.avoid {
-  page-break-inside: avoid !important;
-}
+<style scoped>
 </style>

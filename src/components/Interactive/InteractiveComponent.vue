@@ -610,8 +610,14 @@ export default {
       currentYear:
         this.$store.getters.getAppSettings.calendar === "nepali"
           ? adToBs(
-          `${new Date().getFullYear() + "-" + (new Date().getMonth() + 1) + "-" + new Date().getDate()}`
-        ).split("-")[0]
+              `${
+                new Date().getFullYear() +
+                "-" +
+                (new Date().getMonth() + 1) +
+                "-" +
+                new Date().getDate()
+              }`
+            ).split("-")[0]
           : new Date().getFullYear(),
       dataSource: null,
       dataSourceGroup: "",
@@ -674,21 +680,31 @@ export default {
         }
       } else if (
         this.periodType === "financialYear" ||
-        this.periodType === "financialYearJuly"
+        this.periodType === "financialYearJuly" ||
+        this.periodType === "financialYearOct"
       ) {
         (years =
           this.periodType === "FinancialYear"
             ? ["Mar", "Apr"]
-            : ["Jun", "Jul"]),
+            : this.periodType === "financialYearJuly"
+            ? ["Jun", "Jul"]
+            : ["Sept", "Oct"]),
           (curYear = this.currentYear);
         if (this.$store.getters.getAppSettings.calendar === "nepali") {
-          years = ["Shrawan", "Ashadh"];
+          years =
+            this.periodType === "FinancialYear"
+              ? ["Ashad", "Shrawan"]
+              : this.periodType === "financialYearJuly"
+              ? ["Ashoj", "Kartik"]
+              : ["Poush", "Magh"];
         }
         if (this.$i18n.locale === "fr") {
           years =
             this.periodType === "FinancialYear"
               ? ["mars", "avril"]
-              : ["juin", "juil."];
+              : this.periodType === "financialYearJuly"
+              ? ["juin", "juil."]
+              : ["sept.", "oct."];
         }
         for (let i = 1; i <= 10; i++) {
           pList.push({
@@ -713,10 +729,10 @@ export default {
       } else if (this.periodType === "quarterly") {
         if (this.$store.getters.getAppSettings.calendar === "nepali") {
           years = {
-            Q1: ["Chitra", "Jestha"],
-            Q2: ["Ashad", "Bhadra"],
-            Q3: ["Ashoj", "Mangsir"],
-            Q4: ["Poush", "Falgun"],
+            Q1: ["Baisakh", "Ashad"],
+            Q2: ["Shrawan", "Ashoj"],
+            Q3: ["Kartik", "Poush"],
+            Q4: ["Magh", "Chaitra"],
           };
         } else {
           years = {
@@ -1554,6 +1570,7 @@ export default {
                     }
                   });
                 }
+                console.log(this.selectedPeriod, "period selected");
                 let data = service.getInteractiveData(dimensions, filters);
                 data
                   .then((response) => {
@@ -1572,8 +1589,8 @@ export default {
                       drillDownDX,
                       this.isDrilldownAdded,
                       this.facilityDimension,
-                      this.periodType,
-                      this.selectedPeriod
+                      this.selectedPeriod,
+                      this.periodType
                     );
                     // return
                     let finalData = chartOptions;

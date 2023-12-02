@@ -20,7 +20,7 @@
                 :placeholder="$t('search')"
                 v-model="value"
                 :flat="false"
-                :default-expand-level="defaultExpandLevel"
+                :default-expand-level="1"
                 @open="
                   openM1 = false;
                   openY1 = false;
@@ -86,7 +86,7 @@
                     :placeholder="$t('search')"
                     v-model="pType"
                     :flat="false"
-                    :default-expand-level="defaultExpandLevel"
+                    :default-expand-level="1"
                     @open="
                       openM1 = false;
                       openY1 = false;
@@ -191,7 +191,7 @@
             :placeholder="$t('search')"
             v-model="value"
             :flat="false"
-            :default-expand-level="defaultExpandLevel"
+            :default-expand-level="1"
             @open="
               openM = false;
               openY = false;
@@ -253,7 +253,7 @@
                 :placeholder="$t('search')"
                 v-model="pType"
                 :flat="false"
-                :default-expand-level="defaultExpandLevel"
+                :default-expand-level="1"
                 @open="
                   openM = false;
                   openY = false;
@@ -366,7 +366,7 @@
             :placeholder="$t('search')"
             v-model="mType"
             :flat="false"
-            :default-expand-level="defaultExpandLevel"
+            :default-expand-level="1"
           />
         </div>
         <b-button
@@ -419,7 +419,6 @@ export default {
       .format("YYYY-MM");
     return {
       viewType: this.$store.getters.getViewType,
-      defaultExpandLevel: 1,
       options: [],
       value: null,
       monthYear: currentDate,
@@ -453,6 +452,7 @@ export default {
       },
       financialYearsText: ["Mar", "Apr"],
       financialYearsJulyText: ["Jun", "Jul"],
+      financialYearsOctText: ["Sep", "Oct"],
       quartersText: {
         Q1: ["Jan", "Mar"],
         Q2: ["Apr", "Jun"],
@@ -549,17 +549,28 @@ export default {
             : newYear.toString();
       }
 
-      if (newVal === "financialYear" || newVal === "financialYearJuly") {
+      if (
+        newVal === "financialYear" ||
+        newVal === "financialYearJuly" ||
+        newVal === "financialYearOct"
+      ) {
         let yearsText =
           newVal === "financialYear"
             ? this.financialYearsText
-            : this.financialYearsJulyText;
+            : newVal === "financialYearJuly"
+            ? this.financialYearsJulyText
+            : this.financialYearsOctText;
         for (let i = currentYear - 1; i >= finalYear; i--) {
           this.periodOptions.push({
             text: `${yearsText[1]} ${i} ${this.$i18n.t("toSmall")}  ${
               yearsText[0]
             } ${i + 1}`,
-            value: newVal === "financialYear" ? `${i}` : `${i}July`,
+            value:
+              newVal === "financialYear"
+                ? `${i}`
+                : newVal === "financialYearJuly"
+                ? `${i}July`
+                : `${i}Oct`,
           });
         }
         this.monthYear =
@@ -567,7 +578,9 @@ export default {
             ? this.IDLocationPeriod.period
             : newVal === "financialYear"
             ? `${currentYear - 1}`
-            : `${currentYear - 1}July`;
+            : newVal === "financialYearJuly"
+            ? `${currentYear - 1}July`
+            : `${currentYear - 1}Oct`;
         this.periodText = `${yearsText[1]} ${currentYear - 1} ${this.$i18n.t(
           "toSmall"
         )} ${yearsText[0]} ${currentYear}`;
@@ -665,7 +678,8 @@ export default {
         if (
           this.pType === "quarterly" ||
           this.pType === "financialYear" ||
-          this.pType === "financialYearJuly"
+          this.pType === "financialYearJuly" ||
+          this.pType === "financialYearOct"
         ) {
           this.setPeriodText(newValue);
         }
@@ -700,7 +714,12 @@ export default {
         this.$store.getters?.getPeriodData?.[this.monthYear] || this.monthYear;
 
       if (
-        ["quarterly", "financialYear", "financialYearJuly"].includes(this.pType)
+        [
+          "quarterly",
+          "financialYear",
+          "financialYearJuly",
+          "financialYearOct",
+        ].includes(this.pType)
       ) {
         let isFound = this.periodOptions.find(
           (p) => p.value === this.monthYear
@@ -722,9 +741,12 @@ export default {
           }
         }
         if (
-          ["quarterly", "financialYear", "financialYearJuly"].includes(
-            this.pType
-          )
+          [
+            "quarterly",
+            "financialYear",
+            "financialYearJuly",
+            "financialYearOct",
+          ].includes(this.pType)
         ) {
           let isFound = this.periodOptions.find(
             (p) => p.value === this.monthYear
@@ -805,14 +827,21 @@ export default {
       }
       if (
         this.pType === "financialYear" ||
-        this.pType === "financialYearJuly"
+        this.pType === "financialYearJuly" ||
+        this.pType === "financialYearOct"
       ) {
         let yearsText =
           this.pType === "financialYear"
             ? this.financialYearsText
-            : this.financialYearsJulyText;
+            : this.pType === "financialYearJuly"
+            ? this.financialYearsJulyText
+            : this.financialYearsOctText;
         let p =
-          this.pType === "financialYear" ? newValue : newValue.split("July")[0];
+          this.pType === "financialYear"
+            ? newValue
+            : this.pType === "financialYearJuly"
+            ? newValue.split("July")[0]
+            : newValue.split("Oct")[0];
         this.periodText = `${yearsText[1]} ${p} ${this.$i18n.t("toSmall")} ${
           yearsText[0]
         } ${p * 1 + 1}`;
@@ -894,13 +923,14 @@ export default {
           //https://web.library.yale.edu/cataloging/months get abbrevation from here for othe locales
         },
       };
-      this.financialYearsText = ["Shrawan", "Ashad"];
-      this.financialYearsjulyText = ["Shrawan", "Ashad"];
+      this.financialYearsText = ["Ashad", "Shrawan"];
+      this.financialYearsjulyText = ["Ashoj", "Kartik"];
+      this.financialYearsOctText = ["Poush", "Magh"];
       this.quartersText = {
-        Q1: ["Chitra", "Jestha"],
-        Q2: ["Ashad", "Bhadra"],
-        Q3: ["Ashoj", "Mangsir"],
-        Q4: ["Poush", "Falgun"],
+        Q1: ["Baisakh", "Ashad"],
+        Q2: ["Shrawan", "Ashoj"],
+        Q3: ["Kartik", "Poush"],
+        Q4: ["Magh", "Chaitra"],
       };
     }
     if (this.$i18n.locale === "fr") {
@@ -926,6 +956,7 @@ export default {
       };
       this.financialYearsText = ["mars", "avril"];
       this.financialYearsJulyText = ["juin", "juil."];
+      this.financialYearsOctText = ["sept.", "oct."];
       this.quartersText = {
         Q1: ["janv.", "mars"],
         Q2: ["avril", "juin"],

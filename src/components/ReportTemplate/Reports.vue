@@ -8,7 +8,15 @@
           v-model="savedTemplatesVisible"
         >
           <div class="saved-report-card-border mb-3">
-            <div class="saved-fav-heading fa-19-1920">{{ $t("reports") }}</div>
+            <!-- <div class="saved-fav-heading fa-19-1920">{{ $t("reports") }}</div> -->
+            <div
+              class="report-modal align-items-center d-flex justify-content-between w-100 py-2"
+            >
+              <h5 class="m-0">{{ $t("reports") }}</h5>
+              <span>
+                <i class="fa fa-close cursor-pointer ml-4" @click="close()"></i>
+              </span>
+            </div>
             <b-row class="py-3" v-if="reportTemplates.length > 0">
               <b-col
                 sm="4"
@@ -599,6 +607,9 @@ export default {
     },
   },
   methods: {
+    close(){
+      this.savedTemplatesVisible = false;
+    },
     getValue(data = 0, key) {
       let name = data;
       let isData = this[key].find((o) => o.value === data);
@@ -675,7 +686,7 @@ export default {
         }
       }
     },
-    generateReport() {
+    async generateReport() {
       this.selectReportPopup = false;
       this.otherChartObj = [];
       this.selectedTemplateObj = JSON.parse(
@@ -726,7 +737,7 @@ export default {
       });
       let pPromises = [],
         FinalPeriodArray = [];
-      Promise.allSettled(nPromises).then((results) => {
+      await Promise.allSettled(nPromises).then((results) => {
         results.forEach((response, i) => {
           if (response.status === "fulfilled") {
             this.$store.commit("setGlobalFactors", {
@@ -739,11 +750,11 @@ export default {
             );
             let locationID = this.selectedLocation.split("/")[1],
               des = null;
-            for (let map in response.data.globalMappings.mappings) {
-              let mappingData = response.data.globalMappings.mappings[map];
+            for (let map in response.value.data.globalMappings.mappings) {
+              let mappingData = response.value.data.globalMappings.mappings[map];
               for (let innerMap in mappingData["mapping"]) {
                 let innerMapData =
-                  response.data.globalMappings.mappings[map]["mapping"][
+                  response.value.data.globalMappings.mappings[map]["mapping"][
                     innerMap
                   ]["indicator"]["subIndicator"];
                 if (
@@ -768,7 +779,7 @@ export default {
           }
         });
       });
-      Promise.allSettled(pPromises).then((results) => {
+      await Promise.allSettled(pPromises).then((results) => {
         results.forEach((response, i) => {
           if (response.status === "fulfilled") {
             let finalPeriodData = {};
@@ -797,7 +808,10 @@ export default {
           service.getSavedConfig({ tableKey: key, namespace: nameSpaces[i] })
         );
       });
-      Promise.allSettled(promises).then((results) => {
+      console.log("promises" , promises)
+      // console.log("key",key)
+      console.log("nameSpaces" , nameSpaces)
+      await Promise.allSettled(promises).then((results) => {
         results.forEach((response, i) => {
           if (response.status === "fulfilled") {
             // this.configData[moduleKeys[i]] = response.value.data; //This will not work. Learn https://vuejs.org/v2/guide/reactivity.html#Change-Detection-Caveats
@@ -921,6 +935,7 @@ export default {
             this.reportTemplates.length
           ) {
             this.selectReportPopup = true;
+            console.log("this.reportTemplates" , this.reportTemplates)
           }
           // this.reportTemplates.forEach((t) => {
           //   this.reportList.push({
@@ -1022,7 +1037,8 @@ export default {
   },
   created() {
     this.filterLevel =
-      this.$store.getters.getUserDetails?.dataViewOrganisationUnits?.[0]?.level || 0;
+      this.$store.getters.getUserDetails?.dataViewOrganisationUnits?.[0]
+        ?.level || 0;
     let defaultLevelID = this.$store.getters.getApplicationModule(
       this.$store.getters.getIsMultiProgram
     ).defaultLevelID;

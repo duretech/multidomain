@@ -729,7 +729,7 @@ export default {
             });
           }
           service
-            .saveConfig({ data: data, tableKey: "translations" })
+            .saveConfig({ data: data, tableKey: "translations",isDefault: true, })
             .then((res) => {
               this.$store.commit("setLoading", false);
               this.$swal({

@@ -393,6 +393,7 @@ export default {
         ...this.updatedGridLayout,
       };
     }
+    console.log("configData" , this.configData)
   },
 };
 </script>

@@ -28,7 +28,8 @@ export default {
         Q4: ["Oct", "Dec"],
       },
       years = ["Mar", "Apr"],
-      yearsJuly = ["Jun", "Jul"];
+      yearsJuly = ["Jun", "Jul"],
+      yearsOct = ["Sept", "Oct"];
     if (locale === "fr") {
       quarters = {
         Q1: ["janv.", "mars"],
@@ -36,7 +37,9 @@ export default {
         Q3: ["juil.", "sept."],
         Q4: ["oct.", "déc."],
       };
-      (years = ["mars", "avril"]), (yearsJuly = ["juin", "juil."]);
+      (years = ["mars", "avril"]),
+        (yearsJuly = ["juin", "juil."]),
+        (yearsOct = ["sept.", "oct."]);
     }
     if (periodType === "monthly") {
       p_period = p_period.split("-").join("");
@@ -73,6 +76,17 @@ export default {
       } ${q1[0] * 1 + 1}`;
       sNextPer = `${yearsJuly[1]} ${q1[0] * 1 - 1} ${i18n.t("toSmall")} ${
         yearsJuly[0]
+      } ${q1[0]}`;
+    }
+    if (periodType === "financialYearOct") {
+      let q1 = p_period.split("Oct");
+      // sPrevPer = `${p}Oct`
+      // sNextPer = `${p*1-1}Oct`;
+      sPrevPer = `${yearsOct[1]} ${q1[0]} ${i18n.t("toSmall")} ${yearsOct[0]} ${
+        q1[0] * 1 + 1
+      }`;
+      sNextPer = `${yearsOct[1]} ${q1[0] * 1 - 1} ${i18n.t("toSmall")} ${
+        yearsOct[0]
       } ${q1[0]}`;
     }
     if (periodType === "quarterly") {
@@ -197,7 +211,8 @@ export default {
         Q4: ["Oct", "Dec"],
       },
       years = ["Mar", "Apr"],
-      yearsJuly = ["Jun", "Jul"];
+      yearsJuly = ["Jun", "Jul"],
+      yearsOct = ["Sept", "Oct"];
     if (locale === "fr") {
       quarters = {
         Q1: ["janv.", "mars"],
@@ -205,7 +220,9 @@ export default {
         Q3: ["juil.", "sept."],
         Q4: ["oct.", "déc."],
       };
-      (years = ["mars", "avril"]), (yearsJuly = ["juin", "juil."]);
+      (years = ["mars", "avril"]),
+        (yearsJuly = ["juin", "juil."]),
+        (yearsOct = ["sept.", "oct."]);
     }
     if (periodType === "monthly") {
       //NEED SOME LOGIC FOR NEPALI
@@ -248,6 +265,17 @@ export default {
       let q1 = p_period.split("July");
       // sPrevPer = `${p}July`
       // sNextPer = `${p*1-1}July`;
+      sPrevPer = `${yearsJuly[1]} ${q1[0]} ${i18n.t("toSmall")} ${
+        yearsJuly[0]
+      } ${q1[0] * 1 + 1}`;
+      sNextPer = `${yearsJuly[1]} ${q1[0] * 1 - 1} ${i18n.t("toSmall")} ${
+        yearsJuly[0]
+      } ${q1[0]}`;
+    }
+    if (periodType === "financialYearOct") {
+      let q1 = p_period.split("Oct");
+      // sPrevPer = `${p}Oct`
+      // sNextPer = `${p*1-1}Oct`;
       sPrevPer = `${yearsJuly[1]} ${q1[0]} ${i18n.t("toSmall")} ${
         yearsJuly[0]
       } ${q1[0] * 1 + 1}`;

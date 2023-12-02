@@ -394,6 +394,7 @@ export default {
     },
     getDQRCharts(chart) {
       this.setLocationDetails(chart);
+      console.log(chart, "Watcher for getDQRCharts");
       this.$nextTick(() => {
         this.isDQRChart = true;
       });
@@ -668,6 +669,7 @@ export default {
         yearly: currentYear,
         financialYear: `${currentYear - 1}`,
         financialYearJuly: `${currentYear - 1}July`,
+        financialYearOct: `${currentYear - 1}Oct`,
         quarterly: `${currentYear}Q${quarterLimit}`,
       };
       periodObj.defaultPeriod = JSON.parse(JSON.stringify(calculatedPeriod));
@@ -726,7 +728,19 @@ export default {
         ) {
           updatedFinancialYearJuly = `${currYear - 2}July`;
         }
-
+        let updatedFinancialYearOct = "",
+          lastMonthOfFYOct = `${currYear}-09`;
+        if (limitPeriod == lastMonthOfFYOct) {
+          updatedFinancialYearOct = `${currYear - 1}Oct`;
+        } else if (
+          new Date(limitPeriod).getTime() > new Date(lastMonthOfFYOct).getTime()
+        ) {
+          updatedFinancialYearOct = `${currYear - 1}Oct`;
+        } else if (
+          new Date(limitPeriod).getTime() < new Date(lastMonthOfFYOct).getTime()
+        ) {
+          updatedFinancialYearOct = `${currYear - 2}Oct`;
+        }
         let updatedQuarterly = "";
         if (currentMonth == lastMonths[`Q${currentQuarter}`]) {
           updatedQuarterly = `${currYear}Q${currentQuarter}`;
@@ -743,6 +757,7 @@ export default {
           yearly: updatedYearly.toString(),
           financialYear: updatedFinancialYear.toString(),
           financialYearJuly: updatedFinancialYearJuly,
+          financialYearOct: updatedFinancialYearOct,
           quarterly: updatedQuarterly,
         };
       }
@@ -764,6 +779,7 @@ export default {
         let updatedFinancialYear = currYear - 1;
 
         let updatedFinancialYearJuly = `${currYear - 1}July`;
+        let updatedFinancialYearOct = `${currYear - 1}Oct`;
 
         let updatedQuarterly = `${currYear}Q${currentQuarter}`;
         calculatedPeriod = {
@@ -771,23 +787,31 @@ export default {
           yearly: updatedYearly.toString(),
           financialYear: updatedFinancialYear.toString(),
           financialYearJuly: updatedFinancialYearJuly,
+          financialYearOct: updatedFinancialYearOct,
           quarterly: updatedQuarterly,
         };
       }
       if (
         this.updateFrequencyType === "financialYear" ||
-        this.updateFrequencyType === "financialYearJuly"
+        this.updateFrequencyType === "financialYearJuly" ||
+        this.updateFrequencyType === "financialYearOct"
       ) {
         let year =
           this.updateFrequencyType === "financialYear"
             ? calculatedPeriod[this.updateFrequencyType]
-            : calculatedPeriod[this.updateFrequencyType].split("July")[0];
+            : this.updateFrequencyType === "financialYearJuly"
+            ? calculatedPeriod[this.updateFrequencyType].split("July")[0]
+            : calculatedPeriod[this.updateFrequencyType].split("Oct")[0];
         let limitPeriod = this.$moment(year, "YYYY")
           .subtract(this.basePeriod, "years")
           .format("YYYY");
         let currYear = limitPeriod;
         let currentQuarter =
-          this.updateFrequencyType === "financialYear" ? 1 : 2;
+          this.updateFrequencyType === "financialYear"
+            ? 1
+            : this.updateFrequencyType === "financialYearJuly"
+            ? 2
+            : 3;
         let lastMonths = {
           Q1: "3",
           Q2: "6",
@@ -805,19 +829,29 @@ export default {
         let updatedFinancialYear =
           this.updateFrequencyType === "financialYear"
             ? currYear
-            : `${currYear}July`;
+            : this.updateFrequencyType === "financialYearJuly"
+            ? `${currYear}July`
+            : `${currYear}Oct`;
 
         let updatedFinancialYearJuly =
           this.updateFrequencyType === "financialYear"
             ? currYear
-            : `${currYear}July`;
-
+            : this.updateFrequencyType === "financialYearJuly"
+            ? `${currYear}July`
+            : `${currYear}Oct`;
+        let updatedFinancialYearOct =
+          this.updateFrequencyType === "financialYear"
+            ? currYear
+            : this.updateFrequencyType === "financialYearJuly"
+            ? `${currYear}July`
+            : `${currYear}Oct`;
         let updatedQuarterly = `${currYear * 1 + 1}Q${currentQuarter}`;
         calculatedPeriod = {
           monthly: updatedMonthly,
           yearly: updatedYearly.toString(),
           financialYear: updatedFinancialYear.toString(),
           financialYearJuly: updatedFinancialYearJuly,
+          financialYearOct: updatedFinancialYearOct,
           quarterly: updatedQuarterly,
         };
       }

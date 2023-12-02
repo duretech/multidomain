@@ -256,11 +256,13 @@ export default {
   computed: {
     filteredExtData() {
       let list = this.allExtData;
-      list = list.filter((l) =>
-        l.displayName[this.$i18n.locale]
-          .toLowerCase()
-          .includes(this.searchText.toLowerCase())
-      );
+      if(this.searchText.toLowerCase()){
+        list = list.filter((l) =>
+          l.displayName?.[this.$i18n.locale]
+            ?.toLowerCase()
+            .includes(this.searchText.toLowerCase())
+        );
+      }
       return list;
     },
   },

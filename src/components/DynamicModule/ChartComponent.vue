@@ -403,6 +403,7 @@ export default {
         if (
           this.pType === "financialYear" ||
           this.pType === "financialYearJuly" ||
+          this.pType === "financialYearOct" ||
           this.pType === "quarterly"
         ) {
           period = this.period.join(";");
@@ -600,11 +601,11 @@ export default {
           }
         });
       }
-      
+
       let data = service.getInteractiveData(dimensions, filters);
       data
         .then((response) => {
-                    let { items, fields, chartOptions } = IA.generateChart(
+          let { items, fields, chartOptions } = IA.generateChart(
             response,
             this.chart,
             this.table.items,
@@ -622,7 +623,7 @@ export default {
             chartData.selectedPeriod,
             this.pType
           );
-                    let finalData = {
+          let finalData = {
             ...chartOptions,
             series: chartOptions.series.map((s) => {
               let findInd = this.indicatorsColors.find(
@@ -640,7 +641,7 @@ export default {
             }),
           };
           this.chart = finalData;
-                    this.$emit("setExportArr", {
+          this.$emit("setExportArr", {
             ...this.chart,
             chartID: chartData.id,
             cardKey: this.cardKey,

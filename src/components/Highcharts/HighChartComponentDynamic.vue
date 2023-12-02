@@ -59,7 +59,9 @@
           <b-row>
             <b-col
               :class="[
-                outliersArr && outliersArr.length ? 'col-sm-9' : 'col-sm-12',
+                outliersArr && outliersArr.length
+                  ? 'col-sm-9'
+                  : 'col-sm-12',
               ]"
             >
               <b-row
@@ -478,53 +480,7 @@ export default {
     outliersArr() {
       let key = this.selectedMethod ? this.selectedMethod : "default";
       let o = [];
-      let dates = [];
-      let outlierListNew = [];
       if (this.outliers?.[key]) {
-        this.outliers[key].forEach((items) =>
-          items.outlierList.forEach((item) =>
-            item.outliers.forEach((i) => {
-              let d = this.extractDate(i);
-              if (!dates.includes(...d)) {
-                dates.push(...d);
-              }
-            })
-          )
-        );
-        dates.sort(function (a, b) {
-          const dateA = new Date(a);
-          const dateB = new Date(b);
-          return dateB - dateA;
-        });
-
-        console.log(this.outliers[key]);
-        this.outliers[key].forEach((items) => {
-            dates.forEach((date) => {
-            items.outlierList.forEach((item) => {
-              item.outliers.forEach((i) => {
-
-                if (i.includes(date)) {
-                  let isFound = false;
-                  outlierListNew.forEach((x) => {
-                  if (x?.outliers && x.name == date) {
-                    isFound = true;
-                    x.outliers.push(item.name);
-                  }
-                })
-                if(!isFound){
-                  outlierListNew.push({ name: date, outliers: [item.name] });
-                }
-                }
-              });
-              console.log(outlierListNew);
-            });
-          });
-          items.outlierList = outlierListNew;
-          outlierListNew = [];
-          console.log("change")
-        });
-        // // console.log("outlierList", outlierList);
-
         //Add slice() to avoid mutation
         o = this.outliers[key].slice().sort(function (x, y) {
           // true values first
@@ -533,20 +489,80 @@ export default {
           // return x.secondary === y.secondary ? 0 : x.secondary ? 1 : -1;
         });
       }
-
+      // console.log(
+      //   JSON.parse(JSON.stringify(0)),
+      //   this.selectedMethod,
+      //   "actual outliersArr original one"
+      // );
       return o;
     },
     updatedOutlierArr() {
-      let key = this.selectedMethod ? this.selectedMethod : "default";
-      let o = [];
+      if (this.outliers) {
+        // console.log(
+        //   JSON.parse(JSON.stringify(this.outliers)),
+        //   this.selectedMethod,
+        //   "actual outliersArr"
+        // );
 
-      if (this.outliers?.[key]) {
-        console.log(this.outliers[key]);
-        o = this.outliers[key].slice().sort(function (x, y) {
-          return x.secondary === y.secondary ? 0 : x.secondary ? -1 : 1;
-        });
+        let key = this.selectedMethod ? this.selectedMethod : "default";
+        let o = this.outliers;
+        if(key === "default"){
+        let dates = [];
+        let outlierListNew = [];
+        if (this.outliers?.[key]) {
+          this.outliers[key].forEach((items) => {
+            items.outlierList.forEach((item) => {
+              item.outliersValues.forEach((i) => {
+                i.value = this.$store.getters.getPeriodData[i.peValue].name;
+                dates.push(i);
+              });
+            });
+          });
+          dates = this.sortDates(dates);
+
+          o[key].forEach((items) => {
+            dates.forEach((date) => {
+              items.outlierList.forEach((item) => {
+                item.outliers.forEach((i) => {
+                  if(i.includes(date.value)){
+                    let isFound = outlierListNew.find((x) => {
+                      return x.name == date.value;
+                    });
+                    if (isFound) {
+                      outlierListNew.forEach((y)=>{
+                          if (y.name == date.value && !y.outliers.includes(item.name)) {
+                            y.outliers.push(item.name);
+                          }
+                      })
+                    } else {
+                      outlierListNew.push({
+                        name: date.value,
+                        outliers: [item.name],
+                      });
+                    }
+                  }
+                });
+              });
+            });
+            items.outlierList = outlierListNew;
+            outlierListNew = [];
+            //   // console.log("change")
+          });
+        }
       }
-      return o;
+          // // // console.log("outlierList", outlierList);
+
+          //Add slice() to avoid mutation
+          o = o[key].slice().sort(function (x, y) {
+            // true values first
+            return x.secondary === y.secondary ? 0 : x.secondary ? -1 : 1;
+            // false values first
+            // return x.secondary === y.secondary ? 0 : x.secondary ? 1 : -1;
+          });
+        // console.log(JSON.parse(JSON.stringify(o)), "update outliersArr");
+        return o;
+      }
+      return [];
     },
     plotOptions: function () {
       return function (type) {
@@ -844,11 +860,35 @@ export default {
     // },
   },
   methods: {
+    sortDates(dates) {
+      if (this.locationPeriod.periodType == "monthly") {
+        dates.sort(function (a, b) {
+          const dateA = a.peValue;
+          const dateB = b.peValue;
+          return dateB - dateA;
+        });
+      } else if (this.locationPeriod.periodType == "quarterly") {
+        dates.sort((a, b) => {
+          let sortb = b.peValue.slice(0, 4) + b.peValue.slice(5);
+          let sorta = a.peValue.slice(0, 4) + a.peValue.slice(5);
+          return sortb - sorta;
+        });
+      } else if (this.locationPeriod.periodType == "financialYear") {
+        dates.sort((a, b) => {
+          let sortb = b.peValue.slice(0, 4);
+          let sorta = a.peValue.slice(0, 4);
+          return sortb - sorta;
+        });
+      } else if (this.locationPeriod.periodType == "yearly") {
+        dates.sort((a, b) => b.peValue - a.peValue);
+      }
+      // console.log("datesUpdated" , dates)
+      return dates;
+    },
     extractDate(stringhaveingDate) {
-      const regex =
-        /(?:January|February|March|April|May|June|July|August|September|October|November|December)\s\d{4}/g;
-      const result = stringhaveingDate.match(regex);
-      return result;
+      stringhaveingDate.value =
+        this.$store.getters.getPeriodData[stringhaveingDate.peValue].name;
+      return stringhaveingDate;
     },
     changePlotType(value) {
       if (
@@ -1036,12 +1076,15 @@ export default {
             this.cObj.series.forEach((s) => {
               if (!s.isBenchmark) {
                 let n = s.name,
-                  len = s.data.length,
                   avg = 0;
-                s.data.forEach((d) => {
-                  avg += d.y;
-                });
-                avg = avg / len;
+                // s.data.forEach((d) => {
+                //   avg += d.y;
+                // });
+                let dataWithNull = s.data.map((d) => d.y);
+                let dataWitoutNull = dataWithNull.filter((d) => d != null);
+                let nSum = dataWitoutNull.reduce((a, b) => a + b, 0);
+                let len = dataWitoutNull.length;
+                avg = nSum / len;
                 avg = avg.toFixed(2);
                 avgObj[n] = avg;
                 let itemFoundIndex = tableData.findIndex(
@@ -1562,7 +1605,7 @@ export default {
         label: e.point.options.name,
         monthYear: ["monthly"].includes(this.locationPeriod.periodType)
           ? this.$moment(e.point.options.period, "YYYYMM").format("YYYY-MM")
-          : ["financialYear", "financialYearJuly"].includes(
+          : ["financialYear", "financialYearJuly", "financialYearOct"].includes(
               this.locationPeriod.periodType
             )
           ? e.point.options.period.slice(0, 4)
