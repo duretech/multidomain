@@ -150,7 +150,7 @@
         class="title-report-card fs-19-1920 pb-2 d-flex justify-content-between align-items-center"
         v-if="reportTemplates.length && isReportGenerated"
       >
-        {{ $t("selectedLocation") }}
+        {{ this.selectedTemplateTempObj.templateName }}
         <button
           type="button"
           class="btn btn-primary black-btn blue-btn ml-3 generate-greybtn"

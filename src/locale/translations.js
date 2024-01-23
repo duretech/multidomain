@@ -695,7 +695,7 @@ export default {
     and: "and",
     increased_V3: "increased",
     decreased_V3: "decreased",
-    similar_to_V2: "similar to",
+    similar_to_V2: "similar",
     lower_than_V3: "lower than",
     higher_than_V3: "higher than",
     high_V1: "high",
@@ -1102,6 +1102,10 @@ export default {
     rr_text8: "Reporting Rate >= Benchmark",
     rr_text9: "Reporting Rate < Benchmark",
     rr_text11: "and ( Average - Reporting Rate ) > Substantial change",
+    ic_text1: "Values falling within 2 SD",
+    ic_text2: "Values falling outside 2 SD",
+    icc_text1: "Values falling inside {range}",
+    icc_text2: "Values falling outside {range}",
     cngPtPos: "Changement positif",
     cngPtNeg: "Changement négatif",
     ans: "Ans",
@@ -1150,7 +1154,8 @@ export default {
     selectAll: "Select all",
     clearSelected: "Clear selected",
     infoContent: "The no. of regions here includes the parent region",
-    noteScoreCard: "The facility list will be available on clicking on the locations within the District"
+    noteScoreCard: "The facility list will be available on clicking on the locations within the District",
+    customDates: "Custom"
   },
   fr: {
     np: "Nepali",
@@ -2276,6 +2281,10 @@ export default {
     rr_text8: "Taux de signalement >= Benchmark",
     rr_text9: "Taux de signalement < Benchmark",
     rr_text11: "et ( Moyenne - Taux de déclaration ) > Changement substantiel",
+    ic_text1: "Valeurs comprises dans 2 SD",
+    ic_text2: "Valeurs en dehors de 2 SD",
+    icc_text1: "Valeurs tomber à l'intérieur de {range}",
+    icc_text2: "Valeurs tomber dehors {range}",
     cngPtPos: "+ve Changer",
     cngPtNeg: "-ve Changer",
     ans: "Réponse",
@@ -2323,7 +2332,8 @@ export default {
     scorecardPeriod: "Scorecard Period",
     selectAll: "Select all",
     clearSelected: "Clear selected",
-    noteScoreCard: "La liste des établissements sera disponible en cliquant sur les emplacements du District."
+    noteScoreCard: "La liste des établissements sera disponible en cliquant sur les emplacements du District.",
+    customDates: "coutume"
   },
   np: {
     M: "महिना",
@@ -2784,6 +2794,10 @@ export default {
     quickEdit: "छिटो सच्याउनु",
     resetFont: "Reset Font Size",
     rr_text11: "and ( Average - Reporting Rate ) > Substantial change",
+    ic_text1: "२ SD भित्र पर्ने मानहरू",
+    ic_text2: "मानहरू 2 SD बाहिर घट्दै छन्",
+    icc_text1: "मानहरू भित्र झर्दै {range}",
+    icc_text2: "मानहरू बाहिर झर्दै {range}",
     rr_text12: "तलको दर सहितको क्षेत्रहरू",
     saveDraft: "मस्यॏदा बचत गर्नुहोस्",
     scorecard: "अंक तालिका",
@@ -3439,6 +3453,7 @@ export default {
     commodities_Distributed_to_Facilities:
       "स्वास्थ्य संस्थामा वितरित गर्भ निरोधका साधन ",
     infoContent: "The no. of regions here includes the parent region",
-    noteScoreCard: "प्रतिष्ठानहरूको सूची जिल्ला स्थानहरूमा क्लिक गरेर उपलब्ध हुनेछ।"
+    noteScoreCard: "प्रतिष्ठानहरूको सूची जिल्ला स्थानहरूमा क्लिक गरेर उपलब्ध हुनेछ।",
+    customDates: "अनुकूलन"
   },
 };

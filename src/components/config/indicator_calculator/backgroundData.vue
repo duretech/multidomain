@@ -797,8 +797,8 @@
                           class="w-50"
                           id="input-1"
                           v-model="obj.continuation[innerIndex]"
-                          type="number"
                           required
+                          disabled
                         >
                         </b-form-input>
                       </div>

@@ -337,6 +337,40 @@ export const formatSeasonalPeriod = ({ rawData, periodType, type = "MMM" }) => {
       if (i18n.locale === "fr") {
         years = ["avril", "mars"];
       }
+      if (this.$store.getters.getAppSettings.calendar === "nepali") {
+        years = ["Ashad", "Shrawan"];
+      }
+      forDate = years.join("-");
+    } else {
+      forDate = d[0];
+    }
+  }
+  if (periodType === "financialYearJuly") {
+    let d = rawData.split("J");
+    if (type === "MMM") {
+      let years = ["Jun", "July"];
+      if (i18n.locale === "fr") {
+        years = ["juin", "juil."];
+      }
+      if (this.$store.getters.getAppSettings.calendar === "nepali") {
+        years = ["Ashoj", "Kartik"];
+      }
+      forDate = years.join("-");
+    } else {
+      forDate = d[0];
+    }
+  }
+  if (periodType === "financialYearOct") {
+    let d = rawData.split("A");
+    if (type === "MMM") {
+      let years = ["Sept", "Oct"];
+      if (i18n.locale === "fr") {
+        years = ["sept.", "oct."];
+      }
+
+      if (this.$store.getters.getAppSettings.calendar === "nepali") {
+        years = ["Poush", "Magh"];
+      }
       forDate = years.join("-");
     } else {
       forDate = d[0];
@@ -713,7 +747,9 @@ export const generateChart = ({
                     periodType == "monthly"
                       ? response.data.metaData.items[p].name.split(" ")[0]
                       : periodType == "quarterly" ||
-                        periodType == "financialYear"
+                        periodType == "financialYear" ||
+                        periodType == "financialYearJuly" ||
+                        periodType == "financialYearOct"
                       ? response.data.metaData.items[p].name
                       : name,
                   y: (rData[d][p] * 1).toFixed(2) * 1,
@@ -729,7 +765,9 @@ export const generateChart = ({
                     periodType == "monthly"
                       ? response.data.metaData.items[p].name.split(" ")[0]
                       : periodType == "quarterly" ||
-                        periodType == "financialYear"
+                        periodType == "financialYear" ||
+                        periodType == "financialYearJuly" ||
+                        periodType == "financialYearOct"
                       ? response.data.metaData.items[p].name
                       : name,
                   y: null,
@@ -1455,6 +1493,10 @@ export const generateChart = ({
           pType = i18n.t("quarter");
         } else if (periodType === "financialYear") {
           pType = i18n.t("financialYear");
+        } else if (periodType === "financialYearJuly") {
+          pType = i18n.t("financialYearJuly");
+        } else if (periodType === "financialYearOct") {
+          pType = i18n.t("financialYearOct");
         } else {
           pType = i18n.t("year");
         }
@@ -1802,8 +1844,15 @@ export const generateChart = ({
           if (!rData[r[ouIndex]]) {
             rData[r[ouIndex]] = {};
           }
-          rData[r[ouIndex]][r[peIndex]] =
-            Number(rData[r[ouIndex]][r[peIndex]] || 0) + Number(r[valueIndex]);
+          if (["CYP"].includes(cData.chartCalculation)) {
+            rData[r[ouIndex]][r[peIndex]] =
+              Number(rData[r[ouIndex]][r[peIndex]] || 0) +
+              Number(r[valueIndex]) * (dx.cyp[r[dxIndex]] || 1);
+          } else {
+            rData[r[ouIndex]][r[peIndex]] =
+              Number(rData[r[ouIndex]][r[peIndex]] || 0) +
+              Number(r[valueIndex]);
+          }
         }
       });
       let method = {

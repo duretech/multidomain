@@ -124,7 +124,7 @@ import loadLocChildMixin from "@/helpers/LoadLocationChildMixin";
 import { adToBs } from "@sbmdkl/nepali-date-converter"
 
 export default {
-  props: ["isDataEntry", "dataEntryID", "bgDataType"],
+  props: ["isDataEntry", "dataEntryID", "bgDataType" , "isFromIC"],
   components: {
     Treeselect,
   },
@@ -209,8 +209,15 @@ export default {
         bgDataType: this.bgDataType,
         orgLevel: this.location.split("/")[0],
       }); //Mixin method
+
+      let objKey = { tableKey: key };
+
+        if(this.isFromIC){
+          objKey["namespace"] = "fp-dashboard"
+        }
+      
       service
-        .getSavedConfig({ tableKey: key })
+        .getSavedConfig(objKey)
         .then((response) => {
           let transData =
             typeof response.data.rows == "string"
@@ -219,9 +226,9 @@ export default {
                   rows: decompress(JSON.parse(response.data.rows)),
                 }
               : response.data;
-          this.allData = transData.rows.filter(
-            (d) => d[0] === this.dataEntryID
-          );
+              this.allData = transData.rows.filter(
+                (d) => d[0] === this.dataEntryID
+              );
           this.$store.commit("setLoading", false);
           this.isForm = this.isDataEntry;
           if (isLocationChanged) {
@@ -393,8 +400,6 @@ export default {
       this.getPeriods(true);
     });
     let d = new Date();
-    console.log(
-      )
   },
 };
 </script>

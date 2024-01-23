@@ -1607,7 +1607,8 @@
                         !['seasonal'].includes(
                           chart.chartOptions.chartCategory
                         ) &&
-                        chart.chartOptions.chartCalculation === 'DEFAULT' &&
+                        (chart.chartOptions.chartCalculation === 'DEFAULT' ||
+                          chart.chartOptions.chartCalculation === 'CYP') &&
                         (subTabGroup.includes('-CT-') ||
                           subTabGroup.includes('-IC-') ||
                           subTabGroup.includes('-FAC-CTFacility') ||
@@ -2416,7 +2417,8 @@ export default {
       return function (category, group, isSavedData, isSingleSource) {
         let calc = [];
         if (
-          this.$store.getters.getNamespace !== `${this.$store.getters.getAppSettings.tableName}_mnch-dashboard` &&
+          this.$store.getters.getNamespace !==
+            `${this.$store.getters.getAppSettings.tableName}_mnch-dashboard` &&
           isSavedData &&
           group.includes("EMU")
         ) {
@@ -2435,7 +2437,8 @@ export default {
         } else {
           if (
             this.$store.getters.getNamespace !==
-              `${this.$store.getters.getAppSettings.tableName}_mnch-dashboard` && isSingleSource
+              `${this.$store.getters.getAppSettings.tableName}_mnch-dashboard` &&
+            isSingleSource
           ) {
             calc.push({
               text: this.$i18n.t("mulCYP"),

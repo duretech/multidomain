@@ -292,20 +292,15 @@
       <b-table hover v-if="finalCalculatedTable && finalCalculatedTable.sumCont" :items="finalCalculatedTable.sumCont.items" bordered :fields="finalCalculatedTable.sumCont.fields" responsive class="methodsTable"/> -->
         <strong>{{ $t("users") }}</strong>
         <download-csv
-                                  :data="finalCalculatedTable.calculatedUsers.items"
-                                  style="
-                                    display: inline-block;
-                                    margin-left: 10px;
-                                  "
-                                  ><img
-                                    :src="
-                                      require('@/assets/images/icons/downloadActive.svg')
-                                    "
-                                    :style="{ filter: filterColor }"
-                                    class="img cursor-pointer"
-                                    v-b-tooltip.hover
-                                    :title="$t('downloadIcon')"
-                                /></download-csv>
+          :data="finalCalculatedTable.calculatedUsers.items"
+          style="display: inline-block; margin-left: 10px"
+          ><img
+            :src="require('@/assets/images/icons/downloadActive.svg')"
+            :style="{ filter: filterColor }"
+            class="img cursor-pointer"
+            v-b-tooltip.hover
+            :title="$t('downloadIcon')"
+        /></download-csv>
         <b-table
           hover
           v-if="finalCalculatedTable && finalCalculatedTable.calculatedUsers"
@@ -319,20 +314,15 @@
         />
         <strong>{{ $t("histUsers") }}</strong>
         <download-csv
-                                  :data="finalCalculatedTable.historicUsers.items"
-                                  style="
-                                    display: inline-block;
-                                    margin-left: 10px;
-                                  "
-                                  ><img
-                                    :src="
-                                      require('@/assets/images/icons/downloadActive.svg')
-                                    "
-                                    :style="{ filter: filterColor }"
-                                    class="img cursor-pointer"
-                                    v-b-tooltip.hover
-                                    :title="$t('downloadIcon')"
-                                /></download-csv>
+          :data="finalCalculatedTable.historicUsers.items"
+          style="display: inline-block; margin-left: 10px"
+          ><img
+            :src="require('@/assets/images/icons/downloadActive.svg')"
+            :style="{ filter: filterColor }"
+            class="img cursor-pointer"
+            v-b-tooltip.hover
+            :title="$t('downloadIcon')"
+        /></download-csv>
         <b-table
           hover
           v-if="finalCalculatedTable && finalCalculatedTable.historicUsers"
@@ -346,20 +336,15 @@
         />
         <strong>{{ $t("Total Users") }}</strong>
         <download-csv
-                                  :data="finalCalculatedTable.totalUsers.items"
-                                  style="
-                                    display: inline-block;
-                                    margin-left: 10px;
-                                  "
-                                  ><img
-                                    :src="
-                                      require('@/assets/images/icons/downloadActive.svg')
-                                    "
-                                    :style="{ filter: filterColor }"
-                                    class="img cursor-pointer"
-                                    v-b-tooltip.hover
-                                    :title="$t('downloadIcon')"
-                                /></download-csv>
+          :data="finalCalculatedTable.totalUsers.items"
+          style="display: inline-block; margin-left: 10px"
+          ><img
+            :src="require('@/assets/images/icons/downloadActive.svg')"
+            :style="{ filter: filterColor }"
+            class="img cursor-pointer"
+            v-b-tooltip.hover
+            :title="$t('downloadIcon')"
+        /></download-csv>
         <b-table
           hover
           v-if="finalCalculatedTable && finalCalculatedTable.totalUsers"
@@ -1031,8 +1016,13 @@ export default {
               nIndex--;
               l++;
             }
-            oFinalVals[j].vals[k] = parseInt(nSum);
-            oNewUsers[j].vals[k] = parseInt(newUserVal);
+            if (this.contName === "User") {
+              oFinalVals[j].vals[k] = parseInt(newUserVal);
+              oNewUsers[j].vals[k] = parseInt(newUserVal);
+            } else {
+              oFinalVals[j].vals[k] = parseInt(nSum);
+              oNewUsers[j].vals[k] = parseInt(newUserVal);
+            }
             nCounter++;
           }
         }
@@ -1162,18 +1152,25 @@ export default {
       );
     },
     generateTable(newSeries, keyToTake = "vals") {
+      //console.log("newSeries" ,newSeries);
+      //console.log("this.methodSeq" , this.methodSeq)
+
       let obj = {
         fields: [],
         items: [],
       };
+      
       let newFields = [];
+      
       obj["fields"].push(
         {
           key: "method",
           lable: this.$i18n.t("method"),
         },
-        { key: "Sub-method", lable: this.$i18n.t("sub_method") }
+        { key: "Sub-method", 
+          lable: this.$i18n.t("sub_method") }
       );
+      
       let users = [];
       //Rearrnging in required order
       this.methodSeq.forEach((element, i) => {
@@ -1185,6 +1182,9 @@ export default {
           users.push(newSeries[val]);
         }
       });
+
+      //console.log("users" , users)
+
       Object.keys(users).forEach((method) => {
         let itemObj = {};
         let vals = users[method][keyToTake],
@@ -1195,18 +1195,18 @@ export default {
         let length = Object.keys(vals).length,
           minLength = length - 24;
         Object.keys(vals).forEach((yearM, index) => {
-          console.log("yearM" ,yearM)
           if (index >= minLength && index < length) {
-            if (!newFields.includes(" "+yearM+" ")) {
-              newFields.push(" "+yearM+" ");
+            if (!newFields.includes(" "+this.allMonthNameJson[yearM]["name"]+" ")) {
+              newFields.push(" "+this.allMonthNameJson[yearM]["name"]+" ");
               obj["fields"].push({
-                key: " "+yearM+" ",
+                key: " "+this.allMonthNameJson[yearM]["name"]+" ",
                 label: this.allMonthNameJson[yearM]["name"],
               });
             }
-            itemObj[" "+yearM+" "] = vals[yearM];
+            itemObj[" "+this.allMonthNameJson[yearM]["name"]+" "] = vals[yearM];
           }
         });
+        //console.log("itemObj" ,itemObj)
         obj["items"].push(itemObj);
       });
       return obj;

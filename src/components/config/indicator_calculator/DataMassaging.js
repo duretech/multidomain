@@ -8,7 +8,6 @@ export default {
    * @return {Object} oData
    */
   getFormatedData: (p_data, p_global, startingYear, cyp, continuation) => {
-    console.log(p_data, p_global, startingYear, cyp, continuation);
     let finalMethodArr = [];
     let oData = {
         // type:p_data.chartOptions.chart.type.toLowerCase(),
@@ -198,8 +197,8 @@ export default {
       let year = yearArray[yrInd];
       if (!oTarget[year]) {
         oTarget[year] = {};
-        oTarget[year][sName] = 0;
       }
+      if (!oTarget[year][sName]) oTarget[year][sName] = 0;
       for (i = 0; i < nLen; i++) {
         let sYear = p_response[i][1];
         if (year == sYear) {
@@ -438,7 +437,15 @@ export default {
    * @return {object} return object of {adjusted, nonAdjusted} gives adjusted and not adjusted user for long term methods
    *
    */
-  calculateNewBU: (p_arr, p_cont, p_repo, p_adjF, prevCont, disablerepo) => {
+  calculateNewBU: (
+    p_arr,
+    p_cont,
+    p_repo,
+    p_adjF,
+    prevCont,
+    disablerepo,
+    contName
+  ) => {
     let i,
       nLen = p_arr.length,
       oBU = {},
@@ -508,30 +515,38 @@ export default {
                 : 0;
             if (sSubM != tempM && index == 0) {
               subMC = 0;
-              oNonAdjusted[method][j][sSubM] =
-                buVal + paVal * prevCont[sSubM.split("/")[1]][subMC];
+              if (contName === "User") oNonAdjusted[method][j][sSubM] = paVal;
+              else
+                oNonAdjusted[method][j][sSubM] =
+                  buVal + paVal * prevCont[sSubM.split("/")[1]][subMC];
             } else {
-              oNonAdjusted[method][j][sSubM] =
-                buVal + paVal * prevCont[sSubM.split("/")[1]][l];
-              while (l > 0) {
-                let sYr = aYears[l];
-                if (sYr == undefined) {
-                  break;
+              if (contName === "User") {
+                oNonAdjusted[method][j][sSubM] =
+                  oPArr[method][aYears[l]] && oPArr[method][aYears[l]][sSubM]
+                    ? oPArr[method][aYears[l]][sSubM]
+                    : 0;
+              } else {
+                oNonAdjusted[method][j][sSubM] =
+                  buVal + paVal * prevCont[sSubM.split("/")[1]][l];
+                while (l > 0) {
+                  let sYr = aYears[l];
+                  if (sYr == undefined) {
+                    break;
+                  }
+                  let paTempVal = oPArr[method][sYr][sSubM]
+                    ? oPArr[method][sYr][sSubM]
+                    : 0;
+                  nSum +=
+                    paTempVal *
+                    (prevCont[sSubM.split("/")[1]][m]
+                      ? prevCont[sSubM.split("/")[1]][m]
+                      : 0);
+                  l--;
+                  m++;
+                  //nCounter--;
                 }
-                let paTempVal = oPArr[method][sYr][sSubM]
-                  ? oPArr[method][sYr][sSubM]
-                  : 0;
-                nSum +=
-                  paTempVal *
-                  (prevCont[sSubM.split("/")[1]][m]
-                    ? prevCont[sSubM.split("/")[1]][m]
-                    : 0);
-                l--;
-                m++;
-                //nCounter--;
               }
             }
-            //console.log(oNonAdjusted[method][j][sSubM], 'value', sSubM)
 
             //console.log(nSum, sSubM)
             oNonAdjusted[method][j][sSubM] += nSum;

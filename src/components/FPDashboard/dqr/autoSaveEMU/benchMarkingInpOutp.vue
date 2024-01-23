@@ -899,8 +899,13 @@ export default {
               nIndex--;
               l++;
             }
-            oFinalVals[j].vals[k] = parseInt(nSum);
-            oNewUsers[j].vals[k] = parseInt(newUserVal);
+            if (this.contName === "User") {
+              oFinalVals[j].vals[k] = parseInt(newUserVal);
+              oNewUsers[j].vals[k] = parseInt(newUserVal);
+            } else {
+              oFinalVals[j].vals[k] = parseInt(nSum);
+              oNewUsers[j].vals[k] = parseInt(newUserVal);
+            }
             nCounter++;
           }
         }

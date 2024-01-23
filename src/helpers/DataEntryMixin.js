@@ -29,8 +29,13 @@ export default {
     },
     uploadData(key, newData) {
       if (key) {
+        let objKey = { tableKey: key };
+
+        if (this.isFromIC) {
+          objKey["namespace"] = "fp-dashboard";
+        }
         service
-          .getSavedConfig({ tableKey: key })
+          .getSavedConfig(objKey)
           .then((response) => {
             let data =
               typeof response.data.rows == "string"
@@ -74,9 +79,11 @@ export default {
               }
             }
 
+            objKey["data"] = data;
+
             data.rows = JSON.stringify(compress(updatedData));
             service
-              .updateConfig({ data: data, tableKey: key })
+              .updateConfig(objKey)
               .then((response) => {
                 if (response.data.status === "OK") {
                   this.sweetAlert({
@@ -120,7 +127,8 @@ export default {
               ],
               rows: JSON.stringify(compress(newData)),
             };
-            let response = service.saveConfig({ data: data, tableKey: key });
+            objKey["data"] = data;
+            let response = service.saveConfig(objKey);
             response
               .then((response) => {
                 if (response.data.status === "OK") {

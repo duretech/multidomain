@@ -2678,6 +2678,22 @@ a#leafletEasyPrint {
     border          : 1px solid var(--sidebar-bg-color);
 }
 
+.mx-date-row .cell.active {
+    color           : var(--text-color) !important;
+    background-color: var(--home-btn-color) !important;
+}
+
+.mx-date-row .cell:hover {
+    color           : var(--text-color) !important;
+    background-color: var(--home-btn-color) !important;
+
+}
+
+.mx-calendar-content .cell.in-range, .mx-calendar-content .cell.hover-in-range {
+    color: var(--text-color) !important;
+    background-color: var(--sidebar-subgroup-color) !important;
+}
+
 .mx-calendar-content .cell.active {
     color           : var(--text-color);
     background-color: var(--home-btn-color);

@@ -987,7 +987,8 @@ export default {
         this.repoRate,
         oAdjustmentFactors,
         continuation,
-        this.byPassRepoRate
+        this.byPassRepoRate,
+        this.contName
       );
 
       allMethodsAdjusted.adjusted = Object.assign(

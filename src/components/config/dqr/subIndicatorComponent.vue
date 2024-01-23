@@ -171,6 +171,7 @@
       :bgDataType="bgDataType"
       :isDataEntry="isDataEntry"
       :dataEntryID="dataEntryID"
+      :isFromIC="isFromIC"
     />
     <DataEntryPopup
       v-if="isPopupEntry"
@@ -179,6 +180,7 @@
       :bgDataType="bgDataType"
       :dataEntryID="dataEntryID"
       :isPopupEntry="isPopupEntry"
+      :isFromIC="isFromIC"
     />
   </div>
 </template>

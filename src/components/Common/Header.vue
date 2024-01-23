@@ -281,7 +281,6 @@
               class="mx-2 mr-3 mt-1"
               no-caret
               menu-class="p-0 dropdown-home"
-             
             >
               <template #button-content>
                 <!-- <span class="fa fa-cog setting-icon logo-img-header"></span> -->
@@ -295,7 +294,6 @@
                   />
                 </span>
               </template>
-            
 
               <b-dropdown-text class="text-center font-14 mt-2">
                 <div class="profilebox-upper">
@@ -311,93 +309,96 @@
                   {{ $store.getters.getAppVersion }}
                 </div>
               </b-dropdown-text>
-             
+
               <b-dropdown-divider></b-dropdown-divider>
-            <span class="dropdown-menus">
-              <b-dropdown-item-button
-                class="mx-3 font-14"
-                @click="activateTour"
-              >
-                <img
-                  src="@/assets/images/icons/tool-tip-tour-over.svg"
-                  class="setImg"
-                  :style="{ filter: filterColor }"
-                />
-                <span>{{ $t("tourGuide") }}</span>
-              </b-dropdown-item-button>
-              <b-dropdown-item-button
-                class="mx-3 font-14"
-                @click="showManuals = true"
-              >
-                <img
-                  src="@/assets/images/icons/train-icon.svg"
-                  class="setImg mr-2"
-                  :style="{ filter: filterColor }"
-                />
-                <span> {{ $t("trainings") }}</span>
-              </b-dropdown-item-button>
-              <b-dropdown-item-button class="mx-3 font-14" @click="clearCache">
-                <img
-                  src="@/assets/images/icons/Icon material-refresh (1).svg"
-                  class="setImgclear mr-1 pr-1 w-20px"
-                  :style="{ filter: filterColor }"
-                />
-                <span class="mx-1">{{ $t("clearCache") }}</span>
-              </b-dropdown-item-button>
-              <b-dropdown-item-button
-                v-if="$store.getters.getIsAdmin"
-                class="mx-3 font-14"
-                @click="showUploadModal = true"
-              >
-                <img
-                  src="@/assets/images/icons/upload-set.svg"
-                  class="setImgclear mr-1 pr-1 w-20px"
-                  :style="{ filter: filterColor }"
-                />
-                <span class="mx-1">{{ $t("uploadAppSetting") }}</span>
-              </b-dropdown-item-button>
-              <b-dropdown-item-button
-                class="mx-3 font-14"
-                @click="
-                  showModal = true;
-                  userShow = true;
-                "
-                v-if="$store.getters.getIsMultiProgram"
-              >
-                <img
-                  src="@/assets/images/icons/update-icon.svg"
-                  class="setImgclear mr-2 pr-1 w-17px"
-                  :style="{ filter: filterColor }"
-                />
-                <span class="mx-1">{{ $t("Updates") }}</span>
-              </b-dropdown-item-button>
-              <b-dropdown-item-button
-                class="mx-3 font-14"
-                @click="showAnalytics = true"
-                v-if="
-                  $store.getters.getAppSettings.isAnalytics &&
-                  $store.getters.getIsAdmin
-                "
-              >
-                <img
-                  src="@/assets/images/icons/uses-analytic.svg"
-                  class="setImgclear mr-2 pr-1 w-17px"
-                  :style="{ filter: filterColor }"
-                />
-                <span class="mx-1">{{ $t("uAnalytics") }}</span>
-              </b-dropdown-item-button>
-              <b-dropdown-item-button
-                class="mx-3 font-14"
-                @click="contactUsModal = true"
-              >
-                <img
-                  src="@/assets/images/icons/contact-icon.svg"
-                  class="setImgclear mr-2 pr-1 w-17px"
-                  :style="{ filter: filterColor }"
-                />
-                <span class="mx-1">{{ $t("contactUs") }}</span>
-              </b-dropdown-item-button>
-            </span>    
+              <span class="dropdown-menus">
+                <b-dropdown-item-button
+                  class="mx-3 font-14"
+                  @click="activateTour"
+                >
+                  <img
+                    src="@/assets/images/icons/tool-tip-tour-over.svg"
+                    class="setImg"
+                    :style="{ filter: filterColor }"
+                  />
+                  <span>{{ $t("tourGuide") }}</span>
+                </b-dropdown-item-button>
+                <b-dropdown-item-button
+                  class="mx-3 font-14"
+                  @click="showManuals = true"
+                >
+                  <img
+                    src="@/assets/images/icons/train-icon.svg"
+                    class="setImg mr-2"
+                    :style="{ filter: filterColor }"
+                  />
+                  <span> {{ $t("trainings") }}</span>
+                </b-dropdown-item-button>
+                <b-dropdown-item-button
+                  class="mx-3 font-14"
+                  @click="clearCache"
+                >
+                  <img
+                    src="@/assets/images/icons/Icon material-refresh (1).svg"
+                    class="setImgclear mr-1 pr-1 w-20px"
+                    :style="{ filter: filterColor }"
+                  />
+                  <span class="mx-1">{{ $t("clearCache") }}</span>
+                </b-dropdown-item-button>
+                <b-dropdown-item-button
+                  v-if="$store.getters.getIsAdmin"
+                  class="mx-3 font-14"
+                  @click="showUploadModal = true"
+                >
+                  <img
+                    src="@/assets/images/icons/upload-set.svg"
+                    class="setImgclear mr-1 pr-1 w-20px"
+                    :style="{ filter: filterColor }"
+                  />
+                  <span class="mx-1">{{ $t("uploadAppSetting") }}</span>
+                </b-dropdown-item-button>
+                <b-dropdown-item-button
+                  class="mx-3 font-14"
+                  @click="
+                    showModal = true;
+                    userShow = true;
+                  "
+                  v-if="$store.getters.getIsMultiProgram"
+                >
+                  <img
+                    src="@/assets/images/icons/update-icon.svg"
+                    class="setImgclear mr-2 pr-1 w-17px"
+                    :style="{ filter: filterColor }"
+                  />
+                  <span class="mx-1">{{ $t("Updates") }}</span>
+                </b-dropdown-item-button>
+                <b-dropdown-item-button
+                  class="mx-3 font-14"
+                  @click="showAnalytics = true"
+                  v-if="
+                    $store.getters.getAppSettings.isAnalytics &&
+                    $store.getters.getIsAdmin
+                  "
+                >
+                  <img
+                    src="@/assets/images/icons/uses-analytic.svg"
+                    class="setImgclear mr-2 pr-1 w-17px"
+                    :style="{ filter: filterColor }"
+                  />
+                  <span class="mx-1">{{ $t("uAnalytics") }}</span>
+                </b-dropdown-item-button>
+                <b-dropdown-item-button
+                  class="mx-3 font-14"
+                  @click="contactUsModal = true"
+                >
+                  <img
+                    src="@/assets/images/icons/contact-icon.svg"
+                    class="setImgclear mr-2 pr-1 w-17px"
+                    :style="{ filter: filterColor }"
+                  />
+                  <span class="mx-1">{{ $t("contactUs") }}</span>
+                </b-dropdown-item-button>
+              </span>
               <b-dropdown-divider></b-dropdown-divider>
               <b-dropdown-item-button class="mx-3 font-14 text-center">
                 <span class="mx-1">{{ $t("theme") }}</span>

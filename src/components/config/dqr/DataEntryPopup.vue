@@ -50,7 +50,7 @@ import service from "@/service";
 import { decompress } from "compress-json";
 import DataEntryMixin from "@/helpers/DataEntryMixin";
 export default {
-  props: ["popupType", "bgDataType", "dataEntryID", "isPopupEntry"],
+  props: ["popupType", "bgDataType", "dataEntryID", "isPopupEntry", "isFromIC"],
   mixins: [DataEntryMixin],
   data() {
     return {
@@ -100,8 +100,14 @@ export default {
           orgLevel: this.orgLevel,
         }); //Mixin method
 
+        let objKey = { tableKey: key };
+
+        if(this.isFromIC){
+          objKey["namespace"] = "fp-dashboard"
+        }
+
         service
-          .getSavedConfig({ tableKey: key })
+          .getSavedConfig(objKey)
           .then((response) => {
             let transData =
               typeof response.data.rows == "string"

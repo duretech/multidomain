@@ -59,7 +59,7 @@
           <b-row>
             <b-col
               :class="[
-                outliersArr && outliersArr.length
+                updatedOutlierArr && updatedOutlierArr.length
                   ? 'col-sm-9'
                   : 'col-sm-12',
               ]"
@@ -164,15 +164,9 @@
                           </template>
                         </b-table>
                         <div v-else>{{ $t("no_data_to_display") }}</div>
-                        <div v-if="isRRChart">
+                        <!-- <div v-if="isRRChart">
                           <b-row>
-                            <b-col>
-                              <i
-                                class="fa fa-circle mr-1"
-                                style="color: #7bcdb7; font-size: 0.9375rem"
-                              ></i>
-                              {{ $t("rr_text8") }} ({{ bValue }}%)
-                            </b-col>
+                            
                             <b-col>
                               <i
                                 class="fa fa-circle mr-1"
@@ -181,7 +175,79 @@
                               {{ $t("rr_text9") }} ({{ bValue }}%)
                             </b-col>
                           </b-row>
+                          <b-row
+                            v-if="
+                              ['regionalTrend'].includes(
+                                this.chartConfigData.chartOptions.chartCategory
+                              )
+                            "
+                          >
+                            <b-col>
+                              <i
+                                class="fa fa-circle mr-1"
+                                style="color: #f8775a; font-size: 0.9375rem"
+                              ></i>
+                              {{ $t("rr_text8") }} ({{ bValue }}%)
+                              {{ $t("rr_text11") }} ({{ subChange }}%)
+                            </b-col>
+                          </b-row>
+                        </div> -->
+                        <div v-if="isICCharts || isICharts || isRRChart">
                           <b-row>
+                            <b-col
+                              v-if="
+                                (isICCharts &&
+                                  ['SOURCE_DIFF'].includes(
+                                    chartConfigData.chartOptions
+                                      .chartCalculation
+                                  )) ||
+                                isICharts ||
+                                isRRChart
+                              "
+                            >
+                              <i
+                                class="fa fa-circle mr-1"
+                                style="color: #7bcdb7; font-size: 0.9375rem"
+                              ></i>
+                              {{
+                                !isRRChart
+                                  ? isICharts
+                                    ? $t("ic_text1")
+                                    : $t("icc_text1", {
+                                        range,
+                                      })
+                                  : $t("rr_text8") + (bValue + "%")
+                              }}
+                            </b-col>
+                            <b-col>
+                              <i
+                                class="fa fa-circle mr-1"
+                                style="color: #f7927e; font-size: 0.9375rem"
+                              ></i>
+                              {{
+                                !isRRChart
+                                  ? isICharts
+                                    ? $t("ic_text2")
+                                    : ["DEFAULT"].includes(
+                                        this.chartConfigData.chartOptions
+                                          .chartCalculation
+                                      )
+                                    ? $t("outlier")
+                                    : $t("icc_text2", {
+                                        range,
+                                      })
+                                  : $t("rr_text9") + (bValue + "%")
+                              }}
+                            </b-col>
+                          </b-row>
+                          <b-row
+                            v-if="
+                              isRRChart &&
+                              ['regionalTrend'].includes(
+                                this.chartConfigData.chartOptions.chartCategory
+                              )
+                            "
+                          >
                             <b-col>
                               <i
                                 class="fa fa-circle mr-1"
@@ -205,12 +271,12 @@
             </b-col>
             <b-col
               sm="3"
-              v-if="outliersArr && outliersArr.length"
+              v-if="updatedOutlierArr && updatedOutlierArr.length"
               class="border-dqrleft h-400px overflow-auto"
             >
               <!-- add slice() to avoid mutating the array and getting infinite update error -->
               <div
-                v-for="(outlier, i) in outliersArr.slice().reverse()"
+                v-for="(outlier, i) in updatedOutlierArr.slice().reverse()"
                 :key="'outliers' + i"
               >
                 <div class="pb-2 f-s-0-9375rem">
@@ -299,14 +365,14 @@
                 (isOutlier || isPOutlier) && dataFetched && cObj.series.length
               "
             >
-              <span v-if="isOutlier"
+              <span class="mr-5" v-if="isOutlier && viewType !== 'table'"
                 ><i
                   class="mr-2 fa fa-circle"
                   :style="{ color: outlierColor }"
                 ></i
                 >{{ $t("outlier") }}</span
               >
-              <span v-if="isPOutlier">
+              <span class="mr-5" v-if="isPOutlier && viewType !== 'table'">
                 <i
                   class="mx-2 fa fa-circle"
                   :style="{
@@ -315,7 +381,7 @@
                 ></i
                 >{{ $t("outlierPlus") }}
               </span>
-              <span v-if="isPOutlier">
+              <span class="mr-5" v-if="isPOutlier && viewType !== 'table'">
                 <i
                   class="mx-2 fa fa-circle"
                   :style="{
@@ -325,7 +391,7 @@
                 >{{ $t("outlierMinus") }}
               </span>
               <template v-if="exceptionTable && exceptionTable.length">
-                <span class="ml-5 cursor-pointer" @click="isException = true"
+                <span class="cursor-pointer" @click="isException = true"
                   ><i class="fa fa-file mr-2"></i
                   ><u>{{ $t("exceptions") }}</u></span
                 >
@@ -380,7 +446,7 @@ import html2canvas from "html2canvas";
 import FullScreenMixin from "@/helpers/FullScreenMixin";
 import DynamicImageMixin from "@/helpers/DynamicImageMixin";
 import Maps from "@/components/Maps/IntegratedFPMap.vue";
-import { getParent } from "@/components/Common/commonFunctions";
+import { getParent , translateAlphatoNum } from "@/components/Common/commonFunctions";
 import domtoimage from "dom-to-image";
 export default {
   components: {
@@ -437,6 +503,7 @@ export default {
       selectedMethod: null,
       nationalRegionReportingTrendOutlier: [],
       cObj: JSON.parse(JSON.stringify(this.chartData)),
+      range: "",
     };
   },
   computed: {
@@ -477,90 +544,91 @@ export default {
           }))
         : null;
     },
-    outliersArr() {
-      let key = this.selectedMethod ? this.selectedMethod : "default";
-      let o = [];
-      if (this.outliers?.[key]) {
-        //Add slice() to avoid mutation
-        o = this.outliers[key].slice().sort(function (x, y) {
-          // true values first
-          return x.secondary === y.secondary ? 0 : x.secondary ? -1 : 1;
-          // false values first
-          // return x.secondary === y.secondary ? 0 : x.secondary ? 1 : -1;
-        });
-      }
-      // console.log(
-      //   JSON.parse(JSON.stringify(0)),
-      //   this.selectedMethod,
-      //   "actual outliersArr original one"
-      // );
-      return o;
-    },
+    
+    // DON'T REMOVE THIS COMMENT
+
+    // outliersArr() {
+    //   let key = this.selectedMethod ? this.selectedMethod : "default";
+    //   let o = [];
+    //   if (this.outliers?.[key]) {
+    //     //Add slice() to avoid mutation
+    //     o = this.outliers[key].slice().sort(function (x, y) {
+    //       // true values first
+    //       return x.secondary === y.secondary ? 0 : x.secondary ? -1 : 1;
+    //       // false values first
+    //       // return x.secondary === y.secondary ? 0 : x.secondary ? 1 : -1;
+    //     });
+    //   }
+    //   // console.log(
+    //   //   JSON.parse(JSON.stringify(0)),
+    //   //   this.selectedMethod,
+    //   //   "actual outliersArr original one"
+    //   // );
+    //   return o;
+    // },
     updatedOutlierArr() {
       if (this.outliers) {
-        // console.log(
-        //   JSON.parse(JSON.stringify(this.outliers)),
-        //   this.selectedMethod,
-        //   "actual outliersArr"
-        // );
 
         let key = this.selectedMethod ? this.selectedMethod : "default";
         let o = this.outliers;
-        if(key === "default"){
         let dates = [];
         let outlierListNew = [];
         if (this.outliers?.[key]) {
           this.outliers[key].forEach((items) => {
+          let dates = [];
             items.outlierList.forEach((item) => {
               item.outliersValues.forEach((i) => {
                 i.value = this.$store.getters.getPeriodData[i.peValue].name;
                 dates.push(i);
               });
             });
-          });
-          dates = this.sortDates(dates);
-
-          o[key].forEach((items) => {
+            dates = this.sortDates(dates);
             dates.forEach((date) => {
               items.outlierList.forEach((item) => {
+                let oV = item.outliersValues;
                 item.outliers.forEach((i) => {
-                  if(i.includes(date.value)){
+                  if (i.includes(date.value)) {
+                    let v = date.outlierValue
+                      ? `${item.name} (${date.outlierValue})`
+                      : item.name;
                     let isFound = outlierListNew.find((x) => {
                       return x.name == date.value;
                     });
                     if (isFound) {
-                      outlierListNew.forEach((y)=>{
-                          if (y.name == date.value && !y.outliers.includes(item.name)) {
-                            y.outliers.push(item.name);
-                          }
-                      })
+                      outlierListNew.forEach((y) => {
+                        if (
+                          y.name == date.value &&
+                          !y.outliers.includes(v)
+                        ) {
+                          y.outliers.unshift(v);
+                          y.outliersValues = [...y.outliersValues , ...oV]
+                        }
+                      });
                     } else {
                       outlierListNew.push({
                         name: date.value,
-                        outliers: [item.name],
+                        outliers: [v],
+                        outliersValues: [...oV],
                       });
+                    }
+                  }
+                  else if(!isNaN(Number(translateAlphatoNum(item.name)))){
+                    let res = outlierListNew.filter((i)=> i.name == item.name);
+                    if(!res.length){
+                      outlierListNew.push(item);
                     }
                   }
                 });
               });
             });
-            items.outlierList = outlierListNew;
-            outlierListNew = [];
-            //   // console.log("change")
+              items.outlierList = outlierListNew;
+              outlierListNew = [];
           });
-        }
-      }
-          // // // console.log("outlierList", outlierList);
-
-          //Add slice() to avoid mutation
           o = o[key].slice().sort(function (x, y) {
-            // true values first
             return x.secondary === y.secondary ? 0 : x.secondary ? -1 : 1;
-            // false values first
-            // return x.secondary === y.secondary ? 0 : x.secondary ? 1 : -1;
           });
-        // console.log(JSON.parse(JSON.stringify(o)), "update outliersArr");
-        return o;
+          return o;
+        }
       }
       return [];
     },
@@ -664,7 +732,7 @@ export default {
         this.chartConfigData?.chartOptions
       ) {
         if (
-          ["regionalTrend"].includes(
+          ["regionalTrend", "trend"].includes(
             this.chartConfigData.chartOptions.chartCategory
           )
         ) {
@@ -672,6 +740,34 @@ export default {
         }
       }
       return isRRChart;
+    },
+    isICCharts() {
+      let isICCharts = false;
+      if (
+        this.cObj?.series?.length &&
+        this.subTab?.group?.includes("-CC-") &&
+        this.chartConfigData?.chartOptions
+      ) {
+        if (
+          ["DEFAULT", "SOURCE_DIFF"].includes(
+            this.chartConfigData.chartOptions.chartCalculation
+          )
+        ) {
+          isICCharts = true;
+        }
+      }
+      return isICCharts;
+    },
+    isICharts() {
+      let isICharts = false;
+      if (
+        this.cObj?.series?.length &&
+        this.subTab?.group?.includes("-IC-") &&
+        this.chartConfigData?.chartOptions
+      ) {
+        isICharts = true;
+      }
+      return isICharts;
     },
     bValue() {
       let bValue = 80;
@@ -804,7 +900,13 @@ export default {
         (newValue &&
           this.chartConfigData.chartOptions.chartDefaultView == "table")
       ) {
-        this.showTable("table");
+        if (
+          ["regionalTrend"].includes(
+            this.chartConfigData.chartOptions.chartCategory
+          )
+        ) {
+          this.showTable("table");
+        }
       }
     },
     locationPeriod: {
@@ -1002,7 +1104,7 @@ export default {
             ? this.$i18n.t("period")
             : this.$i18n.t("location");
           this.fields = [tableKey];
-          this.cObj.series.forEach((s) => {
+          this.cObj.series.forEach((s, sInd) => {
             if (!s.isBenchmark) {
               let n = s.name;
               if (this.cObj.chart.type === "scatter") {
@@ -1012,17 +1114,27 @@ export default {
                   let itemFoundIndex = tableData.findIndex(
                     (t) => t[tableKey] === d.name
                   );
+                  let txt = d.outlier ? "danger" : "";
                   if (itemFoundIndex >= 0) {
                     tableData[itemFoundIndex] = {
                       ...tableData[itemFoundIndex],
                       [s.xMethod]: d.x?.toLocaleString() || d.x,
                       [s.yMethod]: d.y?.toLocaleString() || d.y,
+                      _cellVariants: {
+                        ...tableData[itemFoundIndex]["_cellVariants"],
+                        [s.xMethod]: txt,
+                        [s.yMethod]: txt,
+                      },
                     };
                   } else {
                     tableData.push({
                       [tableKey]: d.name,
                       [s.xMethod]: d.x?.toLocaleString() || d.x,
                       [s.yMethod]: d.y?.toLocaleString() || d.y,
+                      _cellVariants: {
+                        [s.xMethod]: txt,
+                        [s.yMethod]: txt,
+                      },
                     });
                   }
                 });
@@ -1040,15 +1152,53 @@ export default {
                   });
                 }
               } else {
+                let outArr = [s.high, s.low];
                 this.fields.push(n);
+                let outArray = {};
+                if (
+                  ["SOURCE_DIFF"].includes(
+                    this.chartConfigData.chartOptions.chartCalculation
+                  ) &&
+                  sInd == 0
+                ) {
+                  s.data.forEach((d, i) => {
+                    if (
+                      d.y <= this.cObj.series[1].data[i][2] &&
+                      d.y >= this.cObj.series[1].data[i][0]
+                    ) {
+                      outArray[i] = "success";
+                    } else {
+                      outArray[i] = "danger";
+                    }
+                  });
+                }
+                
                 s.data.forEach((d, i) => {
                   let dN = d.name;
                   if (s.isHighLow) {
+                    this.range = s.name;
                     dN = this.cObj.series[0].data[i].name;
                   }
                   let itemFoundIndex = tableData.findIndex(
                     (t) => t[tableKey] === dN
                   );
+                  let txt = "";
+                  if (outArr[0] && outArr[1] && d.y) {
+                    txt =
+                      outArr[0] * 1 >= d.y && outArr[1] * 1 <= d.y
+                        ? "success"
+                        : "danger";
+                  }
+                  if (this.subTab.group.includes("-CT-")) {
+                    if (
+                      ["DEFAULT"].includes(
+                        this.chartConfigData.chartOptions.chartCalculation
+                      ) &&
+                      this.bValue
+                    ) {
+                      txt = d.y < this.bValue ? "danger" : "success";
+                    }
+                  }
                   if (itemFoundIndex >= 0) {
                     tableData[itemFoundIndex] = {
                       ...tableData[itemFoundIndex],
@@ -1057,6 +1207,10 @@ export default {
                         : this.plotType === "packedbubble"
                         ? d.value
                         : d.y?.toLocaleString() || d.y,
+                      _cellVariants: {
+                        ...tableData[itemFoundIndex]["_cellVariants"],
+                        [n]: txt,
+                      },
                     };
                   } else {
                     tableData.push({
@@ -1065,13 +1219,26 @@ export default {
                         this.plotType === "packedbubble"
                           ? d.value?.toLocaleString() || d.value
                           : d.y?.toLocaleString() || d.y,
+                      _cellVariants: {
+                        [n]:
+                          ["SOURCE_DIFF"].includes(
+                            this.chartConfigData.chartOptions.chartCalculation
+                          ) && outArray[i]
+                            ? outArray[i]
+                            : txt,
+                      },
                     });
                   }
                 });
               }
             }
           });
-          if (this.isRRChart) {
+          if (this.isRRChart 
+          &&
+            ["regionalTrend"].includes(
+              this.chartConfigData.chartOptions.chartCategory
+            )
+          ) {
             let avgObj = {};
             this.cObj.series.forEach((s) => {
               if (!s.isBenchmark) {
@@ -1325,6 +1492,9 @@ export default {
                 });
               }
               if (_this.drillSD) {
+                // console.log("e" , e);
+                // // console.log("this.cObj" , _this.cObj)
+                // _this.$emit("getSD" , _this.cObj)
                 let minus2SD = [],
                   plus2SD = [],
                   mainSeries = {
@@ -1565,19 +1735,42 @@ export default {
         (items) => items.period === row.item[this.$i18n.t("period")]
       );
       filterSubItems.forEach((s) => {
+        let n = s.name;
         s.data.map((item) => {
+          let outArr = [item.highd, item.lowd];
           let isD = drillItems.findIndex(
             (d) => d[this.$i18n.t("location")] === item.name
           );
+          let txt = "";
+          if (outArr[0] && outArr[1] && item.y) {
+            txt =
+              outArr[0] * 1 >= item.y && outArr[1] * 1 <= item.y
+                ? "success"
+                : "danger";
+          }
+          if (this.subTab?.group?.includes("-CT-") && 
+            ["DEFAULT"].includes(
+              this.chartConfigData.chartOptions.chartCalculation
+            ) && item.y && this.bValue
+          ) {
+            txt = item.y < this.bValue ? "danger" : "success";
+          }
           if (isD >= 0) {
             drillItems[isD] = {
               ...drillItems[isD],
               [`${s.name}`]: item.y,
+              _cellVariants: {
+                ...drillItems[isD]["_cellVariants"],
+                [n]: txt,
+              },
             };
           } else {
             drillItems.push({
               [this.$i18n.t("location")]: item.name,
               [`${s.name}`]: item.y,
+              _cellVariants: {
+                [n]: txt,
+              },
             });
           }
         });

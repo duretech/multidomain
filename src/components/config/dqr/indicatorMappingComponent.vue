@@ -130,7 +130,7 @@
                                               class="col-sm-7 d-flex justify-content-end align-items-center"
                                             >
                                               <DataEntryAction
-                                              v-if="!isFromIC"
+                                             
                                                 :dataEntryID="de.id"
                                                 @openPopup="openPopup"
                                               />
@@ -183,6 +183,7 @@
       :dataEntryID="dataEntryID"
       :bgDataType="bgDataType"
       @hideModal="hideModal"
+      :isFromIC="isFromIC"
     />
     <DataEntryPopup
       v-if="isPopupEntry"
@@ -191,6 +192,7 @@
       :bgDataType="bgDataType"
       :dataEntryID="dataEntryID"
       :isPopupEntry="isPopupEntry"
+      :isFromIC="isFromIC"
     />
   </div>
 </template>

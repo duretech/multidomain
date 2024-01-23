@@ -11,8 +11,7 @@
     <div class="" id="modal-newanc" :class="{ 'text-center': !isFetched }">
       <template v-if="isFetched">
         <b-row class="mb-4 text-right">
-          <b-col cols="9">
-            <b-button-group size="sm">
+          <b-col cols="12">
               <b-button
                 class="ml-2"
                 :variant="f.id === frequency ? 'success' : 'secondary'"
@@ -21,17 +20,16 @@
                 @click="frequency = f.id"
                 >{{ f.text }}</b-button
               >
-            </b-button-group>
-          </b-col>
-          <b-col cols="3">
-            <date-picker
-            v-model="customPeriod"
-            :range="true"
-            type="Date"
-            value-type="format"
-            format="YYYY-MM-DD"
-            class="form-control"
-           ></date-picker>
+              <b-button class="ml-2" v-if="!showCustomDates" @click="showCustomDates = true"
+                >{{ $t("customDates") }}</b-button
+              >
+              <Datepicker
+                v-if="showCustomDates"
+                v-model="customPeriod"
+                type="date"
+                range
+                class="w-25 form-control ml-2 p-0"
+              ></Datepicker>
           </b-col>
         </b-row>
         <div>
@@ -203,8 +201,8 @@
 </template>
 <script>
 import service from "@/service";
+import Datepicker from "vue2-datepicker";
 import "vue2-datepicker/index.css";
-import DatePicker from "vue2-datepicker";
 import DynamicImageMixin from "@/helpers/DynamicImageMixin";
 import { commonChartConfig } from "@/config/basicChartConfig";
 import { getDateTimestamp } from "@/components/Common/commonFunctions";
@@ -217,7 +215,7 @@ export default {
       import(
         /* webpackChunkName: "HighChartComponentDynamic"*/ "@/components/Highcharts/HighChartComponentDynamic"
       ),
-      DatePicker,
+    Datepicker,
   },
   data() {
     return {
@@ -232,6 +230,7 @@ export default {
       uByLocObj: JSON.parse(JSON.stringify(commonChartConfig)),
       uByDateObj: JSON.parse(JSON.stringify(commonChartConfig)),
       customPeriod: [],
+      showCustomDates: null,
     };
   },
   computed: {
@@ -249,14 +248,16 @@ export default {
         tD = getDateTimestamp({ isTimestamp: true });
 
       if (this.frequency === "ALL") {
-        this.customPeriod = []
+        this.customPeriod = [];
+        this.showCustomDates = null;
         aData = JSON.parse(JSON.stringify(this.analyticsData));
       } else if (this.frequency === 1) {
-        this.customPeriod = []
+        this.customPeriod = [];
+        this.showCustomDates = null;
         if (this.analyticsData[tD]) {
           aData[tD] = this.analyticsData[tD];
         }
-      } else if(this.frequency === "custom"){
+      } else if (this.frequency === "custom") {
         let tFD1 = new Date(this.customPeriod[0]).getTime();
         let tFD2 = new Date(this.customPeriod[1]).getTime();
         if (tFD1 && tFD2) {
@@ -267,7 +268,8 @@ export default {
           });
         }
       } else {
-        this.customPeriod = []
+        this.customPeriod = [];
+        this.showCustomDates = null;
         let tFD = getDateTimestamp({ isTimestamp: true, f: this.frequency });
         if (tFD) {
           Object.keys(this.analyticsData).forEach((a) => {

@@ -492,6 +492,7 @@ export default {
               obj.textColor =
                 brightness === "dark" ? "light-text" : "dark-text";
             }
+            obj.value = Number(obj.value).toLocaleString()
             m.push(obj);
           }
         });

@@ -287,6 +287,7 @@ export default {
           this.exceptionTable = null;
           this.dataFetched = false;
           this.outliers = null;
+          this.showLabels = false;
           this.$nextTick(() => {
             this.matrixData = {};
             this.cObj = JSON.parse(JSON.stringify(commonChartConfig));
@@ -483,6 +484,7 @@ export default {
       outliers,
       method = "default",
       secondary = false,
+      outlierValue = "",
     }) {
       if (!outliers[method]) {
         outliers[method] = [
@@ -498,6 +500,7 @@ export default {
         let isFound = outliers[method][isMIndex].outlierList.findIndex(
           (o) => o.name === name
         );
+        // console.log("isFound" , isFound)
         if (isFound >= 0) {
           if (value) {
             outliers[method][isMIndex].outlierList[isFound].outliers.push(
@@ -507,6 +510,7 @@ export default {
               {
                 peValue: peValue,
                 value: value,
+                outlierValue: outlierValue ? outlierValue : "",
               }
             );
           }
@@ -519,6 +523,7 @@ export default {
                   {
                     peValue: peValue,
                     value: value,
+                    outlierValue: outlierValue ? outlierValue : "",
                   },
                 ]
               : [],
@@ -537,6 +542,7 @@ export default {
                     {
                       peValue: peValue,
                       value: value,
+                      outlierValue: outlierValue ? outlierValue : "",
                     },
                   ]
                 : [],
@@ -547,6 +553,17 @@ export default {
       // console.log(outliers, "ouliers", value, peValue);
       return outliers;
     },
+    createSeperateMethodWise(arr) {
+      const result = arr.data.reduce((accumulator, currentObject) => {
+        const { sName } = currentObject;
+        if (!accumulator[sName]) {
+          accumulator[sName] = [];
+        }
+        accumulator[sName].push(currentObject);
+        return accumulator;
+      }, {});
+      return result;
+    },
     findOutliers({
       cObj,
       type,
@@ -556,6 +573,7 @@ export default {
       benchmarkValue = null,
       standardDeviationValue = null,
       currentPeriod = null,
+      isNational = false,
     }) {
       const getAvg = (d) => {
         let dataWithNull = d.map((d) => d.y);
@@ -568,71 +586,149 @@ export default {
           avg,
         };
       };
-      const getHighLow = (c, m = "default") => {
-        let { data, avg } = getAvg(c.data);
-        let stdDev = standardDeviation(data);
-        let low = avg * 1 - standardDeviationValue * stdDev;
-        let high = avg * 1 + standardDeviationValue * stdDev;
-        let updatedData = c.data.map((d) => {
-          d.label =
-            d.y !== null
-              ? d.y > high
-                ? this.$i18n.t("high")
-                : d.y < low
-                ? this.$i18n.t("low")
-                : ""
-              : "";
-          d.color =
-            d.y !== null
-              ? d.y > high
-                ? "#55BF3B"
-                : d.y < low
-                ? "#DF5353"
-                : ""
-              : "";
-          if (d.label) {
-            if (d.pe === currentPeriod) {
-              isOutlier = true;
-            }
-            // console.log("calling updateOutliersList 1", {
-            //   header,
-            //   outliers,
-            //   peValue: d.pe,
-            //   name: c.name,
-            //   value: d.name,
-            //   method: m,
-            // });
-            outliers = this.updateOutliersList({
-              header,
-              outliers,
-              peValue: d.pe,
-              name: c.name,
-              value: d.name,
-              method: m,
+      const getHighLow = (c, m = "default", isParent = false, drill) => {
+        let seperateMethodWise;
+        if (drill > 0) {
+          seperateMethodWise = this.createSeperateMethodWise(c);
+          
+        }
+        if (seperateMethodWise) {
+          let arr = [];
+          Object.keys(seperateMethodWise).forEach((i) => {
+            let { data, avg } = getAvg(seperateMethodWise[i]);
+            let stdDev = standardDeviation(data);
+            let low = avg * 1 - standardDeviationValue * stdDev;
+            let high = avg * 1 + standardDeviationValue * stdDev;
+
+            let updatedDataObj = seperateMethodWise[i].map((d) => {
+              d.low = low;
+              d.high = high;
+              d.label =
+                d.y !== null
+                  ? d.y > high
+                    ? this.$i18n.t("high")
+                    : d.y < low
+                    ? this.$i18n.t("low")
+                    : ""
+                  : "";
+              d.color =
+                d.y !== null
+                  ? d.y > high
+                    ? "#55BF3B"
+                    : d.y < low
+                    ? "#DF5353"
+                    : ""
+                  : "";
+              if (d.label) {
+                if (d.pe === currentPeriod) {
+                  isOutlier = true;
+                }
+                outliers = this.updateOutliersList({
+                  header,
+                  outliers,
+                  peValue: d.pe,
+                  name:
+                    isParent && this.subTab.group.includes("aggregate")
+                      ? this.locationPeriod.locationName
+                      : isParent && this.subTab.group.includes("method")
+                      ? this.locationPeriod.locationName + " (" + i + ")"
+                      : c.name + " (" + i + ")",
+                  value: d.name,
+                  method: m,
+                });
+              }
+              return d;
             });
-          }
-          return d;
-        });
-        return {
-          high,
-          low,
-          avg,
-          stdDev,
-          updatedData,
-        };
-      };
-      const getUpdatedData = (data, m = "default") => {
-        let updatedM = data.map((c) => {
-          let { high, low, avg, stdDev, updatedData } = getHighLow(c, m);
+            arr.push({ [i]: updatedDataObj });
+          });
+          return { updatedData: arr };
+        } else {
+          let { data, avg } = getAvg(c.data);
+          let stdDev = standardDeviation(data);
+          let low = avg * 1 - standardDeviationValue * stdDev;
+          let high = avg * 1 + standardDeviationValue * stdDev;
+          let updatedData = c.data.map((d) => {
+            d.label =
+              d.y !== null
+                ? d.y > high
+                  ? this.$i18n.t("high")
+                  : d.y < low
+                  ? this.$i18n.t("low")
+                  : ""
+                : "";
+            d.color =
+              d.y !== null
+                ? d.y > high
+                  ? "#55BF3B"
+                  : d.y < low
+                  ? "#DF5353"
+                  : ""
+                : "";
+            if (d.label) {
+              if (d.pe === currentPeriod) {
+                isOutlier = true;
+              }
+              outliers = this.updateOutliersList({
+                header,
+                outliers,
+                peValue: d.pe,
+                // name: c.name,
+                name:
+                  isParent && this.subTab.group.includes("aggregate")
+                    ? this.locationPeriod.locationName
+                    : isParent && this.subTab.group.includes("method")
+                    ? this.locationPeriod.locationName + " (" + c.name + ")"
+                    : d.name.split("(").length > 2
+                    ? c.name +
+                      " (" +
+                      d.name.split("(")[0] +
+                      "(" +
+                      d.name.split("(")[1] +
+                      ")"
+                    : d.name.split("(").length == 2
+                    ? c.name + " (" + d.name.split("(")[0] + ")"
+                    : c.name,
+                value: d.name,
+                method: m,
+              });
+            }
+            return d;
+          });
           return {
-            ...c,
-            data: updatedData,
-            stdDev,
-            low,
             high,
+            low,
             avg,
-            standardDeviationValue,
+            stdDev,
+            updatedData,
           };
+        }
+      };
+      const getUpdatedData = (data, m = "default", isParent = false, drill) => {
+        let updatedM = data.map((c) => {
+          if (drill > 0) {
+            let { updatedData } = getHighLow(c, m, isParent, drill);
+            return {
+              ...c,
+              data: updatedData,
+              standardDeviationValue,
+            };
+          } else {
+            let { high, low, avg, stdDev, updatedData } = getHighLow(
+              c,
+              m,
+              isParent,
+              drill
+            );
+            return {
+              ...c,
+              data: updatedData,
+              stdDev,
+              low,
+              high,
+              avg,
+              standardDeviationValue,
+            };
+          }
         });
         return updatedM;
       };
@@ -644,14 +740,17 @@ export default {
           name: s,
           value: null,
           peValue: null,
+          outlierValue: this.$i18n.t("noData"),
         };
         let updatedData = data.map((d) => {
           if (d.y < benchmarkValue || (d.y === null && benchmarkValue === 0)) {
             isOut = true;
             d.color = "#FE8081";
             let v = d.y ? `${d.y}%` : this.$i18n.t("noData");
+            obj.outlierValue = v;
             obj.value = `${d.name} (${v})`;
             obj.peValue = d.pe;
+            // obj.nameOfPeriod = d.name;
             if (m !== "default") {
               obj.method = m;
             }
@@ -723,6 +822,7 @@ export default {
                     peValue: d.pe,
                     value: `${d.name} (${v})`,
                     secondary: true,
+                    outlierValue: v,
                   });
                 }
               });
@@ -775,7 +875,7 @@ export default {
           });
         } else {
           // console.log(cObj.series, "main series in trend");
-          cObj.series = getUpdatedData(cObj.series);
+          cObj.series = getUpdatedData(cObj.series, "default", isNational);
           if (
             cObj.drilldown &&
             cObj.drilldown.series &&
@@ -784,24 +884,42 @@ export default {
             let locData = this.getLocationData({
               series: cObj.drilldown.series,
             });
-            // console.log(cObj.drilldown.series, "drilldown series in trend");
+            locData = getUpdatedData(
+              locData,
+              "default",
+              false,
+              cObj?.drilldown?.series?.length
+            );
 
-            locData = getUpdatedData(locData);
             cObj.drilldown.series = cObj.drilldown.series.map((s) => {
               let updatedData = s.data.map((d) => {
                 // console.log(JSON.parse(JSON.stringify(d)), locData, "actual d");
                 let isFound = locData.find((l) => l.id === d.locationID);
                 if (isFound) {
-                  let isDataFound = isFound.data.find((d) => d.name === s.name);
+                  let isDataFound = {};
+                  for (let i in isFound.data) {
+                    let obj = isFound.data[i];
+                    for (let j in obj) {
+                      let innerObj = obj[j]
+                      for (let k in innerObj) {
+                      let inObj = innerObj[k]
+                      if (inObj.name == s.name) {
+                        isDataFound = inObj;
+                        break;
+                      }
+                    }
+                    }
+                  }
+                
                   if (isDataFound && isDataFound.color !== "") {
                     d.color = "#DF5353";
                     d.outlier = true;
                   }
                   return {
                     ...d,
-                    lowd: isFound.low,
-                    highd: isFound.high,
-                    standardDeviationValue: isFound.standardDeviationValue,
+                    lowd: isDataFound.low,
+                    highd: isDataFound.high,
+                    standardDeviationValue: isDataFound.standardDeviationValue,
                   };
                 } else {
                   return d;
@@ -814,7 +932,6 @@ export default {
             });
           }
         }
-        console.log(cObj, outliers, isOutlier, "in ic charts ");
       }
       return { oSeries: cObj, outliers, isOutlier };
     },
@@ -832,6 +949,7 @@ export default {
                 name: s.name,
                 y: d.y,
                 pe: d.period,
+                sName: s.sName,
               }),
             };
           } else {
@@ -843,6 +961,7 @@ export default {
                   name: s.name,
                   y: d.y,
                   pe: d.period,
+                  sName: s.sName,
                 },
               ],
             });
@@ -883,6 +1002,8 @@ export default {
             ? this.$i18n.t("rr_text1_opt2")
             : this.$i18n.t("rr_text1_opt1"),
         })} ${bValue}%`;
+        let isNational = false; //explicitely making true incase of IC charts
+        outObj.isNational = isNational;
         let { oSeries, outliers } = this.findOutliers(outObj);
         cObj = oSeries;
         this.outliers = outliers;
@@ -908,6 +1029,8 @@ export default {
         if (cData.chartCategory === "regionalTrend") {
           outObj.isMethods = !cData.chartDataSum ? true : false;
         }
+        let isNational = cData.chartCategory === "trend" ? true : false;
+        outObj.isNational = isNational;
         let { oSeries, outliers, isOutlier } = this.findOutliers(outObj);
 
         cObj = oSeries;
@@ -963,7 +1086,12 @@ export default {
       if (periodType === "quarterly") {
         chunks = chunk(periodArr, 4);
       }
-      if (periodType === "yearly" || periodType === "financialYear") {
+      if (
+        periodType === "yearly" ||
+        periodType === "financialYear" ||
+        periodType === "financialYearJuly" ||
+        periodType === "financialYearOct"
+      ) {
         chunks = chunk(periodArr, 1);
       }
       return chunks;
@@ -1079,6 +1207,7 @@ export default {
                 locationName: this.locationPeriod.locationName,
                 levels,
               });
+            
               // if (this.$store.getters.getActiveTab.includes("ANC") || this.$store.getters.getActiveTab.includes("MAT_DEATHS") || this.$store.getters.getActiveTab.includes("DELIVERY_CARE") || this.$store.getters.getActiveTab.includes("PNC")) {
               //   let a = this.configDataAD.group;
               //   let b = this.configDataAD.id;
@@ -3167,9 +3296,9 @@ export default {
         parSeries["name"] = series[s]["name"] + " " + parentName;
         if (series[s]["name"] == totalLegend) {
           serObj.visible = true;
-          parSeries.visible = true;
+          parSeries.visible = false;
         } else {
-          serObj.visible = false;
+          serObj.visible = true;
           parSeries.visible = false;
         }
 
@@ -4813,6 +4942,9 @@ export default {
     },
     deleteMapPic(data) {
       this.$emit("deleteMapPic", data);
+    },
+    getSD(data) {
+      console.log("data", data);
     },
   },
   created() {

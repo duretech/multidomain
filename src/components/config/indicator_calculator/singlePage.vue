@@ -1345,7 +1345,8 @@ export default {
         this.repoRate,
         oAdjustmentFactors,
         continuation,
-        this.disableChart
+        this.disableChart,
+        this.defaultType
       );
 
       allMethodsAdjusted.adjusted = Object.assign(
@@ -2428,8 +2429,13 @@ export default {
               nIndex--;
               l++;
             }
-            oFinalVals[j].vals[k] = parseInt(nSum);
-            oNewUsers[j].vals[k] = parseInt(newUserVal);
+            if (type === "User") {
+              oFinalVals[j].vals[k] = parseInt(newUserVal);
+              oNewUsers[j].vals[k] = parseInt(newUserVal);
+            } else {
+              oFinalVals[j].vals[k] = parseInt(nSum);
+              oNewUsers[j].vals[k] = parseInt(newUserVal);
+            }
           }
         }
       }
