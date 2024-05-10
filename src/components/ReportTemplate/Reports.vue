@@ -2,6 +2,15 @@
   <div class="report mb-0 mt-5">
     <div class="report-container p-4">
       <div class="">
+        <div class="d-flex justify-content-end">
+          <b-button class="h5 mb-2 info p-0">
+            <b-icon
+              icon="info-circle-fill"
+              variant="dark"
+              v-b-modal.information
+            ></b-icon>
+          </b-button>
+        </div>
         <b-collapse
           class="saved-fav-accordian mt-3"
           id="accordion-1"
@@ -13,15 +22,26 @@
               class="report-modal align-items-center d-flex justify-content-between w-100 py-2"
             >
               <h5 class="m-0">{{ $t("reports") }}</h5>
-              <span>
-                <i class="fa fa-close cursor-pointer ml-4" @click="close()"></i>
-              </span>
+              <div class="d-flex align-items-center">
+                <input
+                  type="text"
+                  class="form-control search-control"
+                  :placeholder="$t('search')"
+                  v-model="searchName"
+                />
+                <span>
+                  <i
+                    class="fa fa-close cursor-pointer mx-4"
+                    @click="close()"
+                  ></i>
+                </span>
+              </div>
             </div>
-            <b-row class="py-3" v-if="reportTemplates.length > 0">
+            <b-row class="py-3" v-if="filteredData.length > 0">
               <b-col
                 sm="4"
                 class="mb-3"
-                v-for="template in reportTemplates"
+                v-for="template in filteredData"
                 :key="template.templateId"
               >
                 <b-card header-tag="header" class="saved-fav-card">
@@ -132,7 +152,38 @@
                       </div>
                     </div>
                     <div class="saved-report-card-opt" v-else>
-                      {{ $t("notOwnerReport") }}
+                      <div
+                        class="saved-report-card-opt-img fs-14-1920 cursor-pointer"
+                        @click.prevent.stop="editModule(template)"
+                      >
+                        <img
+                          :src="require('@/assets/images/icons/editActive.svg')"
+                          :style="{ filter: filterColor }"
+                          class="mb-1"
+                        /><span>{{ $t("edit") }}</span>
+                      </div>
+                      <div
+                        class="saved-report-card-opt-img fs-14-1920 cursor-pointer"
+                        @click.prevent.stop="editModule(template, true)"
+                      >
+                        <img
+                          :src="require('@/assets/images/icons/editActive.svg')"
+                          :style="{ filter: filterColor }"
+                          class="mb-1"
+                        /><span>{{ $t("clone") }}</span>
+                      </div>
+                      <div
+                        v-if="$store.getters.getIsAdmin"
+                        class="saved-report-card-opt-img fs-14-1920 cursor-pointer mb-md-0"
+                        @click.prevent.stop="deleteModule(template.templateId)"
+                      >
+                        <img
+                          :src="
+                            require('@/assets/images/icons/deleteActive.svg')
+                          "
+                          :style="{ filter: filterColor }"
+                        /><span class="mt-1">{{ $t("deletebtn") }}</span>
+                      </div>
                     </div>
                   </div>
                 </b-card>
@@ -148,13 +199,13 @@
       </div>
       <div
         class="title-report-card fs-19-1920 pb-2 d-flex justify-content-between align-items-center"
-        v-if="reportTemplates.length && isReportGenerated"
+        v-if="filteredData.length && isReportGenerated"
       >
         {{ this.selectedTemplateTempObj.templateName }}
         <button
           type="button"
           class="btn btn-primary black-btn blue-btn ml-3 generate-greybtn"
-          @click.prevent.stop="downloadReport('myDivToPrint')"
+          @click.prevent.stop="downloadReport()"
           style="border: 2px solid #fff"
           :disabled="isGenerating"
         >
@@ -169,16 +220,16 @@
       </div>
       <div
         class="myDivToPrint bg-white"
-        ref="myDivToPrint"
-        v-if="reportTemplates.length && isReportGenerated"
+        ref="printPDF"
+        v-if="filteredData.length && isReportGenerated"
       >
         <template v-if="selectedTemplateObj" className="reportCards">
           <gridLayout
             :isReport="true"
-            ref="gridLayout"
             :excludedHeight="55"
             :isHeaderFooter="true"
             @getPeriod="getPeriod"
+            @setLocationPeriod="setLocationPeriod"
             :configData="configData"
             :updatedGridLayout="{
               rowHeight: 10,
@@ -200,13 +251,15 @@
             @getOtherChartObj="getOtherChartObj"
             :selectedLocation="selectedLocation"
             :selectedLocationName="selectedLocationName"
+            :isGenerating="isGenerating"
+            
           />
         </template>
       </div>
       <div class="text-center my-2 text-white" v-else>
-        <b-alert variant="info" show class="m-0" v-if="loadingText">{{
-          loadingText
-        }}</b-alert>
+        <b-alert variant="info" show class="m-0" v-if="loadingText"
+          >{{ loadingText }}
+        </b-alert>
       </div>
     </div>
     <b-modal
@@ -349,6 +402,7 @@
                 class="form-control"
                 type="text"
                 v-model="templateObj.templateName"
+                :disabled="sameUser"
               />
             </div>
           </div>
@@ -361,6 +415,7 @@
                 class="form-control"
                 type="text"
                 v-model="templateObj.templateDesc"
+                :disabled="sameUser"
               />
             </div>
           </div>
@@ -372,6 +427,7 @@
               <b-form-select
                 v-model="templateObj.orgUnitLevel"
                 :options="orgUnitList"
+                :disabled="sameUser"
               ></b-form-select>
             </div>
           </div>
@@ -383,6 +439,7 @@
               <b-form-select
                 v-model="templateObj.updateFrequencyType"
                 :options="pTypeOptions"
+                :disabled="sameUser"
               ></b-form-select>
             </div>
           </div>
@@ -414,6 +471,7 @@
             type="button"
             class="btn new-resetbtn ml-3"
             @click.prevent="resetValues"
+            :class="{ 'd-none': sameUser }"
           >
             {{ $t("resetbtn") }}
           </button>
@@ -426,6 +484,23 @@
             {{ $t("submitbtn") }}
           </button>
         </div>
+      </div>
+    </b-modal>
+    <b-modal
+      centered
+      hide-footer
+      size="xl"
+      id="information"
+      :title="$t('Information')"
+    >
+      <div>
+        <h6>{{ $t("stepsReport") }}</h6>
+        <h6>{{ $t("step1") }}</h6>
+        <p>{{ $t("step1Exp") }}</p>
+        <h6>{{ $t("step2") }}</h6>
+        <p>{{ $t("step2Exp") }}</p>
+        <h6>{{ $t("step3") }}</h6>
+        <p>{{ $t("step3Exp") }}</p>
       </div>
     </b-modal>
     <ReportTemplateModals
@@ -450,6 +525,7 @@ import {
   randomString,
   translateDate,
 } from "@/components/Common/commonFunctions";
+import GenerateReportMixin from "@/helpers/GenerateReportMixin";
 const originalTemplateObj = {
   templateId: "",
   templateName: "",
@@ -468,6 +544,7 @@ const originalTemplateObj = {
   updatedAt: "",
   createdBy: "",
   createdByID: "",
+  isAdmin: "",
 };
 export default {
   data() {
@@ -499,9 +576,15 @@ export default {
       savedTemplatesVisible: false,
       selectedTemplateTempObj: null,
       templateObj: { ...originalTemplateObj },
+      searchName: "",
     };
   },
-  mixins: [loadLocChildMixin, DynamicImageMixin, ReFetchConfigMixin],
+  mixins: [
+    loadLocChildMixin,
+    DynamicImageMixin,
+    ReFetchConfigMixin,
+    GenerateReportMixin,
+  ],
   components: {
     Treeselect,
     ReportTemplateModals: () =>
@@ -573,13 +656,29 @@ export default {
     },
   },
   computed: {
+    filteredData() {
+      let filteredD = [];
+      filteredD = this.reportTemplates.filter((a) =>
+        a.templateName
+          ?.toLowerCase()
+          .includes(this.searchName.toLowerCase())
+      );
+      return filteredD
+    },
+    sameUser() {
+      return (
+        this.templateObj.createdByID !==
+          this.$store.getters.getLoggedInUserId &&
+        this.$store.getters.getActiveTab !== "create-new-report" &&
+        !this.cloneReport
+      );
+    },
     selectedPeriod() {
       let dType =
           this.selectedTemplateTempObj?.updateFrequencyType || "monthly",
         d = this.calculatedPeriod?.[dType] || null;
       return d && dType
-        ? ", " +
-            translateDate({
+        ? translateDate({
               rawDate:
                 this.calculatedPeriod?.[
                   this.selectedTemplateTempObj.updateFrequencyType
@@ -607,7 +706,7 @@ export default {
     },
   },
   methods: {
-    close(){
+    close() {
       this.savedTemplatesVisible = false;
     },
     getValue(data = 0, key) {
@@ -623,68 +722,72 @@ export default {
     },
     getOtherChartObj(obj) {
       this.otherChartObj.push(obj);
+      this.exportArrAll.push(obj);
     },
     getPeriod(period) {
       this.defaultPeriod = period.defaultPeriod;
       this.calculatedPeriod = period.calculatedPeriod;
     },
-    async downloadReport(divName) {
-      const { value: formValues } = await this.$swal({
-        title: this.$i18n.t("export_options"),
-        html:
-          '<input id="fileName" class="form-control" placeholder="' +
-          this.$i18n.t("fileName_placeholder") +
-          '" value="' +
-          this.fileName +
-          '"/>',
-        focusConfirm: true,
-        showCancelButton: true,
-        reverseButtons: true,
-        confirmButtonText: this.$i18n.t("downloadIcon"),
-        cancelButtonText: this.$i18n.t("cancelbtn"),
-        preConfirm: () => {
-          return [document.getElementById("fileName").value];
-        },
-      });
+    // async downloadReport(divName) {
+    //   const { value: formValues } = await this.$swal({
+    //     title: this.$i18n.t("export_options"),
+    //     html:
+    //       '<input id="fileName" class="form-control" placeholder="' +
+    //       this.$i18n.t("fileName_placeholder") +
+    //       '" value="' +
+    //       this.fileName +
+    //       '"/>',
+    //     focusConfirm: true,
+    //     showCancelButton: true,
+    //     reverseButtons: true,
+    //     confirmButtonText: this.$i18n.t("downloadIcon"),
+    //     cancelButtonText: this.$i18n.t("cancelbtn"),
+    //     preConfirm: () => {
+    //       return [document.getElementById("fileName").value];
+    //     },
+    //   });
 
-      if (formValues) {
-        this.isGenerating = true;
-        this.$store.commit("setLoading", true);
-        if (this.$refs[divName]) {
-          setTimeout(async () => {
-            let options = {
-              filename:
-                formValues[0] +
-                "_" +
-                this.$moment(new Date()).format("lll") +
-                ".pdf",
-              // pagebreak: { mode: "avoid-all" },
-              html2canvas: {
-                useCORS: true,
-                height: this.canvasHeight,
-              },
-              jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
-            };
-            await html2pdf()
-              .set(options)
-              .from(this.$refs[divName])
-              .toPdf()
-              .get("pdf")
-              .then((pdf) => {
-                const totalPages = pdf.internal.getNumberOfPages();
-                for (let i = 1; i <= totalPages; i++) {
-                  if (i === totalPages) {
-                    this.isGenerating = false;
-                    this.$store.commit("setLoading", false);
-                  }
-                }
-              })
-              .save();
-          }, 50);
-        } else {
-          console.log("printing div not found...");
-        }
-      }
+    //   if (formValues) {
+    //     this.isGenerating = true;
+    //     this.$store.commit("setLoading", true);
+    //     if (this.$refs[divName]) {
+    //       setTimeout(async () => {
+    //         let options = {
+    //           filename:
+    //             formValues[0] +
+    //             "_" +
+    //             this.$moment(new Date()).format("lll") +
+    //             ".pdf",
+    //           // pagebreak: { mode: "avoid-all" },
+    //           html2canvas: {
+    //             useCORS: true,
+    //             height: this.canvasHeight,
+    //           },
+    //           jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
+    //         };
+    //         await html2pdf()
+    //           .set(options)
+    //           .from(this.$refs[divName])
+    //           .toPdf()
+    //           .get("pdf")
+    //           .then((pdf) => {
+    //             const totalPages = pdf.internal.getNumberOfPages();
+    //             for (let i = 1; i <= totalPages; i++) {
+    //               if (i === totalPages) {
+    //                 this.isGenerating = false;
+    //                 this.$store.commit("setLoading", false);
+    //               }
+    //             }
+    //           })
+    //           .save();
+    //       }, 50);
+    //     } else {
+    //       console.log("printing div not found...");
+    //     }
+    //   }
+    // },
+    setLocationPeriod(value) {
+      this.locationPeriod = value;
     },
     async generateReport() {
       this.selectReportPopup = false;
@@ -751,7 +854,8 @@ export default {
             let locationID = this.selectedLocation.split("/")[1],
               des = null;
             for (let map in response.value.data.globalMappings.mappings) {
-              let mappingData = response.value.data.globalMappings.mappings[map];
+              let mappingData =
+                response.value.data.globalMappings.mappings[map];
               for (let innerMap in mappingData["mapping"]) {
                 let innerMapData =
                   response.value.data.globalMappings.mappings[map]["mapping"][
@@ -808,9 +912,9 @@ export default {
           service.getSavedConfig({ tableKey: key, namespace: nameSpaces[i] })
         );
       });
-      console.log("promises" , promises)
+      console.log("promises", promises);
       // console.log("key",key)
-      console.log("nameSpaces" , nameSpaces)
+      console.log("nameSpaces", nameSpaces);
       await Promise.allSettled(promises).then((results) => {
         results.forEach((response, i) => {
           if (response.status === "fulfilled") {
@@ -845,10 +949,38 @@ export default {
       this.templateObj.templateId = this.templateObj.templateId
         ? this.templateObj.templateId
         : randomString(16);
-      this.templateObj.createdAt = this.templateObj.createdAt
-        ? this.templateObj.createdAt
-        : this.$moment(new Date()).format("lll");
-      this.templateObj.updatedAt = this.$moment(new Date()).format("lll");
+      if (this.$store.getters.getAppSettings.calendar == "nepali") {
+        const { adToBs } = require("@sbmdkl/nepali-date-converter");
+        let nepaliDate = adToBs(
+          `${
+            new Date().getFullYear() +
+            "-" +
+            (new Date().getMonth() + 1) +
+            "-" +
+            new Date().getDate()
+          }`
+        );
+        let nepaliMonthYear = translateDate({
+          rawDate:
+            `${new Date(nepaliDate).getFullYear()}` +
+            "-" +
+            `${
+              new Date(nepaliDate).getMonth() + 1 < 10
+                ? "0" + (new Date(nepaliDate).getMonth() + 1)
+                : new Date(nepaliDate).getMonth() + 1
+            }`,
+        });
+        let nepaliDateFinal = nepaliDate.split("-")[2] + ", " + nepaliMonthYear;
+        this.templateObj.updatedAt = nepaliDateFinal;
+        this.templateObj.createdAt = this.templateObj.createdAt
+          ? this.templateObj.createdAt
+          : nepaliDateFinal;
+      } else {
+        this.templateObj.createdAt = this.templateObj.createdAt
+          ? this.templateObj.createdAt
+          : this.$moment(new Date()).format("lll");
+        this.templateObj.updatedAt = this.$moment(new Date()).format("lll");
+      }
       this.templateObj.createdBy = this.templateObj.createdBy
         ? this.templateObj.createdBy
         : `${this.$store.getters.getUserDetails.firstName} ${this.$store.getters.getUserDetails.surname}`;
@@ -859,6 +991,7 @@ export default {
         ? this.templateObj.details
         : originalTemplateObj.details;
       this.templateObj.locale = this.$i18n.locale;
+      this.templateObj.isAdmin = this.$store.getters.getIsAdmin;
 
       let key = this.generateKey("reportTemplates");
       service
@@ -876,9 +1009,22 @@ export default {
           service
             .updateConfig({ data: reportTemplates, tableKey: key })
             .then((response) => {
-              this.reportTemplates = reportTemplates.filter(
-                (r) => r.locale === this.$i18n.locale
-              );
+              if (!this.$store.getters.getIsAdmin) {
+                this.reportTemplates = reportTemplates.filter((r) => {
+                  return (
+                    r.locale === this.$i18n.locale &&
+                    (r?.isAdmin
+                      ? r?.isAdmin
+                      : r.createdByID === this.$store.getters.getLoggedInUserId
+                      ? true
+                      : false)
+                  );
+                });
+              } else {
+                this.reportTemplates = reportTemplates.filter((r) => {
+                  return r.locale === this.$i18n.locale;
+                });
+              }
               this.handleResponse(response);
             });
         })
@@ -926,16 +1072,31 @@ export default {
       service
         .getSavedConfig({ tableKey: key })
         .then((res) => {
-          this.reportTemplates = res.data.filter(
-            (r) => r.locale === this.$i18n.locale
-          );
+          console.log("res", res);
+          if (!this.$store.getters.getIsAdmin) {
+            this.reportTemplates = res.data.filter((r) => {
+              return (
+                r.locale === this.$i18n.locale &&
+                (r?.isAdmin
+                  ? r?.isAdmin
+                  : r.createdByID === this.$store.getters.getLoggedInUserId
+                  ? true
+                  : false)
+              );
+            });
+          } else {
+            this.reportTemplates = res.data.filter((r) => {
+              return r.locale === this.$i18n.locale;
+            });
+          }
           if (
             !this.selectReportPopup &&
             isFirstLoad &&
             this.reportTemplates.length
           ) {
-            this.selectReportPopup = true;
-            console.log("this.reportTemplates" , this.reportTemplates)
+            // this.selectReportPopup = true;
+            this.savedTemplatesVisible = true;
+            console.log("this.reportTemplates", this.reportTemplates);
           }
           // this.reportTemplates.forEach((t) => {
           //   this.reportList.push({
@@ -1008,10 +1169,24 @@ export default {
               service
                 .updateConfig({ data: reportTemplates, tableKey: key })
                 .then((response) => {
+                  if (!this.$store.getters.getIsAdmin) {
+                    this.reportTemplates = reportTemplates.filter((r) => {
+                      return (
+                        r.locale === this.$i18n.locale &&
+                        (r?.isAdmin
+                          ? r?.isAdmin
+                          : r.createdByID ===
+                            this.$store.getters.getLoggedInUserId
+                          ? true
+                          : false)
+                      );
+                    });
+                  } else {
+                    this.reportTemplates = reportTemplates.filter((r) => {
+                      return r.locale === this.$i18n.locale;
+                    });
+                  }
                   this.handleResponse(response);
-                  this.reportTemplates = reportTemplates.filter(
-                    (r) => r.locale === this.$i18n.locale
-                  );
                   if (
                     this.selectedTemplateObj &&
                     this.selectedTemplateObj.templateId === id
@@ -1092,5 +1267,9 @@ export default {
   .b-overlay .bg-light {
     display: none;
   }
+}
+.info {
+  background-color: transparent !important;
+  border: 0px;
 }
 </style>

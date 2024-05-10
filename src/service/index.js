@@ -1,6 +1,7 @@
 /*eslint no-undef: "error"*/
 import axios from "axios";
 import store from "@/store.js";
+
 //For Production
 let header = {};
 // For development.
@@ -496,7 +497,7 @@ class DataService {
   getLoggedInUser() {
     return axios({
       method: "get",
-      url: `${store.getters.getBaseURL}/api/me.json?fields=id,firstName,surname,userCredentials[id,username,userRoles[id,name]],dataViewOrganisationUnits[level,id,name]`,
+      url: `${store.getters.getBaseURL}/api/me.json?fields=id,firstName,surname,email,userCredentials[id,username,userRoles[id,name]],dataViewOrganisationUnits[level,id,name]`,
       headers: header,
     });
   }
@@ -508,6 +509,15 @@ class DataService {
    */
   getUsersList() {
     let url = `${store.getters.getBaseURL}/api/users.json?fields=id,name~rename(label),userCredentials[id,username,userRoles[id,name]]&paging=false&order=firstName%3Aasc%2Csurname%3Aasc`;
+    return axios({
+      method: "get",
+      url,
+      headers: header,
+    });
+  }
+  getFilteredUserList(de) {
+    console.log("de", de);
+    let url = `${store.getters.getBaseURL}/api/users.json?query=${de}&fields=id,displayName,userCredentials[username]&order=displayName:iasc`;
     return axios({
       method: "get",
       url,
@@ -1070,6 +1080,17 @@ class DataService {
       method: "get",
       url: `${store.getters.getBaseURL}/api/categoryOptionCombos.json?filter=name:eq:${nm}&paging=false`,
       headers: header,
+    });
+  }
+
+  sendEmail(obj) {
+    return axios({
+      method: "post",
+      url: `https://fptraining.duredemos.com/fpDataPro/send-email`,
+      headers: {
+        "Cache-Control": "no-cache",
+      },
+      data: obj,
     });
   }
   // /**

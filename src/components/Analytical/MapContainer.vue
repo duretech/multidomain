@@ -14,8 +14,7 @@
                   title: selectedInd,
                   html: true,
                 }"
-              ></i
-              >
+              ></i>
               {{ locationPeriod.locationName }}
             </h6>
           </div>
@@ -29,7 +28,7 @@
             }"
           >
             <b-form-select
-            v-if="!isGenerating"
+              v-if="!isGenerating"
               class="mapDropdown"
               v-model="selectedInd"
               :options="indList"
@@ -37,7 +36,7 @@
           </div>
         </b-col>
       </b-row>
-            <h5 v-if="isGenerating">{{selectedInd}}</h5>
+      <h5 v-if="isGenerating">{{ selectedInd }}</h5>
     </div>
     <MapComponent
       v-if="dataFetched"
@@ -49,9 +48,9 @@
       :locationPeriod="locationPeriod"
       :mapConfigData="mapConfigData"
       :isGenerating="isGenerating"
-      @isJsonFetched="isJsonFetched = true"
-      @mapPic ="mapPic"
-      :title = locationPeriod.locationName
+      @isJsonFetchedM="isJsonFetchedM"
+      @mapPic="mapPic"
+      :title="locationPeriod.locationName"
       @deleteMapPic="deleteMapPic"
     />
     <div
@@ -84,7 +83,14 @@ import {
 import { commonChartConfig } from "@/config/basicChartConfig";
 
 export default {
-  props: ["subTab", "emuData", "allGeoJson", "preFetchData", "locationPeriod", "isGenerating"],
+  props: [
+    "subTab",
+    "emuData",
+    "allGeoJson",
+    "preFetchData",
+    "locationPeriod",
+    "isGenerating",
+  ],
   components: {
     MapComponent: () =>
       import(
@@ -187,6 +193,10 @@ export default {
     },
   },
   methods: {
+    isJsonFetchedM(newVal) {
+      //console.log(newVal, "isJsonFetched method emit value");
+      this.isJsonFetched = newVal;
+    },
     deleteMapPic(data) {
       this.$emit("deleteMapPic", data);
     },
@@ -256,7 +266,7 @@ export default {
               : emuModule.totalEMU;
         }
         children.forEach((cat) => {
-          if (data[cat.id]) {
+          if (data && data[cat.id]) {
             let catKey = "saveCategories";
             let dataKey = "saveData";
             if (this.locationPeriod.periodType === "yearly") {
@@ -326,12 +336,12 @@ export default {
             dx: [],
             cyp: {},
           };
-          if(!m.chartOptions.disable){
+          if (!m.chartOptions.disable) {
             this.indList.push({
               value: m.chartOptions.chartName[this.$i18n.locale],
               text: m.chartOptions.chartName[this.$i18n.locale],
-            });  
-          this.selectedInd = this.indList[0].text;
+            });
+            this.selectedInd = this.indList[0].text;
           }
           rMapping = allMappings.filter((mAll) =>
             m.chartOptions.dataMapping.includes(mAll.indicator.static_name)
@@ -365,6 +375,10 @@ export default {
       let location = loc.split("/")[1];
       let levelID = loc.split("/")[0] * 1;
       let subLevelID = levelID + 1;
+      // let subLevelID =
+      //     this.$store.getters.getAppSettings.lowerLevel != null
+      //       ? this.$store.getters.getAppSettings.lowerLevel *1
+      //       : levelID + 1;
       let levels = [levelID, subLevelID];
       let { de, catArray } = this.getMapping();
       let period = getDateRange({
@@ -421,12 +435,12 @@ export default {
         // errorMsg: "Mapping not available",
       }
     },
-    mapPic(data){
-      data['locVal'] = this.locValue.toLocaleString();
-      data['location'] = this.locationPeriod.locationName;
-      data['selectedInd'] = this.selectedInd
-      this.$emit("mapPic" , data);
-    }
+    mapPic(data) {
+      data["locVal"] = this.locValue.toLocaleString();
+      data["location"] = this.locationPeriod.locationName;
+      data["selectedInd"] = this.selectedInd;
+      this.$emit("mapPic", data);
+    },
   },
   created() {
     if (this.isChart) {

@@ -738,6 +738,10 @@ export default {
       let location = loc.split("/")[1];
       let levelID = loc.split("/")[0] * 1;
       let subLevelID = levelID + 1;
+      // let subLevelID =
+      //   this.$store.getters.getAppSettings.lowerLevel != null
+      //     ? this.$store.getters.getAppSettings.lowerLevel * 1
+      //     : levelID + 1;
       let levels = [levelID, subLevelID];
       let { de, catArray } = this.getMapping();
       let period = getDateRange({

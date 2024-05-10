@@ -225,7 +225,7 @@
                           </b-button>
                         </div>
                       </div>
-                      <p class="small" >{{ $t("noteScoreCard") }}</p>
+                      <p class="small">{{ $t("noteScoreCard") }}</p>
                       <div
                         class=""
                         v-if="
@@ -295,6 +295,8 @@
                             :current-page="currentPage"
                             show-empty
                             :empty-text="$t('no_data_to_display')"
+                            :sort-by="$t('name')"
+                            sort-desc.sync="true"
                           >
                             <template #cell(selected)="{ rowSelected }">
                               <template v-if="rowSelected">
@@ -378,23 +380,9 @@
                       </div>
 
                       <div
-                        class="row d-flex justify-content-end align-items-center ml-auto mb-3 mx-3"
+                        class="d-flex justify-content-end align-items-center ml-auto"
                       >
-                        <div class="col-8" v-if="scorecardGenerated">
-                          <div class="text-right small">
-                            <input
-                              type="text"
-                              class="form-control"
-                              id="inputScorecardSearch"
-                              :placeholder="$t('search')"
-                              v-model="scorecardSearch"
-                            />
-                            <!-- </div>
-
-                          <div class="text-right small pb-3"> -->
-                          </div>
-                        </div>
-                        <div class="col-4" v-if="scorecardGenerated">
+                        <div class="mx-2" v-if="scorecardGenerated">
                           <download-csv
                             class="align-items-center btn btn-secondary blue-btn d-flex justify-content-center"
                             :data="scorecardItemsDownload"
@@ -413,6 +401,28 @@
                             </span>
                           </download-csv>
                         </div>
+                        <div class="mx-2" v-if="scorecardGenerated">
+                          <div class="text-right small">
+                            <input
+                              type="text"
+                              class="form-control"
+                              id="inputScorecardSearch"
+                              :placeholder="$t('search')"
+                              v-model="scorecardSearch"
+                            />
+                            <!-- </div>
+
+                          <div class="text-right small pb-3"> -->
+                          </div>
+                        </div>
+                        <div class="mx-2 px-2" v-if="scorecardGenerated">
+                          <b-pagination
+                            v-model="currentPage1"
+                            :total-rows="scorecardItemsFiltered.length"
+                            :per-page="perPage1"
+                            class="my-4"
+                          ></b-pagination>
+                        </div>
                       </div>
                       <div class="col-12" v-if="scorecardGenerated">
                         <b-table
@@ -426,6 +436,8 @@
                           :fields="scorecardFields"
                           show-empty
                           :empty-text="$t('no_data_to_display')"
+                          :per-page="perPage1"
+                          :current-page="currentPage1"
                         >
                           <template v-slot:cell(show_details)="row">
                             <b-form-checkbox
@@ -1010,7 +1022,8 @@
           <div
             v-if="
               $store.getters.getActiveTab.includes('emuMonthlyTab') &&
-              dqrResponse
+              dqrResponse &&
+              allowedArray.length > 1
             "
           >
             <!-- @sendScore="score" -->
@@ -1029,14 +1042,15 @@
               :debugging="debugging"
               :debuggingLevel="debuggingLevel"
               :tabName="$t('emu_monthly')"
-              @updateChartData="updateChartData"
               @downloadReport="downloadReport"
+              :allowedArray="allowedArray"
             />
           </div>
           <div
             v-if="
               $store.getters.getActiveTab.includes('emuAnnualTab') &&
-              dqrResponse
+              dqrResponse &&
+              allowedArray.length > 1
             "
           >
             <annual-tab
@@ -1050,8 +1064,8 @@
               :debugging="debugging"
               :debuggingLevel="debuggingLevel"
               :tabName="$t('emu_annual')"
-              @updateChartData="updateChartData"
               @downloadReport="downloadReport"
+              :allowedArray="allowedArray"
             />
           </div>
         </b-container>
@@ -1092,6 +1106,7 @@ export default {
     "locationPeriod",
     "reportChartData",
     "configDataDQR",
+    "allowedArray",
   ],
   mixins: [
     SignOffMixin,
@@ -1131,9 +1146,12 @@ export default {
   },
   data() {
     return {
+      //allowedArray: [],
       updatedOrgList: [],
       perPage: 15,
+      perPage1: 5,
       currentPage: 1,
+      currentPage1: 1,
       facilityLevelID: -1,
       facilityLevelScorecard: false,
       selectedScorecardLevels: [],
@@ -1515,6 +1533,10 @@ export default {
     },
   },
   watch: {
+    allowedArray(newVal) {
+      //console.log(newVal, this.currentScorecard, "watch called in dqr");
+      this.generateTable(this.currentScorecard);
+    },
     facilityLevelScorecard(newValue) {
       if (!newValue) {
         // this.selectedFacilityOrg = [];
@@ -1666,6 +1688,54 @@ export default {
     },
   },
   methods: {
+    /**Get allowed locations */
+    // async getAllowedLocation() {
+    //   this.allowedArray = [];
+    //   let locArray = [];
+    //   let { locationID, levelID } = service.getAllowedLocation();
+    //   console.log(levelID, "level");
+    //   if (levelID != 1) {
+    //     await this.findChildren({ location: locationID });
+    //     this.allowedArray.push(locationID);
+    //   } else {
+    //     if (this.preFetchData?.orgList?.length) {
+    //       console.log(this.preFetchData.orgList, "this.preFetchData.orgList");
+    //       this.preFetchData.orgList.forEach((ar) => {
+    //         if (!locArray.includes(ar.id)) locArray.push(ar.id);
+    //       });
+    //       this.allowedArray = locArray;
+    //     }
+    //   }
+    // },
+    // async findChildren({ location }) {
+    //   let children = this.getChildren({ location: location });
+    //   console.log(children, "children");
+    //   if (children.length > 0) {
+    //     children.forEach(async (ar) => {
+    //       if (!this.allowedArray.includes(ar.id)) this.allowedArray.push(ar.id);
+    //       await this.findChildren({ location: ar.id });
+    //     });
+    //   }
+    // },
+    //  getChildren({ location }) {
+    //   let children = [];
+    //   if (this.preFetchData?.orgList?.length) {
+    //     children = getChild({
+    //       locationList: this.preFetchData.orgList,
+    //       location: location,
+    //     });
+    //     console.log(children, "children from prefetchdata");
+    //   }
+    //   // else {
+    //   //   try {
+    //   //     let response = await service.getChildOrganisation(location);
+    //   //     children = response?.data?.children || [];
+    //   //   } catch (err) {
+    //   //     console.log("err", err);
+    //   //   }
+    //   // }
+    //   return children;
+    // },
     newLocList(orgList) {
       let list = [];
       let levelAllowed =
@@ -2019,13 +2089,14 @@ export default {
         });
     },
     generateTable(scorecardDetails) {
+      console.log(scorecardDetails, "scorecardDetails in generateTable method");
       this.scorecardFields = [];
       this.scorecardItems = [];
       this.scorecardItemsDownload = [];
       this.scorecardFields = [
         {
           key: this.$i18n.t("location"),
-          sortable: true,
+
           isRowHeader: true,
         },
         {
@@ -2035,12 +2106,12 @@ export default {
         },
         {
           key: this.$i18n.t("dqrScore"),
-          sortable: true,
+
           isRowHeader: true,
         },
         {
           key: this.$i18n.t("scorecardPeriod"),
-          sortable: true,
+
           isRowHeader: true,
         },
         {
@@ -2055,77 +2126,121 @@ export default {
       ];
       // console.log("scoreTabID", this.scoreTabID);
       scorecardDetails.forEach((s) => {
-        let innerItem = {
-            [this.$i18n.t("location")]: excludeName(s.name),
-            [this.$i18n.t("scorecardPeriod")]: translateDate({
-              rawDate: this.locationPeriod.period,
-              periodType: this.locationPeriod.periodType,
-              monthlyFormat: "MMMM YYYY",
-            }),
-            [this.$i18n.t("parent")]: excludeName(s.parent?.name || "-"),
-            scoreDetails: [],
-            _cellVariants: {},
-          },
-          innerItemDownload = {
-            [this.$i18n.t("group")]:
-              this.$store.getters.getActiveTab.split("-")[0],
-            [this.$i18n.t("location")]: excludeName(s.name),
-            [this.$i18n.t("period")]: s.period,
-            [this.$i18n.t("parent")]: excludeName(s.parent?.name || "-"),
-          };
-        let positiveScore = 0,
-          totalScore = 0,
-          sDetails = {};
-        this.scoreTabID.forEach((tab) => {
-          let isTab = s.score.find((t) => t.id === tab.id);
-          if (isTab) {
-            let innerScore = isTab.score;
-            let keyName = tab.tabName;
-            totalScore += 1;
-            if (innerScore) {
-              sDetails[keyName] = 1;
-              innerItemDownload[keyName] = 1;
-              sDetails["_cellVariants"] = {
-                ...sDetails["_cellVariants"],
-                [keyName]: "success",
-              };
-              positiveScore += 1;
-            } else {
-              sDetails[keyName] = 0;
-              innerItemDownload[keyName] = 0;
-              sDetails["_cellVariants"] = {
-                ...sDetails["_cellVariants"],
-                [keyName]: "danger",
-              };
+        if (this.allowedArray.includes(s.id.split("/")[1])) {
+          let innerItem = {
+              [this.$i18n.t("location")]: excludeName(s.name),
+              [this.$i18n.t("scorecardPeriod")]: translateDate({
+                rawDate: this.locationPeriod.period,
+                periodType: this.locationPeriod.periodType,
+                monthlyFormat: "MMMM YYYY",
+              }),
+              [this.$i18n.t("parent")]: excludeName(s.parent?.name || "-"),
+              scoreDetails: [],
+              _cellVariants: {},
+            },
+            innerItemDownload = {
+              [this.$i18n.t("group")]:
+                this.$store.getters.getActiveTab.split("-")[0],
+              [this.$i18n.t("location")]: excludeName(s.name),
+              [this.$i18n.t("period")]: this.$moment(s.period).format("ll"),
+              [this.$i18n.t("parent")]: excludeName(s.parent?.name || "-"),
+            };
+          let positiveScore = 0,
+            totalScore = 0,
+            sDetails = {};
+          this.scoreTabID.forEach((tab) => {
+            let isTab = s.score.find((t) => t.id === tab.id);
+            if (isTab) {
+              let innerScore = isTab.score;
+              let keyName = tab.tabName;
+              totalScore += 1;
+              if (innerScore) {
+                sDetails[keyName] = 1;
+                innerItemDownload[keyName] = 1;
+                sDetails["_cellVariants"] = {
+                  ...sDetails["_cellVariants"],
+                  [keyName]: "success",
+                };
+                positiveScore += 1;
+              } else {
+                sDetails[keyName] = 0;
+                innerItemDownload[keyName] = 0;
+                sDetails["_cellVariants"] = {
+                  ...sDetails["_cellVariants"],
+                  [keyName]: "danger",
+                };
+              }
             }
-          }
-        });
+          });
 
-        innerItem.scoreDetails.push(sDetails);
-        innerItem[this.$i18n.t("dqrScore")] = `${positiveScore}/${totalScore}`;
-        innerItem[this.$i18n.t("scorecardGeneratedOn")] = this.$moment(
-          s.createdOn
-        ).format("ll");
-        innerItemDownload[
-          this.$i18n.t("dqrScore")
-        ] = `${positiveScore} ${this.$i18n.t("outOf")} ${totalScore}`;
-        innerItemDownload[this.$i18n.t("scorecardGeneratedOn")] = this.$moment(
-          s.createdOn
-        ).format("ll");
-        this.scorecardItems.push(innerItem);
-        this.scorecardItems.sort((a, b) => {
-          var textA = a[this.$i18n.t("parent")].toUpperCase();
-          var textB = b[this.$i18n.t("parent")].toUpperCase();
-          return textA < textB ? -1 : textA > textB ? 1 : 0;
-        });
-        this.scorecardItemsDownload.push(innerItemDownload);
-        this.scorecardItemsDownload.sort((a, b) => {
-          var textA = a[this.$i18n.t("parent")].toUpperCase();
-          var textB = b[this.$i18n.t("parent")].toUpperCase();
-          return textA < textB ? -1 : textA > textB ? 1 : 0;
-        });
+          innerItem.scoreDetails.push(sDetails);
+          innerItem[
+            this.$i18n.t("dqrScore")
+          ] = `${positiveScore}/${totalScore}`;
+          if (this.$store.getters.getAppSettings.calendar !== "nepali") {
+            innerItem[this.$i18n.t("scorecardGeneratedOn")] = this.$moment(
+              s.createdOn
+            ).format("ll");
+          } else {
+            const { adToBs } = require("@sbmdkl/nepali-date-converter");
+            let nepaliDate = adToBs(
+              `${
+                new Date().getFullYear() +
+                "-" +
+                (new Date().getMonth() + 1) +
+                "-" +
+                new Date().getDate()
+              }`
+            );
+            let nepaliMonthYear = translateDate({
+              rawDate:
+                `${new Date(nepaliDate).getFullYear()}` +
+                "-" +
+                `${
+                  new Date(nepaliDate).getMonth() + 1 < 10
+                    ? "0" + (new Date(nepaliDate).getMonth() + 1)
+                    : new Date(nepaliDate).getMonth() + 1
+                }`,
+            });
+            let nepaliDateFinal =
+              nepaliDate.split("-")[2] + ", " + nepaliMonthYear;
+            innerItem[this.$i18n.t("scorecardGeneratedOn")] = nepaliDateFinal;
+          }
+          innerItemDownload[
+            this.$i18n.t("dqrScore")
+          ] = `${positiveScore} ${this.$i18n.t("outOf")} ${totalScore}`;
+          innerItemDownload[this.$i18n.t("scorecardGeneratedOn")] =
+            this.$moment(s.createdOn).format("ll");
+          this.scorecardItems.push(innerItem);
+          this.scorecardItems.sort((a, b) => {
+            return (
+              new Date(b[this.$i18n.t("scorecardGeneratedOn")]) -
+              new Date(a[this.$i18n.t("scorecardGeneratedOn")])
+            );
+          });
+          this.scorecardItemsDownload.push(innerItemDownload);
+          // this.scorecardItemsDownload.sort((a, b) => {
+          //   var textA = a[this.$i18n.t("parent")].toUpperCase();
+          //   var textB = b[this.$i18n.t("parent")].toUpperCase();
+          //   return textA < textB ? -1 : textA > textB ? 1 : 0;
+          // });
+          this.scorecardItemsDownload.sort((a, b) => {
+            return (
+              new Date(b[this.$i18n.t("scorecardGeneratedOn")]) -
+              new Date(a[this.$i18n.t("scorecardGeneratedOn")])
+            );
+          });
+        }
       });
       // console.log("scorecardItems", this.scorecardItems);
+    },
+    sortDate(arr) {
+      arr.sort((a, b) => {
+        return (
+          new Date(b[this.$i18n.t("scorecardGeneratedOn")]) -
+          new Date(a[this.$i18n.t("scorecardGeneratedOn")])
+        );
+      });
     },
     getScorecard() {
       this.scorecardGenerated = false;
@@ -2338,6 +2453,8 @@ export default {
         ? this.appResponse.debuggingLevel
         : "API";
     }
+    //await this.getAllowedLocation();
+    console.log(this.allowedArray, "allowedArray location list");
   },
 };
 </script>

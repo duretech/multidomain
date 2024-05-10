@@ -52,6 +52,11 @@
     text-align: center;
   }
 
+  .main-emutext{
+    display: contents !important;
+    font-size: 10px;
+  }
+
   .big-number {
     font-size: 12px !important;
   }

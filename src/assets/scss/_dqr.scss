@@ -19,7 +19,14 @@
     overflow-y: auto;
 	overflow-x: hidden;
 }
+.dqr-main2 .table thead{
+  z-index: 10 !important;
+}
 
+.b-table-sticky-header thead{
+  z-index: 10 !important;
+
+}
 
 .dqr-main {
   background-color: var(--bg-main-color);
@@ -169,7 +176,7 @@
   }
 
   .table thead{
-      z-index: 1 !important;
+      // z-index: 1 !important;
   }
 
   .analytic-charts{

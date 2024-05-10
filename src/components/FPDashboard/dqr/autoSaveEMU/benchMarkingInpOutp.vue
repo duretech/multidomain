@@ -733,6 +733,8 @@ export default {
           `${d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate()}`
         );
         d = bsDate.split("-")[0] + bsDate.split("-")[1];
+        var curDate = this.$moment(d);
+        console.log(curDate, "date in neapl");
       }
 
       while (startDate.isBefore(endDate) && startDate.isBefore(curDate)) {
@@ -1312,7 +1314,6 @@ export default {
         oFinalAgrEMU
       );
       this.chartData = tempObj;
-      this.$emit('updateChartData' , this.chartData)
       this.newUsersChart(methodCategories);
       let reversedCat = JSON.parse(JSON.stringify(saveMethodCategories));
       this.methodTable(saveSeries, reversedCat.reverse());
@@ -1417,7 +1418,6 @@ export default {
       tempObj.tableData = tableData;
       tempObj.filter = this.options;
       this.newUsersChartData = tempObj;
-      this.$emit('updateChartData' , this.newUsersChartData)
     },
     methodTable(emu, cat) {
       let emuObj = {},
@@ -1830,9 +1830,7 @@ export default {
         },
       ];
       this.trendsChartData = tempObj;
-      this.$emit('updateChartData' , this.trendsChartData)
       this.oneMonthEMUChartData = oneMonthEMU;
-      this.$emit('updateChartData' , this.oneMonthEMUChartData)
       this.saveTrendsChartData = {
         isPeriodChart: true,
         reportChartType: "column_stack",
@@ -1968,7 +1966,6 @@ export default {
         },
       ];
       this.methodTrendsChartData = tempObj;
-      this.$emit('updateChartData' , this.methodTrendsChartData)
       this.saveMethodTrendsChartData = {
         isPeriodChart: true,
         reportChartType: tempObj.type,
@@ -2298,7 +2295,6 @@ export default {
         },
       ];
       this.totalEMUChartData = tempObj;
-      this.$emit('updateChartData' , this.totalEMUChartData)
       this.saveTotalEmuChartData.saveData = tempObj.saveData;
       this.saveTotalEmuChartData.type = "line";
       this.saveTotalEmuChartData.saveCategories = tempObj.saveCategories;

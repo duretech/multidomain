@@ -26,13 +26,24 @@ export default {
         //   periodType: this.locationPeriod.periodType,
         //   monthlyFormat: "MMMM YYYY",
         // }),
-        prevForDate = this.metaData?.[prevDate]?.["name"] || prevDate,
+        prevForDate =
+          this.metaData?.[prevDate]?.["name"] ||
+          this.$store.getters.getPeriodData?.[prevDate]?.["name"] ||
+          prevDate,
         prevYrDate = subtractNDate({
           rawDate: this.locationPeriod.period,
           periodType: this.locationPeriod.periodType,
-          n: this.locationPeriod.periodType === "monthly" ? 12 : 1,
+          n:
+            this.locationPeriod.periodType === "monthly"
+              ? 12
+              : this.locationPeriod.periodType === "quarterly"
+              ? 4
+              : 1,
         }),
-        prevYrForDate = this.metaData?.[prevYrDate]?.["name"] || prevYrDate;
+        prevYrForDate =
+          this.metaData?.[prevYrDate]?.["name"] ||
+          this.$store.getters.getPeriodData?.[prevYrDate]?.["name"] ||
+          prevYrDate;
       // prevYrForDate = translateDate({
       //   rawDate: prevYrDate,
       //   periodType: this.locationPeriod.periodType,
@@ -51,11 +62,10 @@ export default {
       let currValue = data.find((d) => d.pe === currDate);
       let prevValue = data.find((d) => d.pe === prevDate);
       let prevYrValue = data.find((d) => d.pe === prevYrDate);
-
+      
       currValue = currValue ? currValue.y * 1 : null;
       prevValue = prevValue ? prevValue.y * 1 : null;
       prevYrValue = prevYrValue ? prevYrValue.y * 1 : null;
-
       return {
         currValue,
         prevValue,

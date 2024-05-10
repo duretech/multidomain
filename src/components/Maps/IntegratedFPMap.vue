@@ -365,18 +365,18 @@ export default {
           returnColor = mFound.color;
         }
       } else {
-        if (isNumber(value)) {
+        if (isNumber(value) && value !== "0") {
           returnColor = "#6c7787";
         }
         if (
           value === this.minVal &&
-          ![null, this.$i18n.t("NA")].includes(this.minVal)
+          ![null, this.$i18n.t("NA"), 0].includes(this.minVal)
         ) {
           returnColor = "#FF6850";
         }
         if (
           value === this.maxVal &&
-          ![null, this.$i18n.t("NA")].includes(this.maxVal)
+          ![null, this.$i18n.t("NA"), 0].includes(this.maxVal)
         ) {
           returnColor = "#69D48C";
         }

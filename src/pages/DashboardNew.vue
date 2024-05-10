@@ -342,7 +342,7 @@ export default {
       this.getUserDetails();
     },
     async getUserDetails() {
-      this.$store.commit("setLoading", true);
+      // this.$store.commit("setLoading", true); 
       console.log("calling getUserdetails method");
       if (!this.$store.getters.getUserDetails) {
         console.log("calling if for getting user details");

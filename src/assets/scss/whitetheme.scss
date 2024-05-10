@@ -353,6 +353,7 @@ body[data-theme~="white"]{
        .btn-dark.bluetheme-btn,
        .subgrpBtn,
        .indiBtn,
+       #modal-newanc .modal-content .modal-body .btn-group .btn-secondary.blue-btn,
        .md_nested_tabs .black-btn.save-btn,
        .swal2-styled.swal2-confirm, .modal-content .modal-body .btn-secondary.addgrey-report,
        .modal-footer .btn-secondary.blue-btn,
@@ -441,6 +442,11 @@ body[data-theme~="white"]{
        #createModuleModal .upload-logo .input-group{
          background-color: var(--sidebar-main-active-color) !important;
          border-color:var(--sidebar-main-active-color) !important
+       }
+
+      #modal-newanc .modal-content textarea.form-control{
+        background-color: var(--chart-body-color) !important;
+        border-color: var(--chart-body-color) !important;
        }
 
        #setReport .modal-xl .modal-content,

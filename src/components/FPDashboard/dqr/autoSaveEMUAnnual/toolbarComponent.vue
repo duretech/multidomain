@@ -140,6 +140,8 @@
             sticky-header
             bordered
             hover
+            :sortBy="$t('EMUGeneratedon')"
+            :sort-desc.sync="sortDesc"
             :items="emuDataFiltered"
             :fields="emuFields"
             show-empty
@@ -223,6 +225,7 @@ export default {
       firstTime: false,
       selected: "",
       emuYear: null,
+      sortDesc: true,
     };
   },
   mixins: [loadLocChildMixin],
@@ -273,12 +276,13 @@ export default {
         Object.keys(innerdata).forEach((locId) => {
           let item = {
             [this.$i18n.t("location")]: innerdata[locId]["name"],
-            "EMU Generated on": innerdata[locId]["time"]
-              ? innerdata[locId]["time"]
+            [this.$i18n.t("EMUGeneratedon")]: innerdata[locId]["time"]
+              ? this.$moment(new Date(innerdata[locId]["time"]), "L")
               : "Some error occured",
           };
           this.emuItems.push(item);
         });
+        console.log("this.emuItems.push(item)" , this.emuItems.push(item))
       }
     },
 

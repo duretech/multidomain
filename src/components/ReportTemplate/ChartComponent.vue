@@ -40,6 +40,7 @@
         :reportChartData="chartData"
         :reportConfigData="reportConfigData"
         @setReportChart="setReportChart"
+        @setLocationPeriod="setLocationPeriod"
       />
       <AnalyticalDashboard
         v-if="isAnalyticalChart"
@@ -52,6 +53,7 @@
         :reportChartData="chartData"
         :reportConfigData="reportConfigData"
         @setReportChart="setReportChart"
+        @setLocationPeriod="setLocationPeriod"
       />
       <DQRDashboard
         v-if="isDQRChart"
@@ -64,6 +66,7 @@
         :reportChartData="chartData"
         :reportConfigData="reportConfigData"
         @setReportChart="setReportChart"
+        @setLocationPeriod="setLocationPeriod"
       />
     </div>
   </b-overlay>
@@ -371,6 +374,10 @@ export default {
         }
         this.isChartSet = true;
       }
+    },
+    setLocationPeriod(value){
+      console.log("hi" , value)
+      this.$emit("setLocationPeriod", value);
     },
     setLocationDetails(chart) {
       let selectedLocation = this.selectedLocation.split("/");
@@ -923,6 +930,80 @@ export default {
           financialYearJuly: updatedFinancialYearJuly,
           quarterly: updatedQuarterly,
         };
+      }
+      if (this.$store.getters.getAppSettings.calendar == "nepali") {
+        const { adToBs } = require("@sbmdkl/nepali-date-converter");
+
+        let dateQ = new Date(calculatedPeriod.quarterly.slice(0, 4));
+        let restQ = calculatedPeriod.quarterly.slice(4);
+        let dateA = new Date(calculatedPeriod.yearly.slice(0, 4));
+        let dateM = new Date(calculatedPeriod.monthly.slice(0, 4));
+        let dateF = new Date(calculatedPeriod.financialYear.slice(0, 4));
+        let nepaliDateQ = adToBs(
+          `${
+            dateQ.getFullYear() +
+            "-" +
+            (dateQ.getMonth() + 1) +
+            "-" +
+            dateQ.getDate()
+          }`
+        );
+        let nepaliDateA = adToBs(
+          `${
+            dateA.getFullYear() +
+            "-" +
+            (dateA.getMonth() + 1) +
+            "-" +
+            dateA.getDate()
+          }`
+        );
+        let nepaliDateM = adToBs(
+          `${
+            dateM.getFullYear() +
+            "-" +
+            (dateM.getMonth() + 1) +
+            "-" +
+            dateM.getDate()
+          }`
+        );
+        let nepaliDateF = adToBs(
+          `${
+            dateF.getFullYear() +
+            "-" +
+            (dateF.getMonth() + 1) +
+            "-" +
+            dateF.getDate()
+          }`
+        );
+
+        nepaliDateQ = translateDate({
+          rawDate: `${new Date(nepaliDateQ).getFullYear() + restQ}`,
+        });
+
+        nepaliDateA = translateDate({
+          rawDate: `${new Date(nepaliDateA).getFullYear()}`,
+        });
+
+        nepaliDateM = translateDate({
+          rawDate:
+            `${new Date(nepaliDateM).getFullYear()}` +
+            "-" +
+            `${
+              new Date(nepaliDateM).getMonth() < 10
+                ? "0" + new Date(nepaliDateM).getMonth()
+                : new Date(nepaliDateM).getMonth()
+            }`,
+        });
+
+        
+        nepaliDateF = translateDate({
+          rawDate: `${new Date(nepaliDateF).getFullYear()}`,
+        });
+
+        calculatedPeriod["yearly"] = nepaliDateA;
+        calculatedPeriod["quarterly"] = nepaliDateQ;
+        calculatedPeriod["monthly"] = nepaliDateM;
+        calculatedPeriod["financialYear"] = nepaliDateF;
       }
       periodObj.calculatedPeriod = JSON.parse(JSON.stringify(calculatedPeriod));
       this.sendPeriod = calculatedPeriod[newVal];

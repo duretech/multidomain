@@ -683,13 +683,14 @@ export default {
       let levelID = loc.split("/")[0] * 1;
       let subLevelID = levelID + 1;
       let aLevel = [levelID, subLevelID];
-
+      let dqrModuleFromApi = null;
       if (!this.population && ["yearly"].includes(periodType)) {
         let key = this.generateKey("dqrModule");
 
         await service
           .getSavedConfig({ tableKey: key })
           .then(async (dqrModule) => {
+            dqrModuleFromApi = dqrModule;
             let isDataStore =
               dqrModule.data["emu"]["Background_Data"][
                 "backgroundIndicators"
@@ -746,7 +747,7 @@ export default {
           }
         }
         let id =
-          dqrModule.data["emu"]["Background_Data"]["backgroundIndicators"][0][
+          dqrModuleFromApi.data["emu"]["Background_Data"]["backgroundIndicators"][0][
             "subIndicators"
           ][0]["selectedDE"][0]["id"];
         pData = await service.getIndicatorData(

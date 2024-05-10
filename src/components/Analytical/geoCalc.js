@@ -116,8 +116,19 @@ export default {
                 12
               ).toFixed(2) * 1;
           } else {
-            // console.log("avgAnnualGrowthData[i][ele][sNextPer]", avgAnnualGrowthData[i][ele][sNextPer])
-            // console.log("avgAnnualGrowthData[i][ele][sPrevPer]", avgAnnualGrowthData[i][ele][sPrevPer])
+            // console.log(
+            //   avgAnnualGrowthData,
+            //   i,
+            //   ele,
+            //   sNextPer,
+            //   sPrevPer,
+            //   "avgAnnualGrowthData[i][ele][sNextPer]",
+            //   avgAnnualGrowthData[i][ele][sNextPer]
+            // );
+            // console.log(
+            //   "avgAnnualGrowthData[i][ele][sPrevPer]",
+            //   avgAnnualGrowthData[i][ele][sPrevPer]
+            // );
             nInt =
               (
                 ((avgAnnualGrowthData[i][ele][sNextPer] || 0) -

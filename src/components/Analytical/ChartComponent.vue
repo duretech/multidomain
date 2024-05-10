@@ -19,6 +19,8 @@
       v-else
       :r2="r2"
       :cID="cID"
+      :isEMUChart="isEMUChart"
+      :EMUStmt="EMUStmt"
       :subTab="subTab"
       :source="source"
       :chartData="cObj"
@@ -108,6 +110,8 @@ export default {
   },
   data() {
     return {
+      isEMUChart: false,
+      EMUStmt: null,
       metaData: null,
       r2: -1,
       source: null,
@@ -590,7 +594,6 @@ export default {
         let seperateMethodWise;
         if (drill > 0) {
           seperateMethodWise = this.createSeperateMethodWise(c);
-          
         }
         if (seperateMethodWise) {
           let arr = [];
@@ -705,29 +708,33 @@ export default {
       };
       const getUpdatedData = (data, m = "default", isParent = false, drill) => {
         let updatedM = data.map((c) => {
-          if (drill > 0) {
-            let { updatedData } = getHighLow(c, m, isParent, drill);
-            return {
-              ...c,
-              data: updatedData,
-              standardDeviationValue,
-            };
+          if (c.data.length > 0) {
+            if (drill > 0) {
+              let { updatedData } = getHighLow(c, m, isParent, drill);
+              return {
+                ...c,
+                data: updatedData,
+                standardDeviationValue,
+              };
+            } else {
+              let { high, low, avg, stdDev, updatedData } = getHighLow(
+                c,
+                m,
+                isParent,
+                drill
+              );
+              return {
+                ...c,
+                data: updatedData,
+                stdDev,
+                low,
+                high,
+                avg,
+                standardDeviationValue,
+              };
+            }
           } else {
-            let { high, low, avg, stdDev, updatedData } = getHighLow(
-              c,
-              m,
-              isParent,
-              drill
-            );
-            return {
-              ...c,
-              data: updatedData,
-              stdDev,
-              low,
-              high,
-              avg,
-              standardDeviationValue,
-            };
+            return c;
           }
         });
         return updatedM;
@@ -867,11 +874,18 @@ export default {
         // console.log("Calling outliers in IC", isMethods);
         if (isMethods) {
           cObj.methodSeries = cObj.methodSeries.map((m) => {
-            let updatedM = getUpdatedData(m.data, m.name);
-            return {
-              ...m,
-              data: updatedM,
-            };
+            //console.log(m.data, m.name);
+            if (m.data.length > 0) {
+              let updatedM = getUpdatedData(m.data, m.name);
+              return {
+                ...m,
+                data: updatedM,
+              };
+            } else {
+              return {
+                ...m,
+              };
+            }
           });
         } else {
           // console.log(cObj.series, "main series in trend");
@@ -900,17 +914,17 @@ export default {
                   for (let i in isFound.data) {
                     let obj = isFound.data[i];
                     for (let j in obj) {
-                      let innerObj = obj[j]
+                      let innerObj = obj[j];
                       for (let k in innerObj) {
-                      let inObj = innerObj[k]
-                      if (inObj.name == s.name) {
-                        isDataFound = inObj;
-                        break;
+                        let inObj = innerObj[k];
+                        if (inObj.name == s.name) {
+                          isDataFound = inObj;
+                          break;
+                        }
                       }
                     }
-                    }
                   }
-                
+
                   if (isDataFound && isDataFound.color !== "") {
                     d.color = "#DF5353";
                     d.outlier = true;
@@ -939,34 +953,36 @@ export default {
       // console.log(series, "inlocationdata method series");
       let locData = [];
       series.forEach((s) => {
-        s.data.forEach((d) => {
-          let isFound = locData.findIndex((l) => l.id === d[key]);
-          // console.log(isFound, d[key], d.y, d, s.name);
-          if (isFound >= 0) {
-            locData[isFound] = {
-              ...locData[isFound],
-              data: locData[isFound].data.concat({
-                name: s.name,
-                y: d.y,
-                pe: d.period,
-                sName: s.sName,
-              }),
-            };
-          } else {
-            locData.push({
-              id: d[key],
-              name: d.name,
-              data: [
-                {
+        if (s.data.length > 0) {
+          s.data.forEach((d) => {
+            let isFound = locData.findIndex((l) => l.id === d[key]);
+            // console.log(isFound, d[key], d.y, d, s.name);
+            if (isFound >= 0) {
+              locData[isFound] = {
+                ...locData[isFound],
+                data: locData[isFound].data.concat({
                   name: s.name,
                   y: d.y,
                   pe: d.period,
                   sName: s.sName,
-                },
-              ],
-            });
-          }
-        });
+                }),
+              };
+            } else {
+              locData.push({
+                id: d[key],
+                name: d.name,
+                data: [
+                  {
+                    name: s.name,
+                    y: d.y,
+                    pe: d.period,
+                    sName: s.sName,
+                  },
+                ],
+              });
+            }
+          });
+        }
       });
       return locData;
     },
@@ -1207,7 +1223,7 @@ export default {
                 locationName: this.locationPeriod.locationName,
                 levels,
               });
-            
+
               // if (this.$store.getters.getActiveTab.includes("ANC") || this.$store.getters.getActiveTab.includes("MAT_DEATHS") || this.$store.getters.getActiveTab.includes("DELIVERY_CARE") || this.$store.getters.getActiveTab.includes("PNC")) {
               //   let a = this.configDataAD.group;
               //   let b = this.configDataAD.id;
@@ -1843,6 +1859,10 @@ export default {
           }
         });
         found.forEach((f) => {
+          calculatedValues[f] =
+            calculatedValues[f] == ""
+              ? this.$i18n.t("none")
+              : calculatedValues[f];
           summaryText = summaryText.replace(
             `{${f}}`,
             `<b>${calculatedValues[f]}</b>`
@@ -1938,7 +1958,16 @@ export default {
         prevYrDate,
         prevYrForDate,
       } = this.getPeriods();
-
+      console.log(
+        currDate,
+        currForDate,
+        prevDate,
+        prevForDate,
+        prevYrDate,
+        prevYrForDate,
+        this.locationPeriod.periodType,
+        "getPeriods method call"
+      );
       let details = [];
       let methodIncreased = "",
         methodDecreased = "";
@@ -2083,6 +2112,8 @@ export default {
             lastRegions,
             orgLevel,
           });
+
+          // console.log("summaryText" , summaryText)
 
           details.push({
             change,
@@ -2565,6 +2596,10 @@ export default {
       }
       //Regional Charts
       if (cData.chartCategory === "regional") {
+        subLevelID =
+          this.$store.getters.getAppSettings.lowerLevel != null
+            ? this.$store.getters.getAppSettings.lowerLevel * 1
+            : subLevelID;
         if (
           [
             "PERIOD_DIFF",
@@ -2585,7 +2620,7 @@ export default {
           ) &&
           this.locationPeriod.periodType === "monthly"
         ) {
-          this.periodLength = 12;
+          this.periodLength = 13;
         }
         if (cData.type === "scatter" && cData.isSingleSource) {
           this.periodLength = 4;
@@ -2695,7 +2730,9 @@ export default {
           ? JSON.parse(emuResponse[emuDataKey])
           : emuResponse[emuDataKey];
       emuData = eData[locationID];
+      console.log(emuData, "emuData for locationID", locationID);
       if (emuData) {
+        this.EMUStmt = null;
         if (this.locationPeriod.periodType === "yearly") {
           if (emuData.source === this.$i18n.t("emu_output_5")) {
             emuSourceKey = "commoditiesToClients";
@@ -2873,35 +2910,49 @@ export default {
                   rawDate: p,
                   periodType: this.locationPeriod?.periodType || "monthly",
                 });
-                Object.keys(eData).forEach((locKey) => {
-                  if (locID.includes(locKey)) {
-                    let innerData =
-                      eData[locKey] &&
-                      eData[locKey][innerDataKey] &&
-                      eData[locKey][innerDataKey].length > 0
-                        ? eData[locKey][innerDataKey].find(
-                            (e) => e.name === sourceKey
-                          )
-                        : null;
-                    let locName = locIDLabels.find(
-                      (l) => l.id === locKey
-                    ).label;
-                    if (innerData) {
-                      let currValue = innerData.data[catIndex] * 1 || null;
-                      if (p === formattedDate && currValue) {
-                        dataArr.push({
-                          name: locName,
-                          locationID: locKey,
-                          y: currValue ? currValue.toFixed(2) * 1 : 0,
-                        });
-                      }
-                    } else {
-                      console.log("EMU not found for location ", locName);
-                    }
+                let locindex = 0;
+                locID.forEach((loc) => {
+                  if (!Object.keys(eData).includes(loc)) {
+                    locindex++;
                   }
                 });
+                console.log(locID.length, locindex, "locID.length, locindex");
+                if (locID.length === locindex) {
+                  this.isEMUChart = true;
+                  this.EMUStmt = this.$i18n.t("emuNotForLocation");
+                } else {
+                  Object.keys(eData).forEach((locKey) => {
+                    if (locID.includes(locKey)) {
+                      let innerData =
+                        eData[locKey] &&
+                        eData[locKey][innerDataKey] &&
+                        eData[locKey][innerDataKey].length > 0
+                          ? eData[locKey][innerDataKey].find(
+                              (e) => e.name === sourceKey
+                            )
+                          : null;
+                      let locName = locIDLabels.find(
+                        (l) => l.id === locKey
+                      ).label;
+                      if (innerData) {
+                        let currValue = innerData.data[catIndex] * 1 || null;
+                        if (p === formattedDate && currValue) {
+                          dataArr.push({
+                            name: locName,
+                            locationID: locKey,
+                            y: currValue ? currValue.toFixed(2) * 1 : 0,
+                          });
+                        }
+                      } else {
+                        console.log("EMU not found for location ", locName);
+                      }
+                    }
+                  });
+                }
               }
             } else {
+              // this.isEMUChart = true;
+              // this.EMUStmt = this.$i18n.t("emuNotForLocation");
               dataArr.push({
                 name: formattedDate,
                 y: null,
@@ -2966,6 +3017,8 @@ export default {
           }
           this.dataFetched = true;
         } else {
+          this.isEMUChart = true;
+          this.EMUStmt = this.$i18n.t("emuNotForLocation");
           this.dataFetched = true;
           if (
             cData.generateSummary &&
@@ -2974,7 +3027,7 @@ export default {
           ) {
             this.$emit("summaryChartData", {
               id: this.subTab.id,
-              errorMsg: this.$i18n.t("noEmu"),
+              errorMsg: this.$i18n.t("emuNotForLocation"),
             });
           }
           if (this.reportChartData) {
@@ -2984,12 +3037,14 @@ export default {
               chartData: this.cObj,
               chartConfigData: cData,
               chartCategory: cData.chartCategory,
-              errorText: this.$i18n.t("no_data_to_display"),
+              errorText: this.$i18n.t("emuNotForLocation"),
             });
           }
         }
       } else {
         this.dataFetched = true;
+        this.isEMUChart = true;
+        this.EMUStmt = this.$i18n.t("emuNotForLocation");
         if (
           cData.generateSummary &&
           !this.reportChartData &&
@@ -2997,7 +3052,7 @@ export default {
         ) {
           this.$emit("summaryChartData", {
             id: this.subTab.id,
-            errorMsg: this.$i18n.t("noEmu"),
+            errorMsg: this.$i18n.t("emuNotForLocation"),
           });
         }
         if (this.reportChartData) {
@@ -3007,7 +3062,7 @@ export default {
             chartData: this.cObj,
             chartConfigData: cData,
             chartCategory: cData.chartCategory,
-            errorText: this.$i18n.t("no_data_to_display"),
+            errorText: this.$i18n.t("emuNotForLocation"),
           });
         }
       }
@@ -3396,6 +3451,8 @@ export default {
       this.dataFetched = true;
     },
     getEMUTrendChart(cData, emuResponse) {
+      this.EMUStmt = null;
+      this.isEMUChart = true;
       let locationID = this.locationPeriod.location.split("/");
       let emuModule = { ...emuResponse },
         loc = locationID[1],
@@ -4320,7 +4377,7 @@ export default {
       let tabObj = {};
       Object.keys(ser).forEach((s) => {
         ser[s].data.forEach((d) => {
-          tabObj[this.$i18n.t("region")] = d.name;
+          tabObj[this.$i18n.t("location")] = d.name;
           tabObj[this.$i18n.t("method")] = ser[s].name;
           tabObj[this.$i18n.t("value")] = d.value ? d.value : "";
           let newObj = { ...tabObj };
@@ -4854,6 +4911,7 @@ export default {
       }
     },
     getEMUChart(isFilter = false) {
+      console.log(isFilter, "isFilter in getEMUChart method", this.EMUStmt);
       let emuResponse = JSON.parse(JSON.stringify(this.emuData));
 
       emuResponse =
@@ -4861,6 +4919,8 @@ export default {
 
       let cData = this.chartData.chartOptions;
       if (emuResponse && emuResponse !== "Error") {
+        this.EMUStmt = null;
+        this.isEMUChart = true;
         if (cData) {
           if (
             this.$route.name === "AnalyticalDashboard" &&
@@ -4900,23 +4960,38 @@ export default {
           ) {
             this.$emit("summaryChartData", {
               id: this.subTab.id,
-              errorMsg: this.$i18n.t("configError"),
+              errorMsg: this.$i18n.t("emuNotForLocation"),
             });
           }
         }
       } else {
+        this.isEMUChart = true;
+        console.log(
+          cData.generateSummary,
+          !this.reportChartData,
+          this.$route.name === "SummaryDashboard",
+          isFilter,
+          ["monthly", "yearly"].includes(this.locationPeriod.periodType),
+          this.locationPeriod.periodType
+        );
         if (
           cData.generateSummary &&
           !this.reportChartData &&
           this.$route.name === "SummaryDashboard" &&
           !isFilter
         ) {
+          this.EMUStmt = ["monthly", "yearly"].includes(
+            this.locationPeriod.periodType
+          )
+            ? this.$i18n.t("emuNotForLocation")
+            : this.$i18n.t("emuNotAvailable");
+          console.log("in first if");
           this.$emit("summaryChartData", {
             id: this.subTab.id,
             errorMsg: ["monthly", "yearly"].includes(
               this.locationPeriod.periodType
             )
-              ? this.$i18n.t("configError")
+              ? this.$i18n.t("emuNotForLocation")
               : this.$i18n.t("emuNotAvailable"),
           });
           this.dataFetched = true;
@@ -4926,6 +5001,38 @@ export default {
             (["monthly", "yearly"].includes(this.locationPeriod.periodType) &&
               !isFilter)
           ) {
+            this.EMUStmt = ["monthly", "yearly"].includes(
+              this.locationPeriod.periodType
+            )
+              ? this.$i18n.t("emuNotForLocation")
+              : this.$i18n.t("emuNotAvailable");
+            console.log(this.EMUStmt, "in else if");
+            this.$emit("summaryChartData", {
+              id: this.subTab.id,
+              errorMsg: ["monthly", "yearly"].includes(
+                this.locationPeriod.periodType
+              )
+                ? this.$i18n.t("emuNotForLocation")
+                : this.$i18n.t("emuNotAvailable"),
+            });
+            this.dataFetched = true;
+          } else if (
+            ["monthly", "yearly"].includes(this.locationPeriod.periodType) &&
+            isFilter
+          ) {
+            this.EMUStmt = ["monthly", "yearly"].includes(
+              this.locationPeriod.periodType
+            )
+              ? this.$i18n.t("emuNotForLocation")
+              : this.$i18n.t("emuNotAvailable");
+            this.$emit("summaryChartData", {
+              id: this.subTab.id,
+              errorMsg: ["monthly", "yearly"].includes(
+                this.locationPeriod.periodType
+              )
+                ? this.$i18n.t("emuNotForLocation")
+                : this.$i18n.t("emuNotAvailable"),
+            });
             this.dataFetched = true;
           }
         }

@@ -27,23 +27,19 @@
           :key="'details' + i"
         >
           <b-col class="table-heading pt-2" cols="4"
-            ><p :class="getClass(sDetails.indicatorName)">{{ sDetails.indicatorName }}</p></b-col
+            ><p :class="getClass(sDetails.indicatorName)">
+              {{ sDetails.indicatorName }}
+            </p></b-col
           >
           <b-col cols="2"
             ><div class="summary-dot" :class="getClass(sDetails.prevValue)">
-              <p
-              class="mb-0 fs-25-1920"
-                        
-              ></p>
+              <p class="mb-0 fs-25-1920"></p>
               {{ sDetails.prevValue === null ? $t("NA") : sDetails.prevValue }}
             </div></b-col
           >
           <b-col cols="2"
             ><div class="summary-dot" :class="getClass(sDetails.currValue)">
-              <p
-              class="mb-0 fs-25-1920"
-                        
-              ></p>
+              <p class="mb-0 fs-25-1920"></p>
               {{ sDetails.currValue === null ? $t("NA") : sDetails.currValue }}
             </div></b-col
           >
@@ -53,10 +49,7 @@
               :style="{ backgroundColor: sDetails.colorLastMn }"
               :class="getClass(sDetails.change)"
             >
-            <p
-              class="mb-0 fs-25-1920"
-                        
-              ></p>
+              <p class="mb-0 fs-25-1920"></p>
               {{ sDetails.change === null ? $t("NA") : sDetails.change }}
             </div></b-col
           >
@@ -138,8 +131,8 @@
           :selectedInd="selectedInd"
           :chartData="summaryObj.trend"
           :locationPeriod="locationPeriod"
-          @isJsonFetched="isJsonFetched = true"
-          @mapPic ="mapPic"
+          @isJsonFetchedM="isJsonFetchedM"
+          @mapPic="mapPic"
           @deleteMapPic="deleteMapPic"
         />
       </div>
@@ -241,11 +234,15 @@ export default {
       return this.indList.length ? this.indList[0].value : "";
     },
   },
-  methods:{
-    mapPic(data){
-      data['location'] = this.locationPeriod.locationName;
-      data['selectedInd'] = this.selectedInd
-      this.$emit("mapPic" , data);
+  methods: {
+    isJsonFetchedM(newVal) {
+      //console.log(newVal, "isJsonFetched method emit value");
+      this.isJsonFetched = newVal;
+    },
+    mapPic(data) {
+      data["location"] = this.locationPeriod.locationName;
+      data["selectedInd"] = this.selectedInd;
+      this.$emit("mapPic", data);
     },
     deleteMapPic(data) {
       this.$emit("deleteMapPic", this.locationPeriod.locationName);
@@ -260,17 +257,22 @@ export default {
   },
   async mounted() {
     await domtoimage
-          .toPng(this.$refs.summaryContainer)
-          .then((dataUrl) => {
-              this.$store.commit("setLoading", false);
-              this.$nextTick(()=>{
-                this.$emit("mapPic", {pic:dataUrl, url: this.$store.getters.getActiveTab, title: this.locationPeriod.locationName, summaryContainer: true});
-              })
-          })
-          .catch((error) => {
-            this.$store.commit("setLoading", false);
-            console.error("oops, something went wrong!", error);
+      .toPng(this.$refs.summaryContainer)
+      .then((dataUrl) => {
+        this.$store.commit("setLoading", false);
+        this.$nextTick(() => {
+          this.$emit("mapPic", {
+            pic: dataUrl,
+            url: this.$store.getters.getActiveTab,
+            title: this.locationPeriod.locationName,
+            summaryContainer: true,
           });
+        });
+      })
+      .catch((error) => {
+        this.$store.commit("setLoading", false);
+        console.error("oops, something went wrong!", error);
+      });
   },
 };
 </script>

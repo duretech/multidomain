@@ -103,14 +103,12 @@
         <b-dropdown
           right
           no-caret
-          v-if="cID"
           ref="dropdown"
           @hide="hideClass"
           id="dropdown-form"
           @show="getComments"
           menu-class="chart-dd-menu comment-menu"
-          toggle-class="text-decoration-none bg-transparent border-0 dropdown-toggle p-0"
-        >
+          toggle-class="text-decoration-none bg-transparent border-0 dropdown-toggle p-0">
           <template v-slot:button-content>
             <img
               :src="require(`@/assets/images/icons/commentnewActive.svg`)"
@@ -137,17 +135,25 @@
                 "
               >
                 <b-form-group @submit.stop.prevent>
-                  <b-form-textarea
-                    v-model="commentText"
-                    :state="
-                      commentText.length !== 0 &&
-                      commentText.length <= commentTextMaxLength
-                    "
-                    :placeholder="commentPlaceholder"
-                    rows="3"
-                  ></b-form-textarea>
+                  <div style="position: relative">
+                    <textarea v-model="textWithComment" class="form-control" @input="onOpen" />
+
+                    <div v-if="mentionDropdownVisible" class="mention-dropdown">
+                      <div
+                        v-for="(item, index) in items"
+                        :key="index"
+                        class="mention-item"
+                        @click="(e) => selectMention(e, item)"
+                      >
+                        {{ item.text }}
+                      </div>
+                      <div v-if="items.length === 0" class="mention-no-result">
+                        No result
+                      </div>
+                    </div>
+                  </div>
                   <span
-                    >{{ commentText.length }}/{{ commentTextMaxLength }}</span
+                    >{{ textWithComment.length }}/{{ commentTextMaxLength }}</span
                   >
                 </b-form-group>
 
@@ -156,13 +162,13 @@
                     class="chartsBtn black-btn blue-btn mr-3 btn-sm"
                     @click.prevent="addComment"
                     :disabled="
-                      commentText.length === 0 ||
-                      commentText.length > commentTextMaxLength
+                      textWithComment.length === 0 ||
+                      textWithComment.length > commentTextMaxLength
                     "
                     >{{ $t("submitbtn") }}</b-button
                   >
                   <b-button
-                    :disabled="!commentText"
+                    :disabled="!textWithComment"
                     @click.prevent="cancelComment"
                     class="canbtn btn-sm"
                     >{{ $t("cancelbtn") }}</b-button
@@ -340,7 +346,14 @@
 <script>
 import CommentMixin from "@/helpers/CommentMixin";
 import DynamicImageMixin from "@/helpers/DynamicImageMixin";
+import service from "@/service";
+import { Mentionable } from "vue-mention";
+import "floating-vue/dist/style.css";
+
 export default {
+  components: {
+    Mentionable,
+  },
   props: [
     "cID",
     "title",
@@ -375,6 +388,10 @@ export default {
         },
         activeIcon: this.viewType,
         tType: this.viewType,
+        commentText: "",
+        textWithComment: "",
+        items: [],
+        mentionDropdownVisible: false,
       };
     }
   },
@@ -481,6 +498,40 @@ export default {
     },
   },
   methods: {
+    selectMention(e, mention) {
+      e.stopPropagation();
+      let textArr = this.textWithComment.split(" ").slice(0,-1)
+      this.textWithComment = textArr.join(" ")
+      this.textWithComment += this.textWithComment.length > 0 ?  " " + mention.value + " " : mention.value + " ";
+      this.mentionDropdownVisible = false;
+    },
+    async onOpen() {
+      this.items = [];
+      this.mentionDropdownVisible = false;
+      let text = this.textWithComment;
+      let atIndex = text.lastIndexOf("@");
+      if (
+        atIndex !== -1 &&
+        (atIndex === 0 || /\s/.test(text.charAt(atIndex - 1)))
+      ) {
+        const query = text.substring(atIndex + 1);
+        const resp = await service.getFilteredUserList(query);
+        if (resp) {
+          resp.data.users.forEach((i) => {
+            // console.log("i", i);
+            this.items.push({
+              value: i.displayName,
+              text: i.displayName,
+            });
+          });
+          this.mentionDropdownVisible = true;
+        } else {
+          this.mentionDropdownVisible = false;
+        }
+      } else {
+        this.mentionDropdownVisible = false;
+      }
+    },
     hideClass() {
       this.activeIcon = this.tType;
       document.body.className = "";
@@ -538,5 +589,47 @@ export default {
 .fa-custom-sort-date-desc::after {
   content: "DEC\aJAN";
   white-space: pre;
+}
+
+.positionDD {
+  width: 150px;
+  height: 25px;
+  background-color: transparent !important;
+  position: absolute !important;
+}
+
+.positionDD.custom-select {
+  color: #4a5768 !important;
+}
+.spinCSS {
+  position: absolute;
+  top: 0;
+  background: grey;
+}
+
+.mention-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-top: none;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 1000; /* Adjust z-index as needed */
+}
+
+.mention-item {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.mention-item:hover {
+  background-color: #f5f5f5;
+}
+
+.mention-no-result {
+  padding: 8px 12px;
+  color: #999;
 }
 </style>

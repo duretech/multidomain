@@ -101,7 +101,11 @@
                 <template v-else>
                   <template v-if="viewType !== 'table'">
                     <template
-                      v-if="dataFetched && (!isMap || (isMap && geoJson))"
+                      v-if="
+                        dataFetched &&
+                        !EMUStmt &&
+                        (!isMap || (isMap && geoJson))
+                      "
                     >
                       <Maps
                         v-if="geoJson && viewType === 'map'"
@@ -124,7 +128,14 @@
                         ref="barCharts"
                       ></highcharts>
                     </template>
-                    <b-spinner type="grow" label="Spinning" v-else></b-spinner>
+                    <template v-else>
+                      <div v-if="EMUStmt">{{ EMUStmt }}</div>
+                      <b-spinner
+                        v-else
+                        type="grow"
+                        label="Spinning"
+                      ></b-spinner>
+                    </template>
                   </template>
                   <template v-if="viewType === 'table'">
                     <div class="tables">
@@ -133,9 +144,23 @@
                           :items="items"
                           :fields="fields"
                           bordered
+                          responsive
                           sticky-header="385px"
                           v-if="items.length"
                         >
+                          <template #columnheader(Period)="row">
+                            <div class="text-nowrap">
+                              {{ row.label }}
+                            </div>
+                          </template>
+                          <template #cell(Period)="data">
+                            <div
+                              class="text-nowrap"
+                              style="z-index: 0 !important"
+                            >
+                              {{ data.item.Period }}
+                            </div>
+                          </template>
                           <template #cell(show_details)="row">
                             <!-- As `row.showDetails` is one-way, we call the toggleDetails function on @change -->
                             <b-form-group>
@@ -446,7 +471,10 @@ import html2canvas from "html2canvas";
 import FullScreenMixin from "@/helpers/FullScreenMixin";
 import DynamicImageMixin from "@/helpers/DynamicImageMixin";
 import Maps from "@/components/Maps/IntegratedFPMap.vue";
-import { getParent , translateAlphatoNum } from "@/components/Common/commonFunctions";
+import {
+  getParent,
+  translateAlphatoNum,
+} from "@/components/Common/commonFunctions";
 import domtoimage from "dom-to-image";
 export default {
   components: {
@@ -483,8 +511,11 @@ export default {
     "chartConfigData",
     "drillPointBenchmark",
     "isGenerating",
+    "isEMUChart",
+    "EMUStmt",
   ],
   data() {
+    console.log(this.EMUStmt, "EMUStmt for EMU Charts");
     return {
       items: [],
       fields: [],
@@ -544,7 +575,7 @@ export default {
           }))
         : null;
     },
-    
+
     // DON'T REMOVE THIS COMMENT
 
     // outliersArr() {
@@ -568,14 +599,13 @@ export default {
     // },
     updatedOutlierArr() {
       if (this.outliers) {
-
         let key = this.selectedMethod ? this.selectedMethod : "default";
         let o = this.outliers;
         let dates = [];
         let outlierListNew = [];
         if (this.outliers?.[key]) {
           this.outliers[key].forEach((items) => {
-          let dates = [];
+            let dates = [];
             items.outlierList.forEach((item) => {
               item.outliersValues.forEach((i) => {
                 i.value = this.$store.getters.getPeriodData[i.peValue].name;
@@ -596,12 +626,9 @@ export default {
                     });
                     if (isFound) {
                       outlierListNew.forEach((y) => {
-                        if (
-                          y.name == date.value &&
-                          !y.outliers.includes(v)
-                        ) {
+                        if (y.name == date.value && !y.outliers.includes(v)) {
                           y.outliers.unshift(v);
-                          y.outliersValues = [...y.outliersValues , ...oV]
+                          y.outliersValues = [...y.outliersValues, ...oV];
                         }
                       });
                     } else {
@@ -611,18 +638,17 @@ export default {
                         outliersValues: [...oV],
                       });
                     }
-                  }
-                  else if(!isNaN(Number(translateAlphatoNum(item.name)))){
-                    let res = outlierListNew.filter((i)=> i.name == item.name);
-                    if(!res.length){
+                  } else if (!isNaN(Number(translateAlphatoNum(item.name)))) {
+                    let res = outlierListNew.filter((i) => i.name == item.name);
+                    if (!res.length) {
                       outlierListNew.push(item);
                     }
                   }
                 });
               });
             });
-              items.outlierList = outlierListNew;
-              outlierListNew = [];
+            items.outlierList = outlierListNew;
+            outlierListNew = [];
           });
           o = o[key].slice().sort(function (x, y) {
             return x.secondary === y.secondary ? 0 : x.secondary ? -1 : 1;
@@ -829,6 +855,9 @@ export default {
     },
   },
   watch: {
+    EMUStmt(newVal) {
+      console.log(newVal, "from watch emuSTMT");
+    },
     isGenerating(newVal) {
       if (newVal && this.viewType == "table") {
         this.$nextTick(() => {
@@ -1107,7 +1136,32 @@ export default {
           this.cObj.series.forEach((s, sInd) => {
             if (!s.isBenchmark) {
               let n = s.name;
-              if (this.cObj.chart.type === "scatter") {
+              if (this.plotType === "packedbubble") {
+                s.data.forEach((d, i) => {
+                  let dN = d.name;
+
+                  let itemFoundIndex = tableData.findIndex(
+                    (t) => t[tableKey] === dN
+                  );
+                  let ValueKey = this.$i18n.t("value");
+                  let Methodkey = this.$i18n.t("method");
+                  this.fields.push(ValueKey);
+                  this.fields.push(Methodkey);
+                  if (itemFoundIndex >= 0) {
+                    tableData[itemFoundIndex] = {
+                      ...tableData[itemFoundIndex],
+                      [ValueKey]: d.value,
+                      [Methodkey]: n,
+                    };
+                  } else {
+                    tableData.push({
+                      [tableKey]: d.name,
+                      [ValueKey]: d.value?.toLocaleString() || d.value,
+                      [Methodkey]: n,
+                    });
+                  }
+                });
+              } else if (this.cObj.chart.type === "scatter") {
                 this.fields.push(s.xMethod);
                 this.fields.push(s.yMethod);
                 s.data.forEach((d) => {
@@ -1157,7 +1211,7 @@ export default {
                 let outArray = {};
                 if (
                   ["SOURCE_DIFF"].includes(
-                    this.chartConfigData.chartOptions.chartCalculation
+                    this.chartConfigData?.chartOptions?.chartCalculation
                   ) &&
                   sInd == 0
                 ) {
@@ -1172,7 +1226,7 @@ export default {
                     }
                   });
                 }
-                
+
                 s.data.forEach((d, i) => {
                   let dN = d.name;
                   if (s.isHighLow) {
@@ -1189,7 +1243,7 @@ export default {
                         ? "success"
                         : "danger";
                   }
-                  if (this.subTab.group.includes("-CT-")) {
+                  if (this.subTab && this.subTab.group.includes("-CT-")) {
                     if (
                       ["DEFAULT"].includes(
                         this.chartConfigData.chartOptions.chartCalculation
@@ -1222,7 +1276,7 @@ export default {
                       _cellVariants: {
                         [n]:
                           ["SOURCE_DIFF"].includes(
-                            this.chartConfigData.chartOptions.chartCalculation
+                            this.chartConfigData?.chartOptions?.chartCalculation
                           ) && outArray[i]
                             ? outArray[i]
                             : txt,
@@ -1233,8 +1287,8 @@ export default {
               }
             }
           });
-          if (this.isRRChart 
-          &&
+          if (
+            this.isRRChart &&
             ["regionalTrend"].includes(
               this.chartConfigData.chartOptions.chartCategory
             )
@@ -1313,7 +1367,16 @@ export default {
             });
           }
         }
-        this.items = tableData;
+        if (this.fields.includes(this.$i18n.t("period"))) {
+          let ind = this.fields.indexOf(this.$i18n.t("period"));
+          this.fields[ind] = {
+            key: this.$i18n.t("period"),
+            stickyColumn: true,
+            isRowHeader: true,
+            label: this.$i18n.t("period"),
+          };
+        }
+        this.items = tableData.reverse();
       }
       this.$nextTick(() => {
         this.viewType = val;
@@ -1688,6 +1751,10 @@ export default {
     async getGeoJson() {
       let defaultLocationID = this.locationPeriod.location.split("/")[1],
         currentLevel = this.locationPeriod.location.split("/")[0] * 1;
+      // let subLevel =
+      //   this.$store.getters.getAppSettings.lowerLevel != null
+      //     ? this.$store.getters.getAppSettings.lowerLevel * 1
+      //     : currentLevel + 1;
       service
         .getGeoJson(defaultLocationID, currentLevel + 1)
         .then((response) => {
@@ -1748,10 +1815,13 @@ export default {
                 ? "success"
                 : "danger";
           }
-          if (this.subTab?.group?.includes("-CT-") && 
+          if (
+            this.subTab?.group?.includes("-CT-") &&
             ["DEFAULT"].includes(
               this.chartConfigData.chartOptions.chartCalculation
-            ) && item.y && this.bValue
+            ) &&
+            item.y &&
+            this.bValue
           ) {
             txt = item.y < this.bValue ? "danger" : "success";
           }

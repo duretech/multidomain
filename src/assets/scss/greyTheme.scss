@@ -44,11 +44,14 @@ body[data-theme~="grey"] {
        .dropdown-menu.chart-dd-menu{
            background-color: var(--primary-bg-color) !important;
    
-           .form-control{
+           .form-control,
+           textarea{
                background-color: var(--signoff-bg-color) !important;
                border: var(--signoff-bg-color) !important;
            }
-       }   
+       }  
+       
+     
        
     .table-secondary{
         color: var(--text-color) !important;

@@ -174,9 +174,7 @@
                             class="form-control"
                             placeholder=""
                             :disabled="
-                              i ===
-                                Object.keys(value.continuation).length - 1 ||
-                              typeof value.packets !== 'undefined'
+                              i === Object.keys(value.continuation).length - 1
                             "
                             v-model="value.continuation[n]"
                           />
@@ -202,9 +200,7 @@
                             class="form-control"
                             placeholder=""
                             :disabled="
-                              i ===
-                                Object.keys(value.continuation).length - 1 ||
-                              typeof value.packets !== 'undefined'
+                              i === Object.keys(value.continuation).length - 1
                             "
                             v-model="value.continuation[n]"
                           />

@@ -617,6 +617,7 @@ export const integratedChartConfig = {
   tooltip: {
     shared: false,
     useHTML: true,
+    pointFormat: `<b>{point.y}</b>`,
   },
   exporting: {
     enabled: false,
@@ -624,7 +625,7 @@ export const integratedChartConfig = {
   credits: { enabled: false },
   series: [
     {
-      name: "Coverage",
+      // name: "",
       type: "column",
       color: "#47c49a",
       data: [],
@@ -632,7 +633,7 @@ export const integratedChartConfig = {
       states: { hover: { lineWidthPlus: 0 } },
     },
     {
-      name: "Benchmark",
+      //name: "",
       type: "spline",
       data: [],
       lineWidth: 0,

@@ -194,6 +194,8 @@ export default {
             oChartTable,
             this.matrixPData.categories
           );
+
+        //console.log(oChartTable, aHighChartTable, "in matrix  table");
         this.tableChartMethods = oChartTable.methods;
         this.tableChartData = aHighChartTable;
       } else {

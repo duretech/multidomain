@@ -259,7 +259,8 @@
             <slot name="dashboardType"></slot>
           </template>
           <template v-if="$route.name !== 'admin'">
-            <AdminPopup />
+            <AdminPopup :fromAdmin="$route.name !== 'SavedFavorites' && $route.name !== 'admin' && isInteractiveModules"
+                   />
           </template>
           <template v-if="!isHeader">
             <b-button

@@ -606,7 +606,6 @@ export default {
         oResponse.tableData.push(row);
       });
       this.emuMcprComparisionChart = oResponse;
-      this.$emit('updateChartData' ,this.emuMcprComparisionChart)
       this.saveEmuMcprComp.categories = oResponse.categories;
       this.saveEmuMcprComp.data = this.emuMcprComparisionChart.data;
       this.saveEmuMcprComp.cid = oResponse.cid;
@@ -620,7 +619,6 @@ export default {
       let oResponse = dataM.getSlopData(this.emuMcprComparisionChart);
       oResponse = this.getOtherChartDetails(oResponse, 1, "bar");
       this.annualAvgComparisionChart = oResponse;
-      this.$emit('updateChartData' ,this.annualAvgComparisionChart)
       this.saveAnnualAvgComp.categories = oResponse.categories;
       this.saveAnnualAvgComp.data = oResponse.data;
       this.saveAnnualAvgComp.cid = oResponse.cid;
@@ -648,7 +646,6 @@ export default {
       };
       oResponse = this.getOtherChartDetails(oResponse, 2, "bar");
       this.annualComparisionOfMethods = oResponse;
-      this.$emit('updateChartData' ,this.annualComparisionOfMethods)
       this.saveCompareMethods.categories = oResponse.categories;
       this.saveCompareMethods.data = oResponse.data;
       this.saveCompareMethods.cid = oResponse.cid;
@@ -694,7 +691,6 @@ export default {
           3,
           "line"
         );
-        this.$emit('updateChartData' ,this.annualuserTrendsDataByMethods)
       }
     },
     getMethodData() {
@@ -710,13 +706,17 @@ export default {
         "emu o/p last table"
       );
       this.emuMcprComparisionChart.categories.forEach((res, i) => {
-        if (data[0].data[i]) {
-          this.items.push({
-            [this.$i18n.t("year")]: res,
-            [this.$i18n.t("EMU")]: Number(data[0].data[i]).toFixed(2),
-            [this.$i18n.t("service_type")]: data[0].name,
-          });
-        }
+        // if (data[0].data[i]) {
+        //need to change here
+
+        this.items.push({
+          [this.$i18n.t("year")]: res,
+          [this.$i18n.t("EMU")]: data[0]?.data[i]
+            ? Number(data[0]?.data[i]).toFixed(2)
+            : null,
+          [this.$i18n.t("service_type")]: data[0] ? data[0].name : null,
+        });
+        // }
       });
     },
     handleUserMthdChange(value) {
@@ -965,7 +965,7 @@ export default {
   background-color: var(--new-header-color);
   border-color: var(--new-header-color);
   margin-left: 36px;
-    margin-bottom: -1px;
+  margin-bottom: -1px;
 
   span {
     padding: 0;
@@ -974,7 +974,6 @@ export default {
     border-right: 1px solid var(--border-grey-color);
     margin-right: 14px;
     padding-right: 12px;
-   
   }
   span:last-child {
     border-right: 0px solid var(--border-grey-color);

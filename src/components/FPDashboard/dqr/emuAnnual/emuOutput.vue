@@ -451,10 +451,7 @@ export default {
     this.drawAnnualAvgComparision();
     this.drawComparisionofUsersByMethods();
     this.drawUserBymethods(true);
-    this.$emit('updateChartData' , this.emuMcprComparisionChart)
-    this.$emit('updateChartData' , this.annualAvgComparisionChart)
-    this.$emit('updateChartData' , this.annualComparisionOfMethods)
-    this.$emit('updateChartData' , this.annualuserTrendsDataByMethods)
+   
     // this.getMethodData();
     // this.saveFinalEMU();
   },
@@ -724,8 +721,10 @@ export default {
 
         this.items.push({
           [this.$i18n.t("year")]: res,
-          [this.$i18n.t("EMU")]: Number(data[0].data[i]).toFixed(2),
-          [this.$i18n.t("service_type")]: data[0].name,
+          [this.$i18n.t("EMU")]: data[0]?.data[i]
+            ? Number(data[0]?.data[i]).toFixed(2)
+            : null,
+          [this.$i18n.t("service_type")]: data[0] ? data[0].name : null,
         });
         // }
       });
@@ -955,10 +954,10 @@ export default {
   },
   watch: {
     year(newVal) {
-      if (newVal) {
+  //   if (newVal) {
         this.curentYear = newVal;
         this.drawComparisionofUsersByMethods();
-      }
+    //  }
     },
     // boolVal(newV){
     //     console.log(newV)

@@ -4,9 +4,31 @@
     :class="isGenerating ? '' : 'summary-page-container'"
     id="scrollTop"
     ref="printPDF"
-    :style="{backgroundColor: isGenerating ? this.$store.getters.getTheme === 'dark'? '#201F3C !important' : this.$store.getters.getTheme === 'grey' ? '#212934  !important' : 'white' : ''}"
+    :style="{
+      backgroundColor: isGenerating
+        ? this.$store.getters.getTheme === 'dark'
+          ? '#201F3C !important'
+          : this.$store.getters.getTheme === 'grey'
+          ? '#212934  !important'
+          : 'white'
+        : '',
+    }"
   >
-    <h2 v-if="isGenerating" style="text-align: center" :style="{color: isGenerating ? $store.getters.getTheme == 'dark'? 'white !important' : $store.getters.getTheme == 'grey' ? 'white !important' : '' : ''}">{{$t("summary_dashboard")}}</h2>
+    <h2
+      v-if="isGenerating"
+      style="text-align: center"
+      :style="{
+        color: isGenerating
+          ? $store.getters.getTheme == 'dark'
+            ? 'white !important'
+            : $store.getters.getTheme == 'grey'
+            ? 'white !important'
+            : ''
+          : '',
+      }"
+    >
+      {{ $t("summary_dashboard") }}
+    </h2>
     <div
       class="mr-0 summary-page"
       :class="isGenerating ? '' : 'p-4'"
@@ -14,7 +36,10 @@
       v-show="$store.getters.getActiveTab === 'sd-summary'"
       ref="printPPT"
     >
-      <b-row class="summary-content" :style="{color: textUpdate ? 'black !important' : ''}">
+      <b-row
+        class="summary-content"
+        :style="{ color: textUpdate ? 'black !important' : '' }"
+      >
         <b-col :sm="!isGenerating ? '10' : '11'"
           ><i18n path="MNCHPerformance" tag="div" class="pb-4">
             <template
@@ -62,15 +87,40 @@
             :class="{
               'col-lg-12': $store.getters.getViewType === 'wide',
             }"
-            v-for="summary in summaryList"
+            v-for="(summary, index) in summaryList"
             :key="summary.id"
           >
-            <b-card class="mb-4 summary-card-bg" v-if="summary.summaryDetails" :style="{minHeight: !isGenerating ? '36px' : getHeightCard + 'px'}">
+            <b-card
+              class="mb-4 summary-card-bg"
+              v-if="summary.summaryDetails"
+              :style="{
+                minHeight: !isGenerating ? '36px' : getHeightCard + 'px',
+              }"
+            >
               <div class="mb-2">
                 <b-row>
                   <b-col sm="2">
                     <div
+                      v-if="
+                        isEMU[index] && summary.summaryDetails[0].currValue == 0
+                      "
                       v-b-tooltip:hover
+                      :title="summary.summaryDetails[0].currValue"
+                      class="summary-dot"
+                      :style="{
+                        backgroundColor: summary.summaryDetails[0].colorLastMn,
+                      }"
+                    >
+                      <p
+                        class="mb-0 fs-25-1920 main-emutext"
+                        :class="getClass(summary.summaryDetails[0].currValue)"
+                      >
+                        <b>{{ "EMU not saved" }}</b>
+                      </p>
+                    </div>
+                    <div
+                      v-b-tooltip:hover
+                      v-else
                       :title="summary.summaryDetails[0].currValue"
                       class="summary-dot"
                       :style="{
@@ -83,8 +133,8 @@
                       >
                         {{ summary.summaryDetails[0].currValue }}
                       </p>
-                    </div></b-col
-                  >
+                    </div>
+                  </b-col>
                   <b-col sm="10" class="pl-1 pt-2">
                     <b-row>
                       <b-col sm="8">
@@ -195,7 +245,7 @@
             </b-card>
             <template v-else>
               <b-overlay
-              v-if="!isGenerating"
+                v-if="!isGenerating"
                 :show="summary.errorMsg && summary.errorMsg !== ''"
                 :rounded="true"
                 :variant="
@@ -494,6 +544,7 @@ export default {
       summaryObj: null,
       globalResponse: null,
       program: null,
+      isEMU: [],
     };
   },
   computed: {
@@ -508,16 +559,16 @@ export default {
       }
       return arr.reduce((a, b) => Math.max(a, b), -Infinity);
     },
-    getHeightCard(){
+    getHeightCard() {
       let arr = [];
-        if (this.isGenerating) {
-          let el = document.querySelectorAll(".summary-card-bg");
-          for (let i = 0; i < el.length; i++) {
-            // arr.push(el[i].clientHeight + 40);
-            arr.push(el[i].clientHeight);
+      if (this.isGenerating) {
+        let el = document.querySelectorAll(".summary-card-bg");
+        for (let i = 0; i < el.length; i++) {
+          // arr.push(el[i].clientHeight + 40);
+          arr.push(el[i].clientHeight);
         }
-        }
-       return arr.reduce((a, b) => Math.max(a, b), -Infinity);
+      }
+      return arr.reduce((a, b) => Math.max(a, b), -Infinity);
     },
     activeComponent() {
       return this.$store.getters.getActiveTab;
@@ -717,6 +768,7 @@ export default {
     },
     getSummaryList() {
       let isEMUCharts = false;
+      this.isEMU = [];
       let index = 0;
       this.configData.forEach((c) => {
         c.subTabs.forEach((s) => {
@@ -733,6 +785,11 @@ export default {
             }
             if (c.chartOptions.isSavedData) {
               isEMUCharts = true;
+            }
+            if (c.chartOptions.isSavedData && c.chartOptions.generateSummary) {
+              this.isEMU.push(true);
+            } else if (c.chartOptions.generateSummary) {
+              this.isEMU.push(false);
             }
           });
           if (isMapping && s.summary && !s.summary.disable) {
@@ -760,6 +817,7 @@ export default {
       }
     },
     summaryChartData(data) {
+      console.log(data, "summaryChartData emit obj");
       if (this.summaryList.length === 0) {
         this.getSummaryList();
       }
@@ -814,5 +872,4 @@ export default {
   },
 };
 </script>
-<style scoped>
-</style>
+<style scoped></style>

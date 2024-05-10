@@ -3,8 +3,8 @@ export default {
   methods: {
     fetchData() {
       if (
-        !this.preFetchData[`monthlyEMU_${this.$i18n.locale}`] ||
-        !$store.getters.getIsMonthlyEMUSet
+        !this.preFetchData[`monthly_${this.$i18n.locale}`] ||
+        !this.$store.getters.getIsMonthlyEMUSet
       ) {
         let key = this.generateKey(`monthlyEMU_${this.$i18n.locale}`);
         service
@@ -19,8 +19,8 @@ export default {
           });
       }
       if (
-        !this.preFetchData[`annualEMU_${this.$i18n.locale}`] ||
-        !$store.getters.getIsAnnualEMUSet
+        !this.preFetchData[`yearly_${this.$i18n.locale}`] ||
+        !this.$store.getters.getIsAnnualEMUSet
       ) {
         let key = this.generateKey(`annualEMU_${this.$i18n.locale}`);
         service
@@ -43,6 +43,19 @@ export default {
           );
         });
       }
+      // if (!this.preFetchData["allowedArray"]) {
+      //   let locArray = [];
+      //   let { levelID } = service.getAllowedLocation();
+      //   if (levelID == 1) {
+      //     if (this.preFetchData?.orgList?.length) {
+      //       console.log(this.preFetchData.orgList, "this.preFetchData.orgList");
+      //       this.preFetchData.orgList.forEach((ar) => {
+      //         if (!locArray.includes(ar.id)) locArray.push(ar.id);
+      //       });
+      //        this.$set(this.preFetchData, "allowedArray", locArray);
+      //     }
+      //   }
+      // }
     },
   },
 };

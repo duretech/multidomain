@@ -36,6 +36,7 @@
                   :langList="langList"
                   :levelIDList="levelIDList"
                   :preFetchData="preFetchData"
+                  :adminNamespace="adminNamespace"
                 />
               </b-tab>
               <b-tab
@@ -118,7 +119,16 @@ export default {
       lastScrollPosition: 0,
       isGlobalConfigSet: false,
       bgDataConfig: null,
+      adminNamespace:''
     };
+  },
+  watch: {
+    '$store.getters.getNamespace': {
+      immediate: true, 
+      handler(newVal) {
+        this.adminNamespace = newVal
+      }
+    }
   },
   computed: {
     langList() {

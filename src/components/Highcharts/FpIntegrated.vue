@@ -34,7 +34,7 @@
             !isNaN(s.graphValue) && s.graphValue !== '' && s.graphValue !== null
           "
           :key="'legend' + i"
-          >{{ s.graphDisplayName }}</span
+          >{{ s.shortName }}</span
         >
       </template>
     </div>

@@ -65,8 +65,8 @@ export default {
           drillCalculation: "DEFAULT",
           drillYTitle: "",
           drillPointBenchmark: false,
-          chartDataSum: true,
-          chartDataSum2: true,
+          chartDataSum: false, //bydefault false as causing error in method charts in analytical
+          chartDataSum2: false,
           sumLegend: "",
           sumLegend2: "",
           generateOutliers: false,

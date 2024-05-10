@@ -3,7 +3,6 @@ export default {
   data() {
     return {
       commentList: [],
-      commentText: "",
       loadComment: false,
       commentTextMaxLength: 100,
     };
@@ -45,10 +44,9 @@ export default {
     addComment() {
       this.loadComment = true;
       service
-        .addComments(this.cID, this.commentText)
+        .addComments(this.cID, this.textWithComment)
         .then((response) => {
-          // console.log(response)
-          this.commentText = "";
+          this.textWithComment = "";
           if (response.data.status === "OK") {
             this.getComments();
           } else {
@@ -56,7 +54,7 @@ export default {
           }
         })
         .catch(() => {
-          this.commentText = "";
+          this.textWithComment = "";
           this.errorAlert();
         });
     },
@@ -67,7 +65,7 @@ export default {
       });
     },
     cancelComment() {
-      this.commentText = "";
+      this.textWithComment = "";
     },
   },
 };

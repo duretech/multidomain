@@ -47,6 +47,7 @@
                       class="d-flex justify-content-center align-items-center"
                     >
                       <img
+                        v-if="slide.image"
                         alt="img"
                         :src="
                           slide.isURL
@@ -63,7 +64,8 @@
           </b-carousel>
         </div>
         <div class="mt-4 text-center" v-else>
-          {{ $t("no_data_to_display") }}
+          <!-- {{ $t("no_data_to_display") }} -->
+          {{ $t("noUpdates") }}
         </div>
       </template>
       <template v-else>

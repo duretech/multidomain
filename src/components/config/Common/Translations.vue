@@ -147,7 +147,7 @@ export default {
           text: this.$i18n.t("funOpt5"),
           hoverText: this.$i18n.t("funOpt5Hover"),
         });
-        if (pType === "monthly") {
+        if (pType === "monthly" || pType === "quarterly") {
           summaryFunList.push({
             value: "LAST_YEAR_PERIOD",
             text: this.$i18n.t("funOpt6"),
@@ -160,19 +160,20 @@ export default {
           });
         }
         if (
-          this.$store.getters.getNamespace !== `${this.$store.getters.getAppSettings.tableName}_mnch-dashboard`
+          this.$store.getters.getNamespace !==
+          `${this.$store.getters.getAppSettings.tableName}_mnch-dashboard`
         ) {
           // if (subTabGroup === "EMU") {
-            summaryFunList.push({
-              value: "METHOD_INCREASED",
-              text: this.$i18n.t("funOpt8"),
-              hoverText: this.$i18n.t("funOpt8Hover"),
-            });
-            summaryFunList.push({
-              value: "METHOD_DECREASED",
-              text: this.$i18n.t("funOpt9"),
-              hoverText: this.$i18n.t("funOpt9Hover"),
-            });
+          summaryFunList.push({
+            value: "METHOD_INCREASED",
+            text: this.$i18n.t("funOpt8"),
+            hoverText: this.$i18n.t("funOpt8Hover"),
+          });
+          summaryFunList.push({
+            value: "METHOD_DECREASED",
+            text: this.$i18n.t("funOpt9"),
+            hoverText: this.$i18n.t("funOpt9Hover"),
+          });
           // }
           if (compareWith) {
             summaryFunList.push({

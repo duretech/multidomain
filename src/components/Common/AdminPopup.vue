@@ -5,12 +5,12 @@
       size="sm"
       v-b-modal.modal-admin
       v-if="$store.getters.getIsAdmin"
-      >{{ $t("admin") }}
+      >{{ !fromAdmin ? $t("switchDashboard") : $t("admin") }}
     </b-button>
     <b-modal
       id="modal-admin"
       centered
-      :title="$t('admin')"
+      :title="fromAdmin ? $t('switchDashboard') : $t('admin')"
       :ok-title="$t('ok')"
       no-close-on-backdrop
     >
@@ -42,6 +42,7 @@
 </template>
 <script>
 export default {
+  props: ["fromAdmin"],
   data() {
     return {
       adminNamespace: "",
@@ -55,7 +56,13 @@ export default {
         this.$store.getters.getAppSettings &&
         this.$store.getters.getAppSettings.modulesList
       ) {
-        if (this.$store.getters.getAppSettings.modulesList.length > 1) {
+        if (
+          this.$store.getters.getAppSettings.modulesList.length > 1 &&
+          !(
+            !this.fromAdmin &&
+            this.$store.getters.getNamespace == "multi_program"
+          )
+        ) {
           dash.push({
             route: "",
             text: this.$i18n.t("default"),
@@ -63,11 +70,24 @@ export default {
         }
         this.$store.getters.getAppSettings.modulesList.forEach((p) => {
           let text = "";
-
-          if (p.includes("mnch")) {
+          if (
+            p.includes("mnch") &&
+            (this.$store.getters.getNamespace !==
+              "multi_program_mnch-dashboard" ||
+              (this.$store.getters.getNamespace ==
+                "multi_program_mnch-dashboard" &&
+                this.fromAdmin))
+          ) {
             text = this.$i18n.t("maternalHealth");
           }
-          if (p.includes("fp")) {
+          if (
+            p.includes("fp") &&
+            (this.$store.getters.getNamespace !==
+              "multi_program_fp-dashboard" ||
+              (this.$store.getters.getNamespace ==
+                "multi_program_fp-dashboard" &&
+                this.fromAdmin))
+          ) {
             text = this.$i18n.t("family_planning");
           }
           dash.push({
@@ -96,7 +116,15 @@ export default {
         "setNamespace",
         `${this.$store.getters.getAppSettings.tableName}${this.adminNamespace}`
       );
-      this.$router.push("/admin");
+      const includesAdmin = this.$route.matched.some(
+        (record) => record.path === "/admin"
+      );
+      if (!includesAdmin) {
+        this.$router.push({
+          path: "/admin",
+        });
+      }
+      this.$bvModal.hide("modal-admin");
     },
     changeAdmin(value, title) {
       this.adminNamespaceTitle = title;

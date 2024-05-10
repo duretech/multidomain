@@ -3,11 +3,11 @@
     class="position-relative"
     :style="{
       ...wrapperStyle,
-      height: canvasHeight + 'px',
+      height: canvasH + 'px',
     }"
   >
     <template v-if="isHeaderFooter">
-      <template v-for="i in Math.floor(canvasHeight / 1122.24)">
+      <template v-for="i in Math.ceil(canvasH / 1122.24)">
         <div
           class=""
           :key="'page-header' + i"
@@ -27,7 +27,7 @@
             {{ isStaticHeader ? $t("createdBy") : userName }}
           </span>
           <span class="float-right" v-if="layout?.details?.[2]?.location">
-            {{ isStaticHeader ? $t("location") : selectedLocationName
+            {{ isStaticHeader ? $t("location") : selectedLocationName + ", "
             }}{{ selectedPeriod }}</span
           >
         </div>
@@ -45,21 +45,22 @@
             padding: '0 10px',
           }"
           v-if="
-            layout?.details?.[1]?.timestamp || layout?.details?.[3]?.pageCount
+            !isGenerating &&
+            (layout?.details?.[1]?.timestamp || layout?.details?.[3]?.pageCount)
           "
         >
           <span v-if="layout?.details?.[1]?.timestamp">{{
-            $moment(new Date()).format("lll")
+            dateUpdates
           }}</span>
           <span class="float-right" v-if="layout?.details?.[3]?.pageCount">{{
             $t("pageOf", {
               page: i,
-              totalPages: Math.floor(canvasHeight / 1122.24),
+              totalPages: Math.ceil(canvasH / 1122.24),
             })
           }}</span>
         </div>
         <div
-          v-if="i < Math.floor(canvasHeight / 1122.24)"
+          v-if="i < Math.ceil(canvasH / 1122.24)"
           data-html2canvas-ignore="true"
           class="text-center"
           :key="'page-break' + i"
@@ -195,10 +196,7 @@
           </div>
           <template v-else>
             <template v-if="isStaticCharts">
-              <div
-                class="card-header border border-0  p-2"
-                style="height: 55px"
-              >
+              <div class="card-header border border-0 p-2" style="height: 55px">
                 <div class="cardTitleSection d-block">
                   <p class="textTitleHeading title_p ml-1 mt-1">
                     {{ chart.name }}
@@ -240,6 +238,7 @@
                 <ChartComponent
                   :chartData="chart"
                   @getPeriod="getPeriod"
+                  @setLocationPeriod="setLocationPeriod"
                   :configData="configData"
                   :cardKey="'Key' + chart.i"
                   :otherChartObj="otherChartObj"
@@ -259,6 +258,7 @@
 <script>
 import { GridLayout, GridItem } from "vue-grid-layout";
 import DynamicImageMixin from "@/helpers/DynamicImageMixin";
+import { translateDate } from "@/components/Common/commonFunctions";
 export default {
   props: [
     "layout",
@@ -279,6 +279,7 @@ export default {
     "selectedLocation",
     "updatedGridLayout",
     "selectedLocationName",
+    "isGenerating",
   ],
   mixins: [DynamicImageMixin],
   components: {
@@ -302,10 +303,49 @@ export default {
         isDraggable: true,
         isResizable: true,
       },
+      canvasH: 0,
     };
   },
-  watch: {},
+  watch: {
+    isGenerating(newVal) {
+      this.canvasH = newVal ? this.canvasH * 1.2 : this.canvasH / 1.2;
+    },
+  },
   computed: {
+    userName() {
+      return `${this.$store.getters.getUserDetails.firstName} ${this.$store.getters.getUserDetails.surname}`;
+    },
+    dateUpdates() {
+      if (this.$store.getters.getAppSettings.calendar == "nepali") {
+        const { adToBs } = require("@sbmdkl/nepali-date-converter");
+        let date = new Date();
+        let nepaliDate = adToBs(
+          `${
+            date.getFullYear() +
+            "-" +
+            (date.getMonth() + 1) +
+            "-" +
+            date.getDate()
+          }`
+        );
+        let nepaliMonthYear = translateDate({
+          rawDate:
+            `${new Date(nepaliDate).getFullYear()}` +
+            "-" +
+            `${
+              new Date(nepaliDate).getMonth() + 1 < 10
+                ? "0" + (new Date(nepaliDate).getMonth() + 1)
+                : new Date(nepaliDate).getMonth() + 1
+            }`,
+        });
+        console.log("nepaliMonthYear", nepaliMonthYear);
+        return nepaliDate.split("-")[2] + ", " + nepaliMonthYear;
+      } else {
+        return this.$moment(new Date()).format("lll");
+      }
+    },
+  },
+  methods: {
     canvasHeight() {
       let finalHeight = this.gridCanvasHeight ? this.gridCanvasHeight : 1122.24;
       let pages = finalHeight;
@@ -314,18 +354,17 @@ export default {
         pages = pages * 1122.24;
         this.$emit("getCanvasHeight", pages);
       }
-      return pages;
+      this.canvasH = pages;
+      // return pages;
     },
-    userName() {
-      return `${this.$store.getters.getUserDetails.firstName} ${this.$store.getters.getUserDetails.surname}`;
-    },
-  },
-  methods: {
     setExportArr(obj) {
       this.$emit("setExportArr", obj);
     },
     getOtherChartObj(obj) {
       this.$emit("getOtherChartObj", obj);
+    },
+    setLocationPeriod(value) {
+      this.$emit("setLocationPeriod", value);
     },
     getPeriod(period) {
       this.$emit("getPeriod", period);
@@ -372,6 +411,7 @@ export default {
         this.bottom(newLayout) *
           (this.gridLayout.rowHeight + this.gridLayout.margin[1]) +
         this.gridLayout.margin[1]; //bottom(this.layout) * (this.rowHeight + this.margin[1]) + this.margin[1] + 'px';
+      this.canvasHeight();
     },
     bottom(layout) {
       let max = 0,
@@ -393,7 +433,6 @@ export default {
         ...this.updatedGridLayout,
       };
     }
-    console.log("configData" , this.configData)
   },
 };
 </script>

@@ -8,7 +8,7 @@ export default {
       let d = getDateTimestamp({ isTimestamp: true });
       let org = [];
       uDetails.dataViewOrganisationUnits.forEach((o) => {
-        let n = o.name ?? o.id;
+        let n = o.name ? o.name : o.id;
         org.push(n);
       });
       if (uId && d) {

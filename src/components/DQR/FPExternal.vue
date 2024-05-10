@@ -24,7 +24,7 @@
             label="Spinning"
             v-if="!mDataFetched"
           ></b-spinner>
-          <div v-else>{{ $t("configError") }}</div>
+          <div v-else>{{ $t("monthlyEmuNotForLocation") }}</div>
         </div>
       </b-col>
       <b-col sm="6" class="emuchart">
@@ -45,7 +45,7 @@
             label="Spinning"
             v-if="!mDataFetched"
           ></b-spinner>
-          <div v-else>{{ $t("configError") }}</div>
+          <div v-else>{{ $t("annualEmuNotForLocation") }}</div>
         </div>
       </b-col>
     </template>
@@ -59,7 +59,7 @@ import {
   translateAlphatoNum,
 } from "@/components/Common/commonFunctions";
 export default {
-  props: ["dqrResponse", "preFetchData", "locationPeriod","isGenerating"],
+  props: ["dqrResponse", "preFetchData", "locationPeriod", "isGenerating"],
   components: { cardComponent },
   data() {
     return {

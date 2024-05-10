@@ -292,7 +292,11 @@
       <b-table hover v-if="finalCalculatedTable && finalCalculatedTable.sumCont" :items="finalCalculatedTable.sumCont.items" bordered :fields="finalCalculatedTable.sumCont.fields" responsive class="methodsTable"/> -->
         <strong>{{ $t("users") }}</strong>
         <download-csv
-          :data="finalCalculatedTable.calculatedUsers.items"
+          :data="
+            finalCalculatedTable &&
+            finalCalculatedTable.calculatedUsers &&
+            finalCalculatedTable.calculatedUsers.items
+          "
           style="display: inline-block; margin-left: 10px"
           ><img
             :src="require('@/assets/images/icons/downloadActive.svg')"
@@ -314,7 +318,9 @@
         />
         <strong>{{ $t("histUsers") }}</strong>
         <download-csv
-          :data="finalCalculatedTable.historicUsers.items"
+          :data="
+            finalCalculatedTable && finalCalculatedTable.historicUsers.items
+          "
           style="display: inline-block; margin-left: 10px"
           ><img
             :src="require('@/assets/images/icons/downloadActive.svg')"
@@ -336,6 +342,7 @@
         />
         <strong>{{ $t("Total Users") }}</strong>
         <download-csv
+          v-if="finalCalculatedTable && finalCalculatedTable.totalUsers"
           :data="finalCalculatedTable.totalUsers.items"
           style="display: inline-block; margin-left: 10px"
           ><img
@@ -1159,18 +1166,17 @@ export default {
         fields: [],
         items: [],
       };
-      
+
       let newFields = [];
-      
+
       obj["fields"].push(
         {
           key: "method",
           lable: this.$i18n.t("method"),
         },
-        { key: "Sub-method", 
-          lable: this.$i18n.t("sub_method") }
+        { key: "Sub-method", lable: this.$i18n.t("sub_method") }
       );
-      
+
       let users = [];
       //Rearrnging in required order
       this.methodSeq.forEach((element, i) => {
@@ -1196,14 +1202,19 @@ export default {
           minLength = length - 24;
         Object.keys(vals).forEach((yearM, index) => {
           if (index >= minLength && index < length) {
-            if (!newFields.includes(" "+this.allMonthNameJson[yearM]["name"]+" ")) {
-              newFields.push(" "+this.allMonthNameJson[yearM]["name"]+" ");
+            if (
+              !newFields.includes(
+                " " + this.allMonthNameJson[yearM]["name"] + " "
+              )
+            ) {
+              newFields.push(" " + this.allMonthNameJson[yearM]["name"] + " ");
               obj["fields"].push({
-                key: " "+this.allMonthNameJson[yearM]["name"]+" ",
+                key: " " + this.allMonthNameJson[yearM]["name"] + " ",
                 label: this.allMonthNameJson[yearM]["name"],
               });
             }
-            itemObj[" "+this.allMonthNameJson[yearM]["name"]+" "] = vals[yearM];
+            itemObj[" " + this.allMonthNameJson[yearM]["name"] + " "] =
+              vals[yearM];
           }
         });
         //console.log("itemObj" ,itemObj)
@@ -1512,7 +1523,6 @@ export default {
         oFinalAgrEMU
       );
       this.chartData = tempObj;
-      this.$emit('updateChartData' , this.chartData)
       this.newUsersChart(methodCategories);
       let reversedCat = JSON.parse(JSON.stringify(saveMethodCategories));
       this.methodTable(saveSeries, reversedCat.reverse());
@@ -1617,7 +1627,6 @@ export default {
       tempObj.tableData = tableData;
       tempObj.filter = this.options;
       this.newUsersChartData = tempObj;
-      this.$emit('updateChartData' , this.newUsersChartData)
     },
     methodTable(emu, cat) {
       let emuObj = {},
@@ -1843,7 +1852,6 @@ export default {
           this.oneMonthEMUChartData = outputChartsData["oneMonthEMUChart"];
           this.totalEMUChartData = outputChartsData["totalEMUChart"];
           this.bshowLoader = false;
-          
         } else {
           this.bshowLoader = false;
           this.sweetAlert({
@@ -2586,10 +2594,6 @@ export default {
       //   name: 'compEMU',
       //   data: aTable
       // }]
-      this.$emit('updateChartData' , this.totalEMUChartData)
-      this.$emit('updateChartData' , this.trendsChartData)
-      this.$emit('updateChartData' , this.methodTrendsChartData)
-      this.$emit('updateChartData' , this.oneMonthEMUChartData)
     },
     allDataFetched() {
       this.getFinalChartsdata();
@@ -2784,10 +2788,6 @@ export default {
           }
         }
         this.emitPPTData();
-      this.$emit('updateChartData' , this.totalEMUChartData)
-      this.$emit('updateChartData' , this.trendsChartData)
-      this.$emit('updateChartData' , this.methodTrendsChartData)
-      this.$emit('updateChartData' , this.oneMonthEMUChartData)
       }, 5000);
     },
     emitPPTData() {

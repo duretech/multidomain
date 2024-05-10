@@ -478,7 +478,7 @@ export default {
         /*webpackChunkName: 'translations'*/ "@/components/config/Common/Translations"
       ),
   },
-  props: ["langList", "levelIDList", "preFetchData"],
+  props: ["langList", "levelIDList", "preFetchData" , 'adminNamespace'],
   mixins: [ReFetchConfigMixin, LanguageChangeMixin],
   data() {
     return {
@@ -538,7 +538,14 @@ export default {
       return this.$store.getters.getAppSettings.tableName;
     },
   },
-  watch: {},
+  watch: {
+    adminNamespace:{
+      immediate: true,
+      handler() {
+       this.getConfigData();
+      }
+    }
+  },
   methods: {
     updateAdmin(newValue) {
       this.applicationModule.landingPageLogo = newValue.landingPageLogo;

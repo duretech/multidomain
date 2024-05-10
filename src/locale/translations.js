@@ -1060,6 +1060,8 @@ export default {
     MappingNotExists: "Data Mapping does not exist",
     DataNotExists: "Data Element not exist",
     emuNotForLocation: "EMU not saved for this location.",
+    annualEmuNotForLocation: "Annual EMU not saved for this location.",
+    monthlyEmuNotForLocation: "Monthly EMU not saved for this location.",
     locationNotSelected: "Location not selected",
     error3: "Location is not saved to start Stockout calculation",
     error4: "Stock Out Calculation not done",
@@ -1154,8 +1156,25 @@ export default {
     selectAll: "Select all",
     clearSelected: "Clear selected",
     infoContent: "The no. of regions here includes the parent region",
-    noteScoreCard: "The facility list will be available on clicking on the locations within the District",
-    customDates: "Custom"
+    noteScoreCard:
+      "The facility list will be available on clicking on the locations within the District",
+    customDates: "Custom",
+    emuNotFound: "Kindly save EMU for {recentPeriodText}",
+    noUpdates: "There is no update.",
+    none: "none",
+    EMUGeneratedon: "EMU Generated on",
+    switchDashboard: "Switch Admin",
+    stepsReport: "STEPS FOR CREATING A REPORT",
+    step1: "Step 1:",
+    step1Exp:
+      "To create a new report, click on the “Create” option, fill in the necessary details relevant to the chart such as name, description, org level, update frequency type and base period. Submit to secure the changes.",
+    step2: "Step 2:",
+    step2Exp:
+      "Once the above step is completed, go to the “View report” option which will allow you to view, edit, clone and delete the charts. Click on the “View” option to add charts that need to be available in the report. Once the charts are added click on the “Save” button to secure changes. You can also add relevant text, edit the format using the options available.",
+    step3: "Step 3:",
+    step3Exp:
+      "The last step is to generate the report. Click on “generate” option, choose the location for which chart had been created, a list of available charts will be shown from which the relevant chart report may be chosen. Click on the generate button to see the report.",
+    infomation: "Infomation",
   },
   fr: {
     np: "Nepali",
@@ -2236,6 +2255,8 @@ export default {
     MappingNotExists: "Le mappage des données n'existe pas",
     DataNotExists: "L'élément de données n'existe pas",
     emuNotForLocation: "EMU non enregistré pour cet emplacement.",
+    annualEmuNotForLocation: "EMU not saved for this location.",
+    monthlyEmuNotForLocation: "EMU not saved for this location.",
     locationNotSelected: "Emplacement non sélectionné",
     error3:
       "L'emplacement n'est pas enregistré pour démarrer le calcul de la rupture de stock",
@@ -2332,8 +2353,25 @@ export default {
     scorecardPeriod: "Scorecard Period",
     selectAll: "Select all",
     clearSelected: "Clear selected",
-    noteScoreCard: "La liste des établissements sera disponible en cliquant sur les emplacements du District.",
-    customDates: "coutume"
+    noteScoreCard:
+      "La liste des établissements sera disponible en cliquant sur les emplacements du District.",
+    customDates: "coutume",
+    emuNotFound: "Veuillez conserver l'UEM pour {recentPeriodText}",
+    noUpdates: "There is no update.",
+    none: "aucun",
+    EMUGeneratedon: "d'UEM générée le",
+    switchDashboard: "Changer d'administrateur",
+    stepsReport: "ÉTAPES POUR CRÉER UN RAPPORT",
+    step1: "Étape 1:",
+    step1Exp:
+      "Pour créer un nouveau rapport, cliquez sur l'option Créer, remplissez les détails nécessaires relatifs au graphique tels que le nom, la description, le niveau d'organisation, le type de fréquence de mise à jour et la période de base. Soumettez pour sécuriser les modifications.",
+    step2: "Étape 2:",
+    step2Exp:
+      "Une fois l'étape ci-dessus terminée, accédez à l'option Afficher le rapport qui vous permettra de visualiser, modifier, cloner et supprimer les graphiques. Cliquez sur l'option Afficher pour ajouter les graphiques qui doivent être disponibles dans le rapport. Une fois les graphiques ajoutés, cliquez sur le bouton Enregistrer pour sécuriser les modifications. Vous pouvez également ajouter du texte pertinent, modifier le format à l'aide des options disponibles.",
+    step3: "Étape 3:",
+    step3Exp:
+      "La dernière étape consiste à générer le rapport. Cliquez sur l'option générer, choisissez l'emplacement pour lequel le graphique a été créé, une liste des graphiques disponibles s'affichera parmi laquelle le rapport graphique pertinent pourra être choisi. Cliquez sur le bouton Générer pour voir le rapport.",
+    infomation: "Informations",
   },
   np: {
     M: "महिना",
@@ -3290,6 +3328,8 @@ export default {
     coverageEstimates: "वहु क्रियाकलापहरूको प्रगति अनुमान",
     dataStoreLoadText: "डाटास्टोर विवरणहरू खोज्दै...",
     emuNotForLocation: "EMU not saved for this location.",
+    annualEmuNotForLocation: "EMU not saved for this location.",
+    monthlyEmuNotForLocation: "EMU not saved for this location.",
     financialYearJuly: "आर्थिक बर्ष ",
     financialYearOct: "Financial Year (Start October)",
     indicatorCreation: "सुचक तयार गर्नुहोस ",
@@ -3453,7 +3493,22 @@ export default {
     commodities_Distributed_to_Facilities:
       "स्वास्थ्य संस्थामा वितरित गर्भ निरोधका साधन ",
     infoContent: "The no. of regions here includes the parent region",
-    noteScoreCard: "प्रतिष्ठानहरूको सूची जिल्ला स्थानहरूमा क्लिक गरेर उपलब्ध हुनेछ।",
-    customDates: "अनुकूलन"
+    noteScoreCard:
+      "प्रतिष्ठानहरूको सूची जिल्ला स्थानहरूमा क्लिक गरेर उपलब्ध हुनेछ।",
+    customDates: "अनुकूलन",
+    none: "कुनै पनि",
+    EMUGeneratedon: "EMU मा उत्पन्न भयो",
+    switchDashboard: "प्रशासक स्विच गर्नुहोस्",
+    stepsReport: "प्रतिवेदन सिर्जना गर्ने चरणहरू",
+    step1: "चरण 1:",
+    step1Exp:
+      "नयाँ रिपोर्ट सिर्जना गर्न, सिर्जना विकल्पमा क्लिक गर्नुहोस्, चार्टसँग सम्बन्धित आवश्यक विवरणहरू भर्नुहोस् जस्तै नाम, विवरण, संगठन स्तर, अपडेट फ्रिक्वेन्सी प्रकार र आधार अवधि। सुरक्षित परिवर्तनहरू पेश गर्नुहोस्।",
+    step2: "चरण 2:",
+    step2Exp:
+      "माथिको चरण पूरा भएपछि, हेर्नुहोस् रिपोर्ट विकल्पमा जानुहोस् जसले तपाईंलाई चार्टहरू हेर्न, सम्पादन गर्न, क्लोन गर्न र मेटाउन अनुमति दिनेछ। रिपोर्टमा उपलब्ध हुने चार्टहरू थप्न देखाउनुहोस् विकल्पमा क्लिक गर्नुहोस्। एकपटक ग्राफिक्स थपिएपछि, परिवर्तनहरू सुरक्षित गर्न बचत बटनमा क्लिक गर्नुहोस्। तपाईं पनि सान्दर्भिक पाठ थप्न सक्नुहुन्छ, उपलब्ध विकल्पहरू प्रयोग गरेर ढाँचा परिवर्तन गर्नुहोस्।",
+    step3: "चरण 3:",
+    step3Exp:
+      "अन्तिम चरण रिपोर्ट उत्पन्न गर्न हो। जेनेरेट विकल्पमा क्लिक गर्नुहोस्, चार्ट सिर्जना गरिएको स्थान छान्नुहोस्, उपलब्ध चार्टहरूको सूची प्रदर्शित हुनेछ जसबाट सान्दर्भिक चार्ट रिपोर्ट छनोट गर्न सकिन्छ। रिपोर्ट हेर्नको लागि उत्पन्न बटन क्लिक गर्नुहोस्।",
+    infomation: "जानकारी",
   },
 };

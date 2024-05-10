@@ -22,6 +22,7 @@
         :reportChartData="reportChartData"
         :configDataDQR="configDataDQR"
         @setReportChart="setReportChart"
+        :allowedArray="allowedArray"
       />
     </div>
     <Footer
@@ -81,10 +82,21 @@ export default {
       updateLocPer: null,
       locationPeriod: {},
       globalPeriodData: {},
+      allowedArray: [],
     };
   },
-  watch: {},
+  watch: {
+    getorglist: {
+      handler(newVal) {
+        this.getAllowedLocation();
+      },
+      deep: true,
+    },
+  },
   computed: {
+    getorglist() {
+      return this.preFetchData.orgList;
+    },
     selectedData() {
       let data = null;
       if (this.reportChartData) {
@@ -107,6 +119,54 @@ export default {
     },
   },
   methods: {
+    getAllowedLocation() {
+      this.allowedArray = [];
+      let locArray = [];
+      let { locationID, levelID } = service.getAllowedLocation();
+      console.log(levelID, "level");
+      if (levelID != 1) {
+        this.findChildren({ location: locationID });
+        this.allowedArray.push(locationID);
+      } else {
+        console.log(this.preFetchData?.orgList, "this.preFetchData?.orgList");
+        if (this.preFetchData?.orgList?.length) {
+          console.log(this.preFetchData.orgList, "this.preFetchData.orgList");
+          this.preFetchData.orgList.forEach((ar) => {
+            if (!locArray.includes(ar.id)) locArray.push(ar.id);
+          });
+          this.allowedArray = locArray;
+        }
+      }
+    },
+    findChildren({ location }) {
+      let children = this.getChildren({ location: location });
+      console.log(children, "children");
+      if (children.length > 0) {
+        children.forEach((ar) => {
+          if (!this.allowedArray.includes(ar.id)) this.allowedArray.push(ar.id);
+          this.findChildren({ location: ar.id });
+        });
+      }
+    },
+    getChildren({ location }) {
+      let children = [];
+      if (this.preFetchData?.orgList?.length) {
+        children = getChild({
+          locationList: this.preFetchData.orgList,
+          location: location,
+        });
+        console.log(children, "children from prefetchdata");
+      }
+      // else {
+      //   try {
+      //     let response = await service.getChildOrganisation(location);
+      //     children = response?.data?.children || [];
+      //   } catch (err) {
+      //     console.log("err", err);
+      //   }
+      // }
+      return children;
+    },
     updateToolBar(updatedVal) {
       this.updateLocPer = updatedVal;
     },
@@ -119,6 +179,7 @@ export default {
         cid: [this.reportChartData.cid],
         errorText: obj.errorText,
       });
+      this.$emit("setLocationPeriod", this.locationPeriod);
     },
     getLocationPeriod(locPeObj) {
       this.locationPeriod = this.reportChartData
@@ -187,7 +248,7 @@ export default {
   },
   async created() {
     this.$store.commit("setModuleName", this.$i18n.t("DQR"));
-
+    this.getAllowedLocation();
     if (this.activeTab && !this.reportChartData) {
       this.$store.commit("setActiveTab", this.activeTab);
     }
@@ -202,6 +263,7 @@ export default {
           this.$store.commit("setGlobalFactors", {
             payload: response.data,
           }); // Set the global factors in store
+          console.log(response.data, "setGlobalFactors");
         })
         .catch(() => {
           console.log("Failed in getGlobalFactors()...");

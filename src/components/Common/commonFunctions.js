@@ -1381,6 +1381,7 @@ export const generateChart = ({
           oMethodRef = {},
           oFinalData = {},
           aTotalCypCats = [];
+        //console.log(catArray, response.data.rows, "response.data.rows");
         catArray.forEach((dx) => {
           response.data.rows.forEach((r) => {
             if (dx.dx.includes(r[dxIndex])) {
@@ -1400,6 +1401,15 @@ export const generateChart = ({
               rData[r[dxIndex]][r[ouIndex]][r[peIndex]] =
                 Number(rData[r[dxIndex]][r[ouIndex]][r[peIndex]] || 0) +
                 Number(r[valueIndex]) * dx.cyp[r[dxIndex]];
+
+              // console.log(
+              //   rData[r[dxIndex]][r[ouIndex]][r[peIndex]],
+              //   "Cyp",
+              //   dx.cyp[r[dxIndex]],
+              //   r[dxIndex],
+              //   r[ouIndex],
+              //   r[peIndex]
+              // );
             }
           });
         });
@@ -1407,6 +1417,7 @@ export const generateChart = ({
         let oMethodFinalRegPeriod = {},
           aAvgTotalCyp = [],
           oAvgTotalCyp = {};
+        //console.log(rData, "RData", oMethodRef);
         for (let m in rData) {
           // data.metaData.items[r[ouIndex]].name
           // let sMethod = data.metaData.items[m].name;
@@ -1431,7 +1442,8 @@ export const generateChart = ({
               // });
               let sMonth = response.data.metaData.items[p].name;
               oMethodFinalRegPeriod[sMethod][sRegion][sMonth] =
-                rData[m][n][p] || 0;
+                (oMethodFinalRegPeriod[sMethod][sRegion][sMonth] || 0) +
+                  rData[m][n][p] || 0;
               aAvgTotalCyp[ind] =
                 (aAvgTotalCyp[ind] || 0) +
                 oMethodFinalRegPeriod[sMethod][sRegion][sMonth] * 1;
@@ -1450,6 +1462,7 @@ export const generateChart = ({
         oUpdated = oUpdated.filter((item) => item !== locationName);
         oUpdated.unshift(locationName);
         cObj.categories = oUpdated;
+        //console.log(oMethodFinalRegPeriod, "oMethodFinalRegPeriod");
         cObj.avgAnnualGrowthData = oMethodFinalRegPeriod;
         cObj.avgTotalCypData = oAvgTotalCyp;
         cObj.methodSeq = catArray;
@@ -1728,8 +1741,9 @@ export const generateChart = ({
                 id: ele,
               };
             }
-            oBubbleMethods[sName].data[ind].value +=
-              oMethodCyp[sName].data[ind];
+            oBubbleMethods[sName].data[ind].value += rData[l][ele]
+              ? rData[l][ele]
+              : 0;
             oBubbleMethods[sName].data[ind].value =
               oBubbleMethods[sName].data[ind].value.toFixed(2) * 1;
           });
@@ -1757,6 +1771,7 @@ export const generateChart = ({
             let oRow = Math.round(oBubbleMethods[t].data[ind].value);
             let nVal = getMostUsedMethod(oBubbleMethods, t, ind, oRow);
             nVal = Math.round(nVal);
+            // console.log(oBubbleMethods, nVal, ele, "most common");
             if (nVal) {
               oTemp.data.push({
                 name: ele,
@@ -1924,8 +1939,8 @@ export const getAllPeriodRange = (periodData, FinalPeriodArray) => {
   let sStartYearMonth = moment(substractedYearMonth, "YYYY-MM")
     .subtract(periodData.backtrackedYearLimit * 1 + 2, "years")
     .format("YYYY-MM");
-  let sRecentYear = recentYearMonth.split("-")[0] * 1;
-  let sStartYear = sStartYearMonth.split("-")[0] * 1;
+  let sRecentYear = recentYearMonth.split("-")[0] * 1 + 1;
+  let sStartYear = sStartYearMonth.split("-")[0] * 1 + 1;
   // let FinalPeriodArray = [sStartYear];
   if (!FinalPeriodArray.includes(sStartYear)) FinalPeriodArray.push(sStartYear);
 

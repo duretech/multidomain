@@ -364,9 +364,7 @@
                                 :chartData="chartData"
                                 :summaryScore="summaryScore"
                                 :emuValueColor="emuValueColor"
-                                v-if="
-                                  chartData
-                                "
+                                v-if="chartData"
                                 :exportingPdf="exportingPdf"
                               />
                               <b-spinner
@@ -724,6 +722,10 @@ export default {
       let location = loc.split("/")[1];
       let levelID = loc.split("/")[0] * 1;
       let subLevelID = levelID + 1;
+      //  let subLevelID =
+      //     this.$store.getters.getAppSettings.lowerLevel != null
+      //       ? this.$store.getters.getAppSettings.lowerLevel *1
+      //       : levelID + 1;
       let locID = [],
         locIDLabels = [];
       let children = [];
@@ -749,19 +751,24 @@ export default {
           });
         });
       }
+      let finalNewVal = [];
       newValue.forEach((d) => {
         let de = d.dx.join(";");
-        promises.push(
-          service.getIndicatorData(de, [subLevelID], location, period)
-        );
+        if (d.dx.length) {
+          finalNewVal.push(d);
+          promises.push(
+            service.getIndicatorData(de, [subLevelID], location, period)
+          );
+        }
       });
       Promise.allSettled(promises).then((results) => {
         results.forEach((res, i) => {
-          let key = newValue[i]["shortName"];
+          let key = finalNewVal[i]["shortName"];
           finalObj[key] = [];
           if (res.status === "fulfilled") {
             let value = null;
             locID.forEach((lc) => {
+              value = null;
               let locInd = {
                 data: "",
                 location: lc,
@@ -771,15 +778,14 @@ export default {
 
               if (findD.length > 0) {
                 findD.forEach((r) => {
-                  value = value == null ? r[3] * 1 : value * 1 + r[3] * 1;
+                  value = r[3] * 1;
                 });
               }
-              locInd["data"] = value ? value.toFixed(2) * 1 : null;
+              locInd["data"] = value ? value.toFixed(2) * 1 : 0;
               finalObj[key].push(locInd);
             });
           }
         });
-
         this.indMapData = JSON.parse(JSON.stringify(finalObj));
       });
     },
@@ -860,18 +866,18 @@ export default {
               !isNaN(d.graphValue) && d.graphValue !== ""
                 ? d.graphValue.toFixed(2) * 1
                 : null,
-            name: d.shortName,
+            name: d.graphDisplayName,
             color: d.graphColor,
+            graphPercentageIndicator: d.graphPercentageIndicator,
           };
           // let arr = [d.minThreshold * 1, 0, d.maxThreshold * 1];
           let obj1 = {
             y: null,
             link: d.link,
             color: d.benchmarkColor || "#DF5353",
-            name:
-              d.benchmarkLabel || `${d.shortName} ${this.$i18n.t("benchmark")}`,
+            name: d.benchmarkLabel || `${d.graphDisplayName}`,
           };
-          this.chartData.xAxis[0].categories.push(d.shortName);
+          this.chartData.xAxis[0].categories.push(d.graphDisplayName);
           this.chartData.series[0].data.push(obj);
           this.chartData.series[1].data.push(obj1);
         }
@@ -1295,7 +1301,8 @@ export default {
                     graphDisplayName:
                       s.integrated?.graphDisplayName?.[this.$i18n.locale],
                     graphDX: [],
-                    graphPercentIndicator: s.integrated?.graphPercentIndicator,
+                    graphPercentageIndicator:
+                      s.integrated?.graphPercentageIndicator,
                     link: `${d.group}-${d.id}-${s.id}`,
                     displayName: s.integrated.displayName[this.$i18n.locale],
                     minThreshold: s.integrated.minThreshold,
@@ -1340,7 +1347,7 @@ export default {
               });
             });
             this.summaryScore = summaryScore;
-            })
+          })
           .catch((err) => {
             this.reFetchConfig(err);
           });
@@ -1355,9 +1362,12 @@ export default {
         let sorted = isFound.sort(function (a, b) {
           return parseInt(b[1]) - parseInt(a[1]);
         });
-        let isFound1 = sorted.length && sorted[0].length ? sorted.filter((item)=> item[3]*1 != "" && item[3]*1 != 0) : null;
-        console.log("isFound1" , isFound1)
-        y = isFound1?.length > 0 ? isFound1[0][3]*1 : null;
+        let isFound1 =
+          sorted.length && sorted[0].length
+            ? sorted.filter((item) => item[3] * 1 != "" && item[3] * 1 != 0)
+            : null;
+        console.log("isFound1", isFound1);
+        y = isFound1?.length > 0 ? isFound1[0][3] * 1 : null;
       }
       return y;
     },
@@ -1390,7 +1400,7 @@ export default {
                 : d.y,
           })
         );
-        }
+      }
       if (this.isFPSummaryModules && isFP) {
         let loc = this.locationPeriod.location.split("/");
         if (!this.benchmarkDataFP[loc[0]]) {
@@ -1657,10 +1667,8 @@ export default {
       if (formValues) {
         this.$store.commit("setLoading", true);
         this.exportingPdf = true;
-        setTimeout(async()=>{
-          let canvas1 = await html2canvas(
-            document.querySelector("#mapsID")
-          );
+        setTimeout(async () => {
+          let canvas1 = await html2canvas(document.querySelector("#mapsID"));
           let canvas2 = await html2canvas(
             document.querySelector("#myDivToPrintRight")
           );
@@ -1675,11 +1683,14 @@ export default {
           let heightRight = doc.internal.pageSize.getHeight();
           doc.addImage(dURLRight, "PNG", 0, 0, widthRight, heightRight);
           doc.save(
-            formValues[0] + "_" + this.$moment(new Date()).format("lll") + ".pdf"
+            formValues[0] +
+              "_" +
+              this.$moment(new Date()).format("lll") +
+              ".pdf"
           );
-          this.exportingPdf = false;        
+          this.exportingPdf = false;
           this.$store.commit("setLoading", false);
-        }, 5000)
+        }, 5000);
       }
     },
     verticalCanvases(cnv) {
@@ -1702,7 +1713,7 @@ export default {
     await this.getConfigData();
     this.globalPeriodData =
       this.$store.getters.getGlobalFactors().period.Period;
-        },
+  },
 };
 </script>
 

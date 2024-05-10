@@ -323,6 +323,10 @@
             </div>
           </b-modal>
         </template>
+        <template
+        >
+          <AdminPopup :fromAdmin="$route.name !== 'admin'" />
+        </template>
       </template>
     </Header>
     <b-modal
@@ -382,6 +386,10 @@ export default {
     UploadConfig: () =>
       import(
         /*webpackChunkName: 'UploadConfig'*/ "@/components/config/UploadConfig"
+      ),
+    AdminPopup: () =>
+      import(
+        /*webpackChunkName: 'AdminPopup'*/ "@/components/Common/AdminPopup"
       ),
   },
   props: ["subTabsBtn", "bgDataConfig", "openTabPopUp", "langList"],

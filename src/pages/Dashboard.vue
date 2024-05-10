@@ -190,7 +190,7 @@
 								/> -->
                 </b-col>
               </b-row>
-              <b-row class="mt-2 large-screen-mt-4 sidebar-responsive">
+              <b-row class="mt-2 large-screen-mt-4 sidebar-responsive pt-5">
                 <b-col sm="7">
                   <b-input-group v-if="isFromAdmin">
                     <b-form-input
@@ -264,6 +264,19 @@
 
                   <p class="home-page-desp fs-17-1920" v-else>
                     {{ appData.landingPageDesc[$i18n.locale] || $t("noData") }}
+                  </p>
+                </b-col>
+              </b-row>
+              <b-row class="">
+                <b-col sm="4"> </b-col>
+                <b-col sm="4">
+                  <p class="text-center">
+                    <marquee
+                      style="color: #4375bc; font-style: italic"
+                      v-if="marqueText"
+                    >
+                      {{ marqueText }}
+                    </marquee>
                   </p>
                 </b-col>
               </b-row>
@@ -378,7 +391,7 @@ import HomePageModules from "@/components/Home/HomePageModules.vue";
 import { getAllPeriodRange } from "@/components/Common/commonFunctions";
 
 export default {
-  props: ["isFromAdmin", "updatedData", "redirectDetails"],
+  props: ["isFromAdmin", "updatedData", "redirectDetails", "preFetchData"],
   mixins: [
     NavigationMixin,
     ChangeImageMixin,
@@ -397,11 +410,13 @@ export default {
   },
   data() {
     return {
+      marqueText: null,
       displayPage: false,
       showModules: false,
       dynamicModules: [],
       viewDynamicModules: false,
       appData: config.applicationModule,
+      allowedArray: [],
     };
   },
   watch: {
@@ -450,6 +465,133 @@ export default {
     },
   },
   methods: {
+    async emuAlert() {
+      // let emailObj = {
+      //   to: "ashvini@duretechnologies.com",
+      //   subject: "EMU Saving Alert",
+      //   tempate: "testing email",
+      // };
+      // await service.sendEmail(emailObj);
+      let globeData = this.$store.getters.getGlobalFactors().period.Period;
+      let d = new Date();
+      if (this.$store.getters.getAppSettings.calendar === "nepali") {
+        const { adToBs } = require("@sbmdkl/nepali-date-converter");
+        const bsDate = adToBs(
+          `${d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate()}`
+        );
+        d = bsDate.split("-")[0] + bsDate.split("-")[1];
+      }
+      let currentDate = this.$moment(d, "YYYYMM")
+        .subtract(globeData.backtrackedMonth * 1, "months")
+        .format("YYYYMM");
+      // let currentFinalDate = this.$moment(currentDate, "YYYYMM")
+      //   .subtract(globeData.backtrackedYearLimit * 1, "years")
+      //   .format("YYYYMM");
+      // console.log(
+      //   currentDate,
+      //   currentFinalDate,
+      //   "currentDate",
+      //   "currentFinalDate"
+      // );
+      let { locationID, levelID } = service.getAllowedLocation();
+      //console.log(locationID, levelID, this.$i18n.locale);
+      console.log(
+        "this.preFetchData",
+        this.preFetchData,
+        this.preFetchData[`monthly_${this.$i18n.locale}`],
+        this.$i18n.locale
+      );
+      if (
+        this.preFetchData &&
+        this.preFetchData[`monthly_${this.$i18n.locale}`]
+      ) {
+        let savedEMU = this.preFetchData[`monthly_${this.$i18n.locale}`];
+        if (savedEMU["totalEMU"] && savedEMU["totalEMU"][locationID]) {
+          let recentPeriodText =
+            this.$store.getters.getPeriodData[currentDate]?.["name"];
+          console.log(
+            "this.$store.getters.getAppSettings.calendar",
+            this.$store.getters.getAppSettings.calendar
+          );
+          if (this.$store.getters.getAppSettings.calendar !== "nepali") {
+            console.log("recentPeriodText", recentPeriodText);
+          }
+          //console.log(recentPeriodText, "recentPeriodText");
+          let savedEMUPeriodArray =
+            savedEMU["totalEMU"][locationID]["saveCategories"];
+          if (!savedEMUPeriodArray.includes(recentPeriodText)) {
+            // this.sweetAlert({
+            //   title: this.$i18n.t("alert"),
+            //   text: `${this.$i18n.t("emuNotFound", {
+            //     recentPeriodText: recentPeriodText,
+            //   })}`,
+            // });
+            this.marqueText = `${this.$i18n.t("emuNotFound", {
+              recentPeriodText: recentPeriodText,
+            })}`;
+            if (
+              this.$store.getters.getAppSettings.sendMail &&
+              this.$store.getters.getIsAdmin &&
+              this.$store.getters.getUserDetails?.email
+            ) {
+              service
+                .sendEmail({
+                  to: this.$store.getters.getUserDetails?.email,
+                  subject: "Save EMU notification alert",
+                  template: this.marqueText,
+                })
+                .then((resp) => {
+                  console.log(resp);
+                })
+                .catch((err) => {
+                  console.log(err, "Err");
+                });
+            } else {
+              console.log(
+                "Email not sent as logged in user email id not found"
+              );
+            }
+            // let emailObj = {
+            //   to: "ashvini@duretechnologies.com",
+            //   subject: "EMU Saving Alert",
+            //   tempate: this.marqueText,
+            // };
+            // await service.sendEmail(emailObj);
+            console.log(
+              "EMU is not saved for recent period - " + recentPeriodText
+            );
+          }
+        } else {
+          //this.marqueText = this.$i18n.t("emuNotForLocation");
+          // if (
+          //   this.$store.getters.getAppSettings.sendMail &&
+          //   this.$store.getters.getIsAdmin &&
+          //   this.$store.getters.getUserDetails?.email
+          // ) {
+          //   service
+          //     .sendEmail({
+          //       to: this.$store.getters.getUserDetails?.email,
+          //       subject: "Save EMU notification alert",
+          //       template: this.marqueText,
+          //     })
+          //     .then((resp) => {
+          //       console.log(resp);
+          //     })
+          //     .catch((err) => {
+          //       console.log(err, "Err");
+          //     });
+          // } else {
+          //   console.log("Email not sent as logged in user email id not found");
+          // }
+          // this.sweetAlert({
+          //   title: this.$i18n.t("alert"),
+          //   text: this.$i18n.t("emuNotForLocation"),
+          // });
+          // //emuNotForLocation
+          console.log("prefetchdata EMU is not yet set");
+        }
+      }
+    },
     setTitle(newValue) {
       if (newValue.includes("_fp-dashboard")) {
         this.setDocumentTitle(this.$i18n.t("family_planning"));
@@ -645,7 +787,7 @@ export default {
     /**
      * Get the Global Factors.
      */
-    getGlobalFactors() {
+    async getGlobalFactors() {
       if (
         Object.keys(this.$store.getters.getGlobalFactors()).length === 0 ||
         this.$store.getters.getIsPeriodChange
@@ -730,11 +872,15 @@ export default {
                 payload: response.data,
               }); // Set the global factors in store
             }
+            if (this.dTitle.includes("_fp-dashboard")) {
+              await this.emuAlert();
+            }
             if (!this.isFromAdmin) {
               this.$store.commit("setLoading", false);
             }
             this.$store.commit("setLoadingText", "");
             this.showModules = true;
+
             this.setRedirect();
           })
           .catch((res) => {
@@ -745,10 +891,14 @@ export default {
           });
       } else {
         this.$store.commit("setLoadingText", "");
+        if (this.dTitle.includes("_fp-dashboard")) {
+          await this.emuAlert();
+        }
         if (!this.isFromAdmin) {
           this.$store.commit("setLoading", false);
         }
         this.showModules = true;
+
         this.setRedirect();
       }
     },

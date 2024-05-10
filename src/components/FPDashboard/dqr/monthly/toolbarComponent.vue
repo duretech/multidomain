@@ -25,9 +25,7 @@
             :clear-on-select="clearOnSelect"
             :close-on-select="closeOnSelect"
             :always-open="alwaysOpen"
-            
           />
-
         </div>
 
         <div class="form-group pr-3" v-if="recentActiveTab == 'input'">
@@ -47,7 +45,6 @@
             :clear-on-select="clearOnSelect"
             :close-on-select="closeOnSelect"
             :always-open="alwaysOpen"
-            
           />
         </div>
         <div class="form-group pr-3" v-if="recentActiveTab != 'input'">
@@ -78,7 +75,7 @@
             @click.prevent.stop="generateEmuButtonClick"
             class="position-relative mt-3 blue-btn"
           >
-            <span class="small">Generate EMU</span>
+            <span class="small">Generate EMU-2</span>
             <!-- <span class="small" v-if="scorecardDataFetching">{{locationFetchedPercent}}%</span>
                           <div class="loaderBackground" v-if="scorecardDataFetching"></div>
                           <span class="small" :class="{ 'ml-2' : scorecardDataFetching }">{{scorecardDataFetching ? $t('scorecardGenerating') : $t('scorecardGenerate')}}</span> -->
@@ -115,8 +112,6 @@
             sort-value-by="INDEX"
             :placeholder="$t('select')"
             :alwaysOpen="false"
-
-            
           />
         </div>
         <div class="col-12 mt-4">
@@ -177,7 +172,6 @@
                 v-model="selectedEMULocation"
                 sort-value-by="INDEX"
                 :placeholder="$t('select')"
-                
               />
             </div>
             <b-button
@@ -248,6 +242,7 @@ import Treeselect from "@riophae/vue-treeselect";
 // import the styles
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 import loadLocChildMixin from "@/helpers/LoadLocationChildMixin";
+import { translateDate } from "@/components/Common/commonFunctions";
 export default {
   props: [
     "generateFlag",
@@ -260,6 +255,7 @@ export default {
     "calType",
     "autoSaveSource",
     "getActiveTab",
+    "allowedArray",
   ],
   components: {
     Treeselect,
@@ -303,6 +299,7 @@ export default {
           text: this.$i18n.t("method_detial"),
         },
       ],
+      sortDesc: true,
     };
   },
   watch: {
@@ -370,16 +367,73 @@ export default {
     showTable() {
       if (this.emuTableData && this.emuTableData[this.getActiveTab]) {
         let innerdata = this.emuTableData[this.getActiveTab];
+        let a = [];
         Object.keys(innerdata).forEach((locId) => {
-          let item = {
-            [this.$i18n.t("location")]: innerdata[locId]["name"],
-            "EMU Generated on": innerdata[locId]["time"]
-              ? innerdata[locId]["time"]
-              : "Some error occured",
-          };
-          this.emuItems.push(item);
+          if (this.allowedArray.includes(locId.split("/")[1])) {
+            let item = {
+              [this.$i18n.t("location")]: innerdata[locId]["name"],
+              // [this.$i18n.t("EMUGeneratedon")]: innerdata[locId]["time"]
+              //   ? innerdata[locId]["time"]
+              //   : "Some error occured",
+            };
+            console.log("getAppSettings.calendar", this.$store.getters.getAppSettings.calendar)
+            if (this.$store.getters.getAppSettings.calendar !== "nepali") {
+              item[this.$i18n.t("EMUGeneratedon")] = innerdata[locId]["time"]
+                ? innerdata[locId]["time"]
+                : "Some error occured";
+              a.push(item);
+            } else {
+              let d = new Date(innerdata[locId]["time"]);
+              if (d) {
+                const { adToBs } = require("@sbmdkl/nepali-date-converter");
+                const nepaliDate = adToBs(
+                  `${
+                    d.getFullYear() +
+                    "-" +
+                    (d.getMonth() + 1) +
+                    "-" +
+                    d.getDate()
+                  }`
+                );
+
+
+                console.log("nepaliDate" , nepaliDate)
+
+                let nepaliMonthYear = translateDate({
+                  rawDate:
+                    `${new Date(nepaliDate).getFullYear()}` +
+                    "-" +
+                    `${
+                      new Date(nepaliDate).getMonth() + 1 < 10
+                        ? "0" + (new Date(nepaliDate).getMonth() + 1)
+                        : new Date(nepaliDate).getMonth() + 1
+                    }`,
+                });
+
+                console.log("nepaliMonthYear" ,nepaliMonthYear)
+
+                let nepaliDateFinal =
+                  nepaliDate.split("-")[2] + ", " + nepaliMonthYear;
+                item[this.$i18n.t("EMUGeneratedon")] = nepaliDateFinal;
+                this.emuItems.push(item);
+              }
+            a.push(item);
+            }
+          }
         });
+        if (a.length > 0) {
+          this.processedData(a);
+        }
       }
+    },
+    processedData(arr) {
+      arr.sort((a, b) => {
+        return (
+          new Date(b[this.$i18n.t("EMUGeneratedon")]) -
+          new Date(a[this.$i18n.t("EMUGeneratedon")])
+        );
+      });
+      this.emuItems = arr;
     },
     generateEMUTable() {
       this.emuFields = [];
@@ -409,6 +463,7 @@ export default {
           //console.log(emuData,this.getActiveTab,emuData[this.getActiveTab]);
         })
         .catch((res) => {
+          console.log(res, "res in autosaveemu file");
           this.showAutoButton = true;
         });
     },

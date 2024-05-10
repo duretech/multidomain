@@ -747,7 +747,7 @@ export default {
         let dataEle = aChart[i].dataElems;
         let j;
         for (j in dataEle) {
-          if (dataEle[j].de.length) nFlag1++;
+          if (dataEle[j].selectedDE.length) nFlag1++;
         }
       }
       for (i = 0; i < ncLen; i++) {
@@ -818,6 +818,8 @@ export default {
       let p_loc = this.location.split("/")[1],
         p_pe = dataM.getYearFormated(this.sourceStartYear, this.sourceEndYear);
       let yearArray = p_pe.split(";");
+      this.sYearArray = p_pe.split(";");
+      if (this.byPassRepoRate == false) {
       service
         .getAnalyticalIndicatorData(this.reportingRateDe, p_loc, p_pe)
         .then((response) => {
@@ -841,6 +843,7 @@ export default {
           //console.log(res);
           // this.showAlert();
         });
+        }
     },
     /**
      * This fnc is to compute reporting chart data.
@@ -1374,7 +1377,10 @@ export default {
       if (this.bRequestFlag) this.allDataFetched();
     },
     bRequestFlag(newVal) {
-      if (newVal && this.repoRate) {
+       if (
+        (newVal && this.repoRate && this.byPassRepoRate == false) ||
+        (newVal && this.byPassRepoRate == true)
+      ) {
         this.allDataFetched();
       }
     },

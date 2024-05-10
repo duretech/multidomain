@@ -499,6 +499,7 @@
       <div class="row p-3" v-if="finalAdjNonAdjTableData">
         <strong>{{ $t("baseLineText") }}</strong>
         <download-csv
+          v-if="finalAdjNonAdjTableData && finalAdjNonAdjTableData.baseline"
           :data="finalAdjNonAdjTableData.baseline.items"
           style="display: inline-block; margin-left: 10px"
           ><img
@@ -521,6 +522,7 @@
         />
         <strong>{{ $t("adjustedNonAdjText") }}</strong>
         <download-csv
+          v-if="finalAdjNonAdjTableData && finalAdjNonAdjTableData.adjusted"
           :data="finalAdjNonAdjTableData.adjusted.items"
           style="display: inline-block; margin-left: 10px"
           ><img
@@ -970,7 +972,7 @@ export default {
         let dataEle = aChart[i].dataElems;
         let j;
         for (j in dataEle) {
-          if (dataEle[j].de.length) nFlag1++;
+          if (dataEle[j].selectedDE.length) nFlag1++;
         }
       }
       let promises = [],
@@ -1236,7 +1238,6 @@ export default {
       repoData.cid = this.data["reportingRate"][0]["indicator"]["cid"];
 
       this.reportinRateChart = repoData;
-      this.$emit('updateChartData' , this.reportinRateChart)
     },
     /**
      * This fnc is to compute final chart data.
@@ -1272,7 +1273,6 @@ export default {
           )
         );
         this.aFinalInputData = aFinalCharts;
-        this.$emit("updateChartData", this.aFinalInputData);
         dataM.saveChartColors(aFinalCharts, this.tabName);
       } else {
         if (!this.finalAnnualCharts) {
@@ -1419,7 +1419,6 @@ export default {
       });
       this.outPutTrendsChart = oUserTrends;
 
-      this.$emit('updateChartData' , this.outPutTrendsChart)
 
       if (this.getData) {
         this.getData(
@@ -1474,7 +1473,6 @@ export default {
         1,
         "bar"
       );
-      this.$emit('updateChartData' , this.comparisionEstimateData)
       //Column chart for comparison estimate chart
       let MordernUsersByMethodsData = dataM.comarisonEstimateColumnChart(
         this.currentYear,
@@ -1490,7 +1488,6 @@ export default {
         "column"
       );
 
-      this.$emit('updateChartData' , this.MordernUsersByMethodsData)
 
       let adjNonAdjLineChart = dataM.getadjNonAdjLineChart(
         this.sYearArray,
@@ -1505,7 +1502,6 @@ export default {
         "line"
       );
 
-      this.$emit('updateChartData' , this.lineAdNonAdChartData)
 
       let adjNonAdjBarChart = dataM.getadjNonAdjBarChart(
         this.currentYear,
@@ -1520,7 +1516,6 @@ export default {
         "bar"
       );
 
-      this.$emit('updateChartData' , this.adNonadChartData)
 
       let methodMixService = dataM.getMethodMixServicePie(
         this.currentYear,
@@ -1530,8 +1525,6 @@ export default {
         this.bgData.methodMix
       );
       this.MixComparisionData = this.getPieChart(methodMixService);
-
-      this.$emit('updateChartData' , this.MixComparisionData)
 
       let dhsData = this.bgData.DHS ? this.bgData.DHS : {};
       let pmaData = this.bgData.PMA ? this.bgData.PMA : {};
@@ -1558,11 +1551,8 @@ export default {
         "line"
       );
 
-      this.$emit('updateChartData' , this.userTrendsByMethod)
-
       let slopeData = dataM.getSlopData(userTrendsbyEmu);
       this.comparisionSlope = this.getOtherChartDeatils(slopeData, 5, "bar");
-      this.$emit('updateChartData' , this.comparisionSlope)
       if (this.getData) {
         this.getData(this.tabName, methodWiseAdjObject, "userT", this.filter);
       }
@@ -1573,7 +1563,6 @@ export default {
         this.getData(this.tabName, userTrendsbyEmu, "output", this.filter);
       }
       //}
-
     },
     generateIntermediateTable(type, obj, scaling = null) {
       this.finalAdjNonAdjTableData[type] = {};
@@ -1605,8 +1594,14 @@ export default {
             }
             let val = obj[method][year][subm];
 
-            if (!this.finalAdjNonAdjTableData[type]["fields"].includes(" "+year+" "))
-              this.finalAdjNonAdjTableData[type]["fields"].push(" "+year+" ");
+            if (
+              !this.finalAdjNonAdjTableData[type]["fields"].includes(
+                " " + year + " "
+              )
+            )
+              this.finalAdjNonAdjTableData[type]["fields"].push(
+                " " + year + " "
+              );
             mainObj[method.split("/")[0]][subm.split("/")[0]][year] = val;
           });
         });
@@ -1618,14 +1613,14 @@ export default {
           innobj["Sub-method"] = subm;
           Object.keys(mainObj[method][subm]).forEach((year) => {
             let val = mainObj[method][subm][year];
-            if(isNaN(year*1)){
+            if (isNaN(year * 1)) {
               innobj[year] = val;
             }
           });
           Object.keys(mainObj[method][subm]).forEach((year) => {
             let val = mainObj[method][subm][year];
-            if(!isNaN(year*1)){
-              innobj[" "+year+" "] = val;
+            if (!isNaN(year * 1)) {
+              innobj[" " + year + " "] = val;
             }
           });
           this.finalAdjNonAdjTableData[type]["items"].push(innobj);

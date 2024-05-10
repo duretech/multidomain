@@ -6,7 +6,7 @@ import Vue from "vue";
 import App from "./App.vue";
 //eslint-disable-next-line
 import bootstrap from "bootstrap";
-import { BootstrapVue } from "bootstrap-vue";
+import { BootstrapVue , BootstrapVueIcons } from "bootstrap-vue";
 import router from "./router";
 //eslint-disable-next-line
 import GlobalMixin from "./helpers/GlobalMixin";
@@ -33,6 +33,7 @@ import footer from "@/components/Common/Footer";
 import JsonCSV from "vue-json-csv";
 import service from "@/service";
 import VuePapaParse from "vue-papa-parse";
+// import FloatingVue from 'floating-vue'
 
 //Import required CSS
 import "bootstrap/dist/css/bootstrap.css";
@@ -63,9 +64,11 @@ Vue.mixin(GlobalMixin);
 //Global plugin registration
 Vue.use(VueFullscreen);
 Vue.use(BootstrapVue);
+Vue.use(BootstrapVueIcons);
 Vue.use(HighchartsVue);
 Vue.use(VuePapaParse);
 Vue.use(VueTour);
+// Vue.use(FloatingVue)
 
 // Google Analytics. Tracking ID is coming from the 'index.html' file.
 // The analytics will be auto captured for all the pages using the 'router'.

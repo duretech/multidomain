@@ -105,6 +105,7 @@ export default {
     },
     setReportChart(obj) {
       this.$emit("setReportChart", obj);
+      this.$emit("setLocationPeriod", this.locationPeriod);
     },
     flag(flagDetails) {
       this.$emit("flag", flagDetails);

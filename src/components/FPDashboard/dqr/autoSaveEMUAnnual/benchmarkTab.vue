@@ -84,7 +84,6 @@
           :dqrResponse="dqrResponse"
           :appResponse="appResponse"
           :userDetails="userDetails"
-          @updateChartData="updateChartData"
         />
       </div>
       <div
@@ -104,7 +103,6 @@
           :appResponse="appResponse"
           :userDetails="userDetails"
           :defaultLevel="defaultLevelID"
-          @updateChartData="updateChartData"
         />
       </div>
     </div>
@@ -152,16 +150,16 @@
                   </div>
                   <benchMarkingInpOutp
                     v-if="catData && bgData"
-                    :data="categoryData.emu['Commodities_Client']"
+                    :data="catData"
                     :bgData="bgData"
                     :bAllWomen="bAllWomen"
                     :byPassRepoRate="
                       catData['reportingRate'][0]['indicator']['disableChart']
                     "
-                    :repoId="
+                     :repoId="
                       catData['reportingRate'][0]['indicator'][
                         'subIndicator'
-                      ][0]['de'][0]
+                      ][0]['selectedDE']?.[0]?.['id']
                     "
                     :repoColor="
                       catData['reportingRate'][0]['indicator']['chartOptions'][
@@ -238,7 +236,6 @@
                     @saveEMUAuto="saveEMUAuto"
                     :emuOuputFinalEMu="emuOuputFinalEMu"
                     :initialYear="initialYear"
-                    @updateChartData="updateChartData"
                   />
                 </b-tab>
               </template>

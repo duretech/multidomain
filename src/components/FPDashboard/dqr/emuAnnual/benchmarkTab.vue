@@ -1,21 +1,5 @@
 <template>
   <div class="container-fluid m-t-28px">
-    <!-- <div class="d-flex justify-content-end" v-if="!isGenerating">
-      <button
-            type="button"
-            class="btn btn-primary black-btn blue-btn f-08rem ml-2"
-            @click.prevent.stop="downloadReport()"
-          >
-            <span class="">
-              <img
-                :src="require('@/assets/images/icons/generateReport.svg')"
-                class="img-fluid mt-xl-n1"
-              />
-            </span>
-            <span class="mx-1"> {{ $t("exportbtn") }} </span>
-          </button>
-        </div>     -->
-    <!-- <loader v-if="bShowLoader" /> -->
     <div class="filter-btn" @click.prevent="showToolbarOnTablet = true">
       <a href="#" id="tabbar-expand"><i class="fas fa-filter"></i></a>
     </div>
@@ -99,7 +83,6 @@
           :dqrResponse="dqrResponse"
           :appResponse="appResponse"
           :userDetails="userDetails"
-          @updateChartData="updateChartData"
         />
       </div>
       <div
@@ -119,7 +102,6 @@
           :appResponse="appResponse"
           :userDetails="userDetails"
           :defaultLevel="defaultLevelID"
-          @updateChartData="updateChartData"
         />
       </div>
     </div>
@@ -167,7 +149,7 @@
                     />
                   </div>
                   <benchMarkingInpOutp
-                    v-if="catData && bgData"
+                    v-if="catData && bgData && catData['reportingRate']"
                     :data="catData"
                     :emuSaveType="emuSaveType"
                     :bgData="bgData"
@@ -175,7 +157,7 @@
                     :repoId="
                       catData['reportingRate'][0]['indicator'][
                         'subIndicator'
-                      ][0]['de'][0]
+                      ][0]['selectedDE']?.[0]?.['id']
                     "
                     :byPassRepoRate="
                       catData['reportingRate'][0]['indicator']['disableChart']
@@ -197,12 +179,12 @@
                     :ref="key"
                     :signOffActive="signOffActive"
                     @changeFilter="changeFilter"
-                    @updateChartData="updateChartData"
                   />
                 </b-tab>
               </template>
               <template v-for="(catData, key) in categoryData.emu">
                 <b-tab
+                  :active="recentActiveTab == 'emu'"
                   @click="getRecentActiveTab(key)"
                   :title="getSource(key)"
                   :key="key"
@@ -254,7 +236,6 @@
                     :emuOuputFinalEMu="emuOuputFinalEMu"
                     :initialYear="initialYear"
                     @saveEMUFinal="saveEMUFinal"
-                    @updateChartData="updateChartData"
                   />
                   <div class="text-center" v-else>
                     <!-- <loader v-if="bShowLoader" />  //need to change css-->
@@ -267,600 +248,9 @@
             <div class="text-center" v-else>
               <b-spinner type="grow" label="Spinning"></b-spinner>
             </div>
-            <!-- <ul
-              class="nav nav-pills mb-3"
-              id="benchmarking-sub-tab"
-              role="tablist"
-              v-if="
-                categoryData &&
-                categoryData.emu['Commodities_Client']['dataOnContraceptive'] ==
-                  'No' &&
-                categoryData.emu['Commodities_Facilities'][
-                  'dataOnContraceptive'
-                ] == 'No' &&
-                categoryData.emu['Visits']['dataOnContraceptive'] == 'No' &&
-                categoryData.emu['User']['dataOnContraceptive'] == 'No'
-              "
-            >
-              <li class="nav-item">
-                <a
-                  class="nav-link analytical-method-link"
-                  id="benchmarking-nooutput-tab"
-                  data-toggle="pill"
-                  href="#benchmarking-nooutput"
-                  role="tab"
-                  aria-controls="benchmarking-nooutput"
-                  aria-selected="false"
-                ></a>
-              </li>
-            </ul>
-
-            <ul
-              class="nav nav-pills mb-3 mx-3 mx-3 benchmark-emu border-bottom"
-              id="benchmarking-sub-tab"
-              role="tablist"
-              v-else
-            >
-              <li
-                class="nav-item fs-19-1920"
-                v-if="
-                  categoryData &&
-                  categoryData.emu['Commodities_Client'][
-                    'dataOnContraceptive'
-                  ] == 'Yes'
-                "
-              >
-                <a
-                  :class="{ active: activeTab === 'Commodities_Client' }"
-                  class="nav-link analytical-method-link"
-                  id="benchmarking-comclient-tab"
-                  data-toggle="pill"
-                  href="#benchmarking-comclient"
-                  role="tab"
-                  aria-controls="benchmarking-comclient"
-                  aria-selected="true"
-                  @click="getRecentActiveTab('client')"
-                  >{{ $t("commodities_Distributed_to_Clients") }}</a
-                >
-              </li>
-              <li
-                class="nav-item fs-19-1920"
-                v-if="
-                  categoryData &&
-                  categoryData.emu['Commodities_Facilities'][
-                    'dataOnContraceptive'
-                  ] == 'Yes'
-                "
-              >
-                <a
-                  :class="{ active: activeTab === 'Commodities_Facilities' }"
-                  class="nav-link analytical-method-link"
-                  id="benchmarking-comfacilities-tab"
-                  data-toggle="pill"
-                  href="#benchmarking-comfacilities"
-                  role="tab"
-                  aria-controls="benchmarking-comfacilities"
-                  aria-selected="false"
-                  @click="getRecentActiveTab('facilities')"
-                  >{{ $t("commodities_Distributed_to_Facilities") }}</a
-                >
-              </li>
-              <li
-                class="nav-item fs-19-1920"
-                v-if="
-                  categoryData &&
-                  categoryData.emu['Visits']['dataOnContraceptive'] == 'Yes'
-                "
-              >
-                <a
-                  :class="{ active: activeTab === 'Visits' }"
-                  class="nav-link analytical-method-link"
-                  id="benchmarking-fpvisits-tab"
-                  data-toggle="pill"
-                  href="#benchmarking-fpvisits"
-                  role="tab"
-                  aria-controls="benchmarking-fpvisits"
-                  aria-selected="false"
-                  @click="getRecentActiveTab('visits')"
-                  >{{ $t("fp_visits") }}</a
-                >
-              </li>
-              <li
-                class="nav-item"
-                v-if="
-                  categoryData &&
-                  categoryData.emu['User']['dataOnContraceptive'] == 'Yes'
-                "
-              >
-                <a
-                  :class="{ active: activeTab === 'User' }"
-                  class="nav-link analytical-method-link"
-                  id="benchmarking-fpusers-tab"
-                  data-toggle="pill"
-                  href="#benchmarking-fpusers"
-                  role="tab"
-                  aria-controls="benchmarking-fpusers"
-                  aria-selected="false"
-                  @click="getRecentActiveTab('users')"
-                  >{{ $t("fp_users") }}</a
-                >
-              </li>
-              <li class="nav-item">
-                <a
-                  v-if="bShowEmu"
-                  class="nav-link analytical-method-link"
-                  id="benchmarking-fpemuoutput-tab"
-                  data-toggle="pill"
-                  href="#benchmarking-fpemuoutput"
-                  role="tab"
-                  aria-controls="benchmarking-fpemuoutput"
-                  aria-selected="false"
-                  @click="getRecentActiveTab('emu')"
-                  >{{ $t("emu_Output") }}</a
-                >
-              </li>
-            </ul> -->
           </div>
         </div>
       </div>
-      <!-- <div class="col-lg-12 px-0">
-        <div
-          class="tab-content"
-          id="benchmarking-sub-tabContent"
-          v-if="
-            categoryData &&
-            categoryData.emu['Commodities_Client']['dataOnContraceptive'] ==
-              'No' &&
-            categoryData.emu['Commodities_Facilities']['dataOnContraceptive'] ==
-              'No' &&
-            categoryData.emu['Visits']['dataOnContraceptive'] == 'No' &&
-            categoryData.emu['User']['dataOnContraceptive'] == 'No'
-          "
-        >
-          <div
-            class="tab-pane fade active show"
-            id="benchmarking-nooutput"
-            role="tabpanel"
-            aria-labelledby="benchmarking-nooutput-tab"
-          >
-            <b-alert show class="m-t-40px">{{
-              $t("contraceptive_Commodities_data_not_Available")
-            }}</b-alert>
-          </div>
-        </div>
-        <div class="tab-content" id="benchmarking-sub-tabContent" v-else>
-          <div
-            :class="{
-              active: activeTab === 'Commodities_Client',
-              show: activeTab === 'Commodities_Client',
-            }"
-            class="tab-pane fade"
-            id="benchmarking-comclient"
-            role="tabpanel"
-            aria-labelledby="benchmarking-comclient-tab"
-            v-if="
-              categoryData &&
-              categoryData.emu['Commodities_Client']['dataOnContraceptive'] ==
-                'Yes'
-            "
-          >
-            <div
-              class="summaryTabSection"
-              v-if="
-                typeof categoryData.emu['Commodities_Client']['categoryInfo'] ==
-                'object'
-                  ? categoryData.emu['Commodities_Client']['categoryInfo'][
-                      $i18n.locale
-                    ]
-                  : categoryData.emu['Commodities_Client']['categoryInfo']
-              "
-            >
-              <div class="row p-4">
-                <div class="col-12">
-                  <button
-                    class="btn text-white summaryBtn fs-19-1920"
-                    data-toggle="collapse"
-                    data-target="#clientSummaryTab"
-                    @click="activeSummary('client')"
-                    :class="{ active: clientActive }"
-                  >
-                    Summary
-                    <i class="fa fa-angle-double-right" aria-hidden="true"></i>
-                  </button>
-                  <div
-                    id="clientSummaryTab"
-                    class="collapse card px-3 pt-3 mb-3 summary_Card fs-17-1920"
-                    v-html="
-                      typeof categoryData.emu['Commodities_Client'][
-                        'categoryInfo'
-                      ] == 'object'
-                        ? categoryData.emu['Commodities_Client'][
-                            'categoryInfo'
-                          ][$i18n.locale]
-                        : categoryData.emu['Commodities_Client']['categoryInfo']
-                    "
-                  ></div>
-                </div>
-              </div>
-            </div>
-            <benchMarkingInpOutp
-              v-if="categoryData.emu['Commodities_Client'] && bgData"
-              :data="categoryData.emu['Commodities_Client']"
-              :emuSaveType="emuSaveType"
-              :bgData="bgData"
-              :bAllWomen="bAllWomen"
-              :repoId="
-                categoryData['emu']['Commodities_Client']['reportingRate'][0][
-                  'indicator'
-                ]['subIndicator'][0]['de'][0]
-              "
-              :byPassRepoRate="
-                categoryData['emu']['Commodities_Client']['reportingRate'][0][
-                  'indicator'
-                ]['disableChart']
-              "
-              :repoColor="
-                categoryData['emu']['Commodities_Client']['reportingRate'][0][
-                  'indicator'
-                ]['chartOptions']['color']
-              "
-              tabName="commoditiesToClients"
-              :getData="getDatafromChild"
-              tableName="Commodities Client"
-              :startYear="sStartYear"
-              :endYear="sRecentYear"
-              contName="Commodities_Client"
-              :location="value[0]"
-              :year="filterYear"
-              @activeTabName="getActiveTab"
-              ref="comclientref"
-              :signOffActive="signOffActive"
-              inputActive="false"
-              outputActive="false"
-              repoActive="false"
-              :userDetails="userDetails"
-              @changeFilter="changeFilter"
-            />
-          </div>
-          <div
-            :class="{
-              active: activeTab === 'Commodities_Facilities',
-              show: activeTab === 'Commodities_Facilities',
-            }"
-            class="tab-pane fade"
-            id="benchmarking-comfacilities"
-            role="tabpanel"
-            aria-labelledby="benchmarking-comfacilities-tab"
-            v-if="
-              categoryData &&
-              categoryData.emu['Commodities_Facilities'][
-                'dataOnContraceptive'
-              ] == 'Yes'
-            "
-          >
-            <div
-              class="summaryTabSection"
-              v-if="
-                typeof categoryData.emu['Commodities_Facilities'][
-                  'categoryInfo'
-                ] == 'object'
-                  ? categoryData.emu['Commodities_Facilities']['categoryInfo'][
-                      $i18n.locale
-                    ]
-                  : categoryData.emu['Commodities_Facilities']['categoryInfo']
-              "
-            >
-              <div class="row p-3">
-                <div class="col-12">
-                  <button
-                    class="btn text-white summaryBtn fs-19-1920"
-                    data-toggle="collapse"
-                    data-target="#facSummaryTab"
-                    @click="activeSummary('fac')"
-                    :class="{ active: facActive }"
-                  >
-                    Summary
-                    <i class="fa fa-angle-double-right" aria-hidden="true"></i>
-                  </button>
-                  <div
-                    id="facSummaryTab"
-                    class="collapse card px-3 pt-3 mb-3 summary_Card fs-17-1920"
-                    v-html="
-                      typeof categoryData.emu['Commodities_Facilities'][
-                        'categoryInfo'
-                      ] == 'object'
-                        ? categoryData.emu['Commodities_Facilities'][
-                            'categoryInfo'
-                          ][$i18n.locale]
-                        : categoryData.emu['Commodities_Facilities'][
-                            'categoryInfo'
-                          ]
-                    "
-                  ></div>
-                </div>
-              </div>
-            </div>
-            <benchMarkingInpOutp
-              v-if="categoryData.emu['Commodities_Facilities'] && bgData"
-              :data="categoryData.emu['Commodities_Facilities']"
-              :emuSaveType="emuSaveType"
-              :bgData="bgData"
-              :bAllWomen="bAllWomen"
-              :repoId="
-                categoryData['emu']['Commodities_Facilities'][
-                  'reportingRate'
-                ][0]['indicator']['subIndicator'][0]['de'][0]
-              "
-              :byPassRepoRate="
-                categoryData['emu']['Commodities_Facilities'][
-                  'reportingRate'
-                ][0]['indicator']['disableChart']
-              "
-              :repoColor="
-                categoryData['emu']['Commodities_Facilities'][
-                  'reportingRate'
-                ][0]['indicator']['chartOptions']['color']
-              "
-              tabName="commoditiesToFacilities"
-              :getData="getDatafromChild"
-              tableName="Commodities Facilities"
-              :startYear="sStartYear"
-              :endYear="sRecentYear"
-              contName="Commodities_Facilities"
-              :location="value[0]"
-              :year="filterYear"
-              @activeTabName="getActiveTab"
-              ref="comfacilityref"
-              :signOffActive="signOffActive"
-              inputActive="false"
-              outputActive="false"
-              repoActive="false"
-              :userDetails="userDetails"
-              @changeFilter="changeFilter"
-            />
-          </div>
-          <div
-            :class="{
-              active: activeTab === 'Visits',
-              show: activeTab === 'Visits',
-            }"
-            class="tab-pane fade"
-            id="benchmarking-fpvisits"
-            role="tabpanel"
-            aria-labelledby="benchmarking-fpvisits-tab"
-            v-if="
-              categoryData &&
-              categoryData.emu['Visits']['dataOnContraceptive'] == 'Yes'
-            "
-          >
-            <div
-              class="summaryTabSection"
-              v-if="
-                typeof categoryData.emu['Visits']['categoryInfo'] == 'object'
-                  ? categoryData.emu['Visits']['categoryInfo'][$i18n.locale]
-                  : categoryData.emu['Visits']['categoryInfo']
-              "
-            >
-              <div class="row p-3">
-                <div class="col-12">
-                  <button
-                    class="btn text-white summaryBtn fs-19-1920"
-                    data-toggle="collapse"
-                    data-target="#visitsSummaryTab"
-                    @click="activeSummary('visit')"
-                    :class="{ active: visitsActive }"
-                  >
-                    Summary
-                    <i class="fa fa-angle-double-right" aria-hidden="true"></i>
-                  </button>
-                  <div
-                    id="visitsSummaryTab"
-                    class="collapse card px-3 pt-3 mb-3 summary_Card fs-17-1920"
-                    v-html="
-                      typeof categoryData.emu['Visits']['categoryInfo'] ==
-                      'object'
-                        ? categoryData.emu['Visits']['categoryInfo'][
-                            $i18n.locale
-                          ]
-                        : categoryData.emu['Visits']['categoryInfo']
-                    "
-                  ></div>
-                </div>
-              </div>
-            </div>
-            <benchMarkingInpOutp
-              v-if="categoryData.emu['Visits'] && bgData"
-              :data="categoryData.emu['Visits']"
-              :emuSaveType="emuSaveType"
-              :bgData="bgData"
-              :bAllWomen="bAllWomen"
-              :repoId="
-                categoryData['emu']['Visits']['reportingRate'][0]['indicator'][
-                  'subIndicator'
-                ][0]['de'][0]
-              "
-              :byPassRepoRate="
-                categoryData['emu']['Visits']['reportingRate'][0]['indicator'][
-                  'disableChart'
-                ]
-              "
-              :repoColor="
-                categoryData['emu']['Visits']['reportingRate'][0]['indicator'][
-                  'chartOptions'
-                ]['color']
-              "
-              tabName="fp_visits"
-              :getData="getDatafromChild"
-              tableName="Visits"
-              :startYear="sStartYear"
-              :endYear="sRecentYear"
-              contName="Visits"
-              :location="value[0]"
-              :year="filterYear"
-              @activeTabName="getActiveTab"
-              ref="visitsref"
-              :signOffActive="signOffActive"
-              inputActive="false"
-              outputActive="false"
-              repoActive="false"
-              :userDetails="userDetails"
-              @changeFilter="changeFilter"
-            />
-          </div>
-          <div
-            :class="{
-              active: activeTab === 'User',
-              show: activeTab === 'User',
-            }"
-            class="tab-pane fade"
-            id="benchmarking-fpusers"
-            role="tabpanel"
-            aria-labelledby="benchmarking-fpusers-tab"
-            v-if="
-              categoryData &&
-              categoryData.emu['User']['dataOnContraceptive'] == 'Yes'
-            "
-          >
-            <div
-              class="summaryTabSection"
-              v-if="
-                typeof categoryData.emu['User']['categoryInfo'] == 'object'
-                  ? categoryData.emu['User']['categoryInfo'][$i18n.locale]
-                  : categoryData.emu['User']['categoryInfo']
-              "
-            >
-              <div class="row p-3">
-                <div class="col-12">
-                  <button
-                    class="btn text-white summaryBtn fs-19-1920"
-                    data-toggle="collapse"
-                    data-target="#userSummaryTab"
-                    @click="activeSummary('user')"
-                    :class="{ active: userActive }"
-                  >
-                    Summary
-                    <i class="fa fa-angle-double-right" aria-hidden="true"></i>
-                  </button>
-                  <div
-                    id="userSummaryTab"
-                    class="collapse card px-3 pt-3 mb-3 summary_Card fs-17-1920"
-                    v-html="
-                      typeof categoryData.emu['User']['categoryInfo'] ==
-                      'object'
-                        ? categoryData.emu['User']['categoryInfo'][$i18n.locale]
-                        : categoryData.emu['User']['categoryInfo']
-                    "
-                  ></div>
-                </div>
-              </div>
-            </div>
-            <benchMarkingInpOutp
-              v-if="categoryData.emu['User'] && bgData"
-              :data="categoryData.emu['User']"
-              :emuSaveType="emuSaveType"
-              :bgData="bgData"
-              :bAllWomen="bAllWomen"
-              :repoId="
-                categoryData['emu']['User']['reportingRate'][0]['indicator'][
-                  'subIndicator'
-                ][0]['de'][0]
-              "
-              :byPassRepoRate="
-                categoryData['emu']['User']['reportingRate'][0]['indicator'][
-                  'disableChart'
-                ]
-              "
-              :repoColor="
-                categoryData['emu']['User']['reportingRate'][0]['indicator'][
-                  'chartOptions'
-                ]['color']
-              "
-              tabName="fp_users"
-              :getData="getDatafromChild"
-              tableName="Users"
-              :startYear="sStartYear"
-              :endYear="sRecentYear"
-              contName="User"
-              :location="value[0]"
-              :year="filterYear"
-              @activeTabName="getActiveTab"
-              ref="usersref"
-              :signOffActive="signOffActive"
-              inputActive="false"
-              outputActive="false"
-              repoActive="false"
-              :userDetails="userDetails"
-              @changeFilter="changeFilter"
-            />
-          </div>
-          <div
-            v-if="bShowEmu"
-            class="tab-pane fade"
-            id="benchmarking-fpemuoutput"
-            role="tabpanel"
-            aria-labelledby="benchmarking-fpemuoutput-tab"
-          >
-            <div
-              class="summaryTabSection"
-              v-if="categoryData && categoryData.emu['Output']['categoryInfo']"
-            >
-              <div class="row p-3">
-                <div class="col-12">
-                  <button
-                    class="btn text-white summaryBtn fs-19-1920"
-                    data-toggle="collapse"
-                    data-target="#emuSummaryTab"
-                    @click="activeSummary('emu')"
-                    :class="{ active: !emuActive }"
-                  >
-                    Summary
-                    <i class="fa fa-angle-double-right" aria-hidden="true"></i>
-                  </button>
-                  <div
-                    id="emuSummaryTab"
-                    class="collapse card px-3 pt-3 mb-3 summary_Card fs-17-1920 show"
-                    v-html="
-                      categoryData && categoryData.emu['Output']['categoryInfo']
-                    "
-                  ></div>
-                </div>
-              </div>
-            </div>
-            <emuOutput
-              v-if="
-                bShowEmu &&
-                outputData &&
-                slopeData &&
-                userTrendsData &&
-                finalMethodArr
-              "
-              :bShowEmu="bShowEmu"
-              :outputData="outputData"
-              :filter="filter"
-              :bgData="bgData"
-              :bAllWomen="bAllWomen"
-              :slopeData="slopeData"
-              :surveyData="surveyData"
-              :finalMethodArr="finalMethodArr"
-              :userTrendsData="userTrendsData"
-              :userTrendsDataByMethods="userTrendsDataByMethods"
-              :startYear="sStartYear"
-              :endYear="sRecentYear"
-              :boolVal="boolVal"
-              :location="value[0]"
-              :defaultEMU="defaultEMUSource"
-              :data="categoryData.emu"
-              :year="filterYear"
-              :signOffActive="signOffActive"
-              :defaultLevelID="defaultLevelID"
-              :userDetails="userDetails"
-              :emuOuputFinalEMu="emuOuputFinalEMu"
-              :initialYear="initialYear"
-              @saveEMUFinal="saveEMUFinal"
-            />
-          </div>
-        </div>
-      </div> -->
     </div>
     <autoSaveEMU
       v-if="getEMULocations.length"
@@ -872,10 +262,9 @@
       @saveEMUAuto="saveEMUAuto"
       @errorOccured="errorOccured"
       @popError="popError"
-      @updateChartData="updateChartData"
     />
     <toolbarComponent
-    v-if="!isGenerating"
+      v-if="!isGenerating"
       :recentActiveTab="recentActiveTab"
       @location="getLocation"
       @defLevel="defLevel"
@@ -886,7 +275,8 @@
       @emuLocations="generateEMU"
       :generateFlag="generateFlag"
       :autoSaveSource="autoSaveSource"
-      :getActiveTab="activeTab"
+      :getActiveTab="dqrResponse.emu.Background_Data['defaultEMU']"
+      :allowedArray="allowedArray"
     />
   </div>
 </template>
@@ -936,7 +326,8 @@ export default {
     "appResponse",
     "globalResponse",
     "tabName",
-    "isGenerating"
+    "isGenerating",
+    "allowedArray",
   ],
   computed: {
     emuOuputRender() {
@@ -944,12 +335,10 @@ export default {
     },
   },
   methods: {
-    downloadReport(){
-      this.$emit("downloadReport")
+    downloadReport() {
+      this.$emit("downloadReport");
     },
-    updateChartData(data){
-      this.$emit('updateChartData' , data)
-    },
+
     getTabName(key) {
       let sources = {
         Commodities_Client: "commoditiesToClients",
@@ -1043,19 +432,19 @@ export default {
       if (val) {
         service.getIndividualOrganisation(val.split("/")[1]).then((key) => {
           let isObj = this.emuFetched.find((d) => d === val);
-          if (!this.saveObj[this.activeTab]) {
-            this.saveObj[this.activeTab] = {};
+          if (!this.saveObj[this.defaultDDType]) {
+            this.saveObj[this.defaultDDType] = {};
           }
           if (isObj) {
             let foundIndex = this.emuFetched.findIndex((d) => d === val);
             this.emuFetched[foundIndex] = val;
-            this.saveObj[this.activeTab][val] = {
+            this.saveObj[this.defaultDDType][val] = {
               name: key.data.displayName,
               time: currentTime,
             };
           } else {
             this.emuFetched.push(val);
-            this.saveObj[this.activeTab][val] = {
+            this.saveObj[this.defaultDDType][val] = {
               name: key.data.displayName,
               time: currentTime,
             };
@@ -1073,19 +462,19 @@ export default {
       if (val) {
         service.getIndividualOrganisation(val.split("/")[1]).then((key) => {
           let isObj = this.emuFetched.find((d) => d === val);
-          if (!this.saveObj[this.activeTab]) {
-            this.saveObj[this.activeTab] = {};
+          if (!this.saveObj[this.defaultDDType]) {
+            this.saveObj[this.defaultDDType] = {};
           }
           if (isObj) {
             let foundIndex = this.emuFetched.findIndex((d) => d === val);
             this.emuFetched[foundIndex] = val;
-            this.saveObj[this.activeTab][val] = {
+            this.saveObj[this.defaultDDType][val] = {
               name: key.data.displayName,
               time: false,
             };
           } else {
             this.emuFetched.push(val);
-            this.saveObj[this.activeTab][val] = {
+            this.saveObj[this.defaultDDType][val] = {
               name: key.data.displayName,
               time: false,
             };
@@ -1105,19 +494,19 @@ export default {
       if (val) {
         service.getIndividualOrganisation(val.split("/")[1]).then((key) => {
           let isObj = this.emuFetched.find((d) => d === val);
-          if (!this.saveObj[this.activeTab]) {
-            this.saveObj[this.activeTab] = {};
+          if (!this.saveObj[this.defaultDDType]) {
+            this.saveObj[this.defaultDDType] = {};
           }
           if (isObj) {
             let foundIndex = this.emuFetched.findIndex((d) => d === val);
             this.emuFetched[foundIndex] = val;
-            this.saveObj[this.activeTab][val] = {
+            this.saveObj[this.defaultDDType][val] = {
               name: key.data.displayName,
               time: "Population data not found" + currentTime,
             };
           } else {
             this.emuFetched.push(val);
-            this.saveObj[this.activeTab][val] = {
+            this.saveObj[this.defaultDDType][val] = {
               name: key.data.displayName,
               time: "Population data not found - " + currentTime,
             };
@@ -1136,6 +525,7 @@ export default {
           let resp = res.data;
           Object.keys(saveObj).forEach((methods) => {
             Object.keys(saveObj[methods]).forEach((keys) => {
+              resp[methods] = resp?.[methods] ? resp[methods] : {};
               resp[methods][keys] = saveObj[methods][keys];
             });
           });
@@ -1190,11 +580,11 @@ export default {
     },
     getRecentActiveTab(tab) {
       console.log(tab, "tab");
-      if (tab == "Output") {
+      if (tab === "Output") {
         this.recentActiveTab = "emu";
       } else {
         this.recentActiveTab = this.$refs[tab][0].activetab;
-        console.log(this.$refs[tab][0].activetab, "activeTab");
+        console.log(this.$refs[tab], this.$refs, tab, "activeTab");
       }
       // this.activeTab = tab;
       // if (tab == "client") {
@@ -1307,6 +697,12 @@ export default {
         aYear = sYear.split(";");
       let metaConfigData = this.$store.getters.getGlobalFactors();
       let defaultEMUSource = this.categoryData.emu["Background_Data"][
+        "defaultEMU"
+      ]
+        ? this.categoryData.emu["Background_Data"]["defaultEMU"]
+        : "Commodities_Client";
+
+      this.defaultDDType = this.categoryData.emu["Background_Data"][
         "defaultEMU"
       ]
         ? this.categoryData.emu["Background_Data"]["defaultEMU"]
@@ -1740,6 +1136,7 @@ export default {
       visitsActive: false,
       userActive: false,
       defaultEMUSource: null,
+      defaultDDType: null,
     };
   },
   watch: {
@@ -1758,12 +1155,14 @@ export default {
       deep: true,
     },
     filterYear() {
-      this.bShowLoader = true;
-      this.bShowEmu = false;
-      this.outputData = null;
-      this.slopeData = null;
-      this.userTrendsData = null;
-      this.userTrendsDataByMethods = null;
+      this.$store.commit("setLoading", false);
+
+      // this.bShowLoader = true;
+      // this.bShowEmu = false;
+      // this.outputData = null;
+      // this.slopeData = null;
+      // this.userTrendsData = null;
+      // this.userTrendsDataByMethods = null;
     },
     value() {
       this.bShowEmu = false;

@@ -134,6 +134,7 @@ export default {
      */
     setReportChart(obj) {
       this.$emit("setReportChart", obj);
+      this.$emit("setLocationPeriod", this.locationPeriod);
     },
     /**
      * @author Ravindra Bagul

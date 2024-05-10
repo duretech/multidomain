@@ -74,7 +74,6 @@
                   :globalResponse="globalResponse"
                   :caltype="caltype"
                   @saveEMUFinal="saveEMUFinal"
-                  @updateChartData="updateChartData"
               /></b-tab>
             </template>
           </b-tabs>
@@ -95,7 +94,6 @@
       @popError="popError"
       :dhsColor="dhsColor"
       :totalEMUColor="totalEMUColor"
-      @updateChartData="updateChartData"
     />
     <toolbarComponent
       v-if="value && emuMethods && defaultMethod && !isGenerating"
@@ -113,7 +111,8 @@
       @emuLocations="generateEMU"
       :generateFlag="generateFlag"
       :autoSaveSource="autoSaveSource"
-      :getActiveTab="activeTab"
+      :getActiveTab="dqrResponse.emu_monthly.Background_Data['autoSaveEMU']"
+      :allowedArray="allowedArray"
     />
   </div>
 </template>
@@ -144,7 +143,8 @@ export default {
     "tabName",
     "dhsColor",
     "totalEMUColor",
-    "isGenerating"
+    "isGenerating",
+    "allowedArray"
   ],
   mounted() {
     this.getActiveTab("input");
@@ -160,9 +160,7 @@ export default {
     downloadReport(){
       this.$emit("downloadReport")
     },
-    updateChartData(data){
-      this.$emit('updateChartData' , data)
-    },
+    
     getSource(key) {
       let aSource = {
         Commodities_Client: this.$i18n.t("commodities_Distributed_to_Clients"),
@@ -360,12 +358,13 @@ export default {
     updateEMU(saveObj) {
       let key = this.generateKey(`autoSaveEMU_${this.$i18n.locale}`);
       service
-        .getSavedConfig({ tableKey: key })
-        .then((res) => {
-          let resp = res.data;
-          Object.keys(saveObj).forEach((methods) => {
-            Object.keys(saveObj[methods]).forEach((keys) => {
-              resp[methods][keys] = saveObj[methods][keys];
+      .getSavedConfig({ tableKey: key })
+      .then((res) => {
+        let resp = res.data;
+        Object.keys(saveObj).forEach((methods) => {
+          Object.keys(saveObj[methods]).forEach((keys) => {
+            resp[methods] = resp?.[methods] ? resp[methods] : {}
+            resp[methods][keys] = saveObj[methods][keys];
             });
           });
           let response = service.updateConfig({ data: resp, tableKey: key });

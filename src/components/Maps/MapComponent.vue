@@ -38,36 +38,40 @@
           :options="getOptions"
           v-if="showGeoJson"
         ></l-geo-json>
-          <l-control-fullscreen
-            v-if="!isExporting"
-            position="topright"
-            :class="isGenerating ? 'd-none' : 'full-screen leaflet-control'"
-            :options="{
-              title: { false: $t('fullScreen'), true: $t('exitFullScreen') },
-            }"
-          />
-          <l-control-zoom
-            style="padding: 4px 6px"
-            position="topright"
-            :zoomInTitle="$t('zoomin')"
-            :zoomOutTitle="$t('zoomout')"
-            :class="isGenerating ? 'd-none' : 'zoom-inout leaflet-control'"
-            v-if="!isExporting"
+        <l-control-fullscreen
+          v-if="!isExporting"
+          position="topright"
+          :class="isGenerating ? 'd-none' : 'full-screen leaflet-control'"
+          :options="{
+            title: { false: $t('fullScreen'), true: $t('exitFullScreen') },
+          }"
+        />
+        <l-control-zoom
+          style="padding: 4px 6px"
+          position="topright"
+          :zoomInTitle="$t('zoomin')"
+          :zoomOutTitle="$t('zoomout')"
+          :class="isGenerating ? 'd-none' : 'zoom-inout leaflet-control'"
+          v-if="!isExporting"
+        >
+        </l-control-zoom>
+        <l-control
+          position="topright"
+          v-if="!isExporting"
+          :class="isGenerating ? 'd-none' : 'reset-map leaflet-control'"
+        >
+          <span
+            @click.prevent.stop="reCenterMap"
+            :title="$t('resetMap')"
+            data-html2canvas-ignore="true"
           >
-          </l-control-zoom>
-          <l-control position="topright" v-if="!isExporting" :class="isGenerating ? 'd-none' : 'reset-map leaflet-control'">
-            <span
-              @click.prevent.stop="reCenterMap"
-              :title="$t('resetMap')"
-              data-html2canvas-ignore="true"
-            >
-              <img
-                src="@/assets/images/icons/icon-refresh.svg"
-                class="w-17px"
-                :style="{ filter: filterColor }"
-              />
-            </span>
-          </l-control>
+            <img
+              src="@/assets/images/icons/icon-refresh.svg"
+              class="w-17px"
+              :style="{ filter: filterColor }"
+            />
+          </span>
+        </l-control>
         <l-control
           position="bottomleft"
           id="legend"
@@ -196,7 +200,7 @@ export default {
     "selectedLayer",
     "locationPeriod",
     "isGenerating",
-    "title"
+    "title",
   ],
   components: {
     LMap,
@@ -290,12 +294,13 @@ export default {
       this.scaleDescription = [];
       this.setPeriod();
       this.$emit("deleteMapPic", this.title);
-      this.reCenterMap()
+      this.reCenterMap();
     },
     isJsonFetched(newValue) {
-      if (newValue) {
-        this.$emit("isJsonFetched");
-      }
+      console.log(newValue, "in watch");
+      //if (newValue) {
+      this.$emit("isJsonFetchedM", newValue);
+      //}
     },
     "$store.getters.getActiveTab": function () {
       this.$refs.myMap.mapObject.invalidateSize();
@@ -307,7 +312,7 @@ export default {
         this.setPeriod();
       }
     },
-    viewType(newVal, oldVal){
+    viewType(newVal, oldVal) {
       if (newVal === "map" && oldVal === "chart") {
         this.$emit("deleteBubbleChart");
         this.reCenterMap();
@@ -426,7 +431,12 @@ export default {
               this.setMinMax(data);
             }
             let overlayData = this.getGeoJsonMapped(data);
-            this.locationNames(overlayData);
+            if (overlayData.length > 0) this.locationNames(overlayData);
+            else {
+              this.isJsonFetched = false;
+              this.isJSONError = true;
+            }
+            //else this.dummyGeoJson();
           } else {
             this.dummyGeoJson();
           }
@@ -467,7 +477,9 @@ export default {
           }
         });
         let maxValue = Math.max.apply(Math, valArray);
-        let minValue = valArray.length ? Math.floor(Math.min.apply(Math, valArray)) : 0;
+        let minValue = valArray.length
+          ? Math.floor(Math.min.apply(Math, valArray))
+          : 0;
         let medianValue =
           isNumber(maxValue) && isNumber(minValue) && valArray.length
             ? Math.ceil(parseFloat((maxValue - minValue) / 4))
@@ -480,7 +492,8 @@ export default {
         };
 
         let lowScaleMinValue = isNumber(minValue) ? minValue : 0;
-        let highScaleMinValue = medianValue + (isNumber(minValue) ? minValue : 0);
+        let highScaleMinValue =
+          medianValue + (isNumber(minValue) ? minValue : 0);
         for (let i = 0; i < 4; i++) {
           if (i == 0) {
             legendScales.lowScale.push(isNumber(minValue) ? minValue : 0);
@@ -536,7 +549,7 @@ export default {
     },
     async exportChart(type = "jpg", exp = false) {
       this.isExporting = true;
-      if(!exp){
+      if (!exp) {
         this.$store.commit("setLoading", true);
       }
       let map = this.$refs.myMap.mapObject;
@@ -714,7 +727,7 @@ export default {
     },
     getGeoJsonMapped(indData) {
       let overlaysMap = [];
-      if (this.geoJson != null) {
+      if (this.geoJson != null && this.geoJson.features.length > 0) {
         for (let i in this.geoJson.features) {
           let layerObj = L.geoJson(this.geoJson.features[i]);
           let mapCentroid = layerObj.getBounds().getCenter();
@@ -778,7 +791,11 @@ export default {
       } else {
         this.setMinMax([]);
       }
-      this.locationNames(overlayData);
+      if (overlayData.length > 0) this.locationNames(overlayData);
+      else {
+        this.isJsonFetched = false;
+        this.isJSONError = true;
+      }
     },
   },
   created() {
