@@ -157,7 +157,8 @@
                     </b-form-checkbox>
                     <download-csv
                       class="btn color-white cursor-pointer p-0 text-left"
-                      :data="mByUser"
+                      :data="mByUserTableItems"
+                      :fields="csvFields"
                       ><img
                         :src="
                           require(`@/assets/images/icons/downloadnewActive.svg`)
@@ -220,6 +221,8 @@ export default {
   data() {
     return {
       mByUserFields: [],
+      csvFields: [],
+      mByUserTableItems: [],
       mByLocFields: [],
       isMUnique: false,
       frequency: "ALL",
@@ -360,6 +363,16 @@ export default {
           }
         });
       });
+      m.forEach((item) => {
+        let obj = {};
+        this.csvFields.forEach((col) => {
+          // if (item[col]) {
+          obj[col] = item[col] ? item[col] : "";
+          //}
+        });
+        this.mByUserTableItems.push(obj);
+      });
+      
       return m;
     },
     fText() {
@@ -522,9 +535,9 @@ export default {
       },
       deep: true,
     },
-    customPeriod(newVal){
-      if(newVal.length == 2){
-        this.frequency = "custom"
+    customPeriod(newVal) {
+      if (newVal.length == 2) {
+        this.frequency = "custom";
       }
     }
   },
@@ -537,6 +550,9 @@ export default {
             sortable,
             key: tKey,
           });
+          if (key === "mByUserFields") {
+            this.csvFields.push(tKey);
+          }
         }
       }
     },

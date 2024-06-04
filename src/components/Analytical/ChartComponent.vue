@@ -15,12 +15,13 @@
       :locationPeriod="locationPeriod"
       v-if="isMatrix && Object.keys(matrixData).length != 0"
     />
+    <!-- :EMUStmt="EMUStmt" -->
+
     <HighChartComponent
       v-else
       :r2="r2"
       :cID="cID"
       :isEMUChart="isEMUChart"
-      :EMUStmt="EMUStmt"
       :subTab="subTab"
       :source="source"
       :chartData="cObj"

@@ -13,26 +13,26 @@ export default {
   },
   created() {
     this.staticColors[this.$i18n.t("commodities_to_clients")] = {
-      inc: "#7A5BC2",
-      exc: "#C853C9",
+      inc: "#8DC645",
+      exc: "#0B9444",
     };
     this.staticColors[this.$i18n.t("commodities_to_facility")] = {
-      inc: "#55BCCC",
-      exc: "#D58383",
+      inc: "#8DC645",
+      exc: "#0B9444",
     };
     this.staticColors[this.$i18n.t("fp_users")] = {
-      inc: "#3E926E",
-      exc: "#A6AC5D",
+      inc: "#8FB5E9",
+      exc: "#1D4E92",
     };
     this.staticColors[this.$i18n.t("fp_visits")] = {
-      inc: "#9E51BF",
-      exc: "#5D66B4",
+      inc: "#8FB5E9",
+      exc: "#1D4E92",
     };
     (this.staticColors[this.$i18n.t("user_by_methods_service_unadjusted")] =
-      "#D25D69"),
+      "#4A2739"),
       (this.staticColors[this.$i18n.t("user_by_methods_service_adjusted")] =
-        "#6036BF"),
-      (this.staticColors[this.$i18n.t("user_by_methods_survey")] = "#C94D98");
+        "#954F72"),
+      (this.staticColors[this.$i18n.t("user_by_methods_survey")] = "#C490AA");
     this.staticColors["dhsColor"] = "#4375BC";
     this.staticColors["emuColor"] = "#47c49a"; //need to change
   },

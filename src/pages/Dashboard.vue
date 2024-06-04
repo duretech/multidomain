@@ -872,7 +872,10 @@ export default {
                 payload: response.data,
               }); // Set the global factors in store
             }
-            if (this.dTitle.includes("_fp-dashboard")) {
+            if (
+              this.dTitle.includes("_fp-dashboard") &&
+              this.$store.getters.getAppSettings?.isEMUExc
+            ) {
               await this.emuAlert();
             }
             if (!this.isFromAdmin) {
@@ -891,7 +894,10 @@ export default {
           });
       } else {
         this.$store.commit("setLoadingText", "");
-        if (this.dTitle.includes("_fp-dashboard")) {
+        if (
+          this.dTitle.includes("_fp-dashboard") &&
+          this.$store.getters.getAppSettings?.isEMUExc
+        ) {
           await this.emuAlert();
         }
         if (!this.isFromAdmin) {

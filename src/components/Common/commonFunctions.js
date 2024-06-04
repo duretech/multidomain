@@ -1499,7 +1499,7 @@ export const generateChart = ({
         //     periodType,
         //   }),
         let formattedPeriod = response.data.metaData.items[currentPeriod].name;
-        pType = i18n.t("month");
+        let pType = i18n.t("month");
         if (periodType === "monthly") {
           pType = i18n.t("month");
         } else if (periodType === "quarterly") {

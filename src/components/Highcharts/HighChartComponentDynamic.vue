@@ -515,7 +515,7 @@ export default {
     "EMUStmt",
   ],
   data() {
-    console.log(this.EMUStmt, "EMUStmt for EMU Charts");
+    // console.log(this.EMUStmt, "EMUStmt for EMU Charts");
     return {
       items: [],
       fields: [],

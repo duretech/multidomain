@@ -506,30 +506,32 @@ export default {
       this.mentionDropdownVisible = false;
     },
     async onOpen() {
-      this.items = [];
-      this.mentionDropdownVisible = false;
-      let text = this.textWithComment;
-      let atIndex = text.lastIndexOf("@");
-      if (
-        atIndex !== -1 &&
-        (atIndex === 0 || /\s/.test(text.charAt(atIndex - 1)))
-      ) {
-        const query = text.substring(atIndex + 1);
-        const resp = await service.getFilteredUserList(query);
-        if (resp) {
-          resp.data.users.forEach((i) => {
-            // console.log("i", i);
-            this.items.push({
-              value: i.displayName,
-              text: i.displayName,
+      if(this.$store.getters?.getAppSettings?.commentVersion==='new'){
+        this.items = [];
+        this.mentionDropdownVisible = false;
+        let text = this.textWithComment;
+        let atIndex = text.lastIndexOf("@");
+        if (
+          atIndex !== -1 &&
+          (atIndex === 0 || /\s/.test(text.charAt(atIndex - 1)))
+        ) {
+          const query = text.substring(atIndex + 1);
+          const resp = await service.getFilteredUserList(query);
+          if (resp) {
+            resp.data.users.forEach((i) => {
+              // console.log("i", i);
+              this.items.push({
+                value: i.displayName,
+                text: i.displayName,
+              });
             });
-          });
-          this.mentionDropdownVisible = true;
+            this.mentionDropdownVisible = true;
+          } else {
+            this.mentionDropdownVisible = false;
+          }
         } else {
           this.mentionDropdownVisible = false;
         }
-      } else {
-        this.mentionDropdownVisible = false;
       }
     },
     hideClass() {
@@ -609,7 +611,7 @@ export default {
 
 .mention-dropdown {
   position: absolute;
-  top: 100%;
+  top: 105%;
   left: 0;
   background-color: white;
   border: 1px solid #ccc;
@@ -617,6 +619,9 @@ export default {
   border-radius: 4px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   z-index: 1000; /* Adjust z-index as needed */
+  height: 300%;
+  overflow: auto;
+  width: 100%;
 }
 
 .mention-item {

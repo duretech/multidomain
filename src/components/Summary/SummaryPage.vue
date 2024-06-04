@@ -102,7 +102,9 @@
                   <b-col sm="2">
                     <div
                       v-if="
-                        isEMU[index] && summary.summaryDetails[0].currValue == 0
+                        isEMU[index] &&
+                        summary.summaryDetails[0].currValue == 0 &&
+                        $store.getters.getAppSettings?.isEMUExc
                       "
                       v-b-tooltip:hover
                       :title="summary.summaryDetails[0].currValue"
@@ -115,7 +117,7 @@
                         class="mb-0 fs-25-1920 main-emutext"
                         :class="getClass(summary.summaryDetails[0].currValue)"
                       >
-                        <b>{{ "EMU not saved" }}</b>
+                        <b>{{ $t("emuNotSaved") }} </b>
                       </p>
                     </div>
                     <div

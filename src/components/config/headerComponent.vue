@@ -94,6 +94,23 @@
           />
           {{ $t("backup_config") }}
         </button>
+        <button
+          v-if="!$store.getters.getIsMultiProgram"
+          type="button"
+          class="btn btn-primary black-btn btn-sm new-gradbtn mr-2"
+          style="border: 2px solid #fff"
+          @click.prevent.stop="downloadDefaultConfig"
+          :title="$t('backupDatastore')"
+          v-b-tooltip.hover
+        >
+          <!-- <i class="fa fa-download" aria-hidden="true"></i> -->
+          <img
+            src="@/assets/images/icons/backup-config.svg"
+            :style="{ filter: filterColor }"
+            class="pr-4px w-20px"
+          />
+          {{ $t("backup_default_config") }}
+        </button>
         <template
           v-if="
             ($store.getters.getIsMultiProgram &&
@@ -323,8 +340,7 @@
             </div>
           </b-modal>
         </template>
-        <template
-        >
+        <template>
           <AdminPopup :fromAdmin="$route.name !== 'admin'" />
         </template>
       </template>
@@ -737,7 +753,11 @@ export default {
             });
           }
           service
-            .saveConfig({ data: data, tableKey: "translations",isDefault: true, })
+            .saveConfig({
+              data: data,
+              tableKey: "translations",
+              isDefault: true,
+            })
             .then((res) => {
               this.$store.commit("setLoading", false);
               this.$swal({
@@ -781,6 +801,30 @@ export default {
             `${this.$store.getters.getNamespace}_${this.$moment().format(
               "lll"
             )}.zip`
+          );
+          this.$store.commit("setLoading", false);
+          this.sweetAlert({
+            title: this.$i18n.t("backupDatastoreSuccess"),
+          });
+        });
+      });
+    },
+    downloadDefaultConfig() {
+      this.$store.commit("setLoading", true);
+      service.getAllKeys({ isDefault: true }).then(async (res) => {
+        let zip = new JSZip();
+        for (const file of res.data) {
+          const contents = await service.getSavedConfig({
+            tableKey: file,
+            isDefault: true,
+          });
+
+          zip.file(`${file}.json`, JSON.stringify(contents.data));
+        }
+        zip.generateAsync({ type: "blob" }).then((content) => {
+          saveAs(
+            content,
+            `${this.tableName}_${this.$moment().format("lll")}.zip`
           );
           this.$store.commit("setLoading", false);
           this.sweetAlert({

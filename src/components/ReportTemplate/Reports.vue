@@ -2,7 +2,7 @@
   <div class="report mb-0 mt-5">
     <div class="report-container p-4">
       <div class="">
-        <div class="d-flex justify-content-end">
+        <div class="d-flex justify-content-end" v-if="$store.getters?.getAppSettings?.reportVersion==='new'">
           <b-button class="h5 mb-2 info p-0">
             <b-icon
               icon="info-circle-fill"
@@ -1094,9 +1094,12 @@ export default {
             isFirstLoad &&
             this.reportTemplates.length
           ) {
-            // this.selectReportPopup = true;
-            this.savedTemplatesVisible = true;
-            console.log("this.reportTemplates", this.reportTemplates);
+            if(this.$store.getters?.getAppSettings?.reportVersion && this.$store.getters?.getAppSettings?.reportVersion==='new'){
+              this.savedTemplatesVisible = true;
+            }
+            else{
+              this.selectReportPopup = true;
+            }
           }
           // this.reportTemplates.forEach((t) => {
           //   this.reportList.push({

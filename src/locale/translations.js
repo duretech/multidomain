@@ -957,6 +957,7 @@ export default {
     modify_content: "Modify Content",
     change_logo: "Change Logo",
     backup_config: "Backup Config",
+    backup_default_config: "Backup Default Config",
     //new added
     addNewUser: "Add New User",
     changeLang: "Change Language",
@@ -1175,6 +1176,7 @@ export default {
     step3Exp:
       "The last step is to generate the report. Click on “generate” option, choose the location for which chart had been created, a list of available charts will be shown from which the relevant chart report may be chosen. Click on the generate button to see the report.",
     infomation: "Infomation",
+    emuNotSaved: "EMU not saved",
   },
   fr: {
     np: "Nepali",
@@ -2151,6 +2153,7 @@ export default {
     modify_content: "Modifier le contenu",
     change_logo: "Changer de logo",
     backup_config: "Configuration de sauvegarde",
+    backup_default_config: "Backup Default Config",
     //new added
     addNewUser: "Ajouter un nouvel utilisateur",
     changeLang: "Changer de langue",
@@ -2372,6 +2375,7 @@ export default {
     step3Exp:
       "La dernière étape consiste à générer le rapport. Cliquez sur l'option générer, choisissez l'emplacement pour lequel le graphique a été créé, une liste des graphiques disponibles s'affichera parmi laquelle le rapport graphique pertinent pourra être choisi. Cliquez sur le bouton Générer pour voir le rapport.",
     infomation: "Informations",
+    emuNotSaved: "EMU not saved",
   },
   np: {
     M: "महिना",
@@ -3144,6 +3148,7 @@ export default {
     accessGranted: "पहुँच प्रदान गरियो!",
     actualReports: "वास्तविक प्रतिवेदन",
     backup_config: "Backup Config",
+    backup_default_config: "Backup Default Config",
     categoryError: "क्याटेगोरीमा कम्तिमा एक आइटम थप गर्न होस",
     chartDisabled:
       "चार्ट निस्कृय वा नक्सांकन भयो वा डाटा छ छैन कृपाय जाँच गर्नु होस",
@@ -3510,5 +3515,6 @@ export default {
     step3Exp:
       "अन्तिम चरण रिपोर्ट उत्पन्न गर्न हो। जेनेरेट विकल्पमा क्लिक गर्नुहोस्, चार्ट सिर्जना गरिएको स्थान छान्नुहोस्, उपलब्ध चार्टहरूको सूची प्रदर्शित हुनेछ जसबाट सान्दर्भिक चार्ट रिपोर्ट छनोट गर्न सकिन्छ। रिपोर्ट हेर्नको लागि उत्पन्न बटन क्लिक गर्नुहोस्।",
     infomation: "जानकारी",
+    emuNotSaved: "EMU not saved",
   },
 };

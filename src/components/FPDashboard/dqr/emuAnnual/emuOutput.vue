@@ -588,12 +588,14 @@ export default {
         this.bgData["bgIndColor"],
         unpdtext
       );
+      console.log("this.staticColors" , this.staticColors)
       let oResponse = dataM.getemuComparisonData(
         bgSureyData,
         this.outputData,
         this.filter,
         this.staticColors
       );
+      console.log("oResponse" , oResponse)
       // let oResponse =  dataM.getEMUOPCompChart(this.outputData, this.filter);
       //oResponse.title = this.bAllWomen ? "Comparing EMUs and mCPR (AWRA)" : 'Comparing EMUs and mCPR (MWRA)';
       oResponse.source = this.category;
@@ -616,6 +618,7 @@ export default {
         oResponse.tableData.push(row);
       });
       this.emuMcprComparisionChart = oResponse;
+      console.log("emuMcprComparisionChart" , this.emuMcprComparisionChart)
       this.saveEmuMcprComp.categories = oResponse.categories;
       this.saveEmuMcprComp.data = this.emuMcprComparisionChart.data;
       this.saveEmuMcprComp.cid = oResponse.cid;
