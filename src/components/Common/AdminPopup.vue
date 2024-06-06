@@ -4,8 +4,15 @@
       class="bg-transparent border-0 mx-2 bg-fav"
       size="sm"
       v-b-modal.modal-admin
-      v-if="$store.getters.getIsAdmin"
-      >{{ !fromAdmin ? $t("switchDashboard") : $t("admin") }}
+      v-if="$store.getters.getIsAdmin && fromAdmin"
+      >{{ $t("admin") }}
+    </b-button>
+    <b-button
+      class="bg-transparent border-0 mx-2 bg-fav"
+      size="sm"
+      v-b-modal.modal-admin
+      v-if="$store.getters.getIsAdmin && !fromAdmin && $store.getters.getIsMultiProgram"
+      >{{ $t("switchDashboard") }}
     </b-button>
     <b-modal
       id="modal-admin"
