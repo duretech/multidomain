@@ -451,7 +451,7 @@ export default {
     this.drawAnnualAvgComparision();
     this.drawComparisionofUsersByMethods();
     this.drawUserBymethods(true);
-   
+
     // this.getMethodData();
     // this.saveFinalEMU();
   },
@@ -559,9 +559,16 @@ export default {
           keyVal: {},
         },
       ];
+      let micsDataAvailable = false;
       if (this.MICS) {
         for (let yearInd in this.sYearArray) {
           let year = this.sYearArray[yearInd];
+          micsDataAvailable =
+            micsDataAvailable === false
+              ? this.MICS[year]
+                ? true
+                : false
+              : micsDataAvailable;
           aMICS[0].data.push(this.MICS[year] ? this.MICS[year] : null);
           aMICS[0].keyVal[year] = this.MICS[year] ? this.MICS[year] : null;
         }
@@ -588,21 +595,23 @@ export default {
         this.bgData["bgIndColor"],
         unpdtext
       );
-      console.log("this.staticColors" , this.staticColors)
+      console.log("this.staticColors", this.staticColors);
       let oResponse = dataM.getemuComparisonData(
         bgSureyData,
         this.outputData,
         this.filter,
         this.staticColors
       );
-      console.log("oResponse" , oResponse)
+      console.log("oResponse", oResponse);
       // let oResponse =  dataM.getEMUOPCompChart(this.outputData, this.filter);
       //oResponse.title = this.bAllWomen ? "Comparing EMUs and mCPR (AWRA)" : 'Comparing EMUs and mCPR (MWRA)';
       oResponse.source = this.category;
 
       //oResponse.data = [...oResponse.data,...aPMC,...aMICS];
       oResponse = this.getOtherChartDetails(oResponse, 0, "line");
-      oResponse.data = [...oResponse.data, ...aMICS];
+      oResponse.data = micsDataAvailable
+        ? [...oResponse.data, ...aMICS]
+        : [...oResponse.data];
       oResponse.fields = [];
       oResponse.tableData = [];
       oResponse.fields.push({ key: this.$i18n.t("period"), sortable: true });
@@ -618,7 +627,7 @@ export default {
         oResponse.tableData.push(row);
       });
       this.emuMcprComparisionChart = oResponse;
-      console.log("emuMcprComparisionChart" , this.emuMcprComparisionChart)
+      console.log("emuMcprComparisionChart", this.emuMcprComparisionChart);
       this.saveEmuMcprComp.categories = oResponse.categories;
       this.saveEmuMcprComp.data = this.emuMcprComparisionChart.data;
       this.saveEmuMcprComp.cid = oResponse.cid;
@@ -957,10 +966,10 @@ export default {
   },
   watch: {
     year(newVal) {
-  //   if (newVal) {
-        this.curentYear = newVal;
-        this.drawComparisionofUsersByMethods();
-    //  }
+      //   if (newVal) {
+      this.curentYear = newVal;
+      this.drawComparisionofUsersByMethods();
+      //  }
     },
     // boolVal(newV){
     //     console.log(newV)

@@ -45,10 +45,10 @@ export default {
       this.loadComment = true;
       service
         .addComments(this.cID, this.textWithComment)
-        .then((response) => {
+        .then(async(response) => {
           this.textWithComment = "";
           if (response.data.status === "OK") {
-            this.getComments();
+            await this.getComments();
           } else {
             this.errorAlert();
           }
@@ -57,6 +57,35 @@ export default {
           this.textWithComment = "";
           this.errorAlert();
         });
+
+      let obj = {
+        addedBy: this.$store.getters.getUserDetails.surname,
+        addedOn: this.$store.getters.getAppSettings.calendar === "nepali" ? 
+        adToBs(
+            `${new Date().getFullYear() + "-" + (new Date().getMonth() + 1) + "-" + new Date().getDate()}`
+          ).split("-")[0]
+        : this.$moment(new Date()).format("lll"),
+        chartName: this.titleComment,
+        chartCID: this.cID,
+        text: this.textWithComment,
+        newMessage: true,
+      }
+      try {
+        service.getSavedConfig({ tableKey: "commentNotification", isDefault: true }).then((resp)=>{
+          service.updateConfig({ data: [obj,...resp.data], tableKey: "commentNotification", isDefault: true }).then(()=>{
+            this.$store.commit("setCommentNotification" , [obj,...resp.data])
+            // console.log(this.$store.getters.getCommentNotification);
+          })
+        }).catch(()=>{
+          service.saveConfig({data: [obj? obj : {}], tableKey: "commentNotification", isDefault: true }).then(()=>{
+            this.$store.commit("setCommentNotification" , [obj])
+            // console.log(this.$store.getters.getCommentNotification);
+          })
+        });
+      } 
+      catch (error) {
+        console.log("error", error);
+      }
     },
     errorAlert() {
       this.loadComment = false;

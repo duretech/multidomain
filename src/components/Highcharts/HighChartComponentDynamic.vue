@@ -51,6 +51,7 @@
                 @exportChart="exportChart"
                 @toggleFullscreen="toggleFullscreen"
                 v-if="cObj.series.length && !isHideOption"
+                :titleComment="cObj.title.title"
               />
             </b-col>
           </b-row>

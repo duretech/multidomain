@@ -319,7 +319,22 @@ body[data-theme~="white"]{
         }       
     }
 
-  
+    .explore-col .dropdown-menu .notificationBG .dropdown-item,
+    .explore-col .dropdown-menu .notificationBG,
+    .explore-col .notificationBG {
+        background-color: black !important;
+        // transition: background-color 0.5s;
+      }
+
+
+
+      .explore-col .dropdown-menu .noNotificationBG .dropdown-item,
+      .explore-col .dropdown-menu .notificationBG,
+      .explore-col .notificationBG {
+        background-color: #a83a3a !important;
+        // transition: background-color 0.5s;
+      }
+
     .explore-col .dropdown-menu .dropdown-item, .explore-col .dropdown-menu .dropdown-item:hover, .explore-col .dropdown-menu .dropdown-item:focus, .explore-col .dropdown-menu:hover .dropdown-item, .explore-col .dropdown-menu:hover .dropdown-item:hover, .explore-col .dropdown-menu:hover .dropdown-item:focus, .explore-col .dropdown-menu:focus .dropdown-item, .explore-col .dropdown-menu:focus .dropdown-item:hover, .explore-col .dropdown-menu:focus .dropdown-item:focus, .explore-col:hover .dropdown-menu .dropdown-item, .explore-col:hover .dropdown-menu .dropdown-item:hover, .explore-col:hover .dropdown-menu .dropdown-item:focus, .explore-col:hover .dropdown-menu:hover .dropdown-item, .explore-col:hover .dropdown-menu:hover .dropdown-item:hover, .explore-col:hover .dropdown-menu:hover .dropdown-item:focus, .explore-col:hover .dropdown-menu:focus .dropdown-item, .explore-col:hover .dropdown-menu:focus .dropdown-item:hover, .explore-col:hover .dropdown-menu:focus .dropdown-item:focus, .explore-col:focus .dropdown-menu .dropdown-item, .explore-col:focus .dropdown-menu .dropdown-item:hover, .explore-col:focus .dropdown-menu .dropdown-item:focus, .explore-col:focus .dropdown-menu:hover .dropdown-item, .explore-col:focus .dropdown-menu:hover .dropdown-item:hover, .explore-col:focus .dropdown-menu:hover .dropdown-item:focus, .explore-col:focus .dropdown-menu:focus .dropdown-item, .explore-col:focus .dropdown-menu:focus .dropdown-item:hover, .explore-col:focus .dropdown-menu:focus .dropdown-item:focus, .explore-col:hover .dropdown-menu:focus, .explore-col:focus .dropdown-menu, .explore-col:focus .dropdown-menu:hover, .explore-col:focus .dropdown-menu:focus,.explore-col .dropdown-menu{
         background-color: var(--bg-inner-color) !important;
     }

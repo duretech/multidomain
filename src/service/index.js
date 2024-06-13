@@ -301,6 +301,11 @@ class DataService {
       tableName = `${tableName}_audit`;
     }
     console.log(tableName, "in getsavedConfig fr applicationModule");
+    console.log(axios({
+      method: "get",
+      url: `${store.getters.getBaseURL}/api/dataStore/${tableName}/${tableKey}`,
+      headers: header,
+    }), `${store.getters.getBaseURL}/api/dataStore/${tableName}/${tableKey}`)
     return axios({
       method: "get",
       url: `${store.getters.getBaseURL}/api/dataStore/${tableName}/${tableKey}`,

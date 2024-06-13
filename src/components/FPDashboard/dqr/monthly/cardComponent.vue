@@ -60,6 +60,15 @@
                     ? cardTitle
                     : chartdata.title
                 "
+                :titleComment="
+                  showSource
+                    ? cardTitle
+                      ? `${cardTitle}: ${chartdata.source}`
+                      : `${chartdata.title}: ${chartdata.source}`
+                    : cardTitle
+                    ? cardTitle
+                    : chartdata.title
+                "
               />
             </div>
           </div>

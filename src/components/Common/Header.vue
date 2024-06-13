@@ -259,8 +259,13 @@
             <slot name="dashboardType"></slot>
           </template>
           <template v-if="$route.name !== 'admin'">
-            <AdminPopup :fromAdmin="$route.name !== 'SavedFavorites' && $route.name !== 'admin' && isInteractiveModules"
-                   />
+            <AdminPopup
+              :fromAdmin="
+                $route.name !== 'SavedFavorites' &&
+                $route.name !== 'admin' &&
+                isInteractiveModules
+              "
+            />
           </template>
           <template v-if="!isHeader">
             <b-button
@@ -272,6 +277,65 @@
           </template>
           <template>
             <FontSize class="mx-2" />
+          </template>
+          <template v-if="$store.getters?.getAppSettings?.commentVersion==='new'">
+            <b-dropdown
+              size="lg"
+              class="commentList"
+              no-caret
+              menu-class="p-0 dropdown-home-comment"
+            >
+              <template #button-content>
+                <div style="position: relative">
+                  <div class="redNote" v-if="newNotification"></div>
+                  <img
+                    v-bind:src="require('@/assets/images/icons/bell-solid.svg')"
+                    class="logo-img-header"
+                    style="padding: 5px"
+                    v-b-tooltip.hover
+                    :style="{ filter: filterColor }"
+                    @click="closeNotification()"
+                  />
+                </div>
+              </template>
+              <template v-for="(comment, i) in notificationList">
+                <b-dropdown-item-button
+                  :key="'comment' + i"
+                  href="#"
+                  class="mx-3 font-14"
+                  :class="{
+                    notificationBG: comment.newMessage,
+                    noNotificationBG: !comment.newMessage,
+                  }"
+                >
+                  <div>
+                    <div
+                      v-if="comment.newMessage"
+                      style="position: static"
+                      class="redNote"
+                    ></div>
+                    <div>
+                      A new comment was added on
+                      <span style="fontweight: 800">{{
+                        comment.chartName
+                      }}</span>
+                      by
+                      <span style="fontweight: 800">{{ comment.addedBy }}</span>
+                    </div>
+                    <!-- <div>
+                    <strong>{{ comment.text }}</strong>
+                  </div> -->
+                    <div style="float: right; fontsize: small">
+                      {{ comment.addedOn }}
+                    </div>
+                  </div>
+                </b-dropdown-item-button>
+                <b-dropdown-divider
+                  :key="'divider' + comment"
+                  v-if="i < $store.getters.getCommentNotification.length - 1"
+                ></b-dropdown-divider>
+              </template>
+            </b-dropdown>
           </template>
           <template v-if="languageSupport">
             <LanguageChange @langChange="langChange" class="langChangeBtn" />
@@ -516,6 +580,7 @@ import FontSize from "@/components/Common/FontSize";
 import NavigationMixin from "@/helpers/NavigationMixin";
 import DynamicImageMixin from "@/helpers/DynamicImageMixin";
 import LanguageChangeMixin from "@/helpers/LanguageChangeMixin";
+import service from "@/service";
 
 export default {
   props: ["displayPage", "headerConditions", "pageHeader"],
@@ -529,6 +594,8 @@ export default {
       allFlashData: [],
       showManuals: false,
       showAnalytics: false,
+      newNotification: false,
+      notificationList: [],
     };
   },
   components: {
@@ -551,6 +618,17 @@ export default {
       import(
         /*webpackChunkName: 'UploadSetting'*/ "@/components/Common/UploadSetting"
       ),
+  },
+  watch: {
+    "$store.getters.getCommentNotification": function (newVal) {
+      console.log("newVal", newVal);
+      this.notificationList = newVal;
+      newVal.forEach((ele) => {
+        if (ele.newMessage == true) {
+          this.newNotification = true;
+        }
+      });
+    },
   },
   computed: {
     profileInitials() {
@@ -686,6 +764,22 @@ export default {
     },
   },
   methods: {
+    closeNotification() {
+      this.newNotification = false;
+      setTimeout(() => {
+        this.notificationList.forEach((ele) => (ele.newMessage = false));
+        console.log("this.notificationList", this.notificationList);
+        service
+          .updateConfig({
+            data: this.notificationList,
+            tableKey: "commentNotification",
+            isDefault: true,
+          })
+          .then(() => {
+            this.$store.commit("setCommentNotification", this.notificationList);
+          });
+      }, 3000);
+    },
     getFlashData(data) {
       this.allFlashData = data;
     },
@@ -739,7 +833,18 @@ export default {
       }
     },
   },
-  created() {},
+  mounted() {
+    try {
+      service
+        .getSavedConfig({ tableKey: "commentNotification", isDefault: true })
+        .then((resp) => {
+          // $store.getters.getCommentNotification = resp.data;
+          this.$store.commit("setCommentNotification", resp.data);
+        });
+    } catch (error) {
+      console.log("error", error);
+    }
+  },
 };
 </script>
 <style lang="scss">
@@ -756,5 +861,29 @@ export default {
   height: 50px;
   background: var(--text-subfont-color);
   border-radius: 50%;
+}
+.commentList .dropdown-menu {
+  max-height: 300px;
+  overflow-y: auto;
+}
+.redNote {
+  position: absolute;
+  top: -2px;
+  right: 0px;
+  background: red;
+  padding: 0px 5px;
+  z-index: 100;
+  font-size: small;
+  border-radius: 78px;
+  height: 14px;
+  width: 14px;
+}
+.explore-col .dropdown-menu .notificationBG .dropdown-item {
+  background-color: black !important;
+  // transition: background-color 0.5s;
+}
+.explore-col .dropdown-menu .noNotificationBG .dropdown-item {
+  background-color: #a83a3a !important;
+  // transition: background-color 0.5s;
 }
 </style>

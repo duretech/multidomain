@@ -48,8 +48,10 @@
   </div>
 </template>
 <script>
+import UsesAnalyticsMixin from "@/helpers/UsesAnalyticsMixin";
 export default {
   props: ["fromAdmin"],
+  mixins: [UsesAnalyticsMixin],
   data() {
     return {
       adminNamespace: "",
@@ -132,6 +134,18 @@ export default {
         });
       }
       this.$bvModal.hide("modal-admin");
+      let title =
+        typeof this.$route.meta === "function"
+          ? this.$route.meta().title
+          : this.$i18n.t("dashboard");
+      let data = {
+        moduleName: title,
+        visitCount: 1,
+        type: "module",
+        namespace: this.$store.getters.getNamespace,
+      };
+      console.log("data" , data)
+      this.UpdateAnalytics({ modulesData: data })
     },
     changeAdmin(value, title) {
       this.adminNamespaceTitle = title;

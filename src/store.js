@@ -21,6 +21,7 @@ const defaultState = {
   loadingText: "",
   appSettings: {},
   localLang: false,
+  commentNotification: [],
   periodData: null,
   baseFontSize: 16,
   dataStoreKeys: {},
@@ -90,6 +91,9 @@ export default new Vuex.Store({
         process.env.NODE_ENV !== "production"
           ? payload
           : LZString.compressToUTF16(JSON.stringify(payload));
+    },
+    setCommentNotification(state, payload){
+      state.commentNotification = payload;
     },
     setLocalLang(state, payload) {
       state.localLang = payload;
@@ -200,6 +204,7 @@ export default new Vuex.Store({
         userPermissions: {},
         locationList: null,
         applicationModule: {},
+        commentNotification: []
       });
     },
     setModuleName(state, payload) {
@@ -246,6 +251,9 @@ export default new Vuex.Store({
     },
     getLocalLang(state) {
       return state.localLang;
+    },
+    getCommentNotification(state){
+      return state.commentNotification
     },
     getEMUColors(state) {
       return state.emuColors;

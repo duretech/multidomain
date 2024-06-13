@@ -42,6 +42,7 @@
                 :trendTable="chartdata.tableData"
                 :title="chartdata.title"
                 @toggleFullscreen="toggleFullscreen"
+                :titleComment="chartdata.title"
               />
             </div>
           </div>

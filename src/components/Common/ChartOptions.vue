@@ -367,6 +367,7 @@ export default {
     "defaultSort",
     "fullScreenKey",
     "outliersMethodFull",
+    "titleComment",
   ],
   mixins: [CommentMixin, DynamicImageMixin],
   data() {

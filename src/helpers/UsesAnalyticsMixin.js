@@ -42,6 +42,7 @@ export default {
                 usesData: modulesData ? [modulesData] : [],
               });
             }
+            console.log("rData" , rData)
             service
               .updateConfig({ data: rData, tableKey: d, isUses: true })
               .then((resp) => {
@@ -89,6 +90,7 @@ export default {
         type: "module",
         namespace: this.$store.getters.getNamespace,
       };
+      console.log("data" , data)
       this.UpdateAnalytics({ modulesData: data });
     }
   },

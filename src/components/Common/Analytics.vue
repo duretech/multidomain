@@ -286,6 +286,7 @@ export default {
     },
     mByUser() {
       let m = [];
+      this.mByUserTableItems=[];
       Object.keys(this.filteredAData).forEach((a) => {
         this.filteredAData[a].forEach((u) => {
           let isU = m.findIndex(

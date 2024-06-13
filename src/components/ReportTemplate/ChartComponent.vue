@@ -89,9 +89,7 @@ export default {
   ],
   components: {
     SummaryDashboard: () =>
-      import(
-        /*webpackChunkName: 'summaryDashboard'*/ "@/pages/SummaryDashboard"
-      ),
+      import(/*webpackChunkName: 'summaryDashboard'*/ "@/pages/SummaryDashboard"),
     AnalyticalDashboard: () =>
       import(/*webpackChunkName: 'AnalyticalDashboard'*/ "@/pages/Analytical"),
     DQRDashboard: () =>
